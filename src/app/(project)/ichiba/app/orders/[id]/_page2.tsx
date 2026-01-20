@@ -5,18 +5,17 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, Phone, User, Mail, MapPin, FileText, CheckCircle, Clock, XCircle } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { id as localeId } from "date-fns/locale";
+import { id } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useOrder } from "../../../hooks/useOrders";
-import { use } from "react";
 
 interface OrderDetailPageProps {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }
 
 const statusColors = {
@@ -32,10 +31,8 @@ const statusIcons = {
 };
 
 export default function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const { id } = use(params);
-
   const router = useRouter();
-  const { data: order, isLoading } = useOrder(id);
+  const { data: order, isLoading } = useOrder(params.id);
 
   if (isLoading) {
     return (
@@ -126,7 +123,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
             <CardContent className="space-y-4">
               <div>
                 <p className="font-semibold">Tanggal Order</p>
-                <p className="text-sm">{format(new Date(order.tanggal), "dd MMMM yyyy", { locale: localeId })}</p>
+                <p className="text-sm">{format(new Date(order.tanggal), "dd MMMM yyyy", { locale: id })}</p>
               </div>
               {order.marketing && (
                 <div>
@@ -142,9 +139,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
               )}
               <div>
                 <p className="font-semibold">Dibuat pada</p>
-                <p className="text-sm">
-                  {format(new Date(order.created_at), "dd MMM yyyy HH:mm", { locale: localeId })}
-                </p>
+                <p className="text-sm">{format(new Date(order.created_at), "dd MMM yyyy HH:mm", { locale: id })}</p>
               </div>
             </CardContent>
           </Card>

@@ -8,42 +8,45 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { CustomerForm } from "@/app/(project)/ichiba/components/customers/CustomerForm";
+import { OrderForm } from "@/app/(project)/ichiba/components/orders/OrderForm";
 import { useCustomer, useUpdateCustomer } from "@/app/(project)/ichiba/hooks/useCustomers";
-import type { CustomerFormData } from "@/app/(project)/ichiba/lib/schemas";
+import { useOrder, useUpdateOrder } from "@/app/(project)/ichiba/hooks/useOrders";
+import type { CustomerFormData, OrderFormData } from "@/app/(project)/ichiba/lib/schemas";
 import { Button } from "@/components/ui/button";
 
-interface EditCustomerPageProps {
+interface EditOrderPageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-export default function EditCustomerPage({ params }: EditCustomerPageProps) {
+export default function EditOrderPage({ params }: EditOrderPageProps) {
   const router = useRouter();
   const { id } = use(params);
 
-  const { data: customer, isLoading } = useCustomer(id);
-  const { mutate: updateCustomer, isPending } = useUpdateCustomer();
+  const { data: order, isLoading: isOrderLoading } = useOrder(id);
+  // const { data: customer, isLoading: isCustomerLoading } = useCustomer(order?.customer_id || "");
+  const { mutate: updateOrder, isPending } = useUpdateOrder();
 
   if (!id) {
     return (
       <div className="container mx-auto py-10">
         <div className="text-center">
-          <h2 className="mb-4 font-bold text-2xl">ID Customer tidak ditemukan</h2>
-          <Link href="/ichiba/app/customers">
-            <Button>Kembali ke Daftar Customer</Button>
+          <h2 className="mb-4 font-bold text-2xl">ID Order tidak ditemukan</h2>
+          <Link href="/ichiba/app/orders">
+            <Button>Kembali ke Daftar Order</Button>
           </Link>
         </div>
       </div>
     );
   }
 
-  const handleSubmit = async (data: CustomerFormData) => {
-    updateCustomer(
+  const handleSubmit = async (data: OrderFormData) => {
+    updateOrder(
       { id, data },
       {
         onSuccess: () => {
-          router.push("/ichiba/app/customers");
+          router.push("/ichiba/app/orders");
         },
         onError: (error) => {
           console.error("Update failed:", error);
@@ -52,7 +55,7 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     );
   };
 
-  if (isLoading) {
+  if (isOrderLoading) {
     return (
       <div className="container mx-auto py-10">
         <div className="flex h-64 items-center justify-center">
@@ -62,40 +65,40 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     );
   }
 
-  if (!customer) {
+  if (!order) {
     return (
       <div className="container mx-auto py-10">
         <div className="text-center">
-          <h2 className="mb-4 font-bold text-2xl">Customer tidak ditemukan</h2>
-          <Link href="/ichiba/app/customers">
-            <Button>Kembali ke Daftar Customer</Button>
+          <h2 className="mb-4 font-bold text-2xl">Order tidak ditemukan</h2>
+          <Link href="/ichiba/app/orders">
+            <Button>Kembali ke Daftar Order</Button>
           </Link>
         </div>
       </div>
     );
   }
 
-  const initialData: CustomerFormData = {
-    name: customer.name,
-    contact_person: customer.contact_person || "",
-    phone: customer.phone || "",
-    email: customer.email || "",
-    address: customer.address || "",
+  const initialData: OrderFormData = {
+    customer_id: order.customer_id,
+    tanggal: order.tanggal,
+    marketing: order.marketing || "",
+    notes: order.notes || "",
+    test_types: order.order_tests.map((ot) => ot.test_type.id),
   };
 
   return (
     <div className="container mx-auto py-10">
       <div className="mb-6">
         <Link
-          href="/ichiba/app/customers"
+          href="/ichiba/app/orders"
           className="flex items-center text-muted-foreground text-sm hover:text-foreground"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke Daftar Customer
+          Kembali ke Daftar Order
         </Link>
       </div>
       <div className="mx-auto max-w-2xl">
-        <CustomerForm initialData={initialData} onSubmit={handleSubmit} />
+        <OrderForm initialData={initialData} onSubmit={handleSubmit} />
       </div>
     </div>
   );

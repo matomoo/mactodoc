@@ -97,7 +97,7 @@ export const ordersService = {
         tanggal,
         marketing,
         notes,
-        updated_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .select()
