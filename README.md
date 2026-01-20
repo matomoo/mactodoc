@@ -32,3 +32,11 @@
 ### Coming Soon
 - Page of multi site 4g payload and 2g traffic performance
 - 
+
+
+### generate 
+
+on terminal
+npm install supabase --save-dev
+npx supabase login
+npx supabase gen types typescript --project-id uypkoybdpdvhfnmypjxc > src/types/database1.ts
