@@ -13,7 +13,7 @@ export default async function CustomersPage() {
           <p className="text-muted-foreground">Kelola data customer laboratorium</p>
         </div>
       </div>
-      <CustomersTable data={customers} />
+      <CustomersTable />
     </div>
   );
 }

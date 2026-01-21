@@ -56,7 +56,7 @@ export const useUpdateOrder = () => {
   });
 };
 
-export const useDeleteOrder = () => {
+export const useDeleteOrder = (options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -64,10 +64,12 @@ export const useDeleteOrder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Order berhasil dihapus");
+      options?.onSuccess?.();
     },
     onError: (error) => {
       toast.error("Gagal menghapus order");
       console.error(error);
+      options?.onError?.(error);
     },
   });
 };

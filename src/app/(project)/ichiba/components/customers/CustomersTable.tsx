@@ -25,7 +25,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2, Eye, UserPlus, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Eye,
+  UserPlus,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import {
@@ -39,15 +49,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Customer } from "../../types";
-import { useDeleteCustomer } from "../../hooks/useCustomers";
+import { useCustomers, useDeleteCustomer } from "../../hooks/useCustomers";
 
 interface CustomersTableProps {
-  data: Customer[];
+  data?: Customer[];
+  useHook?: boolean;
 }
 
-export default function CustomersTable({ data }: CustomersTableProps) {
+export default function CustomersTable({ data, useHook = false }: CustomersTableProps) {
   const router = useRouter();
   const { mutate: deleteCustomer } = useDeleteCustomer();
+  const { data: customers = [], isLoading } = useCustomers(); // Always use hook
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -141,7 +154,7 @@ export default function CustomersTable({ data }: CustomersTableProps) {
   ];
 
   const table = useReactTable({
-    data,
+    data: customers, // CORRECTED: Use 'data' property, not 'customers'
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -156,6 +169,15 @@ export default function CustomersTable({ data }: CustomersTableProps) {
       rowSelection,
     },
   });
+
+  // Show loading state AFTER all hooks are called
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -211,7 +233,7 @@ export default function CustomersTable({ data }: CustomersTableProps) {
 
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground text-sm">
-            Menampilkan {table.getFilteredRowModel().rows.length} dari {data.length} customer.
+            Menampilkan {table.getFilteredRowModel().rows.length} dari {customers.length} customer.
           </div>
           <div className="flex items-center space-x-2">
             <Button

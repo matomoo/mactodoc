@@ -58,7 +58,10 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   return (
     <div className="container mx-auto py-10">
       <div className="mb-6">
-        <Link href="/orders" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          href="/ichiba/app/orders"
+          className="flex items-center text-muted-foreground text-sm hover:text-foreground"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Kembali ke Daftar Order
         </Link>
@@ -68,7 +71,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Detail Order</h1>
+            <h1 className="font-bold text-3xl">Detail Order</h1>
             <p className="text-muted-foreground">
               Order #{order.id.slice(0, 8)} • {order.customer.name}
             </p>
@@ -92,7 +95,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
             <CardContent className="space-y-4">
               <div>
                 <p className="font-semibold">{order.customer.name}</p>
-                <p className="text-sm text-muted-foreground">{order.customer.contact_person}</p>
+                <p className="text-muted-foreground text-sm">{order.customer.contact_person}</p>
               </div>
               {order.customer.phone && (
                 <div className="flex items-center gap-2">
@@ -108,7 +111,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
               )}
               {order.customer.address && (
                 <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{order.customer.address}</span>
                 </div>
               )}
@@ -158,24 +161,24 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {order.order_tests.map((orderTest) => {
                   const StatusIcon = statusIcons[orderTest.status as keyof typeof statusIcons] || Clock;
                   return (
-                    <div key={orderTest.test_type_id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
+                    <div key={orderTest.test_type_id} className="rounded-lg border p-4">
+                      <div className="mb-2 flex items-center justify-between">
                         <p className="font-semibold">{orderTest.test_type.name}</p>
                         <Badge
                           className={statusColors[orderTest.status as keyof typeof statusColors]}
                           variant="secondary"
                         >
-                          <StatusIcon className="h-3 w-3 mr-1" />
+                          <StatusIcon className="mr-1 h-3 w-3" />
                           {orderTest.status}
                         </Badge>
                       </div>
                       {orderTest.result && (
                         <div className="mt-2">
-                          <p className="text-sm font-semibold">Hasil:</p>
+                          <p className="font-semibold text-sm">Hasil:</p>
                           <p className="text-sm">{orderTest.result}</p>
                         </div>
                       )}

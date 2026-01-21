@@ -3,7 +3,6 @@ import { ordersService } from "../../lib/services/orders";
 
 export default async function OrdersPage() {
   const orders = await ordersService.getAll();
-  console.log(orders);
   return (
     <div className="container mx-auto py-10">
       <div className="mb-8">

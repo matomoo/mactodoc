@@ -13,8 +13,6 @@ export const customersService = {
   async getById(id: string) {
     const { data, error } = await supabase.from("customers").select("*").eq("id", id).single();
 
-    console.log(data);
-
     if (error) throw error;
     return data as Customer;
   },

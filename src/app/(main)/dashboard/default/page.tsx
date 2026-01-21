@@ -2,10 +2,10 @@
 
 // app/page.tsx
 // biome-ignore assist/source/organizeImports: <will be handled by the formatter>
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CheckCircle,
   Code,
@@ -19,12 +19,11 @@ import {
   Cpu,
   Server,
   Clock,
-} from "lucide-react"
-import Link from "next/link"
-import { useRequireAuth } from "@/hooks/use-require-auth"
+} from "lucide-react";
+import Link from "next/link";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function LandingPage() {
-
   const { loading } = useRequireAuth();
 
   if (loading) {
@@ -35,39 +34,38 @@ export default function LandingPage() {
     );
   }
 
-
   const features = [
     {
       icon: <LayoutDashboard className="h-6 w-6" />,
       title: "Modern Dashboard",
-      description: "Beautifully designed dashboard with Chart.js for data visualization"
+      description: "Beautifully designed dashboard with Chart.js for data visualization",
     },
     {
       icon: <Shield className="h-6 w-6" />,
       title: "Authentication Ready",
-      description: "Complete auth flows with login, register, and password recovery"
+      description: "Complete auth flows with login, register, and password recovery",
     },
     {
       icon: <Smartphone className="h-6 w-6" />,
       title: "Fully Responsive",
-      description: "Works perfectly on all devices from mobile to desktop"
+      description: "Works perfectly on all devices from mobile to desktop",
     },
     {
       icon: <Palette className="h-6 w-6" />,
       title: "Shadcn UI",
-      description: "Built with accessible and customizable UI components"
+      description: "Built with accessible and customizable UI components",
     },
     {
       icon: <Code className="h-6 w-6" />,
       title: "TypeScript",
-      description: "Full type safety and better developer experience"
+      description: "Full type safety and better developer experience",
     },
     {
       icon: <Zap className="h-6 w-6" />,
       title: "Next.js 16",
-      description: "Latest App Router for optimal performance"
-    }
-  ]
+      description: "Latest App Router for optimal performance",
+    },
+  ];
 
   const techStack = [
     { name: "Next.js 16", description: "App Router, Server Components", icon: <Zap className="h-5 w-5" /> },
@@ -80,23 +78,17 @@ export default function LandingPage() {
     { name: "TanStack Table", description: "Data tables", icon: <BarChart3 className="h-5 w-5" /> },
     { name: "Biome", description: "Formatting & linting", icon: <Cpu className="h-5 w-5" /> },
     { name: "Husky", description: "Git hooks", icon: <CheckCircle className="h-5 w-5" /> },
-  ]
+  ];
 
   const screens = {
     available: [
       { name: "Default Home Dashboard", description: "Main dashboard with site performance metrics" },
-      { name: "Gefr Monitoring", description: "Sample project displaying site level performance" },
-      // { name: "2G NOP Level Daily", description: "Displaying 2G NOP level daily performance" },
-      // { name: "2G NOP Level Hourly", description: "Displaying 2G NOP level hourly performance" },
-      // { name: "4G NOP Level Daily", description: "Displaying 4G NOP level daily performance" },
-      { name: "2G Site Level Daily", description: "Displaying 2G Site level daily performance with filter and table kpi comparison" },
-      { name: "4G Site Level Daily", description: "Displaying 4G Site level daily performance with filter and table kpi comparison" },
+      { name: "Ichiba Project", description: "Sample project displaying data visits" },
+      { name: "Customer", description: "Displaying CRUD of customers" },
+      { name: "Visit", description: "Displaying CRUD of visits" },
     ],
-    comingSoon: [
-      { name: "Multi Site 2G 4G Productivity", description: "Displaying productivity for 2G 4G networks" },
-      { name: "Top 10 WPC cell list", description: "Displaying top 10 WPC cell list for main KPI" }
-    ]
-  }
+    comingSoon: [{ name: "Data analitics for marketing", description: "Displaying data analytics for marketing" }],
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
@@ -108,21 +100,25 @@ export default function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600">
                 <LayoutDashboard className="h-5 w-5 text-white" />
               </div>
-              <span className="font-bold text-gray-900 text-xl">Macto Dashboard</span>
-              <Badge className="ml-2 border-0 bg-linear-to-r from-blue-100 to-indigo-100 text-blue-800">
-                v1.0
-              </Badge>
+              <span className="font-bold text-gray-900 text-xl">Macto Ichiba</span>
+              <Badge className="ml-2 border-0 bg-linear-to-r from-blue-100 to-indigo-100 text-blue-800">v1.0</Badge>
             </div>
 
             <div className="flex items-center gap-4">
               <Link href="#features">
-                <Button variant="ghost" className="hidden sm:flex">Features</Button>
+                <Button variant="ghost" className="hidden sm:flex">
+                  Features
+                </Button>
               </Link>
               <Link href="#tech-stack">
-                <Button variant="ghost" className="hidden sm:flex">Tech Stack</Button>
+                <Button variant="ghost" className="hidden sm:flex">
+                  Tech Stack
+                </Button>
               </Link>
               <Link href="#screens">
-                <Button variant="ghost" className="hidden sm:flex">Screens</Button>
+                <Button variant="ghost" className="hidden sm:flex">
+                  Screens
+                </Button>
               </Link>
             </div>
           </div>
@@ -135,7 +131,14 @@ export default function LandingPage() {
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-bold text-4xl text-gray-900 tracking-tight sm:text-5xl lg:text-6xl">
-              Modern Dashboard with <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TypeScript</span> & <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Shadcn UI</span>
+              Modern Dashboard with{" "}
+              <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                TypeScript
+              </span>{" "}
+              &{" "}
+              <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Shadcn UI
+              </span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-gray-600 text-xl">
@@ -174,7 +177,10 @@ export default function LandingPage() {
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <Card key={feature.title} className="group border-gray-200 transition-all hover:border-blue-300 hover:shadow-lg">
+              <Card
+                key={feature.title}
+                className="group border-gray-200 transition-all hover:border-blue-300 hover:shadow-lg"
+              >
                 <CardHeader>
                   <div className="mb-4 inline-flex gap-2 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 p-3">
                     <div className="text-blue-400">{feature.icon}</div>
@@ -204,7 +210,10 @@ export default function LandingPage() {
 
           <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {techStack.map((tech) => (
-              <div key={tech.name} className="group rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:shadow-sm">
+              <div
+                key={tech.name}
+                className="group rounded-lg border border-gray-200 p-4 transition-all hover:border-blue-300 hover:shadow-sm"
+              >
                 <div className="flex items-center gap-3">
                   <div className="rounded-md bg-gray-100 p-2 transition-colors group-hover:bg-blue-50">
                     <div className="text-gray-600 group-hover:text-blue-600">{tech.icon}</div>
@@ -235,10 +244,16 @@ export default function LandingPage() {
 
             <Tabs defaultValue="available" className="mt-16">
               <TabsList className="grid h-16 w-full grid-cols-2">
-                <TabsTrigger value="available" className="text-lg data-[state=active]:bg-linear-to-r data-[state=active]:from-green-200 data-[state=active]:to-indigo-300">
+                <TabsTrigger
+                  value="available"
+                  className="text-lg data-[state=active]:bg-linear-to-r data-[state=active]:from-green-200 data-[state=active]:to-indigo-300"
+                >
                   Available Now
                 </TabsTrigger>
-                <TabsTrigger value="coming-soon" className="text-lg data-[state=active]:bg-linear-to-r data-[state=active]:from-blue-200 data-[state=active]:to-indigo-300">
+                <TabsTrigger
+                  value="coming-soon"
+                  className="text-lg data-[state=active]:bg-linear-to-r data-[state=active]:from-blue-200 data-[state=active]:to-indigo-300"
+                >
                   Coming Soon
                 </TabsTrigger>
               </TabsList>
@@ -291,20 +306,18 @@ export default function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600">
                 <LayoutDashboard className="h-5 w-5 text-white" />
               </div>
-              <span className="font-bold text-gray-900 text-xl">Macto Dashboard</span>
+              <span className="font-bold text-gray-900 text-xl">Macto Ichiba</span>
             </div>
 
             <div className="text-center md:text-right">
-              <p className="text-gray-600">
-                Built with Next.js 16, TypeScript, Tailwind CSS v4, and Shadcn UI
-              </p>
+              <p className="text-gray-600">Built with Next.js 16, TypeScript, Tailwind CSS v4, and Shadcn UI</p>
               <p className="mt-2 text-gray-500 text-sm">
-                © {new Date().getFullYear()} Macto Dashboard. All rights reserved.
+                © {new Date().getFullYear()} Macto Ichiba. All rights reserved.
               </p>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
