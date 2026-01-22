@@ -16,5 +16,11 @@ export const orderSchema = z.object({
   test_types: z.array(z.string()).min(1, "Pilih minimal satu jenis tes"),
 });
 
+export const medicalDeviceSchema = z.object({
+  name: z.string().min(1, "Nama Medical Device wajib diisi"),
+  description: z.string().optional(),
+});
+
 export type CustomerFormData = z.infer<typeof customerSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
+export type MedicalDeviceFormData = z.infer<typeof medicalDeviceSchema>;

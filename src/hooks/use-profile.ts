@@ -35,7 +35,17 @@ export function useProfile() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Jika profile sudah ada, coba ambil yang sudah ada
+        if (error.code === "23505") {
+          // Unique violation
+          console.log("Profile already exists, fetching existing...");
+          const { data: existingData } = await supabase.from("profiles").select("*").eq("id", userId).single();
+
+          if (existingData) return existingData;
+        }
+        throw error;
+      }
       return data;
     } catch (err) {
       console.error("Failed to create default profile:", err);

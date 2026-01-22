@@ -37,3 +37,9 @@ export interface OrderWithDetails extends Order {
   customer: Customer;
   order_tests: (OrderTest & { test_type: TestType })[];
 }
+
+export interface MedicalDevices {
+  id: string;
+  name: string;
+  description: string | null;
+}

@@ -42,14 +42,6 @@ export const ordersService = {
   async create(orderData: OrderFormData) {
     const { customer_id, tanggal, marketing, notes, test_types } = orderData;
 
-    console.log("Creating order with data:", {
-      customer_id,
-      tanggal,
-      marketing,
-      notes,
-      test_types,
-    });
-
     try {
       // Start transaction
       const order = await supabase
