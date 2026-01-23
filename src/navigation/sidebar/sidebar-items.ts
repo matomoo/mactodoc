@@ -39,7 +39,7 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 2,
-    label: "Ichiba",
+    label: "Master Data",
     items: [
       {
         title: "Customer",
@@ -51,9 +51,20 @@ export const sidebarItems: NavGroup[] = [
         url: "/ichiba/app/medical-devices",
         icon: Fingerprint,
       },
+    ],
+  },
+  {
+    id: 3,
+    label: "Layanan",
+    items: [
       {
         title: "Orders",
         url: "/ichiba/app/orders",
+        icon: Fingerprint,
+      },
+      {
+        title: "Visits",
+        url: "/ichiba/app/visits",
         icon: Fingerprint,
       },
     ],

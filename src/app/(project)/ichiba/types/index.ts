@@ -18,6 +18,16 @@ export interface Order {
   updated_at: string;
   customer?: Customer;
 }
+export interface Visit {
+  id: string;
+  customer_id: string;
+  tanggal: string;
+  marketing: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  customer?: Customer;
+}
 
 export interface TestType {
   id: string;
@@ -32,10 +42,23 @@ export interface OrderTest {
   status: string;
   test_type?: TestType;
 }
+export interface VisitMedicalDevice {
+  visit_id: string;
+  medical_device_id: string;
+  result: string | null;
+  status: string;
+  medical_device?: MedicalDevices;
+}
 
 export interface OrderWithDetails extends Order {
   customer: Customer;
   order_tests: (OrderTest & { test_type: TestType })[];
+}
+export interface VisitWithDetails extends Visit {
+  customer: Customer;
+  visit_medical_devices: (VisitMedicalDevice & {
+    medical_device: MedicalDevices;
+  })[];
 }
 
 export interface MedicalDevices {

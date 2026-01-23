@@ -16,6 +16,14 @@ export const orderSchema = z.object({
   test_types: z.array(z.string()).min(1, "Pilih minimal satu jenis tes"),
 });
 
+export const visitSchema = z.object({
+  customer_id: z.string().min(1, "Customer wajib dipilih"),
+  tanggal: z.string().min(1, "Tanggal wajib diisi"),
+  marketing: z.string().optional(),
+  notes: z.string().optional(),
+  medical_devices: z.array(z.string()).min(1, "Pilih minimal satu medical device"),
+});
+
 export const medicalDeviceSchema = z.object({
   name: z.string().min(1, "Nama Medical Device wajib diisi"),
   description: z.string().optional(),
@@ -23,4 +31,5 @@ export const medicalDeviceSchema = z.object({
 
 export type CustomerFormData = z.infer<typeof customerSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
+export type VisitFormData = z.infer<typeof visitSchema>;
 export type MedicalDeviceFormData = z.infer<typeof medicalDeviceSchema>;

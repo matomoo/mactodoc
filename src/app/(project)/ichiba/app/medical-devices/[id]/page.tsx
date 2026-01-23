@@ -1,13 +1,10 @@
 // biome-ignore assist/source/organizeImports: <none>
-import { ArrowLeft, Phone, Mail, MapPin, User, Calendar } from "lucide-react";
+import { ArrowLeft, User } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale/id";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { customersService } from "../../../lib/services/customers";
 import { medicalDevicesService } from "../../../lib/services/medicalDevices";
 
 interface MedicalDeviceDetailPageProps {
