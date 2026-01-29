@@ -3,11 +3,11 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Macto Ichiba",
+  name: "Ichiba Medical",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Macto Ichiba.`,
+  copyright: `© ${currentYear}, Ichiba Medical.`,
   meta: {
-    title: "Macto Ichiba - Starter Template",
-    description: "Macto Ichiba is a modern dashboard.",
+    title: "Ichiba Medical",
+    description: "Development by Macto.",
   },
 };
