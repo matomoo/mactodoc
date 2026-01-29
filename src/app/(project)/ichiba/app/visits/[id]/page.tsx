@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useOrder } from "../../../hooks/useOrders";
 import { use } from "react";
 import { useVisit } from "../../../hooks/useVisits";
 

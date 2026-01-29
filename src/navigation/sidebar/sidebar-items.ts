@@ -58,11 +58,6 @@ export const sidebarItems: NavGroup[] = [
     label: "Layanan",
     items: [
       {
-        title: "Orders",
-        url: "/ichiba/app/orders",
-        icon: Fingerprint,
-      },
-      {
         title: "Visits",
         url: "/ichiba/app/visits",
         icon: Fingerprint,
