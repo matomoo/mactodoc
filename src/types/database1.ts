@@ -157,6 +157,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      sales_transactions: {
+        Row: {
+          category: string | null;
+          created_at: string | null;
+          customer: string;
+          date: string;
+          product_name: string;
+          quantity: number;
+          region: string | null;
+          sales_amount: number;
+          salesperson: string | null;
+          type: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          category?: string | null;
+          created_at?: string | null;
+          customer: string;
+          date: string;
+          product_name: string;
+          quantity?: number;
+          region?: string | null;
+          sales_amount?: number;
+          salesperson?: string | null;
+          type?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          category?: string | null;
+          created_at?: string | null;
+          customer?: string;
+          date?: string;
+          product_name?: string;
+          quantity?: number;
+          region?: string | null;
+          sales_amount?: number;
+          salesperson?: string | null;
+          type?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       target_sales: {
         Row: {
           created_at: string;

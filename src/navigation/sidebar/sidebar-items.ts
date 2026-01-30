@@ -62,6 +62,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/ichiba/app/visits",
         icon: Fingerprint,
       },
+      {
+        title: "Penjualan",
+        url: "/ichiba/app/import",
+        icon: Fingerprint,
+      },
     ],
   },
 ];
