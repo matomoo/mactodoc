@@ -1,6 +1,6 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { supabase } from "../supabase";
-import type { Order, Visit, VisitMedicalDevice, VisitWithDetails } from "../../types";
+import type { Visit, VisitMedicalDevice, VisitWithDetails } from "../../types";
 import type { VisitFormData } from "../schemas";
 
 export const visitsService = {
@@ -10,7 +10,8 @@ export const visitsService = {
       .select(
         `
         *,
-        customer:customers(*)
+        customer:customers(*),
+        sales:profiles(*)
       `,
       )
       .order("tanggal", { ascending: false });
@@ -40,7 +41,7 @@ export const visitsService = {
   },
 
   async create(visitData: VisitFormData) {
-    const { customer_id, tanggal, marketing, notes, medical_devices } = visitData;
+    const { customer_id, tanggal, sales_id, notes, medical_devices } = visitData;
 
     try {
       // Start transaction
@@ -50,7 +51,7 @@ export const visitsService = {
           {
             customer_id,
             tanggal,
-            marketing,
+            sales_id,
             notes,
           },
         ])
@@ -72,7 +73,7 @@ export const visitsService = {
         if (medicalDevicesError) throw medicalDevicesError;
       }
 
-      return visit.data as Order;
+      return visit.data as Visit;
     } catch (error) {
       console.error("Service create error:", error);
       throw error;
@@ -80,14 +81,14 @@ export const visitsService = {
   },
 
   async update(id: string, visitData: Partial<VisitFormData>) {
-    const { customer_id, tanggal, marketing, notes, medical_devices } = visitData;
+    const { customer_id, tanggal, sales_id, notes, medical_devices } = visitData;
     try {
       const visit = await supabase
         .from("visits")
         .update({
           customer_id,
           tanggal,
-          marketing,
+          sales_id,
           notes,
           // updated_at: new Date().toISOString(),
         })

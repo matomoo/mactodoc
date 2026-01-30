@@ -76,7 +76,7 @@ export default function EditVisitPage({ params }: EditVisitPageProps) {
   const initialData: VisitFormData = {
     customer_id: visit.customer_id,
     tanggal: visit.tanggal,
-    marketing: visit.marketing || "",
+    sales_id: visit.sales_id || "",
     notes: visit.notes || "",
     medical_devices: visit.visit_medical_devices.map((ot) => ot.medical_device.id),
   };

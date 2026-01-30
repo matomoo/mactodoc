@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { type VisitFormData, visitSchema } from "../../lib/schemas";
 import { useCustomers } from "../../hooks/useCustomers";
 import { useMedicalDevices } from "../../hooks/useMedicalDevices";
+import { useProfiles } from "../../hooks/useProfiles";
 
 interface VisitFormProps {
   initialData?: VisitFormData & { id?: string };
@@ -32,7 +33,10 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
   const [formError, setFormError] = useState<string | null>(null);
 
   const { data: customers } = useCustomers();
+  const { data: profiles } = useProfiles();
   const { data: medicalDevices } = useMedicalDevices();
+
+  console.log(profiles);
 
   const {
     register,
@@ -62,6 +66,7 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
   };
 
   const customerId = watch("customer_id");
+  const profileId = watch("sales_id");
 
   const handleFormSubmit = async (data: VisitFormData) => {
     setFormError(null);
@@ -155,9 +160,26 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
           </div>
 
           {/* Marketing */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="marketing">Marketing</Label>
             <Input id="marketing" {...register("marketing")} placeholder="Nama marketing" />
+          </div> */}
+          {/* Customer Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="sales_id">Sales *</Label>
+            <Select value={profileId} onValueChange={(value) => setValue("sales_id", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih Sales" />
+              </SelectTrigger>
+              <SelectContent>
+                {profiles?.map((profiles) => (
+                  <SelectItem key={profiles.id} value={profiles.id}>
+                    {profiles.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.sales_id && <p className="text-red-500 text-sm">{errors.sales_id.message}</p>}
           </div>
 
           {/* Notes */}

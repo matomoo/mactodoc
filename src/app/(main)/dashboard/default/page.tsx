@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRequireAuth } from "@/hooks/use-require-auth";
+import { VisitsChart } from "@/app/(project)/ichiba/components/visits/VisitsChart";
 
 export default function LandingPage() {
   const { loading } = useRequireAuth();
@@ -120,6 +121,10 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <div>
+        <VisitsChart />
+      </div>
     </div>
   );
 }

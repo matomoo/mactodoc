@@ -22,11 +22,12 @@ export interface Visit {
   id: string;
   customer_id: string;
   tanggal: string;
-  marketing: string | null;
+  sales_id: string;
   notes: string | null;
   created_at: string;
   updated_at: string;
   customer?: Customer;
+  sales?: Profiles;
 }
 
 export interface TestType {
@@ -65,4 +66,14 @@ export interface MedicalDevices {
   id: string;
   name: string;
   description: string | null;
+}
+
+export interface Profiles {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  website: string | null;
+  roles: string | null;
+  updated_at: string;
 }
