@@ -30,6 +30,39 @@ export interface Visit {
   sales?: Profiles;
 }
 
+export interface SalesTransaction {
+  customer: string;
+  product_name: string;
+  date: string;
+  salesperson: string;
+  quantity: number | 0;
+  sales_amount: number | 0;
+  category: string | null;
+  region: string;
+  type: string | null;
+}
+
+export interface CustomerSalesSummary {
+  customer: string;
+  total_sales: number;
+  transaction_count: number;
+  region: string;
+  salespersons: string[];
+}
+
+export interface RegionSalesSummary {
+  region: string;
+  total_sales: number;
+  transaction_count: number;
+  salespersons: string[];
+}
+
+export interface SalespersonSalesSummary {
+  salesperson: string;
+  total_sales: number;
+  transaction_count: number;
+}
+
 export interface TestType {
   id: string;
   name: string;
