@@ -77,7 +77,7 @@ export async function importExcelData(data: ExcelData[]): Promise<ImportResult> 
       salesperson: item["Nama Default Penjual Pelang"]?.trim() || null,
       quantity: Number(item.Kuantitas) || 0,
       sales_amount: Number(item.Penjualan) || 0,
-      category: getProductCategory(item["Nama Barang"]),
+      category: item.Category?.trim() || "Lainnya",
       type: item.Type?.trim() || null,
       region: item.Wilayah?.trim() || null,
       created_at: new Date().toISOString(),

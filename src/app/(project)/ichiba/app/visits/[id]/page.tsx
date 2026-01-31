@@ -131,10 +131,10 @@ export default function VisitDetailPage({ params }: VisitDetailPageProps) {
                 <p className="font-semibold">Tanggal Visit</p>
                 <p className="text-sm">{format(new Date(visit.tanggal), "dd MMMM yyyy", { locale: localeId })}</p>
               </div>
-              {visit.marketing && (
+              {visit.sales && (
                 <div>
                   <p className="font-semibold">Marketing</p>
-                  <p className="text-sm">{visit.marketing}</p>
+                  <p className="text-sm">{visit.sales.full_name}</p>
                 </div>
               )}
               {visit.notes && (
