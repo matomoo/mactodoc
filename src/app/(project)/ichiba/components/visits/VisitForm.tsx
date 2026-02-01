@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Loader2, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type VisitFormData, visitSchema } from "../../lib/schemas";
 import { useCustomers } from "../../hooks/useCustomers";
@@ -31,12 +31,17 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
   const [date, setDate] = useState<Date | undefined>(initialData?.tanggal ? new Date(initialData.tanggal) : new Date());
   const [selectedMedicalDevices, setSelectedMedicalDevices] = useState<string[]>(initialData?.medical_devices || []);
   const [formError, setFormError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: customers } = useCustomers();
   const { data: profiles } = useProfiles();
   const { data: medicalDevices } = useMedicalDevices();
 
-  console.log(profiles);
+  const filteredCustomers =
+    customers?.filter((customer) => customer.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
+
+  // console.log(profiles);
 
   const {
     register,
@@ -100,21 +105,61 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
       <CardContent>
         {formError && <div className="mb-4 rounded bg-red-50 p-3 text-red-700">{formError}</div>}
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-          {/* Customer Selection */}
+          {/* Customer Selection with Search */}
           <div className="space-y-2">
             <Label htmlFor="customer_id">Customer *</Label>
-            <Select value={customerId} onValueChange={(value) => setValue("customer_id", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih customer" />
-              </SelectTrigger>
-              <SelectContent>
-                {customers?.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+                  {customerId ? customers?.find((customer) => customer.id === customerId)?.name : "Pilih customer..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <div className="p-2">
+                  <div className="relative">
+                    <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Cari customer..."
+                      className="pl-8"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+                <div className="max-h-75 overflow-y-auto">
+                  {filteredCustomers.length === 0 ? (
+                    <div className="py-6 text-center text-sm">
+                      <div className="text-muted-foreground">Tidak ditemukan</div>
+                    </div>
+                  ) : (
+                    <div className="p-1">
+                      {filteredCustomers.map((customer) => (
+                        <button
+                          type="button"
+                          key={customer.id}
+                          className={cn(
+                            "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                            customerId === customer.id && "bg-accent",
+                          )}
+                          onClick={() => {
+                            setValue("customer_id", customer.id);
+                            setOpen(false);
+                            setSearchQuery("");
+                          }}
+                        >
+                          <Check
+                            className={cn("mr-2 h-4 w-4", customerId === customer.id ? "opacity-100" : "opacity-0")}
+                          />
+                          {customer.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
             {errors.customer_id && <p className="text-red-500 text-sm">{errors.customer_id.message}</p>}
           </div>
 
@@ -159,12 +204,7 @@ export function VisitForm({ initialData, onSubmit, isLoading }: VisitFormProps) 
             {errors.medical_devices && <p className="text-red-500 text-sm">{errors.medical_devices.message}</p>}
           </div>
 
-          {/* Marketing */}
-          {/* <div className="space-y-2">
-            <Label htmlFor="marketing">Marketing</Label>
-            <Input id="marketing" {...register("marketing")} placeholder="Nama marketing" />
-          </div> */}
-          {/* Customer Selection */}
+          {/* Select Salesperson */}
           <div className="space-y-2">
             <Label htmlFor="sales_id">Sales *</Label>
             <Select value={profileId} onValueChange={(value) => setValue("sales_id", value)}>
