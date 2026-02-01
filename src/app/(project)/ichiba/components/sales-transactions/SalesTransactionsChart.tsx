@@ -11,9 +11,10 @@ import {
   formatCurrency,
   summarizeSalesByRegion,
   summarizeSalesBySalesperson,
+  summarizeSalesByType,
 } from "../../utils/sales-utils";
 
-type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson";
+type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type";
 type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
@@ -33,6 +34,10 @@ export function SalesTransactionsChart() {
 
   const salespersonSummaries = useMemo(() => {
     return summarizeSalesBySalesperson(transactions);
+  }, [transactions]);
+
+  const typeSummaries = useMemo(() => {
+    return summarizeSalesByType(transactions);
   }, [transactions]);
 
   // Filter and sort data
@@ -104,6 +109,38 @@ export function SalesTransactionsChart() {
 
     return filtered;
   }, [regionSummaries, searchQuery, sortField, sortDirection]);
+
+  const filteredAndSortedDataByType = useMemo(() => {
+    const filtered = typeSummaries.filter((data) => data.type.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Sorting
+    filtered.sort((a, b) => {
+      // For string fields (region)
+      if (sortField === "type") {
+        const aValue = a[sortField].toLowerCase();
+        const bValue = b[sortField].toLowerCase();
+
+        if (sortDirection === "asc") {
+          return aValue.localeCompare(bValue);
+        }
+        return bValue.localeCompare(aValue);
+      }
+      // For numeric fields (total_sales, transaction_count)
+      if (sortField === "total_sales" || sortField === "transaction_count") {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+
+        if (sortDirection === "asc") {
+          return aValue - bValue;
+        }
+        return bValue - aValue;
+      }
+
+      return 0;
+    });
+
+    return filtered;
+  }, [typeSummaries, searchQuery, sortField, sortDirection]);
 
   const filteredAndSortedDataBySalesperson = useMemo(() => {
     const filtered = salespersonSummaries.filter((data) =>
@@ -260,6 +297,53 @@ export function SalesTransactionsChart() {
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8">
                       No regions found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales Summary by Type</CardTitle>
+          <CardDescription>
+            Total {typeSummaries.length} type with {transactions.length} transactions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%]">Type</TableHead>
+                  <TableHead className="text-right">Total Sales</TableHead>
+                  <TableHead className="text-right">Transactions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedDataByType.length > 0 ? (
+                  filteredAndSortedDataByType.map((data) => (
+                    <TableRow key={data.type}>
+                      <TableCell className="font-medium">
+                        <div>
+                          <p className="font-semibold">{data.type}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">{formatCurrency(data.total_sales)}</TableCell>
+                      <TableCell className="text-right">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {data.transaction_count}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8">
+                      No type found
                     </TableCell>
                   </TableRow>
                 )}

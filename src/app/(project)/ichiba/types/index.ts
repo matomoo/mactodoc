@@ -39,7 +39,7 @@ export interface SalesTransaction {
   sales_amount: number | 0;
   category: string | null;
   region: string;
-  type: string | null;
+  type: string;
 }
 
 export interface CustomerSalesSummary {
@@ -59,6 +59,12 @@ export interface RegionSalesSummary {
 
 export interface SalespersonSalesSummary {
   salesperson: string;
+  total_sales: number;
+  transaction_count: number;
+}
+
+export interface TypeSummary {
+  type: string;
   total_sales: number;
   transaction_count: number;
 }

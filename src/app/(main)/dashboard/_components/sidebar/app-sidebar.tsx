@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings } from "lucide-react";
@@ -83,18 +84,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     name: profile?.full_name || user.email, // Use full_name from profile, fallback to email
     email: user.email,
     avatar: profile?.avatar_url || user.user_metadata?.avatar_url || "", // Support avatar from profile or metadata
-  }
-
+  };
 
   return (
-    <Sidebar {...props} variant={variant} collapsible={collapsible}>
+    <Sidebar {...props} variant={variant} collapsible={collapsible} className="z-80">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/dashboard/default">
-                <Command />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+            <SidebarMenuButton asChild className="h-auto p-2">
+              <Link prefetch={false} href="/dashboard/default" className="flex flex-col items-center">
+                <Image src="/images/logo.jpeg" alt="Ichiba Logo" width={80} height={40} className="mb-1 h-10 w-20 " />
+                <span className="font-semibold text-base text-center">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
