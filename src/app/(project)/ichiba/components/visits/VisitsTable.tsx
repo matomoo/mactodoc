@@ -83,6 +83,14 @@ export function VisitsTable() {
       accessorFn: (row) => row.customer?.name || "Unknown",
       id: "customerName",
       header: "Customer",
+      cell: ({ row }) => {
+        const customerName = row.original.customer?.name || "Unknown";
+        return (
+          <div className="max-w-[200px] truncate" title={customerName}>
+            {customerName}
+          </div>
+        );
+      },
     },
     {
       accessorFn: (row) => row.customer?.contact_person || "-",
@@ -95,8 +103,8 @@ export function VisitsTable() {
       header: "Telepon",
     },
     {
-      accessorKey: "marketing",
-      header: "Marketing",
+      accessorFn: (row) => row.sales?.full_name || "-",
+      header: "Salesperson",
     },
     {
       id: "actions",
