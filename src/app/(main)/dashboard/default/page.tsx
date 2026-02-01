@@ -38,14 +38,14 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
-      <div className="container mx-auto mb-10 px-4 sm:px-6 lg:px-8">
-        <section id="features" className="bg-gray-50 py-10">
+      <div className="container mx-auto mb-10 p-4 sm:px-6 lg:px-4">
+        {/* <section id="features" className="bg-gray-50 py-10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="font-bold text-gray-900 text-lg tracking-tight sm:text-xl">Summary</h2>
             </div>
           </div>
-        </section>
+        </section> */}
         <SalesTransactionsChart />
       </div>
 

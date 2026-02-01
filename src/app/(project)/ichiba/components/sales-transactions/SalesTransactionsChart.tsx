@@ -188,6 +188,40 @@ export function SalesTransactionsChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
+          <CardTitle>Sales Summary</CardTitle>
+          {/* <CardDescription>
+            Total {customerSummaries.length} customers with {transactions.length} transactions
+          </CardDescription> */}
+        </CardHeader>
+        <CardContent>
+          {/* Summary Stats */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-gray-500">Total Customers</div>
+                <div className="text-2xl font-bold">{customerSummaries.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-gray-500">Total Transactions</div>
+                <div className="text-2xl font-bold">{transactions.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-gray-500">Total Sales Value</div>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Sales Summary by Customer</CardTitle>
           <CardDescription>
             Total {customerSummaries.length} customers with {transactions.length} transactions
