@@ -221,7 +221,7 @@ export function VisitsTable() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground min-w-[250px]"
+                  className="inline-flex min-w-62.5 cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   onClick={() => setShowCalendar(!showCalendar)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {

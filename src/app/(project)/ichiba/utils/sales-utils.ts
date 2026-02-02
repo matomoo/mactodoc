@@ -1,6 +1,7 @@
 // utils/sales-utils.ts
 
 import type {
+  CategorySummary,
   CustomerSalesSummary,
   RegionSalesSummary,
   SalespersonSalesSummary,
@@ -100,6 +101,27 @@ export function summarizeSalesByType(transactions: SalesTransaction[]): TypeSumm
   });
 
   return Array.from(typeMap.values()).sort((a, b) => b.total_sales - a.total_sales);
+}
+
+export function summarizeSalesByCategory(transactions: SalesTransaction[]): CategorySummary[] {
+  const categoryMap = new Map<string, CategorySummary>();
+
+  transactions.forEach((transaction) => {
+    const existing = categoryMap.get(transaction.category);
+
+    if (existing) {
+      existing.total_sales += transaction.sales_amount;
+      existing.transaction_count += 1;
+    } else {
+      categoryMap.set(transaction.category, {
+        category: transaction.category,
+        total_sales: transaction.sales_amount,
+        transaction_count: 1,
+      });
+    }
+  });
+
+  return Array.from(categoryMap.values()).sort((a, b) => b.total_sales - a.total_sales);
 }
 
 // Format currency helper

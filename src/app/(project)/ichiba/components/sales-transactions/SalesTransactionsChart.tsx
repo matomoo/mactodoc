@@ -12,9 +12,10 @@ import {
   summarizeSalesByRegion,
   summarizeSalesBySalesperson,
   summarizeSalesByType,
+  summarizeSalesByCategory,
 } from "../../utils/sales-utils";
 
-type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type";
+type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type" | "category";
 type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
@@ -38,6 +39,10 @@ export function SalesTransactionsChart() {
 
   const typeSummaries = useMemo(() => {
     return summarizeSalesByType(transactions);
+  }, [transactions]);
+
+  const categorySummaries = useMemo(() => {
+    return summarizeSalesByCategory(transactions);
   }, [transactions]);
 
   // Filter and sort data
@@ -175,6 +180,37 @@ export function SalesTransactionsChart() {
 
     return filtered;
   }, [salespersonSummaries, searchQuery, sortField, sortDirection]);
+
+  const filteredAndSortedDataByCategory = useMemo(() => {
+    const filtered = categorySummaries.filter((data) =>
+      data.category.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+
+    filtered.sort((a, b) => {
+      if (sortField === "category") {
+        const aValue = a[sortField].toLowerCase();
+        const bValue = b[sortField].toLowerCase();
+
+        if (sortDirection === "asc") {
+          return aValue.localeCompare(bValue);
+        }
+        return bValue.localeCompare(aValue);
+      }
+      if (sortField === "total_sales" || sortField === "transaction_count") {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+
+        if (sortDirection === "asc") {
+          return aValue - bValue;
+        }
+        return bValue - aValue;
+      }
+
+      return 0;
+    });
+
+    return filtered;
+  }, [categorySummaries, searchQuery, sortField, sortDirection]);
 
   if (isLoading) {
     return (
@@ -378,6 +414,53 @@ export function SalesTransactionsChart() {
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8">
                       No type found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales Summary by Category</CardTitle>
+          <CardDescription>
+            Total {categorySummaries.length} category with {transactions.length} transactions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%]">Category</TableHead>
+                  <TableHead className="text-right">Total Sales</TableHead>
+                  <TableHead className="text-right">Transactions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedDataByCategory.length > 0 ? (
+                  filteredAndSortedDataByCategory.map((data) => (
+                    <TableRow key={data.category}>
+                      <TableCell className="font-medium">
+                        <div>
+                          <p className="font-semibold">{data.category}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">{formatCurrency(data.total_sales)}</TableCell>
+                      <TableCell className="text-right">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {data.transaction_count}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8">
+                      No category found
                     </TableCell>
                   </TableRow>
                 )}
