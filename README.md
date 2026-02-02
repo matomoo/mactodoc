@@ -39,4 +39,4 @@
 on terminal
 npm install supabase --save-dev
 npx supabase login
-npx supabase gen types typescript --project-id uypkoybdpdvhfnmypjxc > src/types/database1.ts
+npx supabase gen types typescript --project-id uypkoybdpdvhfnmypjxc > src/types/database.ts

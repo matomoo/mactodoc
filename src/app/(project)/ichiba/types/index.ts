@@ -116,3 +116,12 @@ export interface Profiles {
   roles: string | null;
   updated_at: string;
 }
+
+export interface Catalog {
+  id: string;
+  title: string;
+  category: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}

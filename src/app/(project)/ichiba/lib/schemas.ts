@@ -37,8 +37,15 @@ export const medicalDeviceSchema = z.object({
   description: z.string().optional(),
 });
 
+export const catalogSchema = z.object({
+  title: z.string().min(1, "Title wajib diisi"),
+  category: z.string().optional(),
+  description: z.string().optional(),
+});
+
 export type CustomerFormData = z.infer<typeof customerSchema>;
 export type ProfileFormData = z.infer<typeof profileSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
 export type VisitFormData = z.infer<typeof visitSchema>;
 export type MedicalDeviceFormData = z.infer<typeof medicalDeviceSchema>;
+export type CatalogFormData = z.infer<typeof catalogSchema>;

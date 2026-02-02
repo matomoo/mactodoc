@@ -51,6 +51,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/ichiba/app/medical-devices",
         icon: Fingerprint,
       },
+      {
+        title: "Catalogs",
+        url: "/ichiba/app/catalogs",
+        icon: Fingerprint,
+      },
     ],
   },
   {
