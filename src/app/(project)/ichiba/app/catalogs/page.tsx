@@ -1,4 +1,4 @@
-import { CatalogsTable } from "../../components/catalogs/CatalogsTable";
+import { CatalogsCard } from "../../components/catalogs/CatalogsCard";
 
 export default async function CatalogsPage() {
   return (
@@ -7,7 +7,7 @@ export default async function CatalogsPage() {
         <h1 className="font-bold text-3xl">Master Data Catalogs</h1>
         <p className="text-muted-foreground">Kelola data catalogs</p>
       </div>
-      <CatalogsTable />
+      <CatalogsCard />
     </div>
   );
 }

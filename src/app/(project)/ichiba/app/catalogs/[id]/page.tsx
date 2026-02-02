@@ -15,7 +15,6 @@ import {
   Image as ImageIcon,
   Share2,
   Tag,
-  User,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +69,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
     return (
       <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
         {/* Header Navigation */}
-        <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
           <div className="container mx-auto flex h-16 items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <Link
@@ -128,10 +127,10 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
 
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="space-y-8 lg:col-span-2">
               {/* Image Preview */}
               <Card className="overflow-hidden border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white">
                   <CardTitle className="flex items-center gap-2">
                     <ImageIcon className="h-5 w-5" />
                     Gambar Catalog
@@ -153,7 +152,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
                       </div>
                     </div>
                   ) : (
-                    <div className="flex h-[300px] items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div className="flex h-75 items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
                       <div className="text-center">
                         <ImageIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                         <p className="text-gray-500">Tidak ada gambar tersedia</p>
@@ -165,7 +164,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
 
               {/* Description */}
               <Card className="border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
+                <CardHeader className="bg-linear-to-r from-gray-50 to-white">
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
                     Deskripsi Lengkap
@@ -189,21 +188,21 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
             <div className="space-y-6">
               {/* Quick Info */}
               <Card className="border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50">
                   <CardTitle className="text-lg">Informasi Catalog</CardTitle>
                   <CardDescription>Detail lengkap catalog ini</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <p className="mb-1 text-sm font-medium text-gray-500">Kategori</p>
+                      <p className="mb-1 font-medium text-gray-500 text-sm">Kategori</p>
                       <Badge variant="secondary" className="text-sm">
                         {catalog.category}
                       </Badge>
                     </div>
 
                     <div>
-                      <p className="mb-1 text-sm font-medium text-gray-500">Tanggal Dibuat</p>
+                      <p className="mb-1 font-medium text-gray-500 text-sm">Tanggal Dibuat</p>
                       <div className="flex items-center gap-2 text-gray-700">
                         <Calendar className="h-4 w-4" />
                         {formattedDate}
@@ -214,7 +213,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
 
                     {/* Quick Actions */}
                     <div className="space-y-3">
-                      <p className="text-sm font-medium text-gray-500">Aksi Cepat</p>
+                      <p className="font-medium text-gray-500 text-sm">Aksi Cepat</p>
                       <div className="grid gap-2">
                         <Button variant="outline" className="justify-start gap-2" asChild>
                           <a href={catalog.external_store_url || "#"} target="_blank" rel="noopener noreferrer">
@@ -309,8 +308,8 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
       <div className="container mx-auto py-20">
         <div className="text-center">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-            {/** biome-ignore lint/a11y/noSvgWithoutTitle: <none> */}
             <svg className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <title>Error</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Loader2 } from "lucide-react";
-import type { Catalog, MedicalDevices } from "../../types";
+import type { Catalog } from "../../types";
 import {
   AlertDialog,
   AlertDialogAction,
