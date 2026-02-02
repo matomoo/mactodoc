@@ -139,14 +139,18 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
                 </CardHeader>
                 <CardContent className="p-0">
                   {catalog.image_url ? (
-                    <div className="relative h-[400px] w-full overflow-hidden">
-                      <Image
-                        src={catalog.image_url}
-                        alt={catalog.title}
-                        fill
-                        className="object-cover transition-transform duration-500 hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 66vw"
-                      />
+                    <div className="relative h-auto w-full">
+                      <div className="relative aspect-video w-full">
+                        {" "}
+                        {/* Maintain 16:9 ratio */}
+                        <Image
+                          src={catalog.image_url}
+                          alt={catalog.title}
+                          fill
+                          className="object-contain" // Changed from object-cover
+                          sizes="(max-width: 768px) 100vw, 66vw"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div className="flex h-[300px] items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
@@ -235,11 +239,11 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
               </Card>
 
               {/* Status */}
-              <Card className="border-0 shadow-lg">
+              {/* <Card className="border-0 shadow-lg">
                 <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
                   <CardTitle className="text-lg">Status</CardTitle>
                 </CardHeader>
-                {/* <CardContent>
+                <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-600">Status Aktif</span>
@@ -254,8 +258,8 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
                       </Badge>
                     </div>
                   </div>
-                </CardContent> */}
-              </Card>
+                </CardContent>
+              </Card> */}
 
               {/* Tags */}
               {/* {catalog.tags && catalog.tags.length > 0 && (
@@ -278,7 +282,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
           </div>
 
           {/* CTA Section */}
-          <div className="mt-12 rounded-2xl bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-white">
+          {/* <div className="mt-12 rounded-2xl bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-white">
             <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
               <div>
                 <h3 className="mb-2 font-bold text-2xl">Butuh bantuan dengan catalog ini?</h3>
@@ -295,7 +299,7 @@ export default async function CatalogDetailPage({ params }: CatalogDetailPagePro
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
         </main>
       </div>
     );

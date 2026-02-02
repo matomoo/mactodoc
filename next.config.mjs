@@ -15,15 +15,10 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
+      // Allow all HTTPS images from any domain (wildcard)
       {
         protocol: "https",
-        hostname: "drive.google.com",
-        pathname: "/uc/**",
-      },
-      // Add other image hosts if needed
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com", // Google Drive thumbnails
+        hostname: "**", // Double asterisk allows all hostnames
       },
     ],
   },
