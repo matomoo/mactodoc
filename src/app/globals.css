@@ -152,6 +152,72 @@ These serve as the fallback; there is no separate default.css file. */
   [data-theme-preset]:not([data-theme-preset="default"]) .shadow-2xl {
     box-shadow: var(--shadow-2xl);
   }
+
+  /* Pastel Blue */
+  .bg-pastel-blue-light { background-color: #e6f7ff; }
+  .bg-pastel-blue-dark { background-color: #b3e0ff; }
+  .border-pastel-blue-border { border-color: #99d6ff; }
+  .text-pastel-blue-900 { color: #006699; }
+  .text-pastel-blue-800 { color: #0088cc; }
+  .text-pastel-blue-700 { color: #3399cc; }
+  .bg-pastel-blue-50 { background-color: #f0f9ff; }
+  .bg-pastel-blue-100 { background-color: #e0f2fe; }
+  .border-pastel-blue-200 { border-color: #bae6fd; }
+  
+  /* Pastel Green */
+  .bg-pastel-green-light { background-color: #e6fff2; }
+  .bg-pastel-green-dark { background-color: #b3ffd9; }
+  .border-pastel-green-border { border-color: #80ffbf; }
+  .text-pastel-green-900 { color: #006633; }
+  .text-pastel-green-800 { color: #008844; }
+  .text-pastel-green-700 { color: #33aa66; }
+  .bg-pastel-green-50 { background-color: #f0fff5; }
+  .bg-pastel-green-100 { background-color: #dcfce7; }
+  .border-pastel-green-200 { border-color: #bbf7d0; }
+  
+  /* Pastel Pink */
+  .bg-pastel-pink-light { background-color: #ffe6f2; }
+  .bg-pastel-pink-dark { background-color: #ffb3d9; }
+  .border-pastel-pink-border { border-color: #ff80bf; }
+  .text-pastel-pink-900 { color: #99004d; }
+  .text-pastel-pink-800 { color: #cc0066; }
+  .text-pastel-pink-700 { color: #e6398c; }
+  .bg-pastel-pink-50 { background-color: #fdf2f8; }
+  .bg-pastel-pink-100 { background-color: #fce7f3; }
+  .border-pastel-pink-200 { border-color: #fbcfe8; }
+  
+  /* Pastel Purple */
+  .bg-pastel-purple-light { background-color: #f2e6ff; }
+  .bg-pastel-purple-dark { background-color: #d9b3ff; }
+  .border-pastel-purple-border { border-color: #bf80ff; }
+  .text-pastel-purple-900 { color: #660099; }
+  .text-pastel-purple-800 { color: #8000cc; }
+  .text-pastel-purple-700 { color: #9933cc; }
+  .bg-pastel-purple-50 { background-color: #faf5ff; }
+  .bg-pastel-purple-100 { background-color: #f3e8ff; }
+  .border-pastel-purple-200 { border-color: #e9d5ff; }
+  
+  /* Pastel Yellow */
+  .bg-pastel-yellow-light { background-color: #ffffe6; }
+  .bg-pastel-yellow-dark { background-color: #ffffb3; }
+  .border-pastel-yellow-border { border-color: #ffff80; }
+  .text-pastel-yellow-900 { color: #999900; }
+  .text-pastel-yellow-800 { color: #cccc00; }
+  .text-pastel-yellow-700 { color: #e6e639; }
+  .bg-pastel-yellow-50 { background-color: #fefce8; }
+  .bg-pastel-yellow-100 { background-color: #fef9c3; }
+  .border-pastel-yellow-200 { border-color: #fef08a; }
+  
+  /* Pastel Orange */
+  .bg-pastel-orange-light { background-color: #fff2e6; }
+  .bg-pastel-orange-dark { background-color: #ffd9b3; }
+  .border-pastel-orange-border { border-color: #ffbf80; }
+  .text-pastel-orange-900 { color: #994c00; }
+  .text-pastel-orange-800 { color: #cc6600; }
+  .text-pastel-orange-700 { color: #e67339; }
+  .bg-pastel-orange-50 { background-color: #fff7ed; }
+  .bg-pastel-orange-100 { background-color: #ffedd5; }
+  .border-pastel-orange-200 { border-color: #fed7aa; }
 }
 
 @layer base {

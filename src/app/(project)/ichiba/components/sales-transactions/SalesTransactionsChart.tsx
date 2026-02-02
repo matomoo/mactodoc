@@ -1,18 +1,19 @@
 // components/sales-transactions-chart.tsx
 "use client";
 
-// biome-ignore assist/source/organizeImports: <none>
-import { useState, useMemo } from "react";
-import { useSalesTransactions } from "../../hooks/useSalesTransactions";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useMemo, useState } from "react";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+import { useSalesTransactions } from "../../hooks/useSalesTransactions";
 import {
-  summarizeSalesByCustomer,
   formatCurrency,
+  summarizeSalesByCategory,
+  summarizeSalesByCustomer,
   summarizeSalesByRegion,
   summarizeSalesBySalesperson,
   summarizeSalesByType,
-  summarizeSalesByCategory,
 } from "../../utils/sales-utils";
 
 type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type" | "category";
@@ -20,9 +21,9 @@ type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
   const { data: transactions = [], isLoading } = useSalesTransactions();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortField, setSortField] = useState<SortField>("total_sales");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [searchQuery, _setSearchQuery] = useState("");
+  const [sortField, _setSortField] = useState<SortField>("total_sales");
+  const [sortDirection, _setSortDirection] = useState<SortDirection>("desc");
 
   // Process data
   const customerSummaries = useMemo(() => {
@@ -54,27 +55,22 @@ export function SalesTransactionsChart() {
     );
 
     filtered.sort((a, b) => {
-      // For string fields (region)
       if (sortField === "customer") {
         const aValue = a[sortField].toLowerCase();
         const bValue = b[sortField].toLowerCase();
-
         if (sortDirection === "asc") {
           return aValue.localeCompare(bValue);
         }
         return bValue.localeCompare(aValue);
       }
-      // For numeric fields (total_sales, transaction_count)
       if (sortField === "total_sales" || sortField === "transaction_count") {
         const aValue = a[sortField];
         const bValue = b[sortField];
-
         if (sortDirection === "asc") {
           return aValue - bValue;
         }
         return bValue - aValue;
       }
-
       return 0;
     });
 
@@ -86,29 +82,23 @@ export function SalesTransactionsChart() {
       region.region.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
-    // Sorting
     filtered.sort((a, b) => {
-      // For string fields (region)
       if (sortField === "region") {
         const aValue = a[sortField].toLowerCase();
         const bValue = b[sortField].toLowerCase();
-
         if (sortDirection === "asc") {
           return aValue.localeCompare(bValue);
         }
         return bValue.localeCompare(aValue);
       }
-      // For numeric fields (total_sales, transaction_count)
       if (sortField === "total_sales" || sortField === "transaction_count") {
         const aValue = a[sortField];
         const bValue = b[sortField];
-
         if (sortDirection === "asc") {
           return aValue - bValue;
         }
         return bValue - aValue;
       }
-
       return 0;
     });
 
@@ -118,29 +108,23 @@ export function SalesTransactionsChart() {
   const filteredAndSortedDataByType = useMemo(() => {
     const filtered = typeSummaries.filter((data) => data.type.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Sorting
     filtered.sort((a, b) => {
-      // For string fields (region)
       if (sortField === "type") {
         const aValue = a[sortField].toLowerCase();
         const bValue = b[sortField].toLowerCase();
-
         if (sortDirection === "asc") {
           return aValue.localeCompare(bValue);
         }
         return bValue.localeCompare(aValue);
       }
-      // For numeric fields (total_sales, transaction_count)
       if (sortField === "total_sales" || sortField === "transaction_count") {
         const aValue = a[sortField];
         const bValue = b[sortField];
-
         if (sortDirection === "asc") {
           return aValue - bValue;
         }
         return bValue - aValue;
       }
-
       return 0;
     });
 
@@ -152,29 +136,23 @@ export function SalesTransactionsChart() {
       data.salesperson.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
-    // Sorting
     filtered.sort((a, b) => {
-      // For string fields (region)
       if (sortField === "salesperson") {
         const aValue = a[sortField].toLowerCase();
         const bValue = b[sortField].toLowerCase();
-
         if (sortDirection === "asc") {
           return aValue.localeCompare(bValue);
         }
         return bValue.localeCompare(aValue);
       }
-      // For numeric fields (total_sales, transaction_count)
       if (sortField === "total_sales" || sortField === "transaction_count") {
         const aValue = a[sortField];
         const bValue = b[sortField];
-
         if (sortDirection === "asc") {
           return aValue - bValue;
         }
         return bValue - aValue;
       }
-
       return 0;
     });
 
@@ -190,7 +168,6 @@ export function SalesTransactionsChart() {
       if (sortField === "category") {
         const aValue = a[sortField].toLowerCase();
         const bValue = b[sortField].toLowerCase();
-
         if (sortDirection === "asc") {
           return aValue.localeCompare(bValue);
         }
@@ -199,55 +176,71 @@ export function SalesTransactionsChart() {
       if (sortField === "total_sales" || sortField === "transaction_count") {
         const aValue = a[sortField];
         const bValue = b[sortField];
-
         if (sortDirection === "asc") {
           return aValue - bValue;
         }
         return bValue - aValue;
       }
-
       return 0;
     });
 
     return filtered;
   }, [categorySummaries, searchQuery, sortField, sortDirection]);
 
+  // Pastel color classes for cards
+  const cardColors = [
+    "bg-gradient-to-br from-pastel-blue-light to-pastel-blue-dark border-pastel-blue-border",
+    "bg-gradient-to-br from-pastel-green-light to-pastel-green-dark border-pastel-green-border",
+    "bg-gradient-to-br from-pastel-pink-light to-pastel-pink-dark border-pastel-pink-border",
+    "bg-gradient-to-br from-pastel-purple-light to-pastel-purple-dark border-pastel-purple-border",
+    "bg-gradient-to-br from-pastel-yellow-light to-pastel-yellow-dark border-pastel-yellow-border",
+    "bg-gradient-to-br from-pastel-orange-light to-pastel-orange-dark border-pastel-orange-border",
+  ];
+
+  // Pastel color badges for transaction counts
+  const badgeColors = [
+    "bg-pastel-blue-100 text-pastel-blue-800",
+    "bg-pastel-green-100 text-pastel-green-800",
+    "bg-pastel-pink-100 text-pastel-pink-800",
+    "bg-pastel-purple-100 text-pastel-purple-800",
+    "bg-pastel-yellow-100 text-pastel-yellow-800",
+    "bg-pastel-orange-100 text-pastel-orange-800",
+  ];
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-primary border-b-2" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <Card>
+      {/* Main Sales Summary Card */}
+      <Card className="border-pastel-purple-border bg-gradient-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary</CardTitle>
-          {/* <CardDescription>
-            Total {customerSummaries.length} customers with {transactions.length} transactions
-          </CardDescription> */}
+          <CardTitle className="text-pastel-purple-900">Sales Summary</CardTitle>
         </CardHeader>
         <CardContent>
           {/* Summary Stats */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Card className={`border-0 shadow-sm ${cardColors[0]}`}>
               <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Customers</div>
-                <div className="text-2xl font-bold">{customerSummaries.length}</div>
+                <div className="text-pastel-blue-800 text-sm">Total Customers</div>
+                <div className="font-bold text-2xl text-pastel-blue-900">{customerSummaries.length}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className={`border-0 shadow-sm ${cardColors[1]}`}>
               <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Transactions</div>
-                <div className="text-2xl font-bold">{transactions.length}</div>
+                <div className="text-pastel-green-800 text-sm">Total Transactions</div>
+                <div className="font-bold text-2xl text-pastel-green-900">{transactions.length}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className={`border-0 shadow-sm ${cardColors[2]}`}>
               <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Sales Value</div>
-                <div className="text-2xl font-bold">
+                <div className="text-pastel-pink-800 text-sm">Total Sales Value</div>
+                <div className="font-bold text-2xl text-pastel-pink-900">
                   {formatCurrency(customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0))}
                 </div>
               </CardContent>
@@ -256,35 +249,40 @@ export function SalesTransactionsChart() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Customer Sales Card */}
+      <Card className="border-pastel-blue-border bg-gradient-to-br from-pastel-blue-light/20 to-pastel-blue-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary by Customer</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-pastel-blue-900">Sales Summary by Customer</CardTitle>
+          <CardDescription className="text-pastel-blue-700">
             Total {customerSummaries.length} customers with {transactions.length} transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-pastel-blue-200">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Customer</TableHead>
-                  <TableHead className="text-right">Total Sales</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
+                <TableRow className="bg-pastel-blue-50 hover:bg-pastel-blue-50">
+                  <TableHead className="w-[40%] text-pastel-blue-800">Customer</TableHead>
+                  <TableHead className="text-right text-pastel-blue-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-blue-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedData.length > 0 ? (
-                  filteredAndSortedData.map((customer) => (
-                    <TableRow key={customer.customer}>
+                  filteredAndSortedData.map((customer, index) => (
+                    <TableRow key={customer.customer} className="hover:bg-pastel-blue-50/50">
                       <TableCell className="font-medium">
                         <div>
-                          <p className="font-semibold">{customer.customer}</p>
+                          <p className="font-semibold text-pastel-blue-900">{customer.customer}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(customer.total_sales)}</TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-blue-900">
+                        {formatCurrency(customer.total_sales)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                        >
                           {customer.transaction_count}
                         </span>
                       </TableCell>
@@ -292,7 +290,7 @@ export function SalesTransactionsChart() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-blue-700">
                       No customers found
                     </TableCell>
                   </TableRow>
@@ -300,72 +298,51 @@ export function SalesTransactionsChart() {
               </TableBody>
             </Table>
           </div>
-
-          {/* Summary Stats */}
-          {/* <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Customers</div>
-                <div className="text-2xl font-bold">{customerSummaries.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Transactions</div>
-                <div className="text-2xl font-bold">{transactions.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-sm text-gray-500">Total Sales Value</div>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(
-                    customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0)
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div> */}
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Region Sales Card */}
+      <Card className="border-pastel-green-border bg-gradient-to-br from-pastel-green-light/20 to-pastel-green-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary by Region</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-pastel-green-900">Sales Summary by Region</CardTitle>
+          <CardDescription className="text-pastel-green-700">
             Total {regionSummaries.length} region with {transactions.length} transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-pastel-green-200">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Region</TableHead>
-                  <TableHead className="text-right">Total Sales</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
+                <TableRow className="bg-pastel-green-50 hover:bg-pastel-green-50">
+                  <TableHead className="w-[40%] text-pastel-green-800">Region</TableHead>
+                  <TableHead className="text-right text-pastel-green-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-green-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedDataRegion.length > 0 ? (
-                  filteredAndSortedDataRegion.map((customer) => (
-                    <TableRow key={customer.region}>
+                  filteredAndSortedDataRegion.map((region, index) => (
+                    <TableRow key={region.region} className="hover:bg-pastel-green-50/50">
                       <TableCell className="font-medium">
                         <div>
-                          <p className="font-semibold">{customer.region}</p>
+                          <p className="font-semibold text-pastel-green-900">{region.region}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(customer.total_sales)}</TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-green-900">
+                        {formatCurrency(region.total_sales)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {customer.transaction_count}
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                        >
+                          {region.transaction_count}
                         </span>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-green-700">
                       No regions found
                     </TableCell>
                   </TableRow>
@@ -376,35 +353,40 @@ export function SalesTransactionsChart() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Type Sales Card */}
+      <Card className="border-pastel-pink-border bg-gradient-to-br from-pastel-pink-light/20 to-pastel-pink-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary by Type</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-pastel-pink-900">Sales Summary by Type</CardTitle>
+          <CardDescription className="text-pastel-pink-700">
             Total {typeSummaries.length} type with {transactions.length} transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-pastel-pink-200">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Type</TableHead>
-                  <TableHead className="text-right">Total Sales</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
+                <TableRow className="bg-pastel-pink-50 hover:bg-pastel-pink-50">
+                  <TableHead className="w-[40%] text-pastel-pink-800">Type</TableHead>
+                  <TableHead className="text-right text-pastel-pink-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-pink-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedDataByType.length > 0 ? (
-                  filteredAndSortedDataByType.map((data) => (
-                    <TableRow key={data.type}>
+                  filteredAndSortedDataByType.map((data, index) => (
+                    <TableRow key={data.type} className="hover:bg-pastel-pink-50/50">
                       <TableCell className="font-medium">
                         <div>
-                          <p className="font-semibold">{data.type}</p>
+                          <p className="font-semibold text-pastel-pink-900">{data.type}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(data.total_sales)}</TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-pink-900">
+                        {formatCurrency(data.total_sales)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                        >
                           {data.transaction_count}
                         </span>
                       </TableCell>
@@ -412,7 +394,7 @@ export function SalesTransactionsChart() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-pink-700">
                       No type found
                     </TableCell>
                   </TableRow>
@@ -423,35 +405,40 @@ export function SalesTransactionsChart() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Category Sales Card */}
+      <Card className="border-pastel-purple-border bg-gradient-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary by Category</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-pastel-purple-900">Sales Summary by Category</CardTitle>
+          <CardDescription className="text-pastel-purple-700">
             Total {categorySummaries.length} category with {transactions.length} transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-pastel-purple-200">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Category</TableHead>
-                  <TableHead className="text-right">Total Sales</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
+                <TableRow className="bg-pastel-purple-50 hover:bg-pastel-purple-50">
+                  <TableHead className="w-[40%] text-pastel-purple-800">Category</TableHead>
+                  <TableHead className="text-right text-pastel-purple-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-purple-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedDataByCategory.length > 0 ? (
-                  filteredAndSortedDataByCategory.map((data) => (
-                    <TableRow key={data.category}>
+                  filteredAndSortedDataByCategory.map((data, index) => (
+                    <TableRow key={data.category} className="hover:bg-pastel-purple-50/50">
                       <TableCell className="font-medium">
                         <div>
-                          <p className="font-semibold">{data.category}</p>
+                          <p className="font-semibold text-pastel-purple-900">{data.category}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(data.total_sales)}</TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-purple-900">
+                        {formatCurrency(data.total_sales)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                        >
                           {data.transaction_count}
                         </span>
                       </TableCell>
@@ -459,7 +446,7 @@ export function SalesTransactionsChart() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-purple-700">
                       No category found
                     </TableCell>
                   </TableRow>
@@ -470,35 +457,40 @@ export function SalesTransactionsChart() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Salesperson Sales Card */}
+      <Card className="border-pastel-yellow-border bg-gradient-to-br from-pastel-yellow-light/20 to-pastel-yellow-dark/10">
         <CardHeader>
-          <CardTitle>Sales Summary by Salesperson</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-pastel-yellow-900">Sales Summary by Salesperson</CardTitle>
+          <CardDescription className="text-pastel-yellow-700">
             Total {salespersonSummaries.length} salesperson with {transactions.length} transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-pastel-yellow-200">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Sales Person</TableHead>
-                  <TableHead className="text-right">Total Sales</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
+                <TableRow className="bg-pastel-yellow-50 hover:bg-pastel-yellow-50">
+                  <TableHead className="w-[40%] text-pastel-yellow-800">Sales Person</TableHead>
+                  <TableHead className="text-right text-pastel-yellow-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-yellow-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedDataBySalesperson.length > 0 ? (
-                  filteredAndSortedDataBySalesperson.map((data) => (
-                    <TableRow key={data.salesperson}>
+                  filteredAndSortedDataBySalesperson.map((data, index) => (
+                    <TableRow key={data.salesperson} className="hover:bg-pastel-yellow-50/50">
                       <TableCell className="font-medium">
                         <div>
-                          <p className="font-semibold">{data.salesperson}</p>
+                          <p className="font-semibold text-pastel-yellow-900">{data.salesperson}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(data.total_sales)}</TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-yellow-900">
+                        {formatCurrency(data.total_sales)}
+                      </TableCell>
                       <TableCell className="text-right">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                        >
                           {data.transaction_count}
                         </span>
                       </TableCell>
@@ -506,7 +498,7 @@ export function SalesTransactionsChart() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8">
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-yellow-700">
                       No salesperson found
                     </TableCell>
                   </TableRow>

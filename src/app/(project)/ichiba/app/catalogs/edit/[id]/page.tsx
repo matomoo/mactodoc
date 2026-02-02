@@ -76,6 +76,9 @@ export default function EditCatalogPage({ params }: EditCatalogPageProps) {
   const initialData: CatalogFormData = {
     title: dataCatalog.title,
     category: dataCatalog.category || "",
+    image_url: dataCatalog.image_url || "",
+    brochure_url: dataCatalog.brochure_url || "",
+    external_store_url: dataCatalog.external_store_url || "",
     description: dataCatalog.description || "",
   };
 
