@@ -77,8 +77,8 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               <Link href={`/ichiba/app/customers/edit/${customer.id}`}>
                 <Button variant="outline">Edit Customer</Button>
               </Link>
-              <Link href={`/ichiba/app/orders/create?customerId=${customer.id}`}>
-                <Button>Buat Order Baru</Button>
+              <Link href={`/ichiba/app/customers/create?customerId=${customer.id}`}>
+                <Button>Buat Customer Baru</Button>
               </Link>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               <CardContent className="space-y-4">
                 {customer.contact_person && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Kontak Person</p>
+                    <p className="font-medium text-muted-foreground text-sm">Kontak Person</p>
                     <p className="text-lg">{customer.contact_person}</p>
                   </div>
                 )}
@@ -106,8 +106,8 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                   <div className="flex items-center gap-3">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Telepon</p>
-                      <a href={`tel:${customer.phone}`} className="text-lg hover:text-primary transition-colors">
+                      <p className="font-medium text-muted-foreground text-sm">Telepon</p>
+                      <a href={`tel:${customer.phone}`} className="text-lg transition-colors hover:text-primary">
                         {customer.phone}
                       </a>
                     </div>
@@ -118,8 +118,8 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                   <div className="flex items-center gap-3">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Email</p>
-                      <a href={`mailto:${customer.email}`} className="text-lg hover:text-primary transition-colors">
+                      <p className="font-medium text-muted-foreground text-sm">Email</p>
+                      <a href={`mailto:${customer.email}`} className="text-lg transition-colors hover:text-primary">
                         {customer.email}
                       </a>
                     </div>
@@ -128,10 +128,10 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
 
                 {customer.address && (
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                    <MapPin className="mt-1 h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Alamat</p>
-                      <p className="text-lg whitespace-pre-line">{customer.address}</p>
+                      <p className="font-medium text-muted-foreground text-sm">Alamat</p>
+                      <p className="whitespace-pre-line text-lg">{customer.address}</p>
                     </div>
                   </div>
                 )}
@@ -148,19 +148,19 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Customer ID</p>
-                  <p className="text-lg font-mono">{customer.id}</p>
+                  <p className="font-medium text-muted-foreground text-sm">Customer ID</p>
+                  <p className="font-mono text-lg">{customer.id}</p>
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Tanggal Pendaftaran</p>
+                  <p className="font-medium text-muted-foreground text-sm">Tanggal Pendaftaran</p>
                   <p className="text-lg">
                     {format(new Date(customer.created_at), "dd MMMM yyyy, HH:mm", { locale: idLocale })}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Status</p>
+                  <p className="font-medium text-muted-foreground text-sm">Status</p>
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Aktif</Badge>
                 </div>
               </CardContent>

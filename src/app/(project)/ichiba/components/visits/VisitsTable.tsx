@@ -1,34 +1,24 @@
 "use client";
 
-// biome-ignore assist/source/organizeImports: <none>
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import {
   type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  useReactTable,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   type SortingState,
-  type ColumnFiltersState,
-  getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { endOfDay, format, isWithinInterval, startOfDay } from "date-fns";
 import { id } from "date-fns/locale";
-import type { Visit } from "../../types";
+import { Calendar, ChevronLeft, ChevronRight, Eye, Loader2, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,15 +29,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { useDeleteVisit, useVisits } from "../../hooks/useVisits";
+import type { Visit } from "../../types";
 
 export function VisitsTable() {
-  // Remove props
   const router = useRouter();
-  const { data: visits = [], isLoading, refetch } = useVisits(); // Use hook directly
+  const { data: visits = [], isLoading, refetch } = useVisits();
   const { mutate: deleteVisit } = useDeleteVisit({
     onSuccess: () => {
-      refetch(); // Refetch after delete
+      refetch();
     },
   });
 
@@ -56,6 +59,8 @@ export function VisitsTable() {
   const [rowSelection, setRowSelection] = useState({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleDelete = (id: string) => {
     setVisitToDelete(id);
@@ -69,6 +74,26 @@ export function VisitsTable() {
       setVisitToDelete(null);
     }
   };
+
+  // Memoized filtered visits for better performance
+  const filteredVisits = useMemo(() => {
+    if (!dateRange.from || !dateRange.to) {
+      return visits;
+    }
+
+    const start = startOfDay(dateRange.from);
+    const end = endOfDay(dateRange.to);
+
+    return visits.filter((visit) => {
+      try {
+        const visitDate = new Date(visit.tanggal);
+        return isWithinInterval(visitDate, { start, end });
+      } catch (error) {
+        console.error("Error parsing date:", visit.tanggal, error);
+        return false;
+      }
+    });
+  }, [visits, dateRange.from, dateRange.to]);
 
   const columns: ColumnDef<Visit>[] = [
     {
@@ -86,7 +111,7 @@ export function VisitsTable() {
       cell: ({ row }) => {
         const customerName = row.original.customer?.name || "Unknown";
         return (
-          <div className="max-w-[200px] truncate" title={customerName}>
+          <div className="max-w-50 truncate" title={customerName}>
             {customerName}
           </div>
         );
@@ -142,7 +167,7 @@ export function VisitsTable() {
   ];
 
   const table = useReactTable({
-    data: visits,
+    data: filteredVisits,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -158,6 +183,19 @@ export function VisitsTable() {
     },
   });
 
+  const handleDateSelect = (range: { from?: Date; to?: Date } | undefined) => {
+    if (range) {
+      setDateRange(range);
+      // Don't close the calendar automatically
+      // Let user close it with the "Tutup" button
+    }
+  };
+
+  const clearDateFilter = () => {
+    setDateRange({});
+    setShowCalendar(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -169,14 +207,91 @@ export function VisitsTable() {
   return (
     <>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Input
-            placeholder="Cari customer..."
-            value={(table.getColumn("customerName")?.getFilterValue() as string) ?? ""}
-            onChange={(event) => table.getColumn("customerName")?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
-          <Button onClick={() => router.push("/ichiba/app/visits/create")}>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            <Input
+              placeholder="Cari customer..."
+              value={(table.getColumn("customerName")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn("customerName")?.setFilterValue(event.target.value)}
+              className="max-w-sm"
+            />
+
+            {/* Inline Calendar for Date Range Selection */}
+            <div className="relative">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground min-w-[250px]"
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setShowCalendar(!showCalendar);
+                    }
+                  }}
+                  aria-label="Toggle date range calendar"
+                >
+                  <Calendar className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "dd MMM yyyy", { locale: id })} -{" "}
+                          {format(dateRange.to, "dd MMM yyyy", { locale: id })}
+                        </>
+                      ) : (
+                        `${format(dateRange.from, "dd MMM yyyy", { locale: id })} - Pilih tanggal akhir`
+                      )
+                    ) : (
+                      "Filter Tanggal"
+                    )}
+                  </span>
+                </button>
+
+                {(dateRange.from || dateRange.to) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearDateFilter}
+                    className="h-8 w-8 p-0 shrink-0"
+                    title="Clear filter"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              {showCalendar && (
+                <div className="absolute top-full left-0 z-50 mt-2 rounded-md border bg-white shadow-lg">
+                  <CalendarComponent
+                    mode="range"
+                    selected={{ from: dateRange.from, to: dateRange.to }}
+                    onSelect={handleDateSelect}
+                    numberOfMonths={2}
+                    locale={id}
+                    className="p-3"
+                  />
+                  <div className="flex justify-end gap-2 border-t p-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setDateRange({});
+                        setShowCalendar(false);
+                      }}
+                      variant="outline"
+                    >
+                      Clear
+                    </Button>
+                    <Button size="sm" onClick={() => setShowCalendar(false)} variant="outline">
+                      Tutup
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Button onClick={() => router.push("/ichiba/app/visits/create")} className="shrink-0">
             <Calendar className="mr-2 h-4 w-4" />
             Visit Baru
           </Button>
@@ -207,7 +322,9 @@ export function VisitsTable() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    Tidak ada data order.
+                    {dateRange.from && dateRange.to
+                      ? "Tidak ada data visit pada rentang tanggal tersebut."
+                      : "Tidak ada data visit."}
                   </TableCell>
                 </TableRow>
               )}
@@ -215,9 +332,17 @@ export function VisitsTable() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-muted-foreground text-sm">
-            Menampilkan {table.getFilteredRowModel().rows.length} dari {visits.length} order.
+            <div>
+              Menampilkan {table.getFilteredRowModel().rows.length} dari {filteredVisits.length} visit.
+            </div>
+            {dateRange.from && dateRange.to && (
+              <div className="mt-1 text-xs">
+                Filter: {format(dateRange.from, "dd MMM yyyy", { locale: id })} -{" "}
+                {format(dateRange.to, "dd MMM yyyy", { locale: id })}
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <Button

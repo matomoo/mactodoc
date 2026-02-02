@@ -28,7 +28,7 @@ export default function CreateVisitPage() {
     <div className="container mx-auto py-10">
       <div className="mb-6">
         <Link
-          href="/ichiba/app/orders"
+          href="/ichiba/app/visits"
           className="flex items-center text-muted-foreground text-sm hover:text-foreground"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

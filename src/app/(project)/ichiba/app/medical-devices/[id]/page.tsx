@@ -72,10 +72,10 @@ export default async function MedicalDeviceDetailPage({ params }: MedicalDeviceD
               </div>
             </div>
             <div className="flex gap-2">
-              <Link href={`/ichiba/app/customers/edit/${medicalDevice.id}`}>
+              <Link href={`/ichiba/app/medical-devices/edit/${medicalDevice.id}`}>
                 <Button variant="outline">Edit Medical Device</Button>
               </Link>
-              <Link href={`/ichiba/app/orders/create?customerId=${medicalDevice.id}`}>
+              <Link href={`/ichiba/app/medical-devices/create?customerId=${medicalDevice.id}`}>
                 <Button>Buat Medical Device Baru</Button>
               </Link>
             </div>
