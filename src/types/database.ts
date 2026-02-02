@@ -10,26 +10,44 @@ export type Database = {
     Tables: {
       catalogs: {
         Row: {
+          brochure_url: string | null;
           category: string;
           created_at: string | null;
           description: string | null;
+          external_store_url: string | null;
+          featured: boolean | null;
           id: string;
+          image_url: string | null;
+          is_active: boolean | null;
+          tags: string[] | null;
           title: string;
           updated_at: string | null;
         };
         Insert: {
+          brochure_url?: string | null;
           category: string;
           created_at?: string | null;
           description?: string | null;
+          external_store_url?: string | null;
+          featured?: boolean | null;
           id?: string;
+          image_url?: string | null;
+          is_active?: boolean | null;
+          tags?: string[] | null;
           title: string;
           updated_at?: string | null;
         };
         Update: {
+          brochure_url?: string | null;
           category?: string;
           created_at?: string | null;
           description?: string | null;
+          external_store_url?: string | null;
+          featured?: boolean | null;
           id?: string;
+          image_url?: string | null;
+          is_active?: boolean | null;
+          tags?: string[] | null;
           title?: string;
           updated_at?: string | null;
         };

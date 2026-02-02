@@ -52,7 +52,7 @@ export const useUpdateCatalog = () => {
   });
 };
 
-export const useDeleteCatalog = (options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => {
+export const useDeleteCatalog = (_options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => {
   const queryClient = useQueryClient();
 
   return useMutation({

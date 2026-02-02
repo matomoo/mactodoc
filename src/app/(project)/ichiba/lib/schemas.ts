@@ -41,6 +41,9 @@ export const catalogSchema = z.object({
   title: z.string().min(1, "Title wajib diisi"),
   category: z.string().optional(),
   description: z.string().optional(),
+  image_url: z.string().optional(),
+  external_store_url: z.string().optional(),
+  brochure_url: z.string().optional(),
 });
 
 export type CustomerFormData = z.infer<typeof customerSchema>;

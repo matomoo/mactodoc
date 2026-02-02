@@ -74,6 +74,27 @@ export function CatalogForm({ initialData, onSubmit, isLoading }: CatalogFormPro
             {errors.category && <p className="text-red-500 text-sm">{errors.category.message}</p>}
           </div>
 
+          {/* Image URL */}
+          <div className="space-y-2">
+            <Label htmlFor="image_url">Image</Label>
+            <Input id="image_url" {...register("image_url")} placeholder="Image" />
+            {errors.image_url && <p className="text-red-500 text-sm">{errors.image_url.message}</p>}
+          </div>
+
+          {/* External Store URL */}
+          <div className="space-y-2">
+            <Label htmlFor="external_store_url">External Store URL</Label>
+            <Input id="external_store_url" {...register("external_store_url")} placeholder="External Store URL" />
+            {errors.external_store_url && <p className="text-red-500 text-sm">{errors.external_store_url.message}</p>}
+          </div>
+
+          {/* Brochure URL */}
+          <div className="space-y-2">
+            <Label htmlFor="brochure_url">Brochure URL</Label>
+            <Input id="brochure_url" {...register("brochure_url")} placeholder="Brochure URL" />
+            {errors.brochure_url && <p className="text-red-500 text-sm">{errors.brochure_url.message}</p>}
+          </div>
+
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Deskripsi</Label>
