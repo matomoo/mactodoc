@@ -66,7 +66,6 @@ export default async function TestTypeDetailPage({ params }: TestTypeDetailPageP
                 <Badge variant="outline" className="text-sm">
                   ID: {testType.id.slice(0, 8)}
                 </Badge>
-                <span className="text-muted-foreground text-sm"></span>
               </div>
             </div>
             <div className="flex gap-2">

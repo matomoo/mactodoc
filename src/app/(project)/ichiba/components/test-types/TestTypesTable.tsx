@@ -141,8 +141,8 @@ export function TestTypesTable() {
         <div className="flex items-center justify-between">
           <Input
             placeholder="Cari ..."
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-            onChange={(event) => table.getColumn("title")?.setFilterValue(event.target.value)}
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
             className="max-w-sm"
           />
           <Button onClick={() => router.push("/ichiba/app/test-types/create")}>
