@@ -1,10 +1,13 @@
-// components/sales-transactions-chart.tsx
 "use client";
 
+// biome-ignore assist/source/organizeImports: <none>
 import { useMemo, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar, Filter, AlertCircle } from "lucide-react";
 
 import { useSalesTransactions } from "../../hooks/useSalesTransactions";
 import {
@@ -15,36 +18,45 @@ import {
   summarizeSalesBySalesperson,
   summarizeSalesByType,
 } from "../../utils/sales-utils";
+import { useDateFilterStore } from "@/stores/date-filter-store";
+import { filterTransactionsByDateRange, formatDateRange } from "../../utils/date-utils";
 
 type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type" | "category";
 type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
-  const { data: transactions = [], isLoading } = useSalesTransactions();
+  const { data: allTransactions = [], isLoading } = useSalesTransactions();
   const [searchQuery, _setSearchQuery] = useState("");
   const [sortField, _setSortField] = useState<SortField>("total_sales");
   const [sortDirection, _setSortDirection] = useState<SortDirection>("desc");
 
-  // Process data
+  const { startMonth, startYear, endMonth, endYear } = useDateFilterStore();
+
+  // Filter transactions based on date range
+  const filteredTransactions = useMemo(() => {
+    return filterTransactionsByDateRange(allTransactions, startMonth, startYear, endMonth, endYear);
+  }, [allTransactions, startMonth, startYear, endMonth, endYear]);
+
+  // Process data with filtered transactions
   const customerSummaries = useMemo(() => {
-    return summarizeSalesByCustomer(transactions);
-  }, [transactions]);
+    return summarizeSalesByCustomer(filteredTransactions);
+  }, [filteredTransactions]);
 
   const regionSummaries = useMemo(() => {
-    return summarizeSalesByRegion(transactions);
-  }, [transactions]);
+    return summarizeSalesByRegion(filteredTransactions);
+  }, [filteredTransactions]);
 
   const salespersonSummaries = useMemo(() => {
-    return summarizeSalesBySalesperson(transactions);
-  }, [transactions]);
+    return summarizeSalesBySalesperson(filteredTransactions);
+  }, [filteredTransactions]);
 
   const typeSummaries = useMemo(() => {
-    return summarizeSalesByType(transactions);
-  }, [transactions]);
+    return summarizeSalesByType(filteredTransactions);
+  }, [filteredTransactions]);
 
   const categorySummaries = useMemo(() => {
-    return summarizeSalesByCategory(transactions);
-  }, [transactions]);
+    return summarizeSalesByCategory(filteredTransactions);
+  }, [filteredTransactions]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -207,6 +219,9 @@ export function SalesTransactionsChart() {
     "bg-pastel-orange-100 text-pastel-orange-800",
   ];
 
+  // Date range display
+  const dateRangeText = formatDateRange(startMonth, startYear, endMonth, endYear);
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -221,6 +236,7 @@ export function SalesTransactionsChart() {
       <Card className="border-pastel-purple-border bg-gradient-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-purple-900">Sales Summary</CardTitle>
+          <CardDescription className="text-pastel-purple-700">Filtered data from {dateRangeText}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Summary Stats */}
@@ -229,12 +245,20 @@ export function SalesTransactionsChart() {
               <CardContent className="pt-6">
                 <div className="text-pastel-blue-800 text-sm">Total Customers</div>
                 <div className="font-bold text-2xl text-pastel-blue-900">{customerSummaries.length}</div>
+                <div className="text-pastel-blue-600 text-xs mt-1">
+                  {filteredTransactions.length > 0 ? <>Active in selected period</> : <>No data in selected range</>}
+                </div>
               </CardContent>
             </Card>
             <Card className={`border-0 shadow-sm ${cardColors[1]}`}>
               <CardContent className="pt-6">
                 <div className="text-pastel-green-800 text-sm">Total Transactions</div>
-                <div className="font-bold text-2xl text-pastel-green-900">{transactions.length}</div>
+                <div className="font-bold text-2xl text-pastel-green-900">{filteredTransactions.length}</div>
+                <div className="text-pastel-green-600 text-xs mt-1">
+                  {allTransactions.length > 0 && (
+                    <>{((filteredTransactions.length / allTransactions.length) * 100).toFixed(1)}% of total</>
+                  )}
+                </div>
               </CardContent>
             </Card>
             <Card className={`border-0 shadow-sm ${cardColors[2]}`}>
@@ -242,6 +266,15 @@ export function SalesTransactionsChart() {
                 <div className="text-pastel-pink-800 text-sm">Total Sales Value</div>
                 <div className="font-bold text-2xl text-pastel-pink-900">
                   {formatCurrency(customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0))}
+                </div>
+                <div className="text-pastel-pink-600 text-xs mt-1">
+                  Average:{" "}
+                  {formatCurrency(
+                    filteredTransactions.length > 0
+                      ? customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0) / filteredTransactions.length
+                      : 0,
+                  )}{" "}
+                  per transaction
                 </div>
               </CardContent>
             </Card>
@@ -254,7 +287,8 @@ export function SalesTransactionsChart() {
         <CardHeader>
           <CardTitle className="text-pastel-blue-900">Sales Summary by Customer</CardTitle>
           <CardDescription className="text-pastel-blue-700">
-            Total {customerSummaries.length} customers with {transactions.length} transactions
+            Total {customerSummaries.length} customers with {filteredTransactions.length} transactions in{" "}
+            {dateRangeText}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -291,7 +325,7 @@ export function SalesTransactionsChart() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-pastel-blue-700">
-                      No customers found
+                      No customers found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
@@ -306,7 +340,7 @@ export function SalesTransactionsChart() {
         <CardHeader>
           <CardTitle className="text-pastel-green-900">Sales Summary by Region</CardTitle>
           <CardDescription className="text-pastel-green-700">
-            Total {regionSummaries.length} region with {transactions.length} transactions
+            Total {regionSummaries.length} region with {filteredTransactions.length} transactions in {dateRangeText}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -343,7 +377,7 @@ export function SalesTransactionsChart() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-pastel-green-700">
-                      No regions found
+                      No regions found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
@@ -358,7 +392,7 @@ export function SalesTransactionsChart() {
         <CardHeader>
           <CardTitle className="text-pastel-pink-900">Sales Summary by Type</CardTitle>
           <CardDescription className="text-pastel-pink-700">
-            Total {typeSummaries.length} type with {transactions.length} transactions
+            Total {typeSummaries.length} type with {filteredTransactions.length} transactions in {dateRangeText}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -395,7 +429,7 @@ export function SalesTransactionsChart() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-pastel-pink-700">
-                      No type found
+                      No type found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
@@ -410,7 +444,7 @@ export function SalesTransactionsChart() {
         <CardHeader>
           <CardTitle className="text-pastel-purple-900">Sales Summary by Category</CardTitle>
           <CardDescription className="text-pastel-purple-700">
-            Total {categorySummaries.length} category with {transactions.length} transactions
+            Total {categorySummaries.length} category with {filteredTransactions.length} transactions in {dateRangeText}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -447,7 +481,7 @@ export function SalesTransactionsChart() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-pastel-purple-700">
-                      No category found
+                      No category found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
@@ -462,7 +496,8 @@ export function SalesTransactionsChart() {
         <CardHeader>
           <CardTitle className="text-pastel-yellow-900">Sales Summary by Salesperson</CardTitle>
           <CardDescription className="text-pastel-yellow-700">
-            Total {salespersonSummaries.length} salesperson with {transactions.length} transactions
+            Total {salespersonSummaries.length} salesperson with {filteredTransactions.length} transactions in{" "}
+            {dateRangeText}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -499,7 +534,7 @@ export function SalesTransactionsChart() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center text-pastel-yellow-700">
-                      No salesperson found
+                      No salesperson found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
