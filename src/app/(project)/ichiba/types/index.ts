@@ -111,6 +111,11 @@ export interface MedicalDevices {
   id: string;
   name: string;
   description: string | null;
+  merk: string | null;
+  type: string | null;
+  series: string | null;
+  test_types_id: string;
+  test_type?: TestType;
 }
 
 export interface Profiles {

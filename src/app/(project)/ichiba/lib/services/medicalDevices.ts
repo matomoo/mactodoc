@@ -5,7 +5,15 @@ import type { MedicalDeviceFormData } from "../schemas";
 
 export const medicalDevicesService = {
   async getAll() {
-    const { data, error } = await supabase.from("medical_devices").select("*").order("name");
+    const { data, error } = await supabase
+      .from("medical_devices")
+      .select(
+        `
+        *,
+        test_type:test_types(*)
+      `,
+      )
+      .order("name");
 
     if (error) throw error;
     return data as MedicalDevices[];
@@ -49,11 +57,7 @@ export const medicalDevicesService = {
   },
 
   async search(query: string) {
-    const { data, error } = await supabase
-      .from("medical_devices")
-      .select("*")
-      .or(`name.ilike.%${query}%,contact_person.ilike.%${query}%,phone.ilike.%${query}%`)
-      .limit(10);
+    const { data, error } = await supabase.from("medical_devices").select("*").or(`name.ilike.%${query}%`).limit(10);
 
     if (error) throw error;
     return data as MedicalDevices[];

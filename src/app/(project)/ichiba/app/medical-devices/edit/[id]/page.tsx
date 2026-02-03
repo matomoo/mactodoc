@@ -76,6 +76,10 @@ export default function EditMedicalDevicePage({ params }: EditMedicalDevicePageP
   const initialData: MedicalDeviceFormData = {
     name: dataMedicalDevice.name,
     description: dataMedicalDevice.description || "",
+    merk: dataMedicalDevice.merk || "",
+    series: dataMedicalDevice.series || "",
+    type: dataMedicalDevice.type || "",
+    test_types_id: dataMedicalDevice.test_types_id || "",
   };
 
   return (

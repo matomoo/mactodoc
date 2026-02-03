@@ -35,6 +35,10 @@ export const visitSchema = z.object({
 export const medicalDeviceSchema = z.object({
   name: z.string().min(1, "Nama Medical Device wajib diisi"),
   description: z.string().optional(),
+  merk: z.string().optional(),
+  type: z.string().optional(),
+  series: z.string().optional(),
+  test_types_id: z.string().min(1, "Test Type wajib diisi"),
 });
 
 export const catalogSchema = z.object({

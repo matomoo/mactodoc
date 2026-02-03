@@ -49,6 +49,8 @@ export function MedicalDevicesTable() {
     },
   });
 
+  console.log(medicalDevices);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -74,8 +76,20 @@ export function MedicalDevicesTable() {
       header: "Nama Medical Device",
     },
     {
-      accessorKey: "description",
-      header: "Description",
+      accessorKey: "merk",
+      header: "Merk",
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+    },
+    {
+      accessorKey: "series",
+      header: "Series",
+    },
+    {
+      accessorFn: (row) => row.test_type?.name || "Unknown",
+      header: "Kategory",
     },
     {
       id: "actions",

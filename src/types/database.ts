@@ -87,19 +87,39 @@ export type Database = {
         Row: {
           description: string | null;
           id: string;
+          merk: string | null;
           name: string;
+          series: string | null;
+          test_types_id: string | null;
+          type: string | null;
         };
         Insert: {
           description?: string | null;
           id?: string;
+          merk?: string | null;
           name: string;
+          series?: string | null;
+          test_types_id?: string | null;
+          type?: string | null;
         };
         Update: {
           description?: string | null;
           id?: string;
+          merk?: string | null;
           name?: string;
+          series?: string | null;
+          test_types_id?: string | null;
+          type?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "medical_devices_test_types_id_fkey";
+            columns: ["test_types_id"];
+            isOneToOne: false;
+            referencedRelation: "test_types";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       order_tests: {
         Row: {
