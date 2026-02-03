@@ -46,9 +46,15 @@ export const catalogSchema = z.object({
   brochure_url: z.string().optional(),
 });
 
+export const testTypeSchema = z.object({
+  name: z.string().min(1, "Nama Test Type wajib diisi"),
+  description: z.string().optional(),
+});
+
 export type CustomerFormData = z.infer<typeof customerSchema>;
 export type ProfileFormData = z.infer<typeof profileSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
 export type VisitFormData = z.infer<typeof visitSchema>;
 export type MedicalDeviceFormData = z.infer<typeof medicalDeviceSchema>;
 export type CatalogFormData = z.infer<typeof catalogSchema>;
+export type TestTypeFormData = z.infer<typeof testTypeSchema>;
