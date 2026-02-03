@@ -39,59 +39,38 @@ export default function ImportPage() {
         const mappedData: ExcelData[] = jsonData
           .slice(1)
           .map((row) => {
-            const excelDateToJSDate = (serial: number): Date => {
-              // Excel's epoch is 1900-01-00 (day 0), but it incorrectly considers 1900 a leap year
-              // JavaScript's epoch is 1970-01-01
-              const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
-              const jsDate = new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
+            const excelDateToJSDateWithTimezone = (serial: number): Date => {
+              const excelEpoch = Date.UTC(1899, 11, 31);
 
-              // Adjust for Excel's incorrect leap year calculation
-              if (serial >= 60) {
-                jsDate.setDate(jsDate.getDate() - 1);
+              const utcTime = excelEpoch + serial * 24 * 60 * 60 * 1000;
+
+              const jsDate = new Date(utcTime);
+
+              if (serial >= 61) {
+                jsDate.setUTCDate(jsDate.getUTCDate() - 1);
               }
 
               return jsDate;
             };
 
-            const formatExcelDate = (dateValue: any): string => {
-              if (!dateValue && dateValue !== 0) return ""; // Handle null, undefined, empty string
+            const excelDateToFormattedString = (
+              serial: number,
+              format: "YYYY-MM-DD" | "local" = "YYYY-MM-DD",
+            ): string => {
+              const date = excelDateToJSDateWithTimezone(serial);
+              console.log("date", date);
+              console.log(serial);
 
-              try {
-                // If it's already a string date
-                if (typeof dateValue === "string") {
-                  const date = new Date(dateValue);
-                  if (!isNaN(date.getTime())) {
-                    return date.toISOString().split("T")[0]; // YYYY-MM-DD
-                  }
-                  return dateValue; // Return as-is if can't parse
-                }
-
-                // If it's a Date object
-                if (dateValue instanceof Date) {
-                  return dateValue.toISOString().split("T")[0];
-                }
-
-                // If it's a number (Excel serial date)
-                if (typeof dateValue === "number") {
-                  // Check if it's an Excel date (numbers around 40000+ are likely dates)
-                  if (dateValue > 20000) {
-                    // Dates after ~1954
-                    const jsDate = excelDateToJSDate(dateValue);
-                    return jsDate.toISOString().split("T")[0];
-                  }
-                  // Small number might be a regular number, not a date
-                  return dateValue.toString();
-                }
-
-                // For any other type
-                return dateValue.toString();
-              } catch (error) {
-                console.error("Date formatting error:", error, dateValue);
-                return dateValue?.toString() || "";
+              if (format === "YYYY-MM-DD") {
+                const year = date.getUTCFullYear();
+                const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+                const day = String(date.getUTCDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
               }
+
+              return date.toLocaleDateString();
             };
 
-            // Find indices for each required column
             const columnIndices = {
               Pelanggan: headers.indexOf("Pelanggan"),
               "Nama Barang": headers.indexOf("Nama Barang"),
@@ -107,7 +86,7 @@ export default function ImportPage() {
             return {
               Pelanggan: row[columnIndices.Pelanggan] || "",
               "Nama Barang": row[columnIndices["Nama Barang"]] || "",
-              Tanggal: formatExcelDate(row[columnIndices.Tanggal]),
+              Tanggal: excelDateToFormattedString(row[columnIndices.Tanggal]),
               "Nama Default Penjual Pelang": row[columnIndices["Nama Default Penjual Pelang"]] || "",
               Kuantitas: Number(row[columnIndices.Kuantitas]) || 0,
               Penjualan: Number(row[columnIndices.Penjualan]) || 0,
