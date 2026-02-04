@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { useDeleteVisit, useVisits } from "../../hooks/useVisits";
@@ -61,6 +62,7 @@ export function VisitsTable() {
   const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedSalesperson, setSelectedSalesperson] = useState<string>("all");
 
   const handleDelete = (id: string) => {
     setVisitToDelete(id);
@@ -75,25 +77,44 @@ export function VisitsTable() {
     }
   };
 
-  // Memoized filtered visits for better performance
-  const filteredVisits = useMemo(() => {
-    if (!dateRange.from || !dateRange.to) {
-      return visits;
-    }
-
-    const start = startOfDay(dateRange.from);
-    const end = endOfDay(dateRange.to);
-
-    return visits.filter((visit) => {
-      try {
-        const visitDate = new Date(visit.tanggal);
-        return isWithinInterval(visitDate, { start, end });
-      } catch (error) {
-        console.error("Error parsing date:", visit.tanggal, error);
-        return false;
+  // Get unique salespersons from visits
+  const salespersons = useMemo(() => {
+    const uniqueSalespersons = new Set<string>();
+    visits.forEach((visit) => {
+      if (visit.sales?.full_name) {
+        uniqueSalespersons.add(visit.sales.full_name);
       }
     });
-  }, [visits, dateRange.from, dateRange.to]);
+    return Array.from(uniqueSalespersons).sort();
+  }, [visits]);
+
+  // Memoized filtered visits for better performance
+  const filteredVisits = useMemo(() => {
+    let filtered = visits;
+
+    // Filter by date range
+    if (dateRange.from && dateRange.to) {
+      const start = startOfDay(dateRange.from);
+      const end = endOfDay(dateRange.to);
+
+      filtered = filtered.filter((visit) => {
+        try {
+          const visitDate = new Date(visit.tanggal);
+          return isWithinInterval(visitDate, { start, end });
+        } catch (error) {
+          console.error("Error parsing date:", visit.tanggal, error);
+          return false;
+        }
+      });
+    }
+
+    // Filter by salesperson
+    if (selectedSalesperson !== "all") {
+      filtered = filtered.filter((visit) => visit.sales?.full_name === selectedSalesperson);
+    }
+
+    return filtered;
+  }, [visits, dateRange.from, dateRange.to, selectedSalesperson]);
 
   const columns: ColumnDef<Visit>[] = [
     {
@@ -186,14 +207,16 @@ export function VisitsTable() {
   const handleDateSelect = (range: { from?: Date; to?: Date } | undefined) => {
     if (range) {
       setDateRange(range);
-      // Don't close the calendar automatically
-      // Let user close it with the "Tutup" button
     }
   };
 
   const clearDateFilter = () => {
     setDateRange({});
     setShowCalendar(false);
+  };
+
+  const clearSalespersonFilter = () => {
+    setSelectedSalesperson("all");
   };
 
   if (isLoading) {
@@ -209,6 +232,7 @@ export function VisitsTable() {
       <div className="space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            {/* Customer Search */}
             <Input
               placeholder="Cari customer..."
               value={(table.getColumn("customerName")?.getFilterValue() as string) ?? ""}
@@ -216,7 +240,36 @@ export function VisitsTable() {
               className="max-w-sm"
             />
 
-            {/* Inline Calendar for Date Range Selection */}
+            {/* Salesperson Filter */}
+            <div className="flex items-center gap-2">
+              <Select value={selectedSalesperson} onValueChange={setSelectedSalesperson}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter Salesperson" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Salesperson</SelectItem>
+                  {salespersons.map((salesperson) => (
+                    <SelectItem key={salesperson} value={salesperson}>
+                      {salesperson}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedSalesperson !== "all" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSalespersonFilter}
+                  className="h-8 w-8 p-0 shrink-0"
+                  title="Clear salesperson filter"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Date Range Filter */}
             <div className="relative">
               <div className="flex items-center gap-2">
                 <button
@@ -254,7 +307,7 @@ export function VisitsTable() {
                     size="sm"
                     onClick={clearDateFilter}
                     className="h-8 w-8 p-0 shrink-0"
-                    title="Clear filter"
+                    title="Clear date filter"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -297,6 +350,56 @@ export function VisitsTable() {
           </Button>
         </div>
 
+        {/* Active Filters Summary */}
+        {(dateRange.from && dateRange.to) || selectedSalesperson !== "all" ? (
+          <div className="flex flex-wrap gap-2 rounded-lg bg-muted p-3">
+            <div className="text-sm font-medium">Filter Aktif:</div>
+
+            {selectedSalesperson !== "all" && (
+              <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm">
+                <span>Salesperson: {selectedSalesperson}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSalespersonFilter}
+                  className="h-4 w-4 p-0 hover:bg-transparent"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+
+            {dateRange.from && dateRange.to && (
+              <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm">
+                <span>
+                  Tanggal: {format(dateRange.from, "dd MMM yyyy", { locale: id })} -{" "}
+                  {format(dateRange.to, "dd MMM yyyy", { locale: id })}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearDateFilter}
+                  className="h-4 w-4 p-0 hover:bg-transparent"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                clearDateFilter();
+                clearSalespersonFilter();
+              }}
+              className="ml-auto text-sm"
+            >
+              Clear All Filters
+            </Button>
+          </div>
+        ) : null}
+
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -322,8 +425,8 @@ export function VisitsTable() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    {dateRange.from && dateRange.to
-                      ? "Tidak ada data visit pada rentang tanggal tersebut."
+                    {(dateRange.from && dateRange.to) || selectedSalesperson !== "all"
+                      ? "Tidak ada data visit dengan filter yang dipilih."
                       : "Tidak ada data visit."}
                   </TableCell>
                 </TableRow>
@@ -337,12 +440,18 @@ export function VisitsTable() {
             <div>
               Menampilkan {table.getFilteredRowModel().rows.length} dari {filteredVisits.length} visit.
             </div>
-            {dateRange.from && dateRange.to && (
+            {(dateRange.from && dateRange.to) || selectedSalesperson !== "all" ? (
               <div className="mt-1 text-xs">
-                Filter: {format(dateRange.from, "dd MMM yyyy", { locale: id })} -{" "}
-                {format(dateRange.to, "dd MMM yyyy", { locale: id })}
+                Filter: {selectedSalesperson !== "all" && `Salesperson: ${selectedSalesperson}`}
+                {selectedSalesperson !== "all" && dateRange.from && dateRange.to && ", "}
+                {dateRange.from && dateRange.to && (
+                  <span>
+                    {format(dateRange.from, "dd MMM yyyy", { locale: id })} -{" "}
+                    {format(dateRange.to, "dd MMM yyyy", { locale: id })}
+                  </span>
+                )}
               </div>
-            )}
+            ) : null}
           </div>
           <div className="flex items-center space-x-2">
             <Button
