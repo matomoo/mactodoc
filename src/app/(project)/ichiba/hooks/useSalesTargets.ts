@@ -29,7 +29,7 @@ export const useCreateSalesTarget = () => {
       toast.success("SalesTarget berhasil ditambahkan");
     },
     onError: (error) => {
-      toast.error("Gagal menambahkan sales-targets");
+      toast.error("Gagal menambahkan Sales Target. Data mungkin sudah ada.");
       console.error(error);
     },
   });

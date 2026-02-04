@@ -13,16 +13,20 @@ import {
   summarizeSalesByCustomer,
   summarizeSalesByRegion,
   summarizeSalesBySalesperson,
+  summarizeSalesBySalespersonWithTarget,
   summarizeSalesByType,
 } from "../../utils/sales-utils";
 import { useDateFilterStore } from "@/stores/date-filter-store";
 import { filterTransactionsByDateRange, formatDateRange } from "../../utils/date-utils";
+import { useSalesTargets } from "../../hooks/useSalesTargets";
 
 type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type" | "category";
 type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
   const { data: allTransactions = [], isLoading } = useSalesTransactions();
+  const { data: salesTarget = [] } = useSalesTargets();
+
   const [searchQuery, _setSearchQuery] = useState("");
   const [sortField, _setSortField] = useState<SortField>("total_sales");
   const [sortDirection, _setSortDirection] = useState<SortDirection>("desc");
@@ -43,9 +47,16 @@ export function SalesTransactionsChart() {
     return summarizeSalesByRegion(filteredTransactions);
   }, [filteredTransactions]);
 
+  // const salespersonSummaries = useMemo(() => {
+  //   return summarizeSalesBySalesperson(filteredTransactions);
+  // }, [filteredTransactions]);
+
   const salespersonSummaries = useMemo(() => {
-    return summarizeSalesBySalesperson(filteredTransactions);
-  }, [filteredTransactions]);
+    return summarizeSalesBySalespersonWithTarget(filteredTransactions, salesTarget);
+  }, [filteredTransactions, salesTarget]);
+
+  console.log("filteredTransactions", filteredTransactions);
+  console.log("salesTarget", salesTarget);
 
   const typeSummaries = useMemo(() => {
     return summarizeSalesByType(filteredTransactions);
@@ -502,35 +513,65 @@ export function SalesTransactionsChart() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-pastel-yellow-50 hover:bg-pastel-yellow-50">
-                  <TableHead className="w-[40%] text-pastel-yellow-800">Sales Person</TableHead>
+                  <TableHead className="w-[25%] text-pastel-yellow-800">Sales Person</TableHead>
+                  <TableHead className="text-right text-pastel-yellow-800">Target Amount</TableHead>
                   <TableHead className="text-right text-pastel-yellow-800">Total Sales</TableHead>
+                  <TableHead className="text-right text-pastel-yellow-800">Achievement %</TableHead>
                   <TableHead className="text-right text-pastel-yellow-800">Transactions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedDataBySalesperson.length > 0 ? (
-                  filteredAndSortedDataBySalesperson.map((data, index) => (
-                    <TableRow key={data.salesperson} className="hover:bg-pastel-yellow-50/50">
-                      <TableCell className="font-medium">
-                        <div>
-                          <p className="font-semibold text-pastel-yellow-900">{data.salesperson}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right font-semibold text-pastel-yellow-900">
-                        {formatCurrency(data.total_sales)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span
-                          className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
-                        >
-                          {data.transaction_count}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  filteredAndSortedDataBySalesperson.map((data, index) => {
+                    // Calculate achievement percentage
+                    const achievementPercentage =
+                      data.target_amount && data.target_amount > 0
+                        ? (data.total_sales / data.target_amount) * 100
+                        : null;
+
+                    // Determine achievement status color
+                    const getAchievementColor = (percentage: number | null) => {
+                      if (percentage === null) return "text-gray-500";
+                      if (percentage >= 100) return "text-green-600 font-bold";
+                      if (percentage >= 75) return "text-yellow-600";
+                      return "text-red-600";
+                    };
+
+                    return (
+                      <TableRow key={data.salesperson} className="hover:bg-pastel-yellow-50/50">
+                        <TableCell className="font-medium">
+                          <div>
+                            <p className="font-semibold text-pastel-yellow-900">{data.salesperson}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-pastel-yellow-900">
+                          {data.target_amount ? (
+                            formatCurrency(data.target_amount)
+                          ) : (
+                            <span className="text-gray-400">No target</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-pastel-yellow-900">
+                          {formatCurrency(data.total_sales)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className={`font-semibold ${getAchievementColor(achievementPercentage)}`}>
+                            {achievementPercentage !== null ? `${achievementPercentage.toFixed(1)}%` : "-"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span
+                            className={`inline-flex items-center justify-center rounded-full px-2 py-1 font-semibold text-xs ${badgeColors[index % badgeColors.length]}`}
+                          >
+                            {data.transaction_count}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-8 text-center text-pastel-yellow-700">
+                    <TableCell colSpan={5} className="py-8 text-center text-pastel-yellow-700">
                       No salesperson found in selected date range
                     </TableCell>
                   </TableRow>

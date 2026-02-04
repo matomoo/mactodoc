@@ -5,6 +5,7 @@ import type {
   CustomerSalesSummary,
   RegionSalesSummary,
   SalespersonSalesSummary,
+  SalesTarget,
   SalesTransaction,
   TypeSummary,
 } from "../types";
@@ -132,4 +133,47 @@ export function formatCurrency(amount: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+// Add a new function or modify existing one
+export function summarizeSalesBySalespersonWithTarget(
+  transactions: SalesTransaction[],
+  salesTargets: SalesTarget[], // Add this parameter
+) {
+  const salesByPerson = new Map<
+    string,
+    {
+      salesperson: string;
+      total_sales: number;
+      transaction_count: number;
+      target_amount: number | null;
+    }
+  >();
+
+  // Create a map of salesperson names to their target amounts
+  const targetMap = new Map<string, number>();
+  salesTargets.forEach((target) => {
+    const salesName = target.sales?.full_name;
+    if (salesName) {
+      targetMap.set(salesName, target.target_amount);
+    }
+  });
+
+  transactions.forEach((transaction) => {
+    const { salesperson, sales_amount } = transaction;
+    const current = salesByPerson.get(salesperson) || {
+      salesperson,
+      total_sales: 0,
+      transaction_count: 0,
+      target_amount: targetMap.get(salesperson) || null,
+    };
+
+    salesByPerson.set(salesperson, {
+      ...current,
+      total_sales: current.total_sales + sales_amount,
+      transaction_count: current.transaction_count + 1,
+    });
+  });
+
+  return Array.from(salesByPerson.values());
 }
