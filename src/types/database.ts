@@ -222,6 +222,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      sales_targets: {
+        Row: {
+          created_at: string;
+          id: string;
+          profiles_id: string;
+          target_amount: number | null;
+          target_unit: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          profiles_id: string;
+          target_amount?: number | null;
+          target_unit?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          profiles_id?: string;
+          target_amount?: number | null;
+          target_unit?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sales_targets_profiles_id_fkey";
+            columns: ["profiles_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       sales_transactions: {
         Row: {
           category: string | null;
@@ -261,27 +293,6 @@ export type Database = {
           salesperson?: string | null;
           type?: string | null;
           updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      target_sales: {
-        Row: {
-          created_at: string;
-          id: string;
-          target_sales: number | null;
-          target_unit: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          target_sales?: number | null;
-          target_unit?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          target_sales?: number | null;
-          target_unit?: string | null;
         };
         Relationships: [];
       };

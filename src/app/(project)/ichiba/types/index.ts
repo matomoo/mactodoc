@@ -30,6 +30,14 @@ export interface Visit {
   sales?: Profiles;
 }
 
+export interface SalesTarget {
+  id: string;
+  profiles_id: string;
+  target_amount: number;
+  target_unit: string;
+  sales?: Profiles;
+}
+
 export interface SalesTransaction {
   customer: string;
   product_name: string;
