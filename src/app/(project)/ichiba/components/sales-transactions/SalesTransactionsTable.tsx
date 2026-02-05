@@ -2,78 +2,30 @@
 
 import { useMemo, useState } from "react";
 
-import { useRouter } from "next/navigation";
+import { endOfDay, format, parseISO, startOfDay } from "date-fns";
+import { Filter, Loader2, X } from "lucide-react";
 
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type FilterFn,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import { endOfDay, format, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import { id } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Filter, Loader2, X } from "lucide-react";
-
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { useSalesTransactions } from "../../hooks/useSalesTransactions";
 import type { SalesTransaction } from "../../types";
+import { formatCurrency } from "../../utils/sales-utils";
 
 interface SalesTransactionsTableProps {
   data?: SalesTransaction[];
   useHook?: boolean;
 }
 
-// Custom filter function for date range
-const dateRangeFilter: FilterFn<SalesTransaction> = (row, columnId, filterValue) => {
-  if (!filterValue || !Array.isArray(filterValue) || filterValue.length !== 2) {
-    return true;
-  }
-
-  const [from, to] = filterValue;
-  if (!from && !to) return true;
-
-  try {
-    const date = parseISO(row.getValue(columnId));
-
-    if (from && to) {
-      const startDate = startOfDay(parseISO(from));
-      const endDate = endOfDay(parseISO(to));
-      return isWithinInterval(date, { start: startDate, end: endDate });
-    }
-    if (from) {
-      const startDate = startOfDay(parseISO(from));
-      return date >= startDate;
-    }
-    if (to) {
-      const endDate = endOfDay(parseISO(to));
-      return date <= endDate;
-    }
-  } catch (error) {
-    console.error("Error parsing date:", error);
-    return false;
-  }
-
-  return true;
-};
-
-export default function SalesTransactionsTable({ data, useHook = false }: SalesTransactionsTableProps) {
-  const router = useRouter();
-  const { data: salesTransactions = [], isLoading } = useSalesTransactions(); // Always use hook
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState("");
+export default function SalesTransactionsCardView({ data, useHook = false }: SalesTransactionsTableProps) {
+  const { data: salesTransactions = [], isLoading } = useSalesTransactions();
+  const [filterState, setFilterState] = useState<Record<string, any>>({});
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 100;
 
   // Get unique values for filter dropdowns
   const filterOptions = useMemo(() => {
@@ -100,112 +52,66 @@ export default function SalesTransactionsTable({ data, useHook = false }: SalesT
     };
   }, [salesTransactions]);
 
-  const columns: ColumnDef<SalesTransaction>[] = [
-    {
-      accessorFn: (row) => row.customer || "Unknown",
-      id: "customerName",
-      header: "Customer",
-      cell: ({ row }) => {
-        const customerName = row.original.customer || "Unknown";
-        return (
-          <div className="max-w-50 truncate text-sm" title={customerName}>
-            {customerName}
-          </div>
-        );
-      },
-    },
-    {
-      accessorFn: (row) => row.product_name || "Unknown",
-      id: "productName",
-      header: "Nama Produk",
-      cell: ({ row }) => {
-        const productName = row.original.product_name || "Unknown";
-        return (
-          <div className="max-w-50 truncate text-sm" title={productName}>
-            {productName}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "date",
-      header: "Tanggal",
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("date"));
-        return format(date, "dd MMM yyyy", { locale: id });
-      },
-      filterFn: dateRangeFilter, // Use the function reference directly
-    },
-    {
-      accessorKey: "salesperson",
-      header: "Sales",
-      cell: ({ row }) => <div className="text-sm">{row.getValue("salesperson")}</div>,
-    },
-    {
-      accessorKey: "quantity",
-      header: "Jumlah",
-      cell: ({ row }) => <div className="text-sm">{row.getValue("quantity")}</div>,
-    },
-    {
-      accessorKey: "sales_amount",
-      header: "Jumlah Penjualan",
-      cell: ({ row }) => {
-        const sales_amount = Number(row.getValue("sales_amount")) || 0;
-        return <div className="text-sm">Rp {sales_amount.toLocaleString()}</div>;
-      },
-    },
-    {
-      accessorKey: "category",
-      header: "Kategory",
-      cell: ({ row }) => <div className="text-sm">{row.getValue("category")}</div>,
-    },
-    {
-      accessorKey: "region",
-      header: "Region",
-      cell: ({ row }) => <div className="text-sm">{row.getValue("region")}</div>,
-    },
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => <div className="text-sm">{row.getValue("type")}</div>,
-    },
-  ];
+  // Apply filters
+  const filteredTransactions = useMemo(() => {
+    const filterTransaction = (transaction: SalesTransaction) => {
+      if (Object.keys(filterState).length === 0) return true;
 
-  const table = useReactTable({
-    data: salesTransactions,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-      globalFilter,
-    },
-    // Set initial page size to 100
-    initialState: {
-      pagination: {
-        pageSize: 100,
-      },
-    },
-  });
+      let match = true;
+
+      // Check customer name
+      if (filterState.customerName) {
+        const rowCustomer = transaction.customer || "";
+        match = match && rowCustomer.toLowerCase().includes(filterState.customerName.toLowerCase());
+      }
+
+      // Check salesperson
+      if (filterState.salesperson && filterState.salesperson !== "Semua Sales") {
+        const rowSalesperson = transaction.salesperson || "";
+        match = match && rowSalesperson === filterState.salesperson;
+      }
+
+      // Check date range
+      if (filterState.dateFrom || filterState.dateTo) {
+        try {
+          const rowDate = parseISO(transaction.date);
+
+          if (filterState.dateFrom) {
+            const startDate = startOfDay(parseISO(filterState.dateFrom));
+            match = match && rowDate >= startDate;
+          }
+          if (filterState.dateTo) {
+            const endDate = endOfDay(parseISO(filterState.dateTo));
+            match = match && rowDate <= endDate;
+          }
+        } catch (error) {
+          console.error("Error parsing date:", error);
+          return false;
+        }
+      }
+
+      return match;
+    };
+
+    return salesTransactions.filter(filterTransaction);
+  }, [salesTransactions, filterState]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
   // Clear all filters
   const clearAllFilters = () => {
-    setColumnFilters([]);
-    setGlobalFilter("");
+    setFilterState({});
+    setCurrentPage(1);
   };
 
   // Check if any filters are active
-  const hasActiveFilters = columnFilters.length > 0 || globalFilter;
+  const hasActiveFilters = Object.keys(filterState).length > 0;
 
-  // Show loading state AFTER all hooks are called
+  // Show loading state
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -240,316 +146,308 @@ export default function SalesTransactionsTable({ data, useHook = false }: SalesT
 
       {/* Advanced Filters Panel */}
       {showFilters && (
-        <div className="rounded-lg border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-medium">Filter Lanjutan</h3>
-            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-6 text-xs">
-              Clear All
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {/* Customer Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Customer</div>
-              <Input
-                placeholder="Cari customer..."
-                value={(table.getColumn("customerName")?.getFilterValue() as string) ?? ""}
-                onChange={(event) => table.getColumn("customerName")?.setFilterValue(event.target.value)}
-                className="h-8 text-sm"
-              />
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium">Filter Lanjutan</CardTitle>
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-6 text-xs">
+                Clear All
+              </Button>
             </div>
-
-            {/* Product Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Produk</div>
-              <Select
-                value={(table.getColumn("productName")?.getFilterValue() as string) ?? ""}
-                onValueChange={(value) =>
-                  table.getColumn("productName")?.setFilterValue(value === "all" ? undefined : value)
-                }
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Semua Produk" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Produk</SelectItem>
-                  {filterOptions.products.map((product) => (
-                    <SelectItem key={product} value={product}>
-                      {product}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Salesperson Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Sales</div>
-              <Select
-                value={(table.getColumn("salesperson")?.getFilterValue() as string) ?? ""}
-                onValueChange={(value) =>
-                  table.getColumn("salesperson")?.setFilterValue(value === "all" ? undefined : value)
-                }
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Semua Sales" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Sales</SelectItem>
-                  {filterOptions.salespersons.map((salesperson) => (
-                    <SelectItem key={salesperson} value={salesperson}>
-                      {salesperson}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Category Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Kategori</div>
-              <Select
-                value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
-                onValueChange={(value) =>
-                  table.getColumn("category")?.setFilterValue(value === "all" ? undefined : value)
-                }
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Semua Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kategori</SelectItem>
-                  {filterOptions.categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Region Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Region</div>
-              <Select
-                value={(table.getColumn("region")?.getFilterValue() as string) ?? ""}
-                onValueChange={(value) =>
-                  table.getColumn("region")?.setFilterValue(value === "all" ? undefined : value)
-                }
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Semua Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Region</SelectItem>
-                  {filterOptions.regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Type Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Type</div>
-              <Select
-                value={(table.getColumn("type")?.getFilterValue() as string) ?? ""}
-                onValueChange={(value) => table.getColumn("type")?.setFilterValue(value === "all" ? undefined : value)}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Semua Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Type</SelectItem>
-                  {filterOptions.types.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Date Range Filter */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium">Tanggal (Range)</div>
-              <div className="flex gap-2">
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {/* Customer Filter */}
+              <div className="space-y-2">
+                <div className="text-xs font-medium">Customer</div>
                 <Input
-                  placeholder="Dari"
-                  type="date"
-                  value={(table.getColumn("date")?.getFilterValue() as [string, string])?.[0] ?? ""}
+                  placeholder="Cari customer..."
+                  value={filterState.customerName || ""}
                   onChange={(event) => {
-                    const from = event.target.value || undefined;
-                    const current = (table.getColumn("date")?.getFilterValue() as [string, string]) ?? [
-                      undefined,
-                      undefined,
-                    ];
-                    table.getColumn("date")?.setFilterValue([from, current[1]]);
-                  }}
-                  className="h-8 text-sm"
-                />
-                <Input
-                  placeholder="Sampai"
-                  type="date"
-                  value={(table.getColumn("date")?.getFilterValue() as [string, string])?.[1] ?? ""}
-                  onChange={(event) => {
-                    const to = event.target.value || undefined;
-                    const current = (table.getColumn("date")?.getFilterValue() as [string, string]) ?? [
-                      undefined,
-                      undefined,
-                    ];
-                    table.getColumn("date")?.setFilterValue([current[0], to]);
+                    setFilterState((prev) => ({
+                      ...prev,
+                      customerName: event.target.value || undefined,
+                    }));
+                    setCurrentPage(1); // Reset to first page when filter changes
                   }}
                   className="h-8 text-sm"
                 />
               </div>
+
+              {/* Salesperson Filter */}
+              <div className="space-y-2">
+                <div className="text-xs font-medium">Sales</div>
+                <Select
+                  value={filterState.salesperson || ""}
+                  onValueChange={(value) => {
+                    setFilterState((prev) => ({
+                      ...prev,
+                      salesperson: value === "all" ? undefined : value,
+                    }));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue placeholder="Semua Sales" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Sales</SelectItem>
+                    {filterOptions.salespersons.map((salesperson) => (
+                      <SelectItem key={salesperson} value={salesperson}>
+                        {salesperson}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Date Range Filter */}
+              <div className="space-y-2">
+                <div className="text-xs font-medium">Tanggal (Range)</div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Dari"
+                    type="date"
+                    value={filterState.dateFrom || ""}
+                    onChange={(event) => {
+                      setFilterState((prev) => ({
+                        ...prev,
+                        dateFrom: event.target.value || undefined,
+                      }));
+                      setCurrentPage(1);
+                    }}
+                    className="h-8 text-sm"
+                  />
+                  <Input
+                    placeholder="Sampai"
+                    type="date"
+                    value={filterState.dateTo || ""}
+                    onChange={(event) => {
+                      setFilterState((prev) => ({
+                        ...prev,
+                        dateTo: event.target.value || undefined,
+                      }));
+                      setCurrentPage(1);
+                    }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 rounded-lg bg-muted p-3">
-          <div className="text-sm font-medium">Filter Aktif:</div>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex flex-wrap gap-2">
+              <div className="text-sm font-medium">Filter Aktif:</div>
 
-          {globalFilter && (
-            <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs">
-              <span>Search: "{globalFilter}"</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setGlobalFilter("")}
-                className="h-4 w-4 p-0 hover:bg-transparent"
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              {Object.entries(filterState).map(([key, value]) => {
+                if (!value) return null;
+
+                let displayValue = "";
+                let displayLabel = "";
+
+                switch (key) {
+                  case "customerName":
+                    displayLabel = "Customer";
+                    displayValue = value;
+                    break;
+                  case "salesperson":
+                    displayLabel = "Sales";
+                    displayValue = value;
+                    break;
+                  case "dateFrom":
+                    displayLabel = "Tanggal Dari";
+                    try {
+                      displayValue = format(new Date(value), "dd MMM yyyy");
+                    } catch {
+                      displayValue = value;
+                    }
+                    break;
+                  case "dateTo":
+                    displayLabel = "Tanggal Sampai";
+                    try {
+                      displayValue = format(new Date(value), "dd MMM yyyy");
+                    } catch {
+                      displayValue = value;
+                    }
+                    break;
+                  default:
+                    displayLabel = key;
+                    displayValue = value;
+                }
+
+                return (
+                  <Badge key={key} variant="secondary" className="inline-flex items-center gap-1">
+                    <span>
+                      {displayLabel}: {displayValue}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setFilterState((prev) => {
+                          const newState = { ...prev };
+                          delete newState[key];
+                          return newState;
+                        });
+                        setCurrentPage(1);
+                      }}
+                      className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                );
+              })}
             </div>
-          )}
-
-          {columnFilters.map((filter) => {
-            const column = table.getColumn(filter.id);
-            if (!column) return null;
-
-            const filterValue = filter.value;
-            let displayValue = "";
-
-            if (Array.isArray(filterValue)) {
-              // Handle range filters
-              if (filter.id === "quantity") {
-                const [min, max] = filterValue as [number?, number?];
-                if (min || max) {
-                  displayValue = `Jumlah: ${min ?? "min"} - ${max ?? "max"}`;
-                }
-              } else if (filter.id === "date") {
-                const [from, to] = filterValue as [string?, string?];
-                if (from || to) {
-                  try {
-                    displayValue = `Tanggal: ${from ? format(new Date(from), "dd MMM yyyy") : "..."} - ${to ? format(new Date(to), "dd MMM yyyy") : "..."}`;
-                  } catch (error) {
-                    displayValue = `Tanggal: ${from} - ${to}`;
-                  }
-                }
-              }
-            } else if (filterValue && filterValue !== "all") {
-              // Handle single value filters, skip "all" value
-              displayValue = `${column.columnDef.header}: ${filterValue}`;
-            }
-
-            if (!displayValue) return null;
-
-            return (
-              <div
-                key={filter.id}
-                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs"
-              >
-                <span>{displayValue}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => column.setFilterValue(undefined)}
-                  className="h-4 w-4 p-0 hover:bg-transparent"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            );
-          })}
-        </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Table with smaller font */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-xs">
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-xs">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-xs">
-                  {hasActiveFilters ? "Tidak ada data dengan filter yang dipilih." : "Tidak ada data transaksi."}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      {/* Results Summary */}
+      <div className="text-sm text-muted-foreground">
+        Menampilkan {filteredTransactions.length} transaksi
+        {filteredTransactions.length !== salesTransactions.length &&
+          ` (difilter dari ${salesTransactions.length} total)`}
       </div>
 
-      {/* Pagination with 100 rows per page */}
-      <div className="flex items-center justify-between">
-        <div className="text-muted-foreground text-xs">
-          Menampilkan {table.getFilteredRowModel().rows.length} dari {salesTransactions.length} transaksi.
-          <span className="ml-2 text-xs">
-            (Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()})
-          </span>
+      {/* Transactions Cards */}
+      {/* {paginatedTransactions.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {paginatedTransactions.map((transaction) => (
+            <Card key={`${transaction.customer}-${transaction.product_name}-${transaction.date}`} className="overflow-hidden">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium truncate">
+                  {transaction.customer || "Unknown Customer"}
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {format(new Date(transaction.date), "dd MMM yyyy")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Salesperson:</span>
+                    <span className="text-xs font-medium">{transaction.salesperson}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Amount:</span>
+                    <span className="text-sm font-bold">${transaction.sales_amount}</span>
+                  </div>
+                  {transaction.product_name && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Product:</span>
+                      <span className="text-xs truncate max-w-[150px]">{transaction.product_name}</span>
+                    </div>
+                  )}
+                  {transaction.region && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Region:</span>
+                      <span className="text-xs">{transaction.region}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="h-8 text-xs"
+      ) : (
+        <Card>
+          <CardContent className="flex h-32 items-center justify-center">
+            <p className="text-muted-foreground text-sm">
+              {hasActiveFilters
+                ? "Tidak ada transaksi dengan filter yang dipilih."
+                : "Tidak ada data transaksi."}
+            </p>
+          </CardContent>
+        </Card>
+      )} */}
+
+      {/* // Simple list view alternative */}
+      <div className="space-y-2">
+        {paginatedTransactions.map((transaction) => (
+          <div
+            key={`${transaction.customer}-${transaction.product_name}-${transaction.date}`}
+            className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50"
           >
-            <ChevronLeft className="h-3 w-3" />
-          </Button>
-          <span className="text-xs">
-            {table.getState().pagination.pageIndex * 100 + 1} -{" "}
-            {Math.min((table.getState().pagination.pageIndex + 1) * 100, table.getFilteredRowModel().rows.length)}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="h-8 text-xs"
-          >
-            <ChevronRight className="h-3 w-3" />
-          </Button>
-          <div className="ml-4 text-xs text-muted-foreground">100 baris per halaman</div>
-        </div>
+            <div className="flex-1">
+              <div className="font-medium">{transaction.customer || "Unknown"}</div>
+              <div className="text-sm text-muted-foreground">
+                {transaction.salesperson} • {format(new Date(transaction.date), "dd MMM yyyy")}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-bold">{formatCurrency(transaction.sales_amount)}</div>
+              <div className="text-xs text-muted-foreground">{transaction.product_name}</div>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Halaman {currentPage} dari {totalPages} • Menampilkan {startIndex + 1}-
+                {Math.min(endIndex, filteredTransactions.length)} dari {filteredTransactions.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 text-xs"
+                >
+                  Sebelumnya
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="h-8 w-8 text-xs"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="h-8 text-xs"
+                >
+                  Selanjutnya
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
