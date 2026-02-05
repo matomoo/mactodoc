@@ -83,6 +83,12 @@ export interface CategorySummary {
   transaction_count: number;
 }
 
+export interface ProductNameSummary {
+  product_name: string;
+  total_sales: number;
+  transaction_count: number;
+}
+
 export interface TestType {
   id: string;
   name: string;

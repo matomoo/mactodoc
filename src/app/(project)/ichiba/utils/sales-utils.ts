@@ -3,6 +3,7 @@
 import type {
   CategorySummary,
   CustomerSalesSummary,
+  ProductNameSummary,
   RegionSalesSummary,
   SalespersonSalesSummary,
   SalesTarget,
@@ -123,6 +124,27 @@ export function summarizeSalesByCategory(transactions: SalesTransaction[]): Cate
   });
 
   return Array.from(categoryMap.values()).sort((a, b) => b.total_sales - a.total_sales);
+}
+
+export function summarizeSalesByProductName(transactions: SalesTransaction[]): ProductNameSummary[] {
+  const productNameMap = new Map<string, ProductNameSummary>();
+
+  transactions.forEach((transaction) => {
+    const existing = productNameMap.get(transaction.category);
+
+    if (existing) {
+      existing.total_sales += transaction.quantity;
+      existing.transaction_count += 1;
+    } else {
+      productNameMap.set(transaction.product_name, {
+        product_name: transaction.product_name,
+        total_sales: transaction.quantity,
+        transaction_count: 1,
+      });
+    }
+  });
+
+  return Array.from(productNameMap.values()).sort((a, b) => b.total_sales - a.total_sales);
 }
 
 // Format currency helper

@@ -12,15 +12,23 @@ import {
   summarizeSalesByCategory,
   summarizeSalesByCustomer,
   summarizeSalesByRegion,
-  summarizeSalesBySalesperson,
   summarizeSalesBySalespersonWithTarget,
   summarizeSalesByType,
+  summarizeSalesByProductName,
 } from "../../utils/sales-utils";
 import { useDateFilterStore } from "@/stores/date-filter-store";
 import { filterTransactionsByDateRange, formatDateRange } from "../../utils/date-utils";
 import { useSalesTargets } from "../../hooks/useSalesTargets";
 
-type SortField = "customer" | "total_sales" | "transaction_count" | "region" | "salesperson" | "type" | "category";
+type SortField =
+  | "customer"
+  | "total_sales"
+  | "transaction_count"
+  | "region"
+  | "salesperson"
+  | "type"
+  | "category"
+  | "product_name";
 type SortDirection = "asc" | "desc";
 
 export function SalesTransactionsChart() {
@@ -64,6 +72,10 @@ export function SalesTransactionsChart() {
 
   const categorySummaries = useMemo(() => {
     return summarizeSalesByCategory(filteredTransactions);
+  }, [filteredTransactions]);
+
+  const productNameSummaries = useMemo(() => {
+    return summarizeSalesByProductName(filteredTransactions);
   }, [filteredTransactions]);
 
   // Filter and sort data
@@ -207,6 +219,34 @@ export function SalesTransactionsChart() {
     return filtered;
   }, [categorySummaries, searchQuery, sortField, sortDirection]);
 
+  const filteredAndSortedDataByProductName = useMemo(() => {
+    const filtered = productNameSummaries.filter((data) =>
+      data.product_name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+
+    filtered.sort((a, b) => {
+      if (sortField === "product_name") {
+        const aValue = a[sortField].toLowerCase();
+        const bValue = b[sortField].toLowerCase();
+        if (sortDirection === "asc") {
+          return aValue.localeCompare(bValue);
+        }
+        return bValue.localeCompare(aValue);
+      }
+      if (sortField === "total_sales" || sortField === "transaction_count") {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        if (sortDirection === "asc") {
+          return aValue - bValue;
+        }
+        return bValue - aValue;
+      }
+      return 0;
+    });
+
+    return filtered.slice(0, 10);
+  }, [productNameSummaries, searchQuery, sortField, sortDirection]);
+
   // Pastel color classes for cards
   const cardColors = [
     "bg-gradient-to-br from-pastel-blue-light to-pastel-blue-dark border-pastel-blue-border",
@@ -241,7 +281,7 @@ export function SalesTransactionsChart() {
   return (
     <div className="space-y-6">
       {/* Main Sales Summary Card */}
-      <Card className="border-pastel-purple-border bg-gradient-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
+      <Card className="border-pastel-purple-border bg-linear-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-purple-900">Sales Summary</CardTitle>
           <CardDescription className="text-pastel-purple-700">Filtered data from {dateRangeText}</CardDescription>
@@ -253,7 +293,7 @@ export function SalesTransactionsChart() {
               <CardContent className="pt-6">
                 <div className="text-pastel-blue-800 text-sm">Total Customers</div>
                 <div className="font-bold text-2xl text-pastel-blue-900">{customerSummaries.length}</div>
-                <div className="text-pastel-blue-600 text-xs mt-1">
+                <div className="mt-1 text-pastel-blue-600 text-xs">
                   {filteredTransactions.length > 0 ? <>Active in selected period</> : <>No data in selected range</>}
                 </div>
               </CardContent>
@@ -262,7 +302,7 @@ export function SalesTransactionsChart() {
               <CardContent className="pt-6">
                 <div className="text-pastel-green-800 text-sm">Total Transactions</div>
                 <div className="font-bold text-2xl text-pastel-green-900">{filteredTransactions.length}</div>
-                <div className="text-pastel-green-600 text-xs mt-1">
+                <div className="mt-1 text-pastel-green-600 text-xs">
                   {allTransactions.length > 0 && (
                     <>{((filteredTransactions.length / allTransactions.length) * 100).toFixed(1)}% of total</>
                   )}
@@ -275,7 +315,7 @@ export function SalesTransactionsChart() {
                 <div className="font-bold text-2xl text-pastel-pink-900">
                   {formatCurrency(customerSummaries.reduce((sum, cust) => sum + cust.total_sales, 0))}
                 </div>
-                <div className="text-pastel-pink-600 text-xs mt-1">
+                <div className="mt-1 text-pastel-pink-600 text-xs">
                   Average:{" "}
                   {formatCurrency(
                     filteredTransactions.length > 0
@@ -291,7 +331,7 @@ export function SalesTransactionsChart() {
       </Card>
 
       {/* Customer Sales Card */}
-      <Card className="border-pastel-blue-border bg-gradient-to-br from-pastel-blue-light/20 to-pastel-blue-dark/10">
+      <Card className="border-pastel-blue-border bg-linear-to-br from-pastel-blue-light/20 to-pastel-blue-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-blue-900">Sales Summary by Customer</CardTitle>
           <CardDescription className="text-pastel-blue-700">
@@ -344,7 +384,7 @@ export function SalesTransactionsChart() {
       </Card>
 
       {/* Region Sales Card */}
-      <Card className="border-pastel-green-border bg-gradient-to-br from-pastel-green-light/20 to-pastel-green-dark/10">
+      <Card className="border-pastel-green-border bg-linear-to-br from-pastel-green-light/20 to-pastel-green-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-green-900">Sales Summary by Region</CardTitle>
           <CardDescription className="text-pastel-green-700">
@@ -396,7 +436,7 @@ export function SalesTransactionsChart() {
       </Card>
 
       {/* Type Sales Card */}
-      <Card className="border-pastel-pink-border bg-gradient-to-br from-pastel-pink-light/20 to-pastel-pink-dark/10">
+      <Card className="border-pastel-pink-border bg-linear-to-br from-pastel-pink-light/20 to-pastel-pink-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-pink-900">Sales Summary by Type</CardTitle>
           <CardDescription className="text-pastel-pink-700">
@@ -448,7 +488,7 @@ export function SalesTransactionsChart() {
       </Card>
 
       {/* Category Sales Card */}
-      <Card className="border-pastel-purple-border bg-gradient-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
+      <Card className="border-pastel-purple-border bg-linear-to-br from-pastel-purple-light/20 to-pastel-purple-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-purple-900">Sales Summary by Category</CardTitle>
           <CardDescription className="text-pastel-purple-700">
@@ -500,7 +540,7 @@ export function SalesTransactionsChart() {
       </Card>
 
       {/* Salesperson Sales Card */}
-      <Card className="border-pastel-yellow-border bg-gradient-to-br from-pastel-yellow-light/20 to-pastel-yellow-dark/10">
+      <Card className="border-pastel-yellow-border bg-linear-to-br from-pastel-yellow-light/20 to-pastel-yellow-dark/10">
         <CardHeader>
           <CardTitle className="text-pastel-yellow-900">Sales Summary by Salesperson</CardTitle>
           <CardDescription className="text-pastel-yellow-700">
@@ -573,6 +613,47 @@ export function SalesTransactionsChart() {
                   <TableRow>
                     <TableCell colSpan={5} className="py-8 text-center text-pastel-yellow-700">
                       No salesperson found in selected date range
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ProductName Card */}
+      <Card className="border-pastel-blue-border bg-linear-to-br from-pastel-blue-light/20 to-pastel-blue-dark/10">
+        <CardHeader>
+          <CardTitle className="text-pastel-blue-900">Top 10 Sales By Product Name</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border border-pastel-blue-200">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-pastel-blue-50 hover:bg-pastel-blue-50">
+                  <TableHead className="w-[25%] text-pastel-blue-800">Product Name</TableHead>
+                  <TableHead className="text-right text-pastel-blue-800">Total Sales</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedDataByProductName.length > 0 ? (
+                  filteredAndSortedDataByProductName.map((data, _index) => (
+                    <TableRow key={data.product_name} className="hover:bg-pastel-blue-50/50">
+                      <TableCell className="font-medium">
+                        <div>
+                          <p className="font-semibold text-pastel-blue-900">{data.product_name}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-pastel-blue-900">
+                        {data.total_sales}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="py-8 text-center text-pastel-purple-700">
+                      No Product Name found in selected date range
                     </TableCell>
                   </TableRow>
                 )}
