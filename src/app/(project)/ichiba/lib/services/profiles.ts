@@ -1,6 +1,5 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { supabase } from "../supabase";
-import type { ProfileFormData } from "../schemas";
 import type { Profiles } from "../../types";
 
 export const profilesService = {
@@ -16,20 +15,6 @@ export const profilesService = {
     if (error) throw error;
     return data as Profiles;
   },
-
-  // async create(profile: ProfileFormData) {
-  //   const { data, error } = await supabase.from("profiles").insert([profile]).select().single();
-
-  //   if (error) throw error;
-  //   return data as Profiles;
-  // },
-
-  // async update(id: string, profile: Partial<ProfileFormData>) {
-  //   const { data, error } = await supabase.from("profiles").update(profile).eq("id", id).select().single();
-
-  //   if (error) throw error;
-  //   return data as Profiles;
-  // },
 
   async delete(id: string) {
     const { error } = await supabase.from("profiles").delete().eq("id", id);

@@ -5,34 +5,6 @@ import { revalidatePath } from "next/cache";
 import type { ExcelData, ImportResult } from "../../types/import";
 import { supabase } from "../supabase";
 
-// Helper function to categorize products
-const getProductCategory = (productName: string): string => {
-  if (!productName) return "Unknown";
-
-  const name = productName.toLowerCase();
-
-  if (name.includes("kimia") || name.includes("klinik") || name.includes("chemistry")) {
-    return "Clinical Chemistry";
-  }
-  if (name.includes("hematology") || name.includes("hematologi") || name.includes("darah")) {
-    return "Hematology";
-  }
-  if (name.includes("urine") || name.includes("urin") || name.includes("urinalysis")) {
-    return "Urine Analysis";
-  }
-  if (name.includes("serology") || name.includes("serologi")) {
-    return "Serology";
-  }
-  if (name.includes("immunology") || name.includes("imunologi")) {
-    return "Immunology";
-  }
-  if (name.includes("coagulation") || name.includes("koagulasi")) {
-    return "Coagulation";
-  }
-
-  return "Other";
-};
-
 // Function to remove duplicates within the dataset
 const deduplicateData = (data: any[]): any[] => {
   const seen = new Map<string, any>();

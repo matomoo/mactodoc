@@ -49,8 +49,6 @@ export function MedicalDevicesTable() {
     },
   });
 
-  console.log(medicalDevices);
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});

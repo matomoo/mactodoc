@@ -95,6 +95,31 @@ export interface TestType {
   description: string | null;
 }
 
+export interface UserActivities {
+  id: string;
+  user_id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  details: string;
+  created_at?: string;
+  user?: Profiles;
+}
+
+export interface ParsedActivity extends UserActivities {
+  parsed_details: {
+    action: string;
+    entity: string;
+    timestamp: string;
+    newData: Record<string, unknown>;
+    previousData?: Record<string, unknown>;
+  };
+  formatted_date: string;
+  formatted_time: string;
+  icon: string;
+  color: string;
+}
+
 export interface OrderTest {
   order_id: string;
   test_type_id: string;

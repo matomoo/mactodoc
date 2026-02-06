@@ -56,6 +56,14 @@ export const testTypeSchema = z.object({
   description: z.string().optional(),
 });
 
+export const userActivitiesSchema = z.object({
+  user_id: z.string().min(1, "UserId wajib diisi"),
+  action: z.string().min(1, "Action wajib diisi"),
+  entity_type: z.string().optional(),
+  entity_id: z.string().optional(),
+  details: z.string().optional(),
+});
+
 export const salesTargetSchema = z.object({
   profiles_id: z.string().min(1, "Sales wajib dipilih"),
   target_amount: z.preprocess(
@@ -73,3 +81,4 @@ export type MedicalDeviceFormData = z.infer<typeof medicalDeviceSchema>;
 export type CatalogFormData = z.infer<typeof catalogSchema>;
 export type TestTypeFormData = z.infer<typeof testTypeSchema>;
 export type SalesTargetFormData = z.infer<typeof salesTargetSchema>;
+export type UserActivitiesFormData = z.infer<typeof userActivitiesSchema>;

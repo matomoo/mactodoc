@@ -314,6 +314,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_activities: {
+        Row: {
+          action: string;
+          created_at: string | null;
+          details: Json | null;
+          entity_id: string | null;
+          entity_type: string | null;
+          id: string;
+          user_id: string | null;
+        };
+        Insert: {
+          action: string;
+          created_at?: string | null;
+          details?: Json | null;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          action?: string;
+          created_at?: string | null;
+          details?: Json | null;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_activities_user_id_fkey1";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       visit_medicals: {
         Row: {
           medical_devices_id: string;

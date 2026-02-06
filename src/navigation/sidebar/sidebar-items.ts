@@ -100,6 +100,11 @@ export const sidebarItems: NavGroup[] = [
           },
         ],
       },
+      {
+        title: "User Activities",
+        url: "/ichiba/app/user-activities",
+        icon: Fingerprint,
+      },
     ],
   },
 ];
