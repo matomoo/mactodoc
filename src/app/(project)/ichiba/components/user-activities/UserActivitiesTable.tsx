@@ -1,28 +1,12 @@
 "use client";
-
-import { useEffect, useState } from "react";
+// biome-ignore assist/source/organizeImports: <none>
+import { useState, useMemo } from "react";
 
 import { useRouter } from "next/navigation";
 
 import { format, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
-import {
-  Calendar,
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Edit,
-  Eye,
-  FileText,
-  Filter,
-  Loader2,
-  MoreHorizontal,
-  PlusCircle,
-  Trash2,
-  User,
-  X,
-} from "lucide-react";
+import { Calendar, CheckCircle, Edit, Eye, FileText, Filter, Loader2, PlusCircle, Trash2, User } from "lucide-react";
 
 import {
   AlertDialog,
@@ -34,18 +18,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useDeleteUserActivity, useUserActivities } from "../../hooks/useUserActivities";
+import type { UserActivities } from "../../types";
 
 interface TimelineActivity {
   user_email: string;
@@ -72,7 +49,6 @@ interface TimelineActivity {
 }
 
 export function UserActivitiesTable() {
-  const router = useRouter();
   const { data: userActivities = [], isLoading, refetch } = useUserActivities();
   // const { data: users = [] } = useUsers(); // You'll need to create this hook
   const { mutate: deleteUserActivity } = useDeleteUserActivity({
@@ -82,24 +58,20 @@ export function UserActivitiesTable() {
   });
 
   const [selectedUser, setSelectedUser] = useState<string>("all");
-  const [filteredActivities, setFilteredActivities] = useState<TimelineActivity[]>([]);
-  const [expandedActivity, setExpandedActivity] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userActivityToDelete, setUserActivityToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter activities by selected user
-  useEffect(() => {
-    // Parse activity details
-    const parseActivityDetails = (activity: any): TimelineActivity => {
+  const parseActivityDetails = useMemo(() => {
+    return (activity: any): TimelineActivity => {
       try {
         // Parse the details JSON
         let detailsString = activity.details;
-        if (detailsString.startsWith('"') && detailsString.endsWith('"')) {
+        if (detailsString?.startsWith('"') && detailsString?.endsWith('"')) {
           detailsString = detailsString.slice(1, -1);
         }
 
-        const parsedDetails = JSON.parse(detailsString);
+        const parsedDetails = detailsString ? JSON.parse(detailsString) : {};
         const date = parseISO(activity.created_at);
 
         // Get user name
@@ -159,8 +131,14 @@ export function UserActivitiesTable() {
         };
       }
     };
+  }, []);
 
-    let activities = userActivities.map(parseActivityDetails);
+  // Calculate filtered activities with useMemo to prevent unnecessary recalculations
+  const filteredActivities = useMemo(() => {
+    // Parse all activities first
+    const parsedActivities = userActivities.map(parseActivityDetails);
+
+    let activities = parsedActivities;
 
     // Filter by user
     if (selectedUser !== "all") {
@@ -168,27 +146,38 @@ export function UserActivitiesTable() {
     }
 
     // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
       activities = activities.filter(
         (activity) =>
           activity.user_name.toLowerCase().includes(query) ||
           activity.entity_type.toLowerCase().includes(query) ||
-          activity.entity_display.toLowerCase().includes(query) ||
+          (activity.entity_display && activity.entity_display.toLowerCase().includes(query)) ||
           activity.action.toLowerCase().includes(query),
       );
     }
 
     // Sort by date (newest first)
-    activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return [...activities].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [userActivities, selectedUser, searchQuery, parseActivityDetails]);
 
-    setFilteredActivities(activities);
-  }, [userActivities, selectedUser, searchQuery]);
+  const uniqueUsers = useMemo(() => {
+    return filteredActivities.reduce(
+      (acc, activity) => {
+        if (activity.user_id && !acc.some((u) => u.id === activity.user_id)) {
+          acc.push({
+            id: activity.user_id,
+            name: activity.user_name,
+            email: activity.user_email || "",
+          });
+        }
+        return acc;
+      },
+      [] as Array<{ id: string; name: string; email: string }>,
+    );
+  }, [filteredActivities]);
 
-  const handleDelete = (id: string) => {
-    setUserActivityToDelete(id);
-    setDeleteDialogOpen(true);
-  };
+  // Filter activities by selected user
 
   const confirmDelete = () => {
     if (userActivityToDelete) {
@@ -216,19 +205,19 @@ export function UserActivitiesTable() {
 
   // Get unique users from activities
   // Get unique users from activities directly
-  const uniqueUsers = filteredActivities.reduce(
-    (acc, activity) => {
-      if (!acc.some((u) => u.id === activity.user_id)) {
-        acc.push({
-          id: activity.user_id,
-          name: activity.user_name,
-          email: activity.user_email || "",
-        });
-      }
-      return acc;
-    },
-    [] as Array<{ id: string; name: string; email: string }>,
-  );
+  // const uniqueUsers = filteredActivities.reduce(
+  //   (acc, activity) => {
+  //     if (!acc.some((u) => u.id === activity.user_id)) {
+  //       acc.push({
+  //         id: activity.user_id,
+  //         name: activity.user_name,
+  //         email: activity.user_email || "",
+  //       });
+  //     }
+  //     return acc;
+  //   },
+  //   [] as Array<{ id: string; name: string; email: string }>,
+  // );
 
   if (isLoading) {
     return (
@@ -377,6 +366,9 @@ export function UserActivitiesTable() {
                           <div className="flex items-start justify-between">
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-gray-700">
+                                  {activity.user_name}
+                                </span>
                                 <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">
                                   {activity.entity_type}
                                 </span>
@@ -391,8 +383,6 @@ export function UserActivitiesTable() {
                                 <span>{activity.formatted_date}</span>
                                 <span>•</span>
                                 <span>{activity.formatted_time}</span>
-                                {/* <span>•</span>
-                                <span className="font-mono">{activity.entity_type}</span> */}
                               </div>
                             </div>
 
