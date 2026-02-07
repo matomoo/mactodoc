@@ -34,6 +34,8 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
     const regions = new Set<string>();
     const types = new Set<string>();
     const products = new Set<string>();
+    const po_numbers = new Set<string>();
+    const nomor_invoices = new Set<string>();
 
     salesTransactions.forEach((transaction) => {
       if (transaction.salesperson) salespersons.add(transaction.salesperson);
@@ -41,6 +43,8 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
       if (transaction.region) regions.add(transaction.region);
       if (transaction.type) types.add(transaction.type);
       if (transaction.product_name) products.add(transaction.product_name);
+      if (transaction.po_number) po_numbers.add(transaction.po_number);
+      if (transaction.nomor_invoice) nomor_invoices.add(transaction.nomor_invoice);
     });
 
     return {
@@ -49,6 +53,8 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
       regions: Array.from(regions).sort(),
       types: Array.from(types).sort(),
       products: Array.from(products).sort(),
+      po_numbers: Array.from(po_numbers).sort(),
+      nomor_invoices: Array.from(nomor_invoices).sort(),
     };
   }, [salesTransactions]);
 
@@ -59,16 +65,36 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
 
       let match = true;
 
-      // Check customer name
-      if (filterState.customerName) {
+      // Check customer name, PO number, and invoice number
+      if (filterState.searchText) {
+        const searchText = filterState.searchText.toLowerCase();
         const rowCustomer = transaction.customer || "";
-        match = match && rowCustomer.toLowerCase().includes(filterState.customerName.toLowerCase());
+        const rowPoNumber = transaction.po_number || "";
+        const rowNomorInvoice = transaction.nomor_invoice || "";
+
+        const customerMatch = rowCustomer.toLowerCase().includes(searchText);
+        const poMatch = rowPoNumber.toLowerCase().includes(searchText);
+        const invoiceMatch = rowNomorInvoice.toLowerCase().includes(searchText);
+
+        match = match && (customerMatch || poMatch || invoiceMatch);
       }
 
       // Check salesperson
       if (filterState.salesperson && filterState.salesperson !== "Semua Sales") {
         const rowSalesperson = transaction.salesperson || "";
         match = match && rowSalesperson === filterState.salesperson;
+      }
+
+      // Check PO number (exact match for dropdown)
+      if (filterState.po_number && filterState.po_number !== "Semua PO Number") {
+        const rowPoNumber = transaction.po_number || "";
+        match = match && rowPoNumber === filterState.po_number;
+      }
+
+      // Check invoice number (exact match for dropdown)
+      if (filterState.nomor_invoice && filterState.nomor_invoice !== "Semua Nomor Invoices") {
+        const rowNomorInvoice = transaction.nomor_invoice || "";
+        match = match && rowNomorInvoice === filterState.nomor_invoice;
       }
 
       // Check date range
@@ -157,16 +183,16 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-              {/* Customer Filter */}
+              {/* Combined Search Filter - Customer, PO Number, and Invoice Number */}
               <div className="space-y-2">
-                <div className="font-medium text-xs">Customer</div>
+                <div className="font-medium text-xs">Cari (Customer/PO/Invoice)</div>
                 <Input
-                  placeholder="Cari customer..."
-                  value={filterState.customerName || ""}
+                  placeholder="Cari customer, nomor PO, atau nomor invoice..."
+                  value={filterState.searchText || ""}
                   onChange={(event) => {
                     setFilterState((prev) => ({
                       ...prev,
-                      customerName: event.target.value || undefined,
+                      searchText: event.target.value || undefined,
                     }));
                     setCurrentPage(1); // Reset to first page when filter changes
                   }}
@@ -252,12 +278,20 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
                 let displayLabel = "";
 
                 switch (key) {
-                  case "customerName":
-                    displayLabel = "Customer";
+                  case "searchText":
+                    displayLabel = "Pencarian";
                     displayValue = value;
                     break;
                   case "salesperson":
                     displayLabel = "Sales";
+                    displayValue = value;
+                    break;
+                  case "po_number":
+                    displayLabel = "Nomor PO";
+                    displayValue = value;
+                    break;
+                  case "nomor_invoice":
+                    displayLabel = "Nomor Invoice";
                     displayValue = value;
                     break;
                   case "dateFrom":
