@@ -8,10 +8,16 @@ import { Filter, Loader2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { useSalesTransactions } from "../../hooks/useSalesTransactions";
+import { useSalesTransactions, useUpdateSalesTarget } from "../../hooks/useSalesTransactions";
 import type { SalesTransaction } from "../../types";
 import { formatCurrency } from "../../utils/sales-utils";
 
@@ -20,12 +26,32 @@ interface SalesTransactionsTableProps {
   useHook?: boolean;
 }
 
+interface GroupedInvoice {
+  nomor_invoice: string;
+  customer: string;
+  po_number: string;
+  salesperson: string;
+  date: string;
+  transactions: SalesTransaction[];
+  totalAmount: number;
+  payment_status: string;
+}
+
+const PAYMENT_STATUS_OPTIONS = [
+  { value: "pending", label: "Pending", color: "bg-yellow-500" },
+  { value: "paid", label: "Paid", color: "bg-green-500" },
+  // { value: "partial", label: "Partial Payment", color: "bg-blue-500" },
+  // { value: "overdue", label: "Overdue", color: "bg-red-500" },
+  // { value: "cancelled", label: "Cancelled", color: "bg-gray-500" },
+];
+
 export default function SalesTransactionsCardView({ data, useHook = false }: SalesTransactionsTableProps) {
   const { data: salesTransactions = [], isLoading } = useSalesTransactions();
+  const { mutate: updateSalesTransaction, isPending: isUpdating } = useUpdateSalesTarget();
   const [filterState, setFilterState] = useState<Record<string, any>>({});
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 100;
+  const itemsPerPage = 50;
 
   // Get unique values for filter dropdowns
   const filterOptions = useMemo(() => {
@@ -97,6 +123,12 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
         match = match && rowNomorInvoice === filterState.nomor_invoice;
       }
 
+      // Check payment status filter
+      if (filterState.payment_status && filterState.payment_status !== "Semua Status") {
+        const rowPaymentStatus = transaction.payment_status || "";
+        match = match && rowPaymentStatus === filterState.payment_status;
+      }
+
       // Check date range
       if (filterState.dateFrom || filterState.dateTo) {
         try {
@@ -122,11 +154,69 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
     return salesTransactions.filter(filterTransaction);
   }, [salesTransactions, filterState]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  // Group transactions by nomor_invoice
+  const groupedInvoices = useMemo(() => {
+    const groups: Map<string, GroupedInvoice> = new Map();
+
+    filteredTransactions.forEach((transaction) => {
+      const invoiceKey = transaction.nomor_invoice || "UNKNOWN_INVOICE";
+
+      if (!groups.has(invoiceKey)) {
+        groups.set(invoiceKey, {
+          nomor_invoice: transaction.nomor_invoice || "",
+          customer: transaction.customer || "",
+          po_number: transaction.po_number || "",
+          salesperson: transaction.salesperson || "",
+          date: transaction.date,
+          transactions: [],
+          totalAmount: 0,
+          payment_status: transaction.payment_status || "pending",
+        });
+      }
+
+      const group = groups.get(invoiceKey)!;
+      group.transactions.push(transaction);
+      group.totalAmount += transaction.sales_amount || 0;
+    });
+
+    // Convert to array and sort by date (newest first)
+    return Array.from(groups.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [filteredTransactions]);
+
+  // Function to update payment status
+  const handleUpdatePaymentStatus = (invoice: GroupedInvoice, newStatus: string) => {
+    // Update all transactions with the same invoice number
+    const transactionIds = invoice.transactions.map((t) => t.id).filter(Boolean) as string[];
+
+    if (transactionIds.length === 0) {
+      console.error("No transaction IDs found for invoice:", invoice.nomor_invoice);
+      return;
+    }
+
+    // Update each transaction (in practice, you might want to update all at once)
+    transactionIds.forEach((id) => {
+      updateSalesTransaction({
+        id,
+        data: { payment_status: newStatus },
+      });
+    });
+  };
+
+  // Get payment status display info
+  const getPaymentStatusInfo = (status: string) => {
+    const option = PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === status) || PAYMENT_STATUS_OPTIONS[0];
+    return {
+      label: option.label,
+      color: option.color,
+      badgeClass: `inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white ${option.color}`,
+    };
+  };
+
+  // Pagination for grouped invoices
+  const totalPages = Math.ceil(groupedInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
+  const paginatedInvoices = groupedInvoices.slice(startIndex, endIndex);
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -227,6 +317,33 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
                 </Select>
               </div>
 
+              {/* Payment Status Filter */}
+              <div className="space-y-2">
+                <div className="font-medium text-xs">Status Pembayaran</div>
+                <Select
+                  value={filterState.payment_status || ""}
+                  onValueChange={(value) => {
+                    setFilterState((prev) => ({
+                      ...prev,
+                      payment_status: value === "all" ? undefined : value,
+                    }));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue placeholder="Semua Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Status</SelectItem>
+                    {PAYMENT_STATUS_OPTIONS.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Date Range Filter */}
               <div className="space-y-2">
                 <div className="font-medium text-xs">Tanggal (Range)</div>
@@ -286,6 +403,12 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
                     displayLabel = "Sales";
                     displayValue = value;
                     break;
+                  case "payment_status": {
+                    displayLabel = "Status Pembayaran";
+                    const statusInfo = getPaymentStatusInfo(value);
+                    displayValue = statusInfo.label;
+                    break;
+                  }
                   case "po_number":
                     displayLabel = "Nomor PO";
                     displayValue = value;
@@ -345,32 +468,64 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
 
       {/* Results Summary */}
       <div className="text-muted-foreground text-sm">
-        Menampilkan {filteredTransactions.length} transaksi
-        {filteredTransactions.length !== salesTransactions.length &&
-          ` (difilter dari ${salesTransactions.length} total)`}
+        Menampilkan {groupedInvoices.length} invoice
+        {` (${filteredTransactions.length} transaksi)`}
+        {groupedInvoices.length !== new Set(salesTransactions.map((t) => t.nomor_invoice)).size &&
+          ` (difilter dari ${new Set(salesTransactions.map((t) => t.nomor_invoice)).size} total invoice)`}
       </div>
 
-      <div className="space-y-2">
-        {paginatedTransactions.map((transaction) => (
-          <div
-            key={`${transaction.customer}-${transaction.product_name}-${transaction.date}`}
-            className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50"
-          >
-            <div className="flex-1">
-              <div className="font-medium">{transaction.customer || "Unknown"}</div>
-              <div className="mb-2 text-muted-foreground text-sm">
-                {transaction.nomor_invoice} • {transaction.po_number}{" "}
+      <div className="space-y-4">
+        {paginatedInvoices.map((invoice) => {
+          const statusInfo = getPaymentStatusInfo(invoice.payment_status);
+
+          return (
+            <Card key={invoice.nomor_invoice} className="overflow-hidden">
+              <div className="bg-muted/50 p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div className="flex-1">
+                    <div className="font-semibold">{invoice.customer || "Unknown Customer"}</div>
+                    <div className="mb-2 text-muted-foreground text-sm">
+                      Invoice: {invoice.nomor_invoice} • PO: {invoice.po_number}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      {invoice.salesperson} • {format(new Date(invoice.date), "dd MMM yyyy")}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-lg text-primary">{formatCurrency(invoice.totalAmount)}</div>
+                      <div className={statusInfo.badgeClass}>{statusInfo.label}</div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" disabled={isUpdating}>
+                          {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Ubah Status"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {PAYMENT_STATUS_OPTIONS.map((status) => (
+                          <DropdownMenuItem
+                            key={status.value}
+                            onClick={() => handleUpdatePaymentStatus(invoice, status.value)}
+                            className="flex items-center gap-2"
+                          >
+                            <div className={`h-2 w-2 rounded-full ${status.color}`} />
+                            {status.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               </div>
-              <div className="text-muted-foreground text-sm">
-                {transaction.salesperson} • {format(new Date(transaction.date), "dd MMM yyyy")}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-bold">{formatCurrency(transaction.sales_amount)}</div>
-              <div className="text-muted-foreground text-xs">{transaction.product_name}</div>
-            </div>
-          </div>
-        ))}
+              {/* <CardContent className="p-4 pt-2">
+                <div className="text-sm text-muted-foreground">
+                  {invoice.transactions.length} item • Total invoice
+                </div>
+              </CardContent> */}
+            </Card>
+          );
+        })}
       </div>
 
       {/* Pagination */}
@@ -380,7 +535,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
             <div className="flex items-center justify-between">
               <div className="text-muted-foreground text-sm">
                 Halaman {currentPage} dari {totalPages} • Menampilkan {startIndex + 1}-
-                {Math.min(endIndex, filteredTransactions.length)} dari {filteredTransactions.length}
+                {Math.min(endIndex, groupedInvoices.length)} dari {groupedInvoices.length} invoice
               </div>
               <div className="flex items-center gap-2">
                 <Button

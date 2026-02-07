@@ -262,6 +262,7 @@ export type Database = {
           date: string;
           id: string;
           nomor_invoice: string | null;
+          payment_status: string;
           po_number: string | null;
           product_name: string;
           quantity: number;
@@ -278,6 +279,7 @@ export type Database = {
           date: string;
           id?: string;
           nomor_invoice?: string | null;
+          payment_status?: string;
           po_number?: string | null;
           product_name: string;
           quantity?: number;
@@ -294,6 +296,7 @@ export type Database = {
           date?: string;
           id?: string;
           nomor_invoice?: string | null;
+          payment_status?: string;
           po_number?: string | null;
           product_name?: string;
           quantity?: number;

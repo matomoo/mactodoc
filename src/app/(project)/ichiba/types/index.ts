@@ -39,6 +39,7 @@ export interface SalesTarget {
 }
 
 export interface SalesTransaction {
+  id: string;
   customer: string;
   product_name: string;
   date: string;
@@ -50,6 +51,7 @@ export interface SalesTransaction {
   type: string;
   po_number: string;
   nomor_invoice: string;
+  payment_status: string;
 }
 
 export interface CustomerSalesSummary {

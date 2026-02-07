@@ -28,7 +28,6 @@ export const salesTargetsService = {
     return data as SalesTarget;
   },
 
-  // Helper function to get customer name
   async getCustomerName(customerId: string): Promise<string> {
     if (!customerId) return "Unknown Customer";
 

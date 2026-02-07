@@ -73,6 +73,10 @@ export const salesTargetSchema = z.object({
   target_unit: z.string().optional(),
 });
 
+export const salesTransactionsSchema = z.object({
+  payment_status: z.string().min(1, "Payment wajib diisi"),
+});
+
 export type CustomerFormData = z.infer<typeof customerSchema>;
 export type ProfileFormData = z.infer<typeof profileSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
@@ -82,3 +86,4 @@ export type CatalogFormData = z.infer<typeof catalogSchema>;
 export type TestTypeFormData = z.infer<typeof testTypeSchema>;
 export type SalesTargetFormData = z.infer<typeof salesTargetSchema>;
 export type UserActivitiesFormData = z.infer<typeof userActivitiesSchema>;
+export type SalesTransactionsFormData = z.infer<typeof salesTransactionsSchema>;
