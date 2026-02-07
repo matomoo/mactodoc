@@ -58,8 +58,6 @@ export default function ImportPage() {
               format: "YYYY-MM-DD" | "local" = "YYYY-MM-DD",
             ): string => {
               const date = excelDateToJSDateWithTimezone(serial);
-              console.log("date", date);
-              console.log(serial);
 
               if (format === "YYYY-MM-DD") {
                 const year = date.getUTCFullYear();
@@ -81,6 +79,8 @@ export default function ImportPage() {
               Category: headers.indexOf("Category"),
               Wilayah: headers.indexOf("Wilayah"),
               Type: headers.indexOf("Type"),
+              "Nomor Invoice": headers.indexOf("Nomor Invoice"),
+              "PO Number": headers.indexOf("PO Number"),
             };
 
             return {
@@ -93,6 +93,8 @@ export default function ImportPage() {
               Category: row[columnIndices.Category] || "",
               Type: row[columnIndices.Type] || "",
               Wilayah: row[columnIndices.Wilayah] || "",
+              "Nomor Invoice": row[columnIndices["Nomor Invoice"]] || "",
+              "PO Number": row[columnIndices["PO Number"]] || "",
             };
           })
           .filter((row) => row.Pelanggan); // Remove empty rows

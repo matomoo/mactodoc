@@ -7,7 +7,7 @@ import { Filter, Loader2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -149,7 +149,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Filter Lanjutan</CardTitle>
+              <CardTitle className="font-medium text-sm">Filter Lanjutan</CardTitle>
               <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-6 text-xs">
                 Clear All
               </Button>
@@ -159,7 +159,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
               {/* Customer Filter */}
               <div className="space-y-2">
-                <div className="text-xs font-medium">Customer</div>
+                <div className="font-medium text-xs">Customer</div>
                 <Input
                   placeholder="Cari customer..."
                   value={filterState.customerName || ""}
@@ -176,7 +176,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
 
               {/* Salesperson Filter */}
               <div className="space-y-2">
-                <div className="text-xs font-medium">Sales</div>
+                <div className="font-medium text-xs">Sales</div>
                 <Select
                   value={filterState.salesperson || ""}
                   onValueChange={(value) => {
@@ -203,7 +203,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
 
               {/* Date Range Filter */}
               <div className="space-y-2">
-                <div className="text-xs font-medium">Tanggal (Range)</div>
+                <div className="font-medium text-xs">Tanggal (Range)</div>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Dari"
@@ -243,7 +243,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
         <Card>
           <CardContent className="pt-4">
             <div className="flex flex-wrap gap-2">
-              <div className="text-sm font-medium">Filter Aktif:</div>
+              <div className="font-medium text-sm">Filter Aktif:</div>
 
               {Object.entries(filterState).map(([key, value]) => {
                 if (!value) return null;
@@ -310,65 +310,12 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
       )}
 
       {/* Results Summary */}
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         Menampilkan {filteredTransactions.length} transaksi
         {filteredTransactions.length !== salesTransactions.length &&
           ` (difilter dari ${salesTransactions.length} total)`}
       </div>
 
-      {/* Transactions Cards */}
-      {/* {paginatedTransactions.length > 0 ? (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {paginatedTransactions.map((transaction) => (
-            <Card key={`${transaction.customer}-${transaction.product_name}-${transaction.date}`} className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium truncate">
-                  {transaction.customer || "Unknown Customer"}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  {format(new Date(transaction.date), "dd MMM yyyy")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Salesperson:</span>
-                    <span className="text-xs font-medium">{transaction.salesperson}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Amount:</span>
-                    <span className="text-sm font-bold">${transaction.sales_amount}</span>
-                  </div>
-                  {transaction.product_name && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Product:</span>
-                      <span className="text-xs truncate max-w-[150px]">{transaction.product_name}</span>
-                    </div>
-                  )}
-                  {transaction.region && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Region:</span>
-                      <span className="text-xs">{transaction.region}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="flex h-32 items-center justify-center">
-            <p className="text-muted-foreground text-sm">
-              {hasActiveFilters
-                ? "Tidak ada transaksi dengan filter yang dipilih."
-                : "Tidak ada data transaksi."}
-            </p>
-          </CardContent>
-        </Card>
-      )} */}
-
-      {/* // Simple list view alternative */}
       <div className="space-y-2">
         {paginatedTransactions.map((transaction) => (
           <div
@@ -377,13 +324,16 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
           >
             <div className="flex-1">
               <div className="font-medium">{transaction.customer || "Unknown"}</div>
-              <div className="text-sm text-muted-foreground">
+              <div className="mb-2 text-muted-foreground text-sm">
+                {transaction.nomor_invoice} • {transaction.po_number}{" "}
+              </div>
+              <div className="text-muted-foreground text-sm">
                 {transaction.salesperson} • {format(new Date(transaction.date), "dd MMM yyyy")}
               </div>
             </div>
             <div className="text-right">
               <div className="font-bold">{formatCurrency(transaction.sales_amount)}</div>
-              <div className="text-xs text-muted-foreground">{transaction.product_name}</div>
+              <div className="text-muted-foreground text-xs">{transaction.product_name}</div>
             </div>
           </div>
         ))}
@@ -394,7 +344,7 @@ export default function SalesTransactionsCardView({ data, useHook = false }: Sal
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 Halaman {currentPage} dari {totalPages} • Menampilkan {startIndex + 1}-
                 {Math.min(endIndex, filteredTransactions.length)} dari {filteredTransactions.length}
               </div>

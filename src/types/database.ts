@@ -260,6 +260,9 @@ export type Database = {
           created_at: string | null;
           customer: string;
           date: string;
+          id: string;
+          nomor_invoice: string | null;
+          po_number: string | null;
           product_name: string;
           quantity: number;
           region: string | null;
@@ -273,6 +276,9 @@ export type Database = {
           created_at?: string | null;
           customer: string;
           date: string;
+          id?: string;
+          nomor_invoice?: string | null;
+          po_number?: string | null;
           product_name: string;
           quantity?: number;
           region?: string | null;
@@ -286,6 +292,9 @@ export type Database = {
           created_at?: string | null;
           customer?: string;
           date?: string;
+          id?: string;
+          nomor_invoice?: string | null;
+          po_number?: string | null;
           product_name?: string;
           quantity?: number;
           region?: string | null;

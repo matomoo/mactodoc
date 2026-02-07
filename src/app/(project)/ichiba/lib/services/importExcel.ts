@@ -52,6 +52,8 @@ export async function importExcelData(data: ExcelData[]): Promise<ImportResult> 
       category: item.Category?.trim() || "Lainnya",
       type: item.Type?.trim() || null,
       region: item.Wilayah?.trim() || null,
+      nomor_invoice: item["Nomor Invoice"]?.trim() || null,
+      po_number: item["PO Number"]?.trim() || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }));
@@ -240,7 +242,7 @@ function formatDate(dateValue: any): string {
     if (typeof dateValue === "string") {
       // Try to parse various date formats
       const date = new Date(dateValue);
-      if (!isNaN(date.getTime())) {
+      if (!Number.isNaN(date.getTime())) {
         return date.toISOString().split("T")[0];
       }
 

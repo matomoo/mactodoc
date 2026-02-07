@@ -8,6 +8,8 @@ export interface ExcelData {
   Category: string;
   Wilayah: string;
   Type: string;
+  "Nomor Invoice": string;
+  "PO Number": string;
 }
 
 export interface ImportResult {

@@ -48,6 +48,8 @@ export interface SalesTransaction {
   category: string;
   region: string;
   type: string;
+  po_number: string;
+  nomor_invoice: string;
 }
 
 export interface CustomerSalesSummary {

@@ -70,6 +70,8 @@ export default function DataPreview({ data }: DataPreviewProps) {
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{row.Kuantitas}</td>
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{formatCurrency(row.Penjualan)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{row.Category}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{row["PO Number"]}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{row["Nomor Invoice"]}</td>
                 </tr>
               ))}
             </tbody>

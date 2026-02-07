@@ -72,12 +72,12 @@ export default function ImportForm({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upload Excel File</h2>
+    <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+      <h2 className="mb-4 font-semibold text-gray-900 text-xl dark:text-white">Upload Excel File</h2>
 
       <button
         type="button"
-        className={`mb-6 w-full cursor-pointer rounded-lg border-2 border-dashed p-8 text-left text-center transition-colors ${isLoading ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400"}`}
+        className={`mb-6 w-full cursor-pointer rounded-lg border-2 border-dashed p-8 text-left transition-colors ${isLoading ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 hover:border-blue-500 dark:border-gray-600 dark:hover:border-blue-400"}`}
         onClick={() => fileInputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -95,38 +95,40 @@ export default function ImportForm({
         />
 
         {isLoading ? (
-          <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
+          <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-blue-500" />
         ) : (
-          <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <Upload className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500" />
         )}
 
-        <p className="text-gray-600 dark:text-gray-400 mb-2">
+        <p className="mb-2 text-gray-600 dark:text-gray-400">
           {fileName || "Drag & drop Excel file here or click to browse"}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-500">Supports .xlsx, .xls, .csv files</p>
+        <p className="text-gray-500 text-sm dark:text-gray-500">Supports .xlsx, .xls, .csv files</p>
       </button>
 
       {fileName && (
-        <div className="flex items-center justify-between mb-6 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <div className="mb-6 flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
           <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
             <span className="text-green-700 dark:text-green-400">{fileName} loaded</span>
           </div>
           <button
             type="button"
             onClick={onClear}
-            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
           >
-            <FileX className="w-5 h-5" />
+            <FileX className="h-5 w-5" />
           </button>
         </div>
       )}
 
       <div className="space-y-4">
-        <div className="text-sm text-gray-600 dark:text-gray-400">
-          <h3 className="font-semibold mb-2">Expected Columns:</h3>
+        <div className="text-gray-600 text-sm dark:text-gray-400">
+          <h3 className="mb-2 font-semibold">Expected Columns:</h3>
           <ul className="grid grid-cols-2 gap-2">
             <li>• Pelanggan</li>
+            <li>• Nomor Invoice</li>
+            <li>• PO Number</li>
             <li>• Nama Barang</li>
             <li>• Tanggal</li>
             <li>• Nama Default Penjual Pelang</li>
@@ -142,16 +144,15 @@ export default function ImportForm({
           type="button"
           onClick={handleImport}
           disabled={!hasData || isImporting || !excelData.length}
-          className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center
-            ${
-              hasData && !isImporting && excelData.length
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-            }`}
+          className={`flex w-full items-center justify-center rounded-lg px-4 py-3 font-medium ${
+            hasData && !isImporting && excelData.length
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "cursor-not-allowed bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+          }`}
         >
           {isImporting ? (
             <>
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Importing...
             </>
           ) : (
@@ -160,7 +161,7 @@ export default function ImportForm({
         </button>
 
         {excelData.length > 0 && (
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+          <p className="text-center text-gray-500 text-sm dark:text-gray-400">
             Ready to import {excelData.length} records
           </p>
         )}
