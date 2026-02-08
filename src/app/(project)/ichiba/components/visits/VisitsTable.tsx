@@ -1,7 +1,7 @@
 "use client";
 
+// biome-ignore assist/source/organizeImports: <none>
 import { useMemo, useState } from "react";
-
 import { useRouter } from "next/navigation";
 
 import {
@@ -45,6 +45,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { useDeleteVisit, useVisits } from "../../hooks/useVisits";
 import type { Visit } from "../../types";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function VisitsTable() {
   const router = useRouter();
@@ -64,13 +65,24 @@ export function VisitsTable() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedSalesperson, setSelectedSalesperson] = useState<string>("all");
 
+  const { user } = useAuthStore();
+
+  // Check if user is Admin
+  const isAdmin = user?.role === "Admin";
+
   const handleDelete = (id: string) => {
+    // Check admin role before opening delete dialog
+    if (!isAdmin) {
+      // Optionally show a toast or message
+      console.warn("Only Admin users can delete visits");
+      return;
+    }
     setVisitToDelete(id);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (visitToDelete) {
+    if (visitToDelete && isAdmin) {
       deleteVisit(visitToDelete);
       setDeleteDialogOpen(false);
       setVisitToDelete(null);
@@ -176,10 +188,25 @@ export function VisitsTable() {
                 Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(visit.id)}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Hapus
-              </DropdownMenuItem>
+              {/* Only show delete option for Admin users */}
+              {isAdmin && (
+                <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(visit.id)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Hapus
+                </DropdownMenuItem>
+              )}
+              {/* Optionally show a disabled state for non-admin users */}
+              {!isAdmin && (
+                <DropdownMenuItem
+                  className="cursor-not-allowed text-gray-400"
+                  disabled
+                  onClick={(e) => e.preventDefault()}
+                  title="Hanya Admin yang dapat menghapus"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Hapus
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -223,6 +250,16 @@ export function VisitsTable() {
     return (
       <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold">Silakan login untuk melihat data</p>
+        </div>
       </div>
     );
   }
@@ -350,6 +387,18 @@ export function VisitsTable() {
           </Button>
         </div>
 
+        {/* Show current user role */}
+        {/* <div className="rounded-lg bg-muted p-3">
+          <div className="text-sm">
+            Anda login sebagai: <span className="font-semibold">{user.role || "User"}</span>
+            {!isAdmin && (
+              <span className="ml-2 text-xs text-muted-foreground">
+                (Hanya Admin yang dapat menghapus data)
+              </span>
+            )}
+          </div>
+        </div> */}
+
         {/* Active Filters Summary */}
         {(dateRange.from && dateRange.to) || selectedSalesperson !== "all" ? (
           <div className="flex flex-wrap gap-2 rounded-lg bg-muted p-3">
@@ -474,12 +523,19 @@ export function VisitsTable() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus Visit</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus visit ini? Tindakan ini tidak dapat dibatalkan.
+              {isAdmin ? (
+                "Apakah Anda yakin ingin menghapus visit ini? Tindakan ini tidak dapat dibatalkan."
+              ) : (
+                <span className="text-red-600">
+                  Anda tidak memiliki izin untuk menghapus data. Hanya Admin yang dapat menghapus visit.
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setVisitToDelete(null)}>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            {/* Disable delete button if not admin */}
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700" disabled={!isAdmin}>
               Hapus
             </AlertDialogAction>
           </AlertDialogFooter>

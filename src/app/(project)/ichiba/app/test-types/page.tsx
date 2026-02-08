@@ -6,9 +6,8 @@ import { TestTypesTable } from "../../components/test-types/TestTypesTable";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function TestTypesPage() {
-  const { user } = useAuthStore();
-
   const { loading } = useRequireAuth();
+  const { user } = useAuthStore();
 
   if (loading) {
     return (

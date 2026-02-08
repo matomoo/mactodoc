@@ -9,6 +9,8 @@ import type { VisitFormData } from "@/app/(project)/ichiba/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { useUpdateVisit, useVisit } from "@/app/(project)/ichiba/hooks/useVisits";
 import { VisitForm } from "@/app/(project)/ichiba/components/visits/VisitForm";
+import { useAuthStore } from "@/stores/auth-store";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 interface EditVisitPageProps {
   params: Promise<{
@@ -22,6 +24,38 @@ export default function EditVisitPage({ params }: EditVisitPageProps) {
 
   const { data: visit, isLoading: isVisitLoading } = useVisit(id);
   const { mutate: updateVisit } = useUpdateVisit();
+
+  const { user } = useAuthStore();
+  const { loading } = useRequireAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.role !== "Admin") {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="mb-6">
+          <Link
+            href="/ichiba/app/visits"
+            className="flex items-center text-muted-foreground text-sm hover:text-foreground"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Kembali ke Daftar Visit
+          </Link>
+        </div>
+        <div>You are not authorized to view this page</div>
+      </div>
+    );
+  }
 
   if (!id) {
     return (

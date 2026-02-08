@@ -6,7 +6,6 @@ import { useRequireAuth } from "@/hooks/use-require-auth";
 import { VisitsChart } from "@/app/(project)/ichiba/components/visits/VisitsChart";
 import { SalesTransactionsChart } from "@/app/(project)/ichiba/components/sales-transactions/SalesTransactionsChart";
 import FiltersPage from "./_filters";
-import { Card } from "@/components/ui/card";
 
 export default function LandingPage() {
   const { loading } = useRequireAuth();
@@ -26,9 +25,9 @@ export default function LandingPage() {
         <SalesTransactionsChart />
       </div>
 
-      <div className="container mx-auto mb-10  sm:px-6 lg:px-4 ">
-        <div className="container mx-auto mb-10 sm:p-6 lg:p-8 border rounded-2xl">
-          <section id="features" className=" py-10">
+      <div className="container mx-auto mb-10 sm:px-6 lg:px-4">
+        <div className="container mx-auto mb-10 rounded-2xl border sm:p-6 lg:p-8">
+          <section id="features" className="py-10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <h3 className="font-bold text-gray-900 text-lg tracking-tight sm:text-xl">
