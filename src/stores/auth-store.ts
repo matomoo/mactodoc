@@ -18,6 +18,7 @@ export interface User {
   id: string;
   email: string;
   user_metadata?: Record<string, any>;
+  role?: string;
 }
 
 interface AuthStore {
@@ -37,6 +38,47 @@ interface AuthStore {
   clearError: () => void;
   restoreFromCookie: () => void;
 }
+
+// Helper function to fetch user profile with role
+const fetchUserWithProfile = async (userId: string) => {
+  try {
+    // Fetch user profile from public.profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("roles")
+      .eq("id", userId)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return null;
+    }
+
+    return profileData;
+  } catch (error) {
+    console.error("Error in fetchUserWithProfile:", error);
+    return null;
+  }
+};
+
+// Helper function to get complete user data including profile role
+const getCompleteUserData = async (authUser: any, _sessionToken: string) => {
+  const userData: User = {
+    id: authUser.id,
+    email: authUser.email || "",
+    user_metadata: authUser.user_metadata,
+    role: authUser.role, // This is the auth.role from Supabase
+  };
+
+  // Fetch profile role from public.profiles table
+  const profile = await fetchUserWithProfile(authUser.id);
+  if (profile) {
+    // Override with profile role if available
+    userData.role = profile.roles;
+  }
+
+  return userData;
+};
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -62,11 +104,8 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           if (data.user && data.session && data.user.email) {
-            const userData: User = {
-              id: data.user.id,
-              email: data.user.email,
-              user_metadata: data.user.user_metadata,
-            };
+            // Get complete user data with profile role
+            const userData = await getCompleteUserData(data.user, data.session.access_token);
 
             // Store in cookies
             setAuthCookie(data.session.access_token, 7);
@@ -100,11 +139,8 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           if (data.user && data.session && data.user.email) {
-            const userData: User = {
-              id: data.user.id,
-              email: data.user.email,
-              user_metadata: data.user.user_metadata,
-            };
+            // Get complete user data with profile role
+            const userData = await getCompleteUserData(data.user, data.session.access_token);
 
             // Store in cookies
             setAuthCookie(data.session.access_token, 7);
@@ -158,11 +194,8 @@ export const useAuthStore = create<AuthStore>()(
           const { data } = await supabase.auth.getSession();
 
           if (data.session?.user?.email) {
-            const userData: User = {
-              id: data.session.user.id,
-              email: data.session.user.email,
-              user_metadata: data.session.user.user_metadata,
-            };
+            // Get complete user data with profile role
+            const userData = await getCompleteUserData(data.session.user, data.session.access_token);
 
             // Update cookies
             setAuthCookie(data.session.access_token, 7);
@@ -227,11 +260,8 @@ export const useAuthStore = create<AuthStore>()(
           const { data } = await supabase.auth.getSession();
 
           if (data.session?.user?.email) {
-            const userData: User = {
-              id: data.session.user.id,
-              email: data.session.user.email,
-              user_metadata: data.session.user.user_metadata,
-            };
+            // Get complete user data with profile role
+            const userData = await getCompleteUserData(data.session.user, data.session.access_token);
 
             setAuthCookie(data.session.access_token, 7);
             setUserCookie(userData, 7);

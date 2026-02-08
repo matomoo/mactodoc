@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+"use client";
 
+// biome-ignore assist/source/organizeImports: <none>
 import { useRouter } from "next/navigation";
 
 import { useAuthStore } from "@/stores/auth-store";
+import { useEffect } from "react";
 
 /**
  * Hook to protect routes that require authentication

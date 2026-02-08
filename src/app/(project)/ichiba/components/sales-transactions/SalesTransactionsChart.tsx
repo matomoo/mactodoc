@@ -63,9 +63,6 @@ export function SalesTransactionsChart() {
     return summarizeSalesBySalespersonWithTarget(filteredTransactions, salesTarget);
   }, [filteredTransactions, salesTarget]);
 
-  console.log("filteredTransactions", filteredTransactions);
-  console.log("salesTarget", salesTarget);
-
   const typeSummaries = useMemo(() => {
     return summarizeSalesByType(filteredTransactions);
   }, [filteredTransactions]);

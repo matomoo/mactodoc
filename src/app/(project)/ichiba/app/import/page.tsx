@@ -8,12 +8,33 @@ import { toast } from "sonner";
 import type { ExcelData } from "../../types/import";
 import ImportForm from "../../components/import/ImportForm";
 import DataPreview from "../../components/import/DataPreview";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function ImportPage() {
   const [excelData, setExcelData] = useState<ExcelData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState<string>("");
   const router = useRouter();
+  const { user } = useAuthStore();
+
+  const { loading } = useRequireAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return;
+  }
+
+  if (user.role !== "Admin") {
+    return <div>You are not authorized to view this page</div>;
+  }
 
   const handleFileUpload = (file: File) => {
     setIsLoading(true);
