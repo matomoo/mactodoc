@@ -1,43 +1,35 @@
 "use client";
 
-// biome-ignore assist/source/organizeImports: <none>
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import {
   type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  useReactTable,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   type SortingState,
-  type ColumnFiltersState,
-  getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
+  Check,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Filter,
+  Loader2,
   MoreHorizontal,
   Pencil,
-  Trash2,
-  Eye,
-  UserPlus,
   Search,
-  Loader2,
+  Trash2,
+  UserPlus,
+  X,
 } from "lucide-react";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,8 +40,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Customer } from "../../types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { useCustomers, useDeleteCustomer } from "../../hooks/useCustomers";
+import type { Customer } from "../../types";
+import { bpjsMapping, getDisplayName, jenisMapping, kerjasamaMapping } from "../../utils/customer-mapping";
 
 interface CustomersTableProps {
   data?: Customer[];
@@ -59,7 +66,7 @@ interface CustomersTableProps {
 export default function CustomersTable({ data, useHook = false }: CustomersTableProps) {
   const router = useRouter();
   const { mutate: deleteCustomer } = useDeleteCustomer();
-  const { data: customers = [], isLoading } = useCustomers(); // Always use hook
+  const { data: customers = [], isLoading } = useCustomers();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -80,6 +87,53 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
     }
   };
 
+  // Helper function to add/remove filters
+  const updateColumnFilter = (columnId: string, value: string | null) => {
+    setColumnFilters((prev) => {
+      // Remove existing filter for this column
+      const filtersWithoutColumn = prev.filter((filter) => filter.id !== columnId);
+
+      // If value is not null, add the new filter
+      if (value !== null) {
+        return [...filtersWithoutColumn, { id: columnId, value }];
+      }
+
+      return filtersWithoutColumn;
+    });
+  };
+
+  // Get current filter values for display
+  const getCurrentFilterValue = (columnId: string) => {
+    const filter = columnFilters.find((filter) => filter.id === columnId);
+    return filter ? (filter.value as string) : null;
+  };
+
+  // Handle dropdown selection
+  const handleJenisSelect = (value: string) => {
+    const currentValue = getCurrentFilterValue("jenis");
+    updateColumnFilter("jenis", currentValue === value ? null : value);
+  };
+
+  const handleBpjsSelect = (value: string) => {
+    const currentValue = getCurrentFilterValue("bpjs");
+    updateColumnFilter("bpjs", currentValue === value ? null : value);
+  };
+
+  const handleKerjasamaSelect = (value: string) => {
+    const currentValue = getCurrentFilterValue("kerjasama");
+    updateColumnFilter("kerjasama", currentValue === value ? null : value);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setColumnFilters([]);
+  };
+
+  // Clear specific filter
+  const clearFilter = (columnId: string) => {
+    updateColumnFilter(columnId, null);
+  };
+
   const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "name",
@@ -95,27 +149,35 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
       },
     },
     {
-      accessorKey: "phone",
-      header: "Telepon",
+      accessorKey: "wilayah",
+      header: "Wilayah",
       cell: ({ row }) => {
-        const phone = row.getValue("phone") as string;
-        return phone ? <span>{phone}</span> : <span className="text-muted-foreground">-</span>;
+        const wilayah = row.getValue("wilayah") as string;
+        return wilayah ? <span>{wilayah}</span> : <span className="text-muted-foreground">-</span>;
       },
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "jenis",
+      header: "Jenis",
       cell: ({ row }) => {
-        const email = row.getValue("email") as string;
-        return email ? <span>{email}</span> : <span className="text-muted-foreground">-</span>;
+        const jenis = row.getValue("jenis") as string;
+        return <span>{getDisplayName(jenis, jenisMapping)}</span>;
       },
     },
     {
-      accessorKey: "created_at",
-      header: "Dibuat",
+      accessorKey: "bpjs",
+      header: "BPJS",
       cell: ({ row }) => {
-        const date = new Date(row.getValue("created_at"));
-        return format(date, "dd MMM yyyy", { locale: id });
+        const bpjs = row.getValue("bpjs") as string;
+        return <span>{getDisplayName(bpjs, bpjsMapping)}</span>;
+      },
+    },
+    {
+      accessorKey: "kerjasama",
+      header: "Kerjasama",
+      cell: ({ row }) => {
+        const kerjasama = row.getValue("kerjasama") as string;
+        return <span>{getDisplayName(kerjasama, kerjasamaMapping)}</span>;
       },
     },
     {
@@ -154,7 +216,7 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
   ];
 
   const table = useReactTable({
-    data: customers, // CORRECTED: Use 'data' property, not 'customers'
+    data: customers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -170,7 +232,16 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
     },
   });
 
-  // Show loading state AFTER all hooks are called
+  // Get current filter values
+  const nameFilter = getCurrentFilterValue("name");
+  const jenisFilter = getCurrentFilterValue("jenis");
+  const bpjsFilter = getCurrentFilterValue("bpjs");
+  const kerjasamaFilter = getCurrentFilterValue("kerjasama");
+
+  // Check if any filters are active
+  const hasActiveFilters = nameFilter || jenisFilter || bpjsFilter || kerjasamaFilter;
+
+  // Show loading state
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -182,22 +253,195 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
   return (
     <>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="relative max-w-sm flex-1">
-            <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-muted-foreground" />
-            <Input
-              placeholder="Cari customer..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
-              className="pl-10"
-            />
+        {/* Filter Controls */}
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Cari customer..."
+                value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
+                className="pl-10 pr-10"
+              />
+              {nameFilter && (
+                <button
+                  type="button"
+                  onClick={() => clearFilter("name")}
+                  className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {/* Jenis Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Jenis
+                    {jenisFilter && (
+                      <Badge variant="secondary" className="ml-2">
+                        1
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Filter Jenis</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {Object.entries(jenisMapping).map(([value, label]) => (
+                      <DropdownMenuItem
+                        key={value}
+                        onClick={() => handleJenisSelect(value)}
+                        className="flex items-center justify-between"
+                      >
+                        {label}
+                        {jenisFilter === value && <Check className="h-4 w-4" />}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* BPJS Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    BPJS
+                    {bpjsFilter && (
+                      <Badge variant="secondary" className="ml-2">
+                        1
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Filter BPJS</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {Object.entries(bpjsMapping).map(([value, label]) => (
+                      <DropdownMenuItem
+                        key={value}
+                        onClick={() => handleBpjsSelect(value)}
+                        className="flex items-center justify-between"
+                      >
+                        {label}
+                        {bpjsFilter === value && <Check className="h-4 w-4" />}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Kerjasama Filter */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Kerjasama
+                    {kerjasamaFilter && (
+                      <Badge variant="secondary" className="ml-2">
+                        1
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Filter Kerjasama</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {Object.entries(kerjasamaMapping).map(([value, label]) => (
+                      <DropdownMenuItem
+                        key={value}
+                        onClick={() => handleKerjasamaSelect(value)}
+                        className="flex items-center justify-between"
+                      >
+                        {label}
+                        {kerjasamaFilter === value && <Check className="h-4 w-4" />}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button onClick={() => router.push("/ichiba/app/customers/create")}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Tambah Customer
+              </Button>
+            </div>
           </div>
-          <Button onClick={() => router.push("/ichiba/app/customers/create")}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Tambah Customer
-          </Button>
+
+          {/* Summary Filter */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3">
+              <span className="text-sm font-medium">Filter Aktif:</span>
+
+              {nameFilter && (
+                <Badge variant="secondary" className="gap-1 pl-2">
+                  Nama: {nameFilter}
+                  <button
+                    type="button"
+                    onClick={() => clearFilter("name")}
+                    className="ml-1 rounded-full hover:bg-muted"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {jenisFilter && (
+                <Badge variant="secondary" className="gap-1 pl-2">
+                  Jenis: {getDisplayName(jenisFilter, jenisMapping)}
+                  <button
+                    type="button"
+                    onClick={() => clearFilter("jenis")}
+                    className="ml-1 rounded-full hover:bg-muted"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {bpjsFilter && (
+                <Badge variant="secondary" className="gap-1 pl-2">
+                  BPJS: {getDisplayName(bpjsFilter, bpjsMapping)}
+                  <button
+                    type="button"
+                    onClick={() => clearFilter("bpjs")}
+                    className="ml-1 rounded-full hover:bg-muted"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {kerjasamaFilter && (
+                <Badge variant="secondary" className="gap-1 pl-2">
+                  Kerjasama: {getDisplayName(kerjasamaFilter, kerjasamaMapping)}
+                  <button
+                    type="button"
+                    onClick={() => clearFilter("kerjasama")}
+                    className="ml-1 rounded-full hover:bg-muted"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="ml-auto h-7 text-xs">
+                <X className="mr-1 h-3 w-3" />
+                Hapus Semua Filter
+              </Button>
+            </div>
+          )}
         </div>
 
+        {/* Table */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -223,7 +467,7 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    Tidak ada data customer.
+                    {hasActiveFilters ? "Tidak ada data yang cocok dengan filter" : "Tidak ada data customer."}
                   </TableCell>
                 </TableRow>
               )}
@@ -231,6 +475,7 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
           </Table>
         </div>
 
+        {/* Pagination */}
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground text-sm">
             Menampilkan {table.getFilteredRowModel().rows.length} dari {customers.length} customer.
@@ -251,6 +496,7 @@ export default function CustomersTable({ data, useHook = false }: CustomersTable
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

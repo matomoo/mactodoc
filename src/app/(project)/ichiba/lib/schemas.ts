@@ -7,6 +7,11 @@ export const customerSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email("Email tidak valid").optional().or(z.literal("")),
   address: z.string().optional(),
+  medical_devices: z.array(z.string()).optional(),
+  jenis: z.string().optional(),
+  wilayah: z.string().optional(),
+  bpjs: z.string().optional(),
+  kerjasama: z.string().optional(),
 });
 
 export const profileSchema = z.object({

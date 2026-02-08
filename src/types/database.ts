@@ -53,33 +53,81 @@ export type Database = {
         };
         Relationships: [];
       };
+      customer__medical_devices: {
+        Row: {
+          contract: string | null;
+          customer_id: string;
+          medical_devices_id: string;
+          status: string | null;
+        };
+        Insert: {
+          contract?: string | null;
+          customer_id: string;
+          medical_devices_id: string;
+          status?: string | null;
+        };
+        Update: {
+          contract?: string | null;
+          customer_id?: string;
+          medical_devices_id?: string;
+          status?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customer__medical_devices_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "customer__medical_devices_medical_devices_id_fkey1";
+            columns: ["medical_devices_id"];
+            isOneToOne: false;
+            referencedRelation: "medical_devices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customers: {
         Row: {
           address: string | null;
+          bpjs: string | null;
           contact_person: string | null;
           created_at: string | null;
           email: string | null;
           id: string;
+          jenis: string | null;
+          kerjasama: string | null;
           name: string;
           phone: string | null;
+          wilayah: string | null;
         };
         Insert: {
           address?: string | null;
+          bpjs?: string | null;
           contact_person?: string | null;
           created_at?: string | null;
           email?: string | null;
           id?: string;
+          jenis?: string | null;
+          kerjasama?: string | null;
           name: string;
           phone?: string | null;
+          wilayah?: string | null;
         };
         Update: {
           address?: string | null;
+          bpjs?: string | null;
           contact_person?: string | null;
           created_at?: string | null;
           email?: string | null;
           id?: string;
+          jenis?: string | null;
+          kerjasama?: string | null;
           name?: string;
           phone?: string | null;
+          wilayah?: string | null;
         };
         Relationships: [];
       };

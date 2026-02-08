@@ -81,6 +81,10 @@ export default function EditCustomerPage({ params }: EditCustomerPageProps) {
     phone: customer.phone || "",
     email: customer.email || "",
     address: customer.address || "",
+    jenis: customer.jenis || "",
+    wilayah: customer.wilayah || "",
+    bpjs: customer.bpjs || "",
+    kerjasama: customer.kerjasama || "",
   };
 
   return (

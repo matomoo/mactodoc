@@ -6,6 +6,10 @@ export interface Customer {
   email: string | null;
   address: string | null;
   created_at: string;
+  jenis: string | null;
+  wilayah: string | null;
+  kerjasama: string | null;
+  bpjs: string | null;
 }
 
 export interface Order {
