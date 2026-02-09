@@ -34,9 +34,10 @@
 - 
 
 
-### generate 
+### generate db schame from supabase using supabase cli
 
 on terminal
 npm install supabase --save-dev
 npx supabase login
-npx supabase gen types typescript --project-id uypkoybdpdvhfnmypjxc > src/types/database.ts
+npx supabase gen types typescript --project-id uypkoybdpdvhfnmypjxc > src/types/database.ts\
+

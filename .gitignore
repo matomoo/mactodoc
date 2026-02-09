@@ -8,6 +8,8 @@
 /drizzle
 /.continue
 
+/drizzle/*
+
 # testing
 /coverage
 
