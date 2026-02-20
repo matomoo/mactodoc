@@ -42,67 +42,8 @@ export const sidebarItems: NavGroup[] = [
     label: "Master Data",
     items: [
       {
-        title: "Customer",
-        url: "/ichiba/app/customers",
-        icon: Fingerprint,
-      },
-      {
-        title: "Test Types",
-        url: "/ichiba/app/test-types",
-        icon: Fingerprint,
-      },
-      {
-        title: "Medical Devices",
-        url: "/ichiba/app/medical-devices",
-        icon: Fingerprint,
-      },
-      {
-        title: "Catalogs",
-        url: "/ichiba/app/catalogs",
-        icon: Fingerprint,
-      },
-      // {
-      //   title: "Team Members",
-      //   url: "/ichiba/app/team-members",
-      //   icon: Fingerprint,
-      // },
-      {
-        title: "Sales Target",
-        url: "/ichiba/app/sales-targets",
-        icon: Fingerprint,
-      },
-    ],
-  },
-  {
-    id: 3,
-    label: "Layanan",
-    items: [
-      {
-        title: "Visits",
-        url: "/ichiba/app/visits",
-        icon: Fingerprint,
-      },
-      {
-        title: "Penjualan",
-        url: "#",
-        icon: Fingerprint,
-
-        subItems: [
-          {
-            title: "Import",
-            url: "/ichiba/app/import",
-            icon: Fingerprint,
-          },
-          {
-            title: "Laporan",
-            url: "/ichiba/app/sales-transactions",
-            icon: Fingerprint,
-          },
-        ],
-      },
-      {
-        title: "User Activities",
-        url: "/ichiba/app/user-activities",
+        title: "Profiles",
+        url: "/nura/app/profiles",
         icon: Fingerprint,
       },
     ],

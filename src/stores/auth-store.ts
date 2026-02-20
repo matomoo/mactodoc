@@ -47,13 +47,18 @@ const fetchUserWithProfile = async (userId: string) => {
       .from("profiles")
       .select("roles")
       .eq("id", userId)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
+      console.error("Error fetching profile:", {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+      });
       return null;
     }
 
+    // profileData will be null if no row found
     return profileData;
   } catch (error) {
     console.error("Error in fetchUserWithProfile:", error);
@@ -72,9 +77,12 @@ const getCompleteUserData = async (authUser: any, _sessionToken: string) => {
 
   // Fetch profile role from public.profiles table
   const profile = await fetchUserWithProfile(authUser.id);
-  if (profile) {
+  if (profile?.roles) {
     // Override with profile role if available
     userData.role = profile.roles;
+  } else {
+    // Use a default role if no profile exists
+    userData.role = userData.role || "user";
   }
 
   return userData;

@@ -3,11 +3,11 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "PT. Ichiba Medical indonesia",
+  name: "HUB",
   version: packageJson.version,
-  copyright: `© ${currentYear}, PT. Ichiba Medical indonesia.`,
+  copyright: `© ${currentYear}, HUB.`,
   meta: {
-    title: "PT. Ichiba Medical indonesia",
+    title: "HUB",
     description: "Development by Macto.",
   },
 };

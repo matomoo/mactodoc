@@ -93,8 +93,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="h-auto p-2">
               <Link prefetch={false} href="/dashboard/default" className="flex flex-col items-center">
-                <Image src="/images/logo.jpeg" alt="Ichiba Logo" width={80} height={40} className="mb-1 h-28 w-64" />
-                <span className="text-center font-semibold text-base">{APP_CONFIG.name}</span>
+                <Image src="/images/hub-logo.png" alt="Hub Logo" width={12} height={12} className="mb-1 h-12 w-14" />
+                {/* <span className="text-center font-semibold text-base">{APP_CONFIG.name}</span> */}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

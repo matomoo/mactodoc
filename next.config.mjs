@@ -15,10 +15,9 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      // Allow all HTTPS images from any domain (wildcard)
       {
         protocol: "https",
-        hostname: "**", // Double asterisk allows all hostnames
+        hostname: "**",
       },
     ],
   },
