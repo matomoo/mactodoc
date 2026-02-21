@@ -88,11 +88,22 @@ export const formatRupiahModel2 = (amount: number) => {
     .replace(/\.00$/, ""); // Remove .00 if there are no cents
 };
 
-export const formatDateForDisplay = (dateString: string) => {
+export const formatDateForDisplay = (dateString: string, formatChoice: 1 | 2 = 1) => {
   const timezone = "Asia/Makassar"; // Central Indonesia Time
 
   if (!dateString) return "";
+
   const date = toZonedTime(new Date(dateString), timezone);
+
+  // Choose format based on the choice parameter
+  if (formatChoice === 1) {
+    return format(date, "yyyy-MM-dd");
+  }
+  if (formatChoice === 2) {
+    return format(date, "d MMM yyyy").toLowerCase(); // "21 feb 2026" in lowercase
+  }
+
+  // Default fallback
   return format(date, "yyyy-MM-dd");
 };
 

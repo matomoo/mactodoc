@@ -297,13 +297,13 @@ export function FilterSidebar4G({
     <>
       <div className="hidden lg:col-span-3 lg:block">
         <div className="sticky top-32 space-y-4">
-          <SummaryDashboard
+          {/* <SummaryDashboard
             allCells={allCells}
             filterBy={filterBy}
             selectedCells={selectedCells}
             selectedSectors={selectedSectors}
             selectedBands={selectedBands}
-          />
+          /> */}
 
           <div className="rounded-xl bg-white p-4 shadow-sm">
             <FilterPanelContent />
@@ -335,13 +335,13 @@ export function FilterSidebar4G({
 
             {/* Mobile Filter Content */}
             <div className="space-y-4">
-              <SummaryDashboard
+              {/* <SummaryDashboard
                 allCells={allCells}
                 filterBy={filterBy}
                 selectedCells={selectedCells}
                 selectedSectors={selectedSectors}
                 selectedBands={selectedBands}
-              />
+              /> */}
 
               <div>
                 <TwSmall text="Filter View By" />

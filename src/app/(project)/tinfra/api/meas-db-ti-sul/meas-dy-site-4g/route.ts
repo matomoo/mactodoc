@@ -27,7 +27,7 @@ export async function GET(request: Request) {
           SELECT
             t1."Begin Time" AS "BEGIN_TIME",
             t1."Cell Name" as "CELL_NAME",
-            
+            t1."cellId" AS "4G_CELL_ID",            
             SUM("DL Traffic Volume (MByte) AMQ") / 1024 AS "DL_PAYLOAD_GB",
             SUM("UL Traffic Volume (MByte) AMQ") / 1024 AS "UL_PAYLOAD_GB",
             SUM("4G Payload (MByte) AMQ") / 1024 AS "TOTAL_PAYLOAD_GB",
@@ -69,19 +69,17 @@ export async function GET(request: Request) {
 						SUM("SRVCC_LTE-GSM_HOSR_VoLTE_Denum AMQ") AS "SRVCC_E2G_SR_DENUM",
 						SUM("SRVCC_LTE-UMTS_HOSR_VoLTE_Num AMQ") AS "SRVCC_E2W_SR_NUM",
 						SUM("SRVCC_LTE-UMTS_HOSR_VoLTE_Denum AMQ") AS "SRVCC_E2W_SR_DENUM",
-
-            
             '1' AS "DENUMBY1"
           FROM
             "measDy4g" t1
-            
           WHERE
             t1."Begin Time" >= ${formattedTgl1} :: TIMESTAMP
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
             AND t1."Cell Name" like ${querySiteId}
           GROUP BY
             t1."Begin Time",
-            t1."Cell Name"
+            t1."Cell Name",
+            t1."cellId"
           ORDER BY
             t1."Begin Time",
             t1."Cell Name"

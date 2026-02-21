@@ -1,8 +1,15 @@
 // components/charts-section.tsx
 "use client";
 
+import { useState } from "react";
+
+import { Settings2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 // biome-ignore assist/source/organizeImports: <will fix later>
 import type { Data2G4GModel } from "@/types/schema";
+
 import { ColumnLayoutToggle } from "./column-layout-toggle";
 import LineChart4GAggDaily from "./line-chart-4g-agg-daily-v9";
 
@@ -63,6 +70,12 @@ const CHART_CONFIGS = [
 ];
 
 export function ChartsSection4G({ filteredData, chartLayout, setChartLayout, aggregateBy }: ChartsSectionProps) {
+  const [selectedKPIs, setSelectedKPIs] = useState<string[]>(
+    // Default to all KPIs selected
+    CHART_CONFIGS.map((chart) => chart.metric_num),
+  );
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   const getGridColumnsClass = () => {
     switch (chartLayout) {
       case 1:
@@ -76,19 +89,89 @@ export function ChartsSection4G({ filteredData, chartLayout, setChartLayout, agg
     }
   };
 
+  // Filter charts based on selected KPIs
+  const visibleCharts = CHART_CONFIGS.filter((chart) => selectedKPIs.includes(chart.metric_num));
+
+  const toggleKPI = (metricNum: string) => {
+    if (selectedKPIs.includes(metricNum)) {
+      setSelectedKPIs(selectedKPIs.filter((id) => id !== metricNum));
+    } else {
+      setSelectedKPIs([...selectedKPIs, metricNum]);
+    }
+  };
+
+  const selectAll = () => {
+    setSelectedKPIs(CHART_CONFIGS.map((config) => config.metric_num));
+  };
+
+  const deselectAll = () => {
+    setSelectedKPIs([]);
+  };
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h2 className="font-semibold text-gray-900 text-lg">Detailed Metrics</h2>
-          <ColumnLayoutToggle chartLayout={chartLayout} onLayoutChange={setChartLayout} />
+          {/* <ColumnLayoutToggle chartLayout={chartLayout} onLayoutChange={setChartLayout} /> */}
         </div>
-        <div className="hidden text-gray-500 text-sm sm:block">{filteredData.length} data points</div>
+
+        {/* Sheet Trigger Button */}
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Settings2 className="h-4 w-4" />
+              Customize KPIs ({selectedKPIs.length}/{CHART_CONFIGS.length})
+            </Button>
+          </SheetTrigger>
+
+          {/* Sheet Content (Sidebar) */}
+          <SheetContent className="w-full overflow-y-auto sm:max-w-md p-4">
+            <SheetHeader className="mb-4">
+              <SheetTitle>Select KPIs to Display</SheetTitle>
+            </SheetHeader>
+
+            {/* Selection Controls */}
+            <div className="flex gap-2 mb-4">
+              <Button variant="outline" size="sm" onClick={selectAll} className="flex-1">
+                Select All
+              </Button>
+              <Button variant="outline" size="sm" onClick={deselectAll} className="flex-1">
+                Deselect All
+              </Button>
+            </div>
+
+            {/* KPI List */}
+            <div className="space-y-2 pb-4">
+              {CHART_CONFIGS.map((config) => (
+                <label
+                  key={config.metric_num}
+                  className="flex cursor-pointer items-center rounded-lg border p-3 hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={selectedKPIs.includes(config.metric_num)}
+                    onChange={() => toggleKPI(config.metric_num)}
+                  />
+                  <span className="ml-3 text-sm font-medium">{config.title}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Footer with selection count */}
+            <div className="sticky bottom-0 bg-white border-t pt-4 mt-2">
+              <Button onClick={() => setIsSheetOpen(false)} className="w-full">
+                Apply ({selectedKPIs.length} selected)
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
-      {/* Chart Grid */}
+      {/* Chart Grid - Only shows selected KPIs */}
       <div className={`grid ${getGridColumnsClass()} gap-4`}>
-        {CHART_CONFIGS.map((chart) => (
+        {visibleCharts.map((chart) => (
           <div
             key={chart.metric_num}
             className={`rounded-xl border bg-white p-4 shadow-sm ${chartLayout === 1 ? "mx-auto max-w-4xl" : ""}`}
@@ -101,11 +184,23 @@ export function ChartsSection4G({ filteredData, chartLayout, setChartLayout, agg
               title={chart.title}
               aggregation_by={aggregateBy}
               isExtractCellName={!!aggregateBy.includes("CELL")}
-              // isSR100={chart.metric_num === "NUM_TBF_DL_EST"}
             />
           </div>
         ))}
       </div>
+
+      {/* Show message if no KPIs selected */}
+      {visibleCharts.length === 0 && (
+        <div className="flex min-h-[200px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
+          <div className="text-center">
+            <p className="text-gray-500 mb-2">No KPIs selected</p>
+            <Button variant="outline" size="sm" onClick={() => setIsSheetOpen(true)} className="gap-2">
+              <Settings2 className="h-4 w-4" />
+              Select KPIs to display
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile layout indicator */}
       <div className="mt-4 flex items-center justify-center sm:hidden">

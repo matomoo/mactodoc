@@ -39,7 +39,7 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 2,
-    label: "Master Data",
+    label: "Dashboard",
     items: [
       // {
       //   title: "Profiles",
@@ -47,9 +47,15 @@ export const sidebarItems: NavGroup[] = [
       //   icon: Fingerprint,
       // },
       {
-        title: "Dashboard",
-        url: "/tinfra/displays/dashboard/4g/site/daily",
+        title: "4G",
+        url: "#",
         icon: Fingerprint,
+        subItems: [
+          {
+            title: "Site Level Daily",
+            url: "/tinfra/displays/dashboard/4g/site/daily",
+          },
+        ],
       },
     ],
   },

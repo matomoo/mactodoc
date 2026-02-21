@@ -13,6 +13,8 @@ import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { useDataManagement4G } from "../../_hooks/use-data-management-4g";
 import { useDataFiltering4G } from "../../_hooks/use-data-filtering-4g";
 import { useSummaryMetrics4G } from "../../_hooks/use-summary-metrics-4g";
+import { formatDateForDisplay } from "../../_function/helper";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AggCustomProps {
   area?: string;
@@ -33,6 +35,7 @@ export default function PageAggCustom4GDaily({
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
   const [chartLayout, setChartLayout] = useState<number>(columnNumber);
+  const [activeTab, setActiveTab] = useState<string>("charts");
 
   const shouldFetch = !!dateRange2 && dateRange2.includes("|") && siteId?.length === 6;
 
@@ -95,8 +98,8 @@ export default function PageAggCustom4GDaily({
       <Header
         onExportData={handleExportAllData}
         onToggleMobileFilters={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-        title="4G Network Performance"
-        subtitle="Real-time metrics and analysis dashboard"
+        title="4G Site Level Daily"
+        subtitle={`Performance Site ${siteId} | Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
       />
 
       <div className="py-4 lg:py-6">
@@ -166,22 +169,76 @@ export default function PageAggCustom4GDaily({
               (filterBy === "cell" && dataManagement.selectedCells.length > 0) ||
               (filterBy === "sector" && dataManagement.selectedSectors.length > 0)) && (
               <>
-                {/* Performance Summary Section */}
-                <PerformanceSummarySection4G
-                  metrics={summaryMetrics}
-                  filteredData={filteredData}
-                  filterBy={filterBy}
-                  isExpanded={isPerformanceSummaryExpanded}
-                  onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
-                />
+                {/* Tabs for Performance Summary and Charts */}
+                <Tabs defaultValue="charts" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <div className="mb-4 flex items-center justify-between">
+                    <TabsList>
+                      <TabsTrigger value="charts" className="px-6">
+                        Charts
+                      </TabsTrigger>
+                      <TabsTrigger value="summary" className="px-6">
+                        Table Comparison
+                      </TabsTrigger>
+                    </TabsList>
 
-                {/* Charts Section */}
-                <ChartsSection4G
-                  filteredData={filteredData}
-                  chartLayout={chartLayout}
-                  setChartLayout={setChartLayout}
-                  aggregateBy={aggregateBy}
-                />
+                    {/* Layout toggle only shows when Charts tab is active */}
+                    {activeTab === "charts" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500 text-sm">Column:</span>
+                        <div className="flex rounded-lg border bg-white p-1">
+                          <button
+                            type="button"
+                            onClick={() => setChartLayout(1)}
+                            className={`rounded px-3 py-1 text-sm transition-colors ${
+                              chartLayout === 1 ? "bg-blue-500 text-white" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            1
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setChartLayout(2)}
+                            className={`rounded px-3 py-1 text-sm transition-colors ${
+                              chartLayout === 2 ? "bg-blue-500 text-white" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            2
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setChartLayout(3)}
+                            className={`rounded px-3 py-1 text-sm transition-colors ${
+                              chartLayout === 3 ? "bg-blue-500 text-white" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            3
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Charts Tab Content */}
+                  <TabsContent value="charts" className="mt-0">
+                    <ChartsSection4G
+                      filteredData={filteredData}
+                      chartLayout={chartLayout}
+                      setChartLayout={setChartLayout}
+                      aggregateBy={aggregateBy}
+                    />
+                  </TabsContent>
+
+                  {/* Performance Summary Tab Content */}
+                  <TabsContent value="summary" className="mt-0">
+                    <PerformanceSummarySection4G
+                      metrics={summaryMetrics}
+                      filteredData={filteredData}
+                      filterBy={filterBy}
+                      isExpanded={isPerformanceSummaryExpanded}
+                      onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
+                    />
+                  </TabsContent>
+                </Tabs>
               </>
             )}
           </div>

@@ -18,7 +18,7 @@ export default function Page() {
 
   return (
     <div className="grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-4">
-      <TwH3 text="Monitoring 4G Site Level Daily" />
+      {/* <TwH3 text="4G Site Level Daily" /> */}
       <div className="grid grid-cols-2 justify-between md:grid-cols-1">
         <FilterBy_Date_SiteId />
       </div>

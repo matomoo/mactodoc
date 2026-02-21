@@ -13,7 +13,7 @@ interface ColumnLayoutToggleProps {
 export function ColumnLayoutToggle({ chartLayout, onLayoutChange }: ColumnLayoutToggleProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-gray-500 text-sm">Layout:</span>
+      {/* <span className="text-gray-500 text-sm">Layout:</span> */}
       <ToggleGroup
         type="single"
         value={chartLayout.toString()}
@@ -48,9 +48,9 @@ export function ColumnLayoutToggle({ chartLayout, onLayoutChange }: ColumnLayout
           </span>
         </ToggleGroupItem>
       </ToggleGroup>
-      <div className="text-gray-500 text-xs">
+      {/* <div className="text-gray-500 text-xs">
         {chartLayout} column{chartLayout > 1 ? "s" : ""}
-      </div>
+      </div> */}
     </div>
   );
 }
