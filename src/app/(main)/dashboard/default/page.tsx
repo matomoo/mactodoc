@@ -15,7 +15,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
-      <div className="container mx-auto mb-10 p-4 sm:px-6 lg:px-4">NURA HUB</div>
+      <div className="container mx-auto mb-10 p-4 sm:px-6 lg:px-4">TELKOM INFRA SULAWESI</div>
     </div>
   );
 }

@@ -41,9 +41,14 @@ export const sidebarItems: NavGroup[] = [
     id: 2,
     label: "Master Data",
     items: [
+      // {
+      //   title: "Profiles",
+      //   url: "/nura/app/profiles",
+      //   icon: Fingerprint,
+      // },
       {
-        title: "Profiles",
-        url: "/nura/app/profiles",
+        title: "Dashboard",
+        url: "/tinfra/displays/dashboard/4g/site/daily",
         icon: Fingerprint,
       },
     ],
