@@ -328,7 +328,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="h-80 rounded-lg bg-white p-4 shadow-sm">
+      <div className="h-80 rounded-lg bg-white p-2">
         <div className="h-full">
           <canvas ref={chartRef} />
         </div>

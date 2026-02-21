@@ -69,7 +69,7 @@ export function FilterBy_Date_SiteId() {
       // If dateRange2 is not set in store, set it with default value
       if (!dateRange2) {
         setDateRange2(defaultRangeString);
-        console.log("Setting default date range in store:", defaultRangeString);
+        // console.log("Setting default date range in store:", defaultRangeString);
       }
 
       setIsFirstLoad(false);

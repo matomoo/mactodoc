@@ -3,11 +3,11 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "HUB",
+  name: "TELKOM INFRA SULAWESI",
   version: packageJson.version,
-  copyright: `© ${currentYear}, HUB.`,
+  copyright: `© ${currentYear}, TELKOM INFRA SULAWESI.`,
   meta: {
-    title: "HUB",
+    title: "TELKOM INFRA SULAWESI",
     description: "Development by Macto.",
   },
 };

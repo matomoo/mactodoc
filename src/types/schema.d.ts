@@ -309,5 +309,17 @@ export interface Data2G4GModel {
   SERVICE_DROP_RATE_NUM: number;
   SERVICE_DROP_RATE_DENUM: number;
   DENUMBY1: number;
+
+  G4_WEEK: string;
+  G4_SITEID: string;
+  G4_CELLID: string;
+  G4_SUBNETWORK_ID: string;
+  G4_ME_ID: string;
+  G4_ENODEB_ID: string;
+  G4_SITEID_CELLID: string;
+  G4_CELL_NAME: string;
+  G4_KABUPATEN: string;
+  G4_NOP: string;
+  G4_BAND: string;
   [key: string]: unknown;
 }

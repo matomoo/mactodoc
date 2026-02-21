@@ -15,6 +15,7 @@ import { useDataFiltering4G } from "../../_hooks/use-data-filtering-4g";
 import { useSummaryMetrics4G } from "../../_hooks/use-summary-metrics-4g";
 import { formatDateForDisplay } from "../../_function/helper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PageSiteInfo from "./site-info-4g";
 
 interface AggCustomProps {
   area?: string;
@@ -149,7 +150,7 @@ export default function PageAggCustom4GDaily({
           {/* Main content */}
           <div className="lg:col-span-9">
             {/* Mobile Summary Dashboard */}
-            <div className="mb-4 lg:hidden">
+            {/* <div className="mb-4 lg:hidden">
               <SummaryDashboard
                 allCells={dataManagement.allCells}
                 filterBy={filterBy}
@@ -157,7 +158,7 @@ export default function PageAggCustom4GDaily({
                 selectedSectors={dataManagement.selectedSectors}
                 selectedBands={dataManagement.selectedBands}
               />
-            </div>
+            </div> */}
 
             {/* Error/Empty States */}
             {filterBy === "cell" && dataManagement.selectedCells.length === 0 && (
@@ -182,6 +183,9 @@ export default function PageAggCustom4GDaily({
                       </TabsTrigger>
                       <TabsTrigger value="summary" className="px-6">
                         Table Comparison
+                      </TabsTrigger>
+                      <TabsTrigger value="site-info-4g" className="px-6">
+                        Site Info
                       </TabsTrigger>
                     </TabsList>
 
@@ -243,6 +247,11 @@ export default function PageAggCustom4GDaily({
                       isExpanded={isPerformanceSummaryExpanded}
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
+                  </TabsContent>
+
+                  {/* Performance Site Info Tab Content */}
+                  <TabsContent value="site-info-4g" className="mt-0">
+                    <PageSiteInfo apiPath={"site-info-4g"} aggregateBy="CELL_NAME" filterLabel="Cell Name" />
                   </TabsContent>
                 </Tabs>
               </>

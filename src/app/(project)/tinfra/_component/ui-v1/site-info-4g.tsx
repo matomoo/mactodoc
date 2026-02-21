@@ -15,18 +15,18 @@ interface AggCustomProps {
   columnNumber?: number;
 }
 
-export default function PageSiteInfo({ apiPath }: AggCustomProps) {
+export default function SiteInfo4G({ apiPath }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
   const shouldFetch = !!dateRange2 && dateRange2.includes("|") && siteId?.length === 6;
 
   const { isPending, error, data, isError } = useQuery({
-    queryKey: ["PageSiteInfo", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryKey: ["site-info-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/gefr/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,28 +47,31 @@ export default function PageSiteInfo({ apiPath }: AggCustomProps) {
     );
   }
 
-  console.log(data);
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="py-4 lg:py-6">
+      <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Main content */}
-          <div className="lg:col-span-9">
+          <div className="lg:col-span-12">
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-4">Cell Name</TableHead>
                     <TableHead className="w-2">Cell ID</TableHead>
+                    <TableHead className="w-2">Band</TableHead>
+                    <TableHead className="w-2">Kabupaten</TableHead>
+                    <TableHead className="w-2">NOP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.rows.map((row: Data2G4GModel) => (
-                    <TableRow key={row.CELL_NAME}>
-                      <TableCell className="font-medium">{row.CELL_NAME}</TableCell>
-                      <TableCell className="font-medium">{row.CELL_ID}</TableCell>
-                      <TableCell className="font-medium">xxxx</TableCell>
+                    <TableRow key={row.G4_CELL_NAME}>
+                      <TableCell className="font-medium">{row.G4_CELL_NAME}</TableCell>
+                      <TableCell className="font-medium">{row.G4_CELLID}</TableCell>
+                      <TableCell className="font-medium">{row.G4_BAND}</TableCell>
+                      <TableCell className="font-medium">{row.G4_KABUPATEN}</TableCell>
+                      <TableCell className="font-medium">{row.G4_NOP}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
