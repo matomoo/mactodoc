@@ -18,9 +18,12 @@ interface ChartsSectionProps {
   chartLayout: number;
   setChartLayout: (layout: number) => void;
   aggregateBy: string;
+  selectedKPIs: string[]; // Add this prop
+  onSelectedKPIsChange: (selected: string[]) => void; // Add this prop
 }
 
-const CHART_CONFIGS = [
+export const CHART_CONFIGS = [
+  // Export this to be used in parent
   { metric_num: "DL_PAYLOAD_GB", metric_denum: "DENUMBY1", title: "Total Payload (GB)" },
   { metric_num: "TRAFFIC_VOLTE_ERL", metric_denum: "DENUMBY1", title: "VoLTE Traffic (Erl)" },
   { metric_num: "AVG_MAX_NUMBER_RRC_CONNECTION_USER", metric_denum: "DENUMBY1", title: "Max RRC User" },
@@ -69,11 +72,14 @@ const CHART_CONFIGS = [
   { metric_num: "SRVCC_E2W_SR_NUM", metric_denum: "SRVCC_E2W_SR_DENUM", title: "SRVCC E2W SR (%)" },
 ];
 
-export function ChartsSection4G({ filteredData, chartLayout, setChartLayout, aggregateBy }: ChartsSectionProps) {
-  const [selectedKPIs, setSelectedKPIs] = useState<string[]>(
-    // Default to all KPIs selected
-    CHART_CONFIGS.map((chart) => chart.metric_num),
-  );
+export function ChartsSection4G({
+  filteredData,
+  chartLayout,
+  setChartLayout,
+  aggregateBy,
+  selectedKPIs, // Use from props instead of internal state
+  onSelectedKPIsChange, // Use from props instead of internal state
+}: ChartsSectionProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const getGridColumnsClass = () => {
@@ -94,18 +100,18 @@ export function ChartsSection4G({ filteredData, chartLayout, setChartLayout, agg
 
   const toggleKPI = (metricNum: string) => {
     if (selectedKPIs.includes(metricNum)) {
-      setSelectedKPIs(selectedKPIs.filter((id) => id !== metricNum));
+      onSelectedKPIsChange(selectedKPIs.filter((id) => id !== metricNum));
     } else {
-      setSelectedKPIs([...selectedKPIs, metricNum]);
+      onSelectedKPIsChange([...selectedKPIs, metricNum]);
     }
   };
 
   const selectAll = () => {
-    setSelectedKPIs(CHART_CONFIGS.map((config) => config.metric_num));
+    onSelectedKPIsChange(CHART_CONFIGS.map((config) => config.metric_num));
   };
 
   const deselectAll = () => {
-    setSelectedKPIs([]);
+    onSelectedKPIsChange([]);
   };
 
   return (

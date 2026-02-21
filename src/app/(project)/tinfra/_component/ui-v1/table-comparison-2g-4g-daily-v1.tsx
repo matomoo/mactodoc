@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useComparisonCalculation } from "./use-comparison-data";
+import { formatDateForDisplay } from "../../_function/helper";
 
 const TableComparison2G4GDaily: React.FC<{ data: Data2G4GModel[]; tech: string }> = ({ data, tech }) => {
   const timezone = "Asia/Makassar";
@@ -121,99 +122,74 @@ const TableComparison2G4GDaily: React.FC<{ data: Data2G4GModel[]; tech: string }
     );
   };
 
-  const formatDateForDisplay = (dateString: string) => {
-    if (!dateString) return "";
-    const date = toZonedTime(new Date(dateString), timezone);
-    return format(date, "yyyy-MM-dd");
-  };
-
   return (
-    <div className="grid grid-cols-1 gap-6 rounded-lg bg-white p-2 shadow lg:grid-cols-6">
-      <div className="col-span-2 space-y-6">
-        <div className="grid gap-4 rounded-2xl bg-slate-200 p-4 text-sm">
-          <DateRangePicker title="Before Period" range={beforeRange} setRange={setBeforeRange} />
-          <DateRangePicker title="After Period" range={afterRange} setRange={setAfterRange} />
-        </div>
+    <div className="w-full">
+      <div className="w-full px-0 sm:px-0 md:px-0">
+        <div className="grid grid-cols-1 gap-6 rounded-lg bg-white p-2 shadow lg:grid-cols-1">
+          <div className="col-span-2 space-y-6">
+            <div className="grid gap-4 rounded-2xl bg-slate-200 p-4 text-sm">
+              <DateRangePicker title="Before Period" range={beforeRange} setRange={setBeforeRange} />
+              <DateRangePicker title="After Period" range={afterRange} setRange={setAfterRange} />
+            </div>
+          </div>
 
-        <div className="grid gap-2 rounded-2xl bg-slate-100 p-4">
-          <h3 className="font-semibold">Productivity</h3>
-          {comparisonData
-            // .filter((row) => { return row.tech === tech })
-            .filter((row) => {
-              return (
-                row.metric === "TCH Traffic (Erl)" ||
-                row.metric === "Total Payload (MB)" ||
-                row.metric === "Total Payload (GB)" ||
-                row.metric === "Traffic VoLTE (KErl)"
-              );
-            })
-            .map((row, _index) => (
-              <div key={row.metric}>
-                <div
-                  className={`flex justify-between font-semibold text-sm ${row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"}`}
-                >
-                  <div>{row.metric}</div>
-                  <div>{row.growth.toFixed(2)}%</div>
-                </div>
-              </div>
-            ))}
-        </div>
-      </div>
-
-      <div className="comparison-table col-span-4">
-        <h3 className="mb-2 font-semibold text-lg">Comparison Results</h3>
-        <div className="text-sm">
-          Date Before Range: {formatDateForDisplay(beforeRange.startDate)} to{" "}
-          {formatDateForDisplay(beforeRange.endDate)}
-        </div>
-        <div className="mb-2 text-sm">
-          Date After Range: {formatDateForDisplay(afterRange.startDate)} to {formatDateForDisplay(afterRange.endDate)}
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-200 text-sm">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="border border-gray-200 p-3 text-left font-medium">Metric</th>
-                <th className="border border-gray-200 p-3 text-left font-medium">Before</th>
-                <th className="border border-gray-200 p-3 text-left font-medium">After</th>
-                <th className="border border-gray-200 p-3 text-left font-medium">Delta</th>
-                <th className="border border-gray-200 p-3 text-left font-medium">Growth (%)</th>
-                <th className="border border-gray-200 p-3 text-left font-medium">Remark</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparisonData
-                // .filter((row) => { return row.tech === tech })
-                .map((row, _index) => (
-                  <tr key={row.metric} className="hover:bg-gray-50">
-                    <td className="border border-gray-200 p-3 font-medium">{row.metric}</td>
-                    <td className="border border-gray-200 p-3 text-right">{row.before.toFixed(2)}</td>
-                    <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
-                    <td
-                      className={`border border-gray-200 p-3 text-right ${
-                        row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
-                      }`}
-                    >
-                      {row.delta.toFixed(2)}
-                    </td>
-                    <td
-                      className={`border border-gray-200 p-3 text-right ${
-                        row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
-                      }`}
-                    >
-                      {row.growth.toFixed(2)}%
-                    </td>
-                    <td
-                      className={`border border-gray-200 p-3 text-center ${
-                        row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
-                      }`}
-                    >
-                      {row.growth > 5 ? "Improved" : row.growth < -5 ? "Degrade" : "Maintain"}
-                    </td>
+          <div className="comparison-table col-span-4">
+            <h3 className="mb-2 font-semibold text-lg">Comparison Results</h3>
+            <div className="text-sm">
+              Date Before Range: {formatDateForDisplay(beforeRange.startDate, 2)} to{" "}
+              {formatDateForDisplay(beforeRange.endDate, 2)}
+            </div>
+            <div className="mb-2 text-sm">
+              Date After Range: {formatDateForDisplay(afterRange.startDate, 2)} to{" "}
+              {formatDateForDisplay(afterRange.endDate, 2)}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-200 text-sm">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-200 p-3 text-left font-medium">Metric</th>
+                    <th className="border border-gray-200 p-3 text-left font-medium">Before</th>
+                    <th className="border border-gray-200 p-3 text-left font-medium">After</th>
+                    <th className="border border-gray-200 p-3 text-left font-medium">Delta</th>
+                    <th className="border border-gray-200 p-3 text-left font-medium">Growth (%)</th>
+                    <th className="border border-gray-200 p-3 text-left font-medium">Remark</th>
                   </tr>
-                ))}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {comparisonData
+                    // .filter((row) => { return row.tech === tech })
+                    .map((row, _index) => (
+                      <tr key={row.metric} className="hover:bg-gray-50">
+                        <td className="border border-gray-200 p-3 font-medium">{row.metric}</td>
+                        <td className="border border-gray-200 p-3 text-right">{row.before.toFixed(2)}</td>
+                        <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
+                        <td
+                          className={`border border-gray-200 p-3 text-right ${
+                            row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
+                          }`}
+                        >
+                          {row.delta.toFixed(2)}
+                        </td>
+                        <td
+                          className={`border border-gray-200 p-3 text-right ${
+                            row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
+                          }`}
+                        >
+                          {row.growth.toFixed(2)}%
+                        </td>
+                        <td
+                          className={`border border-gray-200 p-3 text-center ${
+                            row.growth > 5 ? "text-green-600" : row.growth < -5 ? "text-red-600" : "text-yellow-600"
+                          }`}
+                        >
+                          {row.growth > 5 ? "Improved" : row.growth < -5 ? "Degrade" : "Maintain"}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

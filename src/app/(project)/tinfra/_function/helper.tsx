@@ -100,6 +100,9 @@ export const formatDateForDisplay = (dateString: string, formatChoice: 1 | 2 = 1
     return format(date, "yyyy-MM-dd");
   }
   if (formatChoice === 2) {
+    return format(date, "d MMM yyyy"); // "21 Feb 2026" in lowercase
+  }
+  if (formatChoice === 3) {
     return format(date, "d MMM yyyy").toLowerCase(); // "21 feb 2026" in lowercase
   }
 

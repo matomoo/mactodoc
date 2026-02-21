@@ -8,7 +8,7 @@ import { Header } from "./header";
 import { MobileFloatingButtons } from "./mobile-floating-buttons";
 import FilterSidebar4G, { SummaryDashboard } from "./filter-sidebar-4g";
 import PerformanceSummarySection4G from "./performance-summary-section-4g";
-import { ChartsSection4G } from "./charts-section-4g";
+import { CHART_CONFIGS, ChartsSection4G } from "./charts-section-4g";
 import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { useDataManagement4G } from "../../_hooks/use-data-management-4g";
 import { useDataFiltering4G } from "../../_hooks/use-data-filtering-4g";
@@ -36,6 +36,10 @@ export default function PageAggCustom4GDaily({
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
   const [chartLayout, setChartLayout] = useState<number>(columnNumber);
   const [activeTab, setActiveTab] = useState<string>("charts");
+  const [selectedKPIs, setSelectedKPIs] = useState<string[]>(
+    // Default to all KPIs selected
+    CHART_CONFIGS.map((chart) => chart.metric_num),
+  );
 
   const shouldFetch = !!dateRange2 && dateRange2.includes("|") && siteId?.length === 6;
 
@@ -225,6 +229,8 @@ export default function PageAggCustom4GDaily({
                       chartLayout={chartLayout}
                       setChartLayout={setChartLayout}
                       aggregateBy={aggregateBy}
+                      selectedKPIs={selectedKPIs}
+                      onSelectedKPIsChange={setSelectedKPIs}
                     />
                   </TabsContent>
 

@@ -105,38 +105,11 @@ export function PerformanceSummarySection4G({
 
   return (
     <div className="mb-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="font-semibold text-gray-900 text-lg">Performance Summary</h2>
-          <PerformanceSummaryToggle isExpanded={isExpanded} onToggle={onToggle} />
-        </div>
-        <div className="text-gray-500 text-sm">
-          {isExpanded ? `Showing ${filteredData.length} records` : "Summary view"}
-        </div>
-      </div>
-
-      {isExpanded ? (
-        // Expanded view - show full table
-        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <div className="mb-4 flex flex-col items-center justify-between">
+        <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white shadow-sm">
           <TableComparison2G4GDaily data={filteredData} tech="4G" />
         </div>
-      ) : (
-        // Collapsed view - show summary cards
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <SummaryCard
-            title="TCH Traffic (Erl)"
-            value={`${tchTraffic?.growth.toFixed(2)}%`}
-            description={`Based on selected ${getFilterLabel()}`}
-            color="blue"
-          />
-          <SummaryCard
-            title="Payload (MB)"
-            value={`${payloadMb?.growth.toFixed(2)}%`}
-            description="Average TCH traffic across all selected items"
-            color="green"
-          />
-        </div>
-      )}
+      </div>
     </div>
   );
 }
