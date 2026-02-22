@@ -27,11 +27,15 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
       const uniqueCells: string[] = Array.from(
         new Set(
           data.rows.map((item: Data2G4GModel) =>
-            aggregateBy.includes("CELL")
+            aggregateBy.includes("CELL_NAME")
               ? extractCellName(String(item[aggregateBy as keyof Data2G4GModel] ?? "Unknown"))
               : String(item[aggregateBy as keyof Data2G4GModel] ?? "Unknown"),
           ),
         ),
+      ).sort() as string[];
+
+      const uniqueCellIds: string[] = Array.from(
+        new Set(data.rows.map((item: any) => item["4G_CELL_ID"])),
       ).sort() as string[];
 
       setAllCells(uniqueCells);
@@ -39,8 +43,9 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
 
       const uniqueSectors: string[] = Array.from(
         new Set(
-          uniqueCells.map((cellName) => {
-            return Number(cellName.slice(-2)).toString();
+          uniqueCellIds.map((cellId) => {
+            // Convert to string first, then get first character
+            return String(cellId).slice(0, 1);
           }),
         ),
       ).sort() as string[];
