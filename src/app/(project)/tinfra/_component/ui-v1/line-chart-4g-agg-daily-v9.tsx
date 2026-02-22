@@ -17,8 +17,20 @@ import {
 import type { Data2G4GModel } from "@/types/schema";
 import { extractCellName } from "../../_function/helper";
 import { chartJsColors, chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
+import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
 
-Chart.register(Filler, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
+Chart.register(
+  Filler,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
+  Tooltip,
+  Legend,
+  ChartDataLabels,
+);
 
 interface LineChartProps {
   data: Data2G4GModel[];

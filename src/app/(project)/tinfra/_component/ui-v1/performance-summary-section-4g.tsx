@@ -3,7 +3,6 @@
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { Data2G4GModel } from "@/types/schema";
-import { useComparisonCalculation } from "./use-comparison-data";
 import TableComparison2G4GDaily from "./table-comparison-2g-4g-daily-v1";
 
 interface PerformanceSummarySectionProps {
@@ -79,30 +78,7 @@ export function SummaryCard({
   );
 }
 
-export function PerformanceSummarySection4G({
-  filteredData,
-  filterBy,
-  isExpanded,
-  onToggle,
-}: PerformanceSummarySectionProps) {
-  const { getMetric } = useComparisonCalculation(filteredData, "4G");
-
-  const tchTraffic = getMetric("Traffic VoLTE (KErl)");
-  const payloadMb = getMetric("Total Payload (GB)");
-
-  const getFilterLabel = () => {
-    switch (filterBy) {
-      case "cell":
-        return "cells";
-      case "sector":
-        return "sectors";
-      case "band":
-        return "bands";
-      default:
-        return "items";
-    }
-  };
-
+export function PerformanceSummarySection4G({ filteredData }: PerformanceSummarySectionProps) {
   return (
     <div className="mb-6">
       <div className="mb-4 flex flex-col items-center justify-between">
@@ -114,5 +90,4 @@ export function PerformanceSummarySection4G({
   );
 }
 
-// Optional: Default export if you prefer
 export default PerformanceSummarySection4G;

@@ -7,11 +7,10 @@ import { Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-// biome-ignore assist/source/organizeImports: <will fix later>
 import type { Data2G4GModel } from "@/types/schema";
 
-import { ColumnLayoutToggle } from "./column-layout-toggle";
 import LineChart4GAggDaily from "./line-chart-4g-agg-daily-v9";
+import { get2G4GMetricConfigs } from "./metric-configs";
 
 interface ChartsSectionProps {
   filteredData: Data2G4GModel[];
@@ -22,60 +21,59 @@ interface ChartsSectionProps {
   onSelectedKPIsChange: (selected: string[]) => void; // Add this prop
 }
 
-export const CHART_CONFIGS = [
-  // Export this to be used in parent
-  { metric_num: "DL_PAYLOAD_GB", metric_denum: "DENUMBY1", title: "Total Payload (GB)" },
-  { metric_num: "TRAFFIC_VOLTE_ERL", metric_denum: "DENUMBY1", title: "VoLTE Traffic (Erl)" },
-  { metric_num: "AVG_MAX_NUMBER_RRC_CONNECTION_USER", metric_denum: "DENUMBY1", title: "Max RRC User" },
-  { metric_num: "AVAILABILITY_NUM", metric_denum: "AVAILABILITY_DENUM", title: "Availability (%)" },
-  {
-    metric_num: "RRC_SETUP_SR_NUM",
-    metric_denum: "RRC_SETUP_SR_DENUM",
-    title: "RRC Setup Success Rate (%)",
-  },
-  {
-    metric_num: "ERAB_SETUP_SR_NUM",
-    metric_denum: "ERAB_SETUP_SR_DENUM",
-    title: "E-RAB Setup Success Rate (%)",
-  },
-  { metric_num: "CSSR_NUM", metric_denum: "CSSR_DENUM", title: "Call Setup Success Rate (%)" },
-  {
-    metric_num: "SERVICE_DROP_RATE_NUM",
-    metric_denum: "SERVICE_DROP_RATE_DENUM",
-    title: "Service Drop Rate (%)",
-  },
-  {
-    metric_num: "DL_PRB_UTILIZATION_NUM",
-    metric_denum: "DL_PRB_UTILIZATION_DENUM",
-    title: "DL PRB Utilization (%)",
-  },
-  {
-    metric_num: "UL_PRB_UTILIZATION_NUM",
-    metric_denum: "UL_PRB_UTILIZATION_DENUM",
-    title: "UL PRB Utilization (%)",
-  },
-  { metric_num: "USER_DL_THP_NUM", metric_denum: "USER_DL_THP_DENUM", title: "User DL Throughput (Kbps)" },
-  { metric_num: "USER_UL_THP_NUM", metric_denum: "USER_UL_THP_DENUM", title: "User UL Throughput (Kbps)" },
-  { metric_num: "DL_RB_AVAILABLE", metric_denum: "DENUMBY1", title: "DL PRB Available" },
-  { metric_num: "SE_NUM", metric_denum: "SE_DENUM", title: "SE" },
-  { metric_num: "AVG_CQI_NUM", metric_denum: "AVG_CQI_DENUM", title: "CQI" },
-  { metric_num: "AVG_NI_CARRIER_DBM", metric_denum: "DENUMBY1", title: "AVG NI of Carrier (dBm)" },
-  { metric_num: "CSFB_SETUP_SR_NUM", metric_denum: "CSFB_SETUP_SR_DENUM", title: "CSFB Preparation (%)" },
-  {
-    metric_num: "CSFB_RELEASE_SR_NUM",
-    metric_denum: "CSFB_RELEASE_SR_DENUM",
-    title: "CSFB Release SR (%)",
-  },
-  { metric_num: "IFHO_SR_NUM", metric_denum: "IFHO_SR_DENUM", title: "Intra Freq LTE HO (%)" },
-  { metric_num: "INTER_FHO_SR_NUM", metric_denum: "INTER_FHO_SR_DENUM", title: "Inter Freq LTE HO (%)" },
-  { metric_num: "SRVCC_E2G_SR_NUM", metric_denum: "SRVCC_E2G_SR_DENUM", title: "SRVCC E2G SR (%)" },
-  { metric_num: "SRVCC_E2W_SR_NUM", metric_denum: "SRVCC_E2W_SR_DENUM", title: "SRVCC E2W SR (%)" },
-];
+// export const CHART_CONFIGS = [
+//   // Export this to be used in parent
+//   { metric_num: "DL_PAYLOAD_GB", metric_denum: "DENUMBY1", title: "Total Payload (GB)" },
+//   { metric_num: "TRAFFIC_VOLTE_ERL", metric_denum: "DENUMBY1", title: "VoLTE Traffic (Erl)" },
+//   { metric_num: "AVG_MAX_NUMBER_RRC_CONNECTION_USER", metric_denum: "DENUMBY1", title: "Max RRC User" },
+//   { metric_num: "AVAILABILITY_NUM", metric_denum: "AVAILABILITY_DENUM", title: "Availability (%)" },
+//   {
+//     metric_num: "RRC_SETUP_SR_NUM",
+//     metric_denum: "RRC_SETUP_SR_DENUM",
+//     title: "RRC Setup Success Rate (%)",
+//   },
+//   {
+//     metric_num: "ERAB_SETUP_SR_NUM",
+//     metric_denum: "ERAB_SETUP_SR_DENUM",
+//     title: "E-RAB Setup Success Rate (%)",
+//   },
+//   { metric_num: "CSSR_NUM", metric_denum: "CSSR_DENUM", title: "Call Setup Success Rate (%)" },
+//   {
+//     metric_num: "SERVICE_DROP_RATE_NUM",
+//     metric_denum: "SERVICE_DROP_RATE_DENUM",
+//     title: "Service Drop Rate (%)",
+//   },
+//   {
+//     metric_num: "DL_PRB_UTILIZATION_NUM",
+//     metric_denum: "DL_PRB_UTILIZATION_DENUM",
+//     title: "DL PRB Utilization (%)",
+//   },
+//   {
+//     metric_num: "UL_PRB_UTILIZATION_NUM",
+//     metric_denum: "UL_PRB_UTILIZATION_DENUM",
+//     title: "UL PRB Utilization (%)",
+//   },
+//   { metric_num: "USER_DL_THP_NUM", metric_denum: "USER_DL_THP_DENUM", title: "User DL Throughput (Kbps)" },
+//   { metric_num: "USER_UL_THP_NUM", metric_denum: "USER_UL_THP_DENUM", title: "User UL Throughput (Kbps)" },
+//   { metric_num: "DL_RB_AVAILABLE", metric_denum: "DENUMBY1", title: "DL PRB Available" },
+//   { metric_num: "SE_NUM", metric_denum: "SE_DENUM", title: "SE" },
+//   { metric_num: "AVG_CQI_NUM", metric_denum: "AVG_CQI_DENUM", title: "CQI" },
+//   { metric_num: "AVG_NI_CARRIER_DBM", metric_denum: "DENUMBY1", title: "AVG NI of Carrier (dBm)" },
+//   { metric_num: "CSFB_SETUP_SR_NUM", metric_denum: "CSFB_SETUP_SR_DENUM", title: "CSFB Preparation (%)" },
+//   {
+//     metric_num: "CSFB_RELEASE_SR_NUM",
+//     metric_denum: "CSFB_RELEASE_SR_DENUM",
+//     title: "CSFB Release SR (%)",
+//   },
+//   { metric_num: "IFHO_SR_NUM", metric_denum: "IFHO_SR_DENUM", title: "Intra Freq LTE HO (%)" },
+//   { metric_num: "INTER_FHO_SR_NUM", metric_denum: "INTER_FHO_SR_DENUM", title: "Inter Freq LTE HO (%)" },
+//   { metric_num: "SRVCC_E2G_SR_NUM", metric_denum: "SRVCC_E2G_SR_DENUM", title: "SRVCC E2G SR (%)" },
+//   { metric_num: "SRVCC_E2W_SR_NUM", metric_denum: "SRVCC_E2W_SR_DENUM", title: "SRVCC E2W SR (%)" },
+// ];
 
 export function ChartsSection4G({
   filteredData,
   chartLayout,
-  setChartLayout,
   aggregateBy,
   selectedKPIs, // Use from props instead of internal state
   onSelectedKPIsChange, // Use from props instead of internal state
@@ -96,7 +94,9 @@ export function ChartsSection4G({
   };
 
   // Filter charts based on selected KPIs
-  const visibleCharts = CHART_CONFIGS.filter((chart) => selectedKPIs.includes(chart.metric_num));
+  const visibleCharts = get2G4GMetricConfigs().filter(
+    (chart) => chart.tech === "4G" && selectedKPIs.includes(chart.metric_num),
+  );
 
   const toggleKPI = (metricNum: string) => {
     if (selectedKPIs.includes(metricNum)) {
@@ -107,7 +107,11 @@ export function ChartsSection4G({
   };
 
   const selectAll = () => {
-    onSelectedKPIsChange(CHART_CONFIGS.map((config) => config.metric_num));
+    onSelectedKPIsChange(
+      get2G4GMetricConfigs()
+        .filter((a) => a.tech === "4G")
+        .map((config) => config.metric_num),
+    );
   };
 
   const deselectAll = () => {
@@ -127,18 +131,18 @@ export function ChartsSection4G({
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2">
               <Settings2 className="h-4 w-4" />
-              Customize KPIs ({selectedKPIs.length}/{CHART_CONFIGS.length})
+              Customize KPIs ({selectedKPIs.length}/{get2G4GMetricConfigs().filter((a) => a.tech === "4G").length})
             </Button>
           </SheetTrigger>
 
           {/* Sheet Content (Sidebar) */}
-          <SheetContent className="w-full overflow-y-auto sm:max-w-md p-4">
+          <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-md">
             <SheetHeader className="mb-4">
               <SheetTitle>Select KPIs to Display</SheetTitle>
             </SheetHeader>
 
             {/* Selection Controls */}
-            <div className="flex gap-2 mb-4">
+            <div className="mb-4 flex gap-2">
               <Button variant="outline" size="sm" onClick={selectAll} className="flex-1">
                 Select All
               </Button>
@@ -149,24 +153,26 @@ export function ChartsSection4G({
 
             {/* KPI List */}
             <div className="space-y-2 pb-4">
-              {CHART_CONFIGS.map((config) => (
-                <label
-                  key={config.metric_num}
-                  className="flex cursor-pointer items-center rounded-lg border p-3 hover:bg-gray-50 transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    checked={selectedKPIs.includes(config.metric_num)}
-                    onChange={() => toggleKPI(config.metric_num)}
-                  />
-                  <span className="ml-3 text-sm font-medium">{config.title}</span>
-                </label>
-              ))}
+              {get2G4GMetricConfigs()
+                .filter((a) => a.tech === "4G")
+                .map((config) => (
+                  <label
+                    key={config.metric_num}
+                    className="flex cursor-pointer items-center rounded-lg border p-3 transition-colors hover:bg-gray-50"
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      checked={selectedKPIs.includes(config.metric_num)}
+                      onChange={() => toggleKPI(config.metric_num)}
+                    />
+                    <span className="ml-3 font-medium text-sm">{config.title}</span>
+                  </label>
+                ))}
             </div>
 
             {/* Footer with selection count */}
-            <div className="sticky bottom-0 bg-white border-t pt-4 mt-2">
+            <div className="sticky bottom-0 mt-2 border-t bg-white pt-4">
               <Button onClick={() => setIsSheetOpen(false)} className="w-full">
                 Apply ({selectedKPIs.length} selected)
               </Button>
@@ -197,9 +203,9 @@ export function ChartsSection4G({
 
       {/* Show message if no KPIs selected */}
       {visibleCharts.length === 0 && (
-        <div className="flex min-h-[200px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
+        <div className="flex min-h-50 items-center justify-center rounded-lg border-2 border-gray-300 border-dashed">
           <div className="text-center">
-            <p className="text-gray-500 mb-2">No KPIs selected</p>
+            <p className="mb-2 text-gray-500">No KPIs selected</p>
             <Button variant="outline" size="sm" onClick={() => setIsSheetOpen(true)} className="gap-2">
               <Settings2 className="h-4 w-4" />
               Select KPIs to display

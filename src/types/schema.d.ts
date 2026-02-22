@@ -263,22 +263,22 @@ export interface Data2G4GModel {
   TOTAL_PAYLOAD_TB: number;
   AVG_MAX_NUMBER_RRC_CONNECTION_USER: number;
   MAX_MAX_NUMBER_RRC_CONNECTION_USER: number;
-  SUM_MAX_NUMBER_RRC_CONNECTION_USER: number;
+  G4_SUM_MAX_NUMBER_RRC_CONNECTION_USER: number;
   CELL_DL_THP_NUM: number;
   CELL_DL_THP_DENUM: number;
   CELL_UL_THP_NUM: number;
   CELL_UL_THP_DENUM: number;
   AVAILABILITY_NUM: number;
   AVAILABILITY_DENUM: number;
-  DL_PRB_UTILIZATION_NUM: number;
-  DL_PRB_UTILIZATION_DENUM: number;
-  UL_PRB_UTILIZATION_NUM: number;
-  UL_PRB_UTILIZATION_DENUM: number;
+  G4_DL_PRB_UTILIZATION_NUM: number;
+  G4_DL_PRB_UTILIZATION_DENUM: number;
+  G4_UL_PRB_UTILIZATION_NUM: number;
+  G4_UL_PRB_UTILIZATION_DENUM: number;
   CQI_NUM: number;
   CQI_DENUM: number;
   AVG_CQI: number;
-  SE_NUM: number;
-  SE_DENUM: number;
+  G4_SE_NUM: number;
+  G4_SE_DENUM: number;
   CELL_COUNT: number;
   TRAFFIC_VOLTE_ERL: number;
   TRAFFIC_VOLTE_KERL: number;
@@ -310,6 +310,8 @@ export interface Data2G4GModel {
   SERVICE_DROP_RATE_DENUM: number;
   DENUMBY1: number;
 
+  G2_TCH_TRAFFIC_ERL: number;
+
   G4_WEEK: string;
   G4_SITEID: string;
   G4_CELLID: string;
@@ -321,5 +323,28 @@ export interface Data2G4GModel {
   G4_KABUPATEN: string;
   G4_NOP: string;
   G4_BAND: string;
+  G4_RRC_SETUP_SR_NUM: number;
+  G4_RRC_SETUP_SR_DENUM: number;
+  G4_ERAB_SETUP_SR_NUM: number;
+  G4_ERAB_SETUP_SR_DENUM: number;
+  G4_CSSR_NUM: number;
+  G4_CSSR_DENUM: number;
+  G4_SERVICE_DROP_RATE_NUM: number;
+  G4_SERVICE_DROP_RATE_DENUM: number;
+  G4_USER_DL_THP_NUM: number;
+  G4_USER_DL_THP_DENUM: number;
+  G4_USER_UL_THP_NUM: number;
+  G4_USER_UL_THP_DENUM: number;
+  G4_AVG_CQI_NUM: number;
+  G4_AVG_CQI_DENUM: number;
+  G4_CSFB_SETUP_SR_NUM: number;
+  G4_CSFB_SETUP_SR_DENUM: number;
+  G4_IFHO_SR_NUM: number;
+  G4_IFHO_SR_DENUM: number;
+  G4_INTER_FHO_SR_NUM: number;
+  G4_INTER_FHO_SR_DENUM: number;
+  G4_SRVCC_E2G_SR_NUM: number;
+  G4_SRVCC_E2G_SR_DENUM: number;
+
   [key: string]: unknown;
 }

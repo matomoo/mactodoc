@@ -1,6 +1,6 @@
 // biome-ignore assist/source/organizeImports: <will fix later>
 import type { Data2G4GModel } from "@/types/schema";
-import type { MetricConfig, ComparisonResult } from "./comparison-types";
+import type { MetricConfig, ComparisonResult, UnifiedMetricConfig } from "./comparison-types";
 import { toZonedTime } from "date-fns-tz";
 import { endOfDay, startOfDay } from "date-fns";
 import { calculateSuccessRate0, calculateSuccessRate100 } from "../../_function/helper";
@@ -9,7 +9,7 @@ import { calculateSuccessRate0, calculateSuccessRate100 } from "../../_function/
 export const calculateGrowthForMetric = (
   before: number,
   after: number,
-  growthType: MetricConfig["growthType"] = "standard",
+  growthType: UnifiedMetricConfig["growthType"] = "standard",
 ): { delta: number; growth: number } => {
   let delta = after - before;
 
@@ -42,7 +42,7 @@ export const calculateGrowthForMetric = (
 // Main comparison calculation function
 export const calculateComparisonData = (
   data: Data2G4GModel[],
-  metricCalculators: MetricConfig[],
+  metricCalculators: UnifiedMetricConfig[],
   beforeRange: { startDate: string; endDate: string },
   afterRange: { startDate: string; endDate: string },
   timezone = "Asia/Makassar",
@@ -64,14 +64,25 @@ export const calculateComparisonData = (
   const beforeData = filterByDateRange(beforeRange.startDate, beforeRange.endDate);
   const afterData = filterByDateRange(afterRange.startDate, afterRange.endDate);
 
-  return metricCalculators.map(({ name, calculate, growthType = "standard", tech }) => {
-    const before = calculate(beforeData);
-    const after = calculate(afterData);
+  return metricCalculators.map(({ title, calculate, growthType = "standard", tech }) => {
+    // If calculate is not provided, use metric_num to calculate sum
+    const calcFn =
+      calculate ??
+      ((data: Data2G4GModel[]) => {
+        // Default behavior: sum up the metric_num values
+        return data.reduce((sum, item) => {
+          const value = item[title as keyof Data2G4GModel];
+          return sum + (typeof value === "number" ? value : 0);
+        }, 0);
+      });
+
+    const before = calcFn(beforeData);
+    const after = calcFn(afterData);
 
     const { delta, growth } = calculateGrowthForMetric(before, after, growthType);
 
     return {
-      metric: name,
+      metric: title,
       before,
       after,
       delta,
