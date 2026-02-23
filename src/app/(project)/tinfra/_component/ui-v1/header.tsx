@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export function Header({ onExportData, onToggleMobileFilters, title, subtitle }: HeaderProps) {
   return (
-    <div className="sticky top-13 z-30 border-b bg-white px-4 py-3 shadow-sm lg:px-6">
+    <div className="sticky top-13 z-30 mt-4 rounded-lg border-b bg-white px-4 py-2 shadow-sm lg:px-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-bold text-gray-900 text-xl">{title || "2G Network Performance"}</h1>

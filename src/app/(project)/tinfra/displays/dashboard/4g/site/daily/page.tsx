@@ -17,7 +17,7 @@ export default function Page() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-4">
+    <div className="grid grid-cols-1 gap-2 rounded-2xl bg-linear-to-br from-purple-50 via-white to-blue-50 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* <TwH3 text="4G Site Level Daily" /> */}
       <div className="grid grid-cols-2 justify-between md:grid-cols-1">
         <FilterBy_Date_SiteId />
