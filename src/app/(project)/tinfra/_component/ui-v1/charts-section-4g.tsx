@@ -186,7 +186,7 @@ export function ChartsSection4G({
         {visibleCharts.map((chart) => (
           <div
             key={chart.metric_num}
-            className={`rounded-xl border bg-white p-2 shadow-sm ${chartLayout === 1 ? "mx-auto max-w-4xl" : ""}`}
+            className={`rounded-xl border bg-white p-2 shadow-sm ${chartLayout === 1 ? "w-full" : ""}`}
           >
             <LineChart4GAggDaily
               key={chart.metric_num}

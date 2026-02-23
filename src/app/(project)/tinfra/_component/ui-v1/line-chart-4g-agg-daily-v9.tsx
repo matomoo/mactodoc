@@ -16,7 +16,12 @@ import {
 } from "chart.js";
 import type { Data2G4GModel } from "@/types/schema";
 import { extractCellName } from "../../_function/helper";
-import { chartJsColors, chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
+import {
+  chartJsColors,
+  chartJsColorsTransparent,
+  chartJsV1Settings,
+  hexToRGBA,
+} from "../contexts/chartjs/chartjs-settings";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
 
 Chart.register(
@@ -65,6 +70,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   const chartData = useMemo(() => {
     if (!data?.length) return { labels: [], datasets: [] };
 
+    console.log(data);
+
     const isPercentage = title.includes("%");
     const isAverage = aggregation === "avg" || title.includes("AVG");
     const isDenumBy1 = metric_denum === "DENUMBY1";
@@ -74,9 +81,12 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
     data.forEach((item) => {
       const date = new Date(item.BEGIN_TIME).toLocaleDateString();
-      const groupKey = isExtractCellName
-        ? extractCellName(String(item[aggregation_by] || "Unknown"))
-        : String(item[aggregation_by] || "Unknown");
+
+      const groupKey = String(item["4G_CELL_ID"] || "Unknown");
+
+      // const groupKey = isExtractCellName
+      //   ? extractCellName(String(item[aggregation_by] || "Unknown"))
+      //   : String(item[aggregation_by] || "Unknown");
 
       dates.add(date);
 
@@ -103,6 +113,9 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     const sortedGroups = Object.keys(groups).sort();
 
     const metricDatasets = sortedGroups.map((groupKey, index) => {
+      const color = chartJsColors[index % chartJsColors.length];
+      const colorBg = chartJsColorsTransparent[index % chartJsColors.length];
+
       const values = sortedDates.map((date) => {
         const groupData = groups[groupKey][date];
         if (!groupData) return 0;
@@ -117,21 +130,18 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         if (isAverage && groupData.count > 0) value /= groupData.count;
 
         const result = Number(value.toFixed(4));
-        // console.log(`Calculated value: ${result}`);
         return result;
       });
-
-      // console.log('values', values)
 
       return {
         label: groupKey,
         data: values,
-        borderColor: chartJsColors[index % chartJsColors.length],
-        backgroundColor: chartJsColors[index % chartJsColors.length],
+        borderColor: color,
+        backgroundColor: colorBg,
         tension: 0.3,
         pointRadius: 0,
-        fill: isTrafficChart, // Enable fill for traffic charts
-        stack: isTrafficChart ? "stack" : undefined, // Stack for area charts
+        fill: isTrafficChart,
+        stack: isTrafficChart ? "stack" : undefined,
         yAxisID: "y",
       };
     });
@@ -160,28 +170,14 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       labels: sortedDates,
       datasets: metricDatasets,
     };
-  }, [
-    data,
-    metric_num,
-    metric_denum,
-    aggregation,
-    aggregation_by,
-    title,
-    showPayload,
-    isDropRatePercentage,
-    isExtractCellName,
-    isTrafficChart,
-  ]);
+  }, [data, metric_num, metric_denum, aggregation, title, showPayload, isDropRatePercentage, isTrafficChart]);
 
-  // ... rest of your component remains the same
-  // Initialize chart
   useEffect(() => {
     if (!chartRef.current || !chartData.labels.length) return;
 
     const ctx = chartRef.current.getContext("2d");
     if (!ctx) return;
 
-    // Destroy existing chart
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
@@ -197,7 +193,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         maintainAspectRatio: false,
         plugins: {
           datalabels: {
-            display: false, // Completely disable data labels
+            display: false,
           },
           legend: {
             position: "top" as const,
@@ -268,7 +264,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                   if (isDropRatePercentage) {
                     return `${value.toFixed(4)}%`;
                   }
-                  return value.toFixed(4); // This will format to 2 decimal places
+                  return value.toFixed(4);
                 }
                 return value;
               },

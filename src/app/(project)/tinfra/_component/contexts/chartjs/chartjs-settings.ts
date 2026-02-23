@@ -51,3 +51,19 @@ export const chartJsColors = [
   "hsl(27.5, 100%, 50%,0.8)",
   "hsl(165, 100%, 50%,0.8)",
 ];
+
+export const chartJsColorsTransparent = chartJsColors.map(
+  (color) => color.replace(/0\.8\)$/, "0.2)"), // Replace 0.8 opacity with 0.2
+);
+
+export const hexToRGBA = (hex: string, alpha: number) => {
+  // Remove the # if present
+  const hexx = hex.replace("#", "");
+
+  // Parse the hex values
+  const r = parseInt(hexx.substring(0, 2), 16);
+  const g = parseInt(hexx.substring(2, 4), 16);
+  const b = parseInt(hexx.substring(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
