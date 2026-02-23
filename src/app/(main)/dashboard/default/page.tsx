@@ -5,8 +5,18 @@ import { Activity, ArrowRight, BarChart3, Network, Shield, Signal } from "lucide
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function WelcomeScreen() {
+  const { loading } = useRequireAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
   const features = [
     {
       icon: Activity,
