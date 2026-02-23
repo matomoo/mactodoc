@@ -41,11 +41,16 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
       setAllCells(uniqueCells);
       setSelectedCells(uniqueCells);
 
+      // console.log(uniqueCellIds);
+
       const uniqueSectors: string[] = Array.from(
         new Set(
           uniqueCellIds.map((cellId) => {
-            // Convert to string first, then get first character
-            return String(cellId).slice(0, 1);
+            const cellIdStr = String(cellId).trim();
+            if (cellIdStr.length === 3) {
+              return cellIdStr.slice(0, 2);
+            }
+            return cellIdStr.slice(0, 1);
           }),
         ),
       ).sort() as string[];

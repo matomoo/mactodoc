@@ -39,10 +39,14 @@ export function useDataFiltering4G({
       if (!data || selectedSectors.length === 0) return [];
 
       return data.rows.filter((item: Data2G4GModel) => {
-        const cellName = aggregateBy.includes("CELL")
-          ? extractCellName(String(item[aggregateBy as keyof Data2G4GModel] ?? "Unknown"))
-          : (String(item[aggregateBy as keyof Data2G4GModel]) ?? "Unknown");
-        const sector = cellName.slice(-1);
+        const cellId = String(item["4G_CELL_ID"] ?? "Unknown");
+
+        // Use the SAME logic as in your useEffect for extracting sectors
+        const sector =
+          cellId.length === 3
+            ? cellId.slice(0, 2) // First two digits for 3-digit IDs
+            : cellId.slice(0, 1); // First digit for 2-digit IDs
+
         return selectedSectors.includes(sector);
       });
     }

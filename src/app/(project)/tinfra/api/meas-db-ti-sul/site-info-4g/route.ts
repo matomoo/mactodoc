@@ -26,22 +26,16 @@ export async function GET(request: Request) {
     formattedTgl2 = new Date(tgl_2).toISOString();
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
-          SELECT
-            t1."week" AS "G4_WEEK",
-            t1."siteid" AS "G4_SITEID",
-            t1."cellid" AS "G4_CELLID",
-            t1."band" AS "G4_BAND",
-            t1."subnetwork_id" AS "G4_SUBNETWORK_ID",
-            t1."managedelement_id" AS "G4_ME_ID",
-            t1."enodeb_id" AS "G4_ENODEB_ID",
-            t1."siteid_cellid" AS "G4_SITEID_CELLID",
-            t1."cell_name" AS "G4_CELL_NAME",
-            t1."kabupaten" AS "G4_KABUPATEN",
-            t1."nop" AS "G4_NOP"
+      SELECT
+            t1."Cell Name" AS "G4_CELL_NAME",
+            t1."cellId" AS "G4_CELLID"
           FROM
-            "ref_cell_4g" t1
+            "measDy4g" t1
           WHERE
-           t1."siteid" like ${querySiteId}
+            t1."Begin Time" = ${formattedTgl1} :: TIMESTAMP
+          AND
+           t1."Cell Name" like ${querySiteId}    
+      
         `);
 
     return NextResponse.json(result);
@@ -49,3 +43,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
+
+// SELECT
+//             t1."week" AS "G4_WEEK",
+//             t1."siteid" AS "G4_SITEID",
+//             t1."cellid" AS "G4_CELLID",
+//             t1."band" AS "G4_BAND",
+//             t1."subnetwork_id" AS "G4_SUBNETWORK_ID",
+//             t1."managedelement_id" AS "G4_ME_ID",
+//             t1."enodeb_id" AS "G4_ENODEB_ID",
+//             t1."siteid_cellid" AS "G4_SITEID_CELLID",
+//             t1."cell_name" AS "G4_CELL_NAME",
+//             t1."kabupaten" AS "G4_KABUPATEN",
+//             t1."nop" AS "G4_NOP"
+//           FROM
+//             "ref_cell_4g" t1
+//           WHERE
+//            t1."siteid" like ${querySiteId}

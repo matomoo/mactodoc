@@ -152,31 +152,67 @@ export const extractBandFromCellName = (cellName: string): string => {
   }
 };
 
+// export const extractBandFromCellName4G = (cellName: string): string => {
+//   if (!cellName || cellName.length < 4) return "XXX";
+
+//   // Extract MD from left(right(cellname,4),2)
+//   const lastFourChars = cellName.slice(-4);
+//   const bandCode = lastFourChars.slice(0, 2);
+//   // Map band codes to actual band names
+//   switch (bandCode) {
+//     case "ML":
+//       return "L1800";
+//     case "MT":
+//       return "L900";
+//     case "MR":
+//       return "L2100";
+//     case "ME":
+//       return "L2300";
+//     case "TE":
+//       return "L2300";
+//     case "MF":
+//       return "L2300";
+//     case "TF":
+//       return "L2300";
+//     case "VE":
+//       return "L2300";
+//     case "VL":
+//       return "L1800";
+//     case "VR":
+//       return "L2100";
+//     case "VF":
+//       return "L2300";
+//     case "VXF":
+//       return "L2300";
+//     default:
+//       return "XXX";
+//   }
+// };
+
 export const extractBandFromCellName4G = (cellName: string): string => {
   if (!cellName || cellName.length < 4) return "XXX";
 
-  // Extract MD from left(right(cellname,4),2)
   const lastFourChars = cellName.slice(-4);
   const bandCode = lastFourChars.slice(0, 2);
-  // Map band codes to actual band names
-  switch (bandCode) {
-    case "ML":
-      return "L1800";
-    case "MT":
-      return "L900";
-    case "MR":
-      return "L2100";
-    case "ME":
-      return "L2300";
-    case "TE":
-      return "L2300";
-    case "MF":
-      return "L2300";
-    case "TF":
-      return "L2300";
-    default:
-      return "XXX";
-  }
+
+  const bandMap: Record<string, string> = {
+    EL: "L1800",
+    ML: "L1800",
+    VL: "L1800",
+    MT: "L900",
+    ER: "L2100",
+    MR: "L2100",
+    VR: "L2100",
+    ME: "L2300",
+    TE: "L2300",
+    MF: "L2300",
+    TF: "L2300",
+    VE: "L2300",
+    VF: "L2300",
+    VV: "L2300",
+  };
+
+  return bandMap[bandCode] || "XXX";
 };
 
 // Band Indicator Component

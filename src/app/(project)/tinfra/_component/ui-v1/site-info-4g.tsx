@@ -59,9 +59,9 @@ export default function SiteInfo4G({ apiPath }: AggCustomProps) {
                   <TableRow>
                     <TableHead className="w-4">Cell Name</TableHead>
                     <TableHead className="w-2">Cell ID</TableHead>
-                    <TableHead className="w-2">Band</TableHead>
+                    {/* <TableHead className="w-2">Band</TableHead>
                     <TableHead className="w-2">Kabupaten</TableHead>
-                    <TableHead className="w-2">NOP</TableHead>
+                    <TableHead className="w-2">NOP</TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -69,9 +69,9 @@ export default function SiteInfo4G({ apiPath }: AggCustomProps) {
                     <TableRow key={row.G4_CELL_NAME}>
                       <TableCell className="font-medium">{row.G4_CELL_NAME}</TableCell>
                       <TableCell className="font-medium">{row.G4_CELLID}</TableCell>
-                      <TableCell className="font-medium">{row.G4_BAND}</TableCell>
+                      {/* <TableCell className="font-medium">{row.G4_BAND}</TableCell>
                       <TableCell className="font-medium">{row.G4_KABUPATEN}</TableCell>
-                      <TableCell className="font-medium">{row.G4_NOP}</TableCell>
+                      <TableCell className="font-medium">{row.G4_NOP}</TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
