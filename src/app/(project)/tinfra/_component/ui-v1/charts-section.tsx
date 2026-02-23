@@ -2,7 +2,6 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <will fix later>
-import LineChart2GAggDailyV8 from "../ui-v2/line-chart-2g-agg-daily-v8";
 import type { Agg2gModel } from "@/types/schema";
 import { ColumnLayoutToggle } from "./column-layout-toggle";
 
@@ -74,7 +73,7 @@ export function ChartsSection({ filteredData, chartLayout, setChartLayout, aggre
             key={chart.metric_num}
             className={`rounded-xl border bg-white p-4 shadow-sm ${chartLayout === 1 ? "mx-auto max-w-4xl" : ""}`}
           >
-            <LineChart2GAggDailyV8
+            {/* <LineChart2GAggDailyV8
               data={filteredData}
               metric_num={chart.metric_num}
               metric_denum={chart.metric_denum}
@@ -82,7 +81,7 @@ export function ChartsSection({ filteredData, chartLayout, setChartLayout, aggre
               aggregation_by={aggregateBy}
               isExtractCellName={!!aggregateBy.includes("BTS")}
               isSR100={chart.metric_num === "NUM_TBF_DL_EST"}
-            />
+            /> */}
           </div>
         ))}
       </div>

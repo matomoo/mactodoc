@@ -11,9 +11,9 @@ import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { ChartsSection } from "./charts-section";
 import { Header } from "./header";
 import { MobileFloatingButtons } from "./mobile-floating-buttons";
-import { useDataManagement } from "../../../_hooks/use-data-management";
-import { useDataFiltering } from "../../../_hooks/use-data-filtering";
-import { useSummaryMetrics } from "../../../_hooks/use-summary-metrics";
+import { useDataManagement } from "../../_hooks/use-data-management";
+import { useDataFiltering } from "../../_hooks/use-data-filtering";
+import { useSummaryMetrics } from "../../_hooks/use-summary-metrics";
 
 interface AggCustomProps {
   area?: string;

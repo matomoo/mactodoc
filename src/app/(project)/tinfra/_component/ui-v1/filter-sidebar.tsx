@@ -2,9 +2,9 @@
 
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { Search, Filter, X } from "lucide-react";
-import { TwSmall } from "../../typography/typography";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { BandIndicator } from "../../../_function/helper";
+import { BandIndicator } from "../../_function/helper";
+import { TwSmall } from "../typography/typography";
 
 interface FilterSidebarProps {
   // Summary data
