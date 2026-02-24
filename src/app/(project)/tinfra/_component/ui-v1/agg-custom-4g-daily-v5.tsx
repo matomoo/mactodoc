@@ -248,6 +248,8 @@ export default function PageAggCustom4GDaily({
                       filteredData={filteredData}
                       filterBy={filterBy}
                       isExpanded={isPerformanceSummaryExpanded}
+                      // selectedKPIs={selectedKPIs}
+
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
                   </TabsContent>

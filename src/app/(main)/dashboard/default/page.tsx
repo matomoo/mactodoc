@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, ArrowRight, BarChart3, Network, Shield, Signal } from "lucide-react";
+import { Activity, BarChart3, Shield, Signal } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
@@ -57,17 +56,17 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Background Decoration */}
-      <div className="absolute inset-0 bg-grid-slate-200 [mask-image:radial-gradient(ellipse_at_center,white,transparent)] dark:bg-grid-slate-800/20" />
+      <div className="mask-[radial-gradient(ellipse_at_center,white,transparent)] absolute inset-0 bg-grid-slate-200 dark:bg-grid-slate-800/20" />
 
       {/* Animated gradient orbs */}
-      <div className="absolute top-0 -left-4 h-96 w-96 animate-blob rounded-full bg-blue-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-blue-900/30" />
-      <div className="absolute top-0 -right-4 h-96 w-96 animate-blob animation-delay-2000 rounded-full bg-indigo-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-indigo-900/30" />
-      <div className="absolute -bottom-8 left-20 h-96 w-96 animate-blob animation-delay-4000 rounded-full bg-purple-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-purple-900/30" />
+      <div className="-left-4 absolute top-0 h-96 w-96 animate-blob rounded-full bg-blue-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-blue-900/30" />
+      <div className="-right-4 animation-delay-2000 absolute top-0 h-96 w-96 animate-blob rounded-full bg-indigo-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-indigo-900/30" />
+      <div className="-bottom-8 animation-delay-4000 absolute left-20 h-96 w-96 animate-blob rounded-full bg-purple-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-purple-900/30" />
 
       {/* Main Content */}
-      <div className="relative container mx-auto flex min-h-screen flex-col items-center justify-center px-4 py-16">
+      <div className="container relative mx-auto flex min-h-screen flex-col items-center justify-center px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,15 +74,15 @@ export default function WelcomeScreen() {
           className="text-center"
         >
           {/* Logo/Badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 font-medium text-blue-700 text-sm dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400">
             <Signal className="h-4 w-4" />
             <span>Network Operations Center</span>
           </div>
 
           {/* Main Heading */}
-          <h1 className="mb-6 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-6xl lg:text-7xl">
-            TELKOM INFRA
-            <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="mb-6 font-bold text-4xl text-slate-900 tracking-tight sm:text-6xl lg:text-7xl dark:text-slate-50">
+            TELKOMINFRA
+            <span className="block bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               SULAWESI
             </span>
           </h1>
@@ -137,7 +136,7 @@ export default function WelcomeScreen() {
               return (
                 <motion.div key={feature.title} variants={itemVariants}>
                   <Card
-                    className={`group relative overflow-hidden border bg-gradient-to-br ${colors[feature.color as keyof typeof colors]} backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-${feature.color}-500/10`}
+                    className={`group relative overflow-hidden border bg-linear-to-br ${colors[feature.color as keyof typeof colors]} backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-${feature.color}-500/10`}
                   >
                     <CardContent className="p-6">
                       <div
@@ -145,8 +144,8 @@ export default function WelcomeScreen() {
                       >
                         <Icon className="h-6 w-6" />
                       </div>
-                      <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-50">{feature.title}</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{feature.description}</p>
+                      <h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-50">{feature.title}</h3>
+                      <p className="text-slate-600 text-sm dark:text-slate-400">{feature.description}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -159,9 +158,9 @@ export default function WelcomeScreen() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-16 text-sm text-slate-500 dark:text-slate-500"
+            className="mt-16 text-slate-500 text-sm dark:text-slate-500"
           >
-            <p>© 2026 Telkom Infra Sulawesi. All rights reserved.</p>
+            <p>© 2026 Telkominfra Sulawesi. All rights reserved.</p>
           </motion.div>
         </motion.div>
       </div>

@@ -2,6 +2,53 @@ import { isValid, parseISO } from "date-fns";
 import { format, toZonedTime } from "date-fns-tz";
 import type { DateRange } from "react-day-picker";
 
+export const calculateSuccessRate100Infra = (before: number, after: number): number => {
+  const beforeRounded = Number(before.toFixed(2));
+  const afterRounded = Number(after.toFixed(2));
+
+  if (afterRounded === beforeRounded) {
+    return 0;
+  }
+
+  if (afterRounded > beforeRounded) {
+    return ((afterRounded - beforeRounded) / (100 - beforeRounded)) * 100;
+  }
+
+  const delta = afterRounded - beforeRounded;
+
+  if (delta > -2) {
+    return (delta / beforeRounded) * 100;
+  }
+
+  // Use absolute delta for cases where delta <= -2
+  return (Math.abs(delta) / beforeRounded) * 100;
+};
+
+export const calculateSuccessRate0Infra = (before: number, after: number): number => {
+  const beforeRounded = Number(before.toFixed(2));
+  const afterRounded = Number(after.toFixed(2));
+
+  if (afterRounded === beforeRounded) {
+    return 0;
+  }
+
+  const beforeComplement = 100 - beforeRounded;
+  const afterComplement = 100 - afterRounded;
+
+  if (afterComplement > beforeComplement) {
+    return ((afterComplement - beforeComplement) / (100 - beforeComplement)) * 100;
+  }
+
+  const delta = afterComplement - beforeComplement;
+
+  if (delta > -2) {
+    return (delta / beforeComplement) * 100;
+  }
+
+  // Make delta absolute in the last return
+  return (Math.abs(delta) / beforeComplement) * 100;
+};
+
 export const extractCellName = (fullCellName: string): string => {
   if (!fullCellName || fullCellName.length < 7) {
     return fullCellName;
@@ -23,7 +70,7 @@ export const calculateSuccessRate100 = (before: number, after: number): number =
 
   const delta = Number(after.toFixed(2)) - Number(before.toFixed(2));
 
-  if (delta > -5) {
+  if (delta > -2) {
     return (delta / Number(before.toFixed(2))) * 100;
   }
 
@@ -55,7 +102,7 @@ export const calculateSuccessRate0 = (before: number, after: number): number => 
 
   const delta = 100 - Number(after.toFixed(2)) - (100 - Number(before.toFixed(2)));
 
-  if (delta > -5) {
+  if (delta > -2) {
     return (delta / (100 - Number(before.toFixed(2)))) * 100;
   }
 
@@ -152,7 +199,7 @@ export const extractBandFromCellName = (cellName: string): string => {
   }
 };
 
-// export const extractBandFromCellName4G = (cellName: string): string => {
+// export const extractBandFromCellName4G_Deleted = (cellName: string): string => {
 //   if (!cellName || cellName.length < 4) return "XXX";
 
 //   // Extract MD from left(right(cellname,4),2)

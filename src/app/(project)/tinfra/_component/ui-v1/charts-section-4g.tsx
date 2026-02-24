@@ -17,66 +17,16 @@ interface ChartsSectionProps {
   chartLayout: number;
   setChartLayout: (layout: number) => void;
   aggregateBy: string;
-  selectedKPIs: string[]; // Add this prop
-  onSelectedKPIsChange: (selected: string[]) => void; // Add this prop
+  selectedKPIs: string[];
+  onSelectedKPIsChange: (selected: string[]) => void;
 }
-
-// export const CHART_CONFIGS = [
-//   // Export this to be used in parent
-//   { metric_num: "DL_PAYLOAD_GB", metric_denum: "DENUMBY1", title: "Total Payload (GB)" },
-//   { metric_num: "TRAFFIC_VOLTE_ERL", metric_denum: "DENUMBY1", title: "VoLTE Traffic (Erl)" },
-//   { metric_num: "AVG_MAX_NUMBER_RRC_CONNECTION_USER", metric_denum: "DENUMBY1", title: "Max RRC User" },
-//   { metric_num: "AVAILABILITY_NUM", metric_denum: "AVAILABILITY_DENUM", title: "Availability (%)" },
-//   {
-//     metric_num: "RRC_SETUP_SR_NUM",
-//     metric_denum: "RRC_SETUP_SR_DENUM",
-//     title: "RRC Setup Success Rate (%)",
-//   },
-//   {
-//     metric_num: "ERAB_SETUP_SR_NUM",
-//     metric_denum: "ERAB_SETUP_SR_DENUM",
-//     title: "E-RAB Setup Success Rate (%)",
-//   },
-//   { metric_num: "CSSR_NUM", metric_denum: "CSSR_DENUM", title: "Call Setup Success Rate (%)" },
-//   {
-//     metric_num: "SERVICE_DROP_RATE_NUM",
-//     metric_denum: "SERVICE_DROP_RATE_DENUM",
-//     title: "Service Drop Rate (%)",
-//   },
-//   {
-//     metric_num: "DL_PRB_UTILIZATION_NUM",
-//     metric_denum: "DL_PRB_UTILIZATION_DENUM",
-//     title: "DL PRB Utilization (%)",
-//   },
-//   {
-//     metric_num: "UL_PRB_UTILIZATION_NUM",
-//     metric_denum: "UL_PRB_UTILIZATION_DENUM",
-//     title: "UL PRB Utilization (%)",
-//   },
-//   { metric_num: "USER_DL_THP_NUM", metric_denum: "USER_DL_THP_DENUM", title: "User DL Throughput (Kbps)" },
-//   { metric_num: "USER_UL_THP_NUM", metric_denum: "USER_UL_THP_DENUM", title: "User UL Throughput (Kbps)" },
-//   { metric_num: "DL_RB_AVAILABLE", metric_denum: "DENUMBY1", title: "DL PRB Available" },
-//   { metric_num: "SE_NUM", metric_denum: "SE_DENUM", title: "SE" },
-//   { metric_num: "AVG_CQI_NUM", metric_denum: "AVG_CQI_DENUM", title: "CQI" },
-//   { metric_num: "AVG_NI_CARRIER_DBM", metric_denum: "DENUMBY1", title: "AVG NI of Carrier (dBm)" },
-//   { metric_num: "CSFB_SETUP_SR_NUM", metric_denum: "CSFB_SETUP_SR_DENUM", title: "CSFB Preparation (%)" },
-//   {
-//     metric_num: "CSFB_RELEASE_SR_NUM",
-//     metric_denum: "CSFB_RELEASE_SR_DENUM",
-//     title: "CSFB Release SR (%)",
-//   },
-//   { metric_num: "IFHO_SR_NUM", metric_denum: "IFHO_SR_DENUM", title: "Intra Freq LTE HO (%)" },
-//   { metric_num: "INTER_FHO_SR_NUM", metric_denum: "INTER_FHO_SR_DENUM", title: "Inter Freq LTE HO (%)" },
-//   { metric_num: "SRVCC_E2G_SR_NUM", metric_denum: "SRVCC_E2G_SR_DENUM", title: "SRVCC E2G SR (%)" },
-//   { metric_num: "SRVCC_E2W_SR_NUM", metric_denum: "SRVCC_E2W_SR_DENUM", title: "SRVCC E2W SR (%)" },
-// ];
 
 export function ChartsSection4G({
   filteredData,
   chartLayout,
   aggregateBy,
-  selectedKPIs, // Use from props instead of internal state
-  onSelectedKPIsChange, // Use from props instead of internal state
+  selectedKPIs,
+  onSelectedKPIsChange,
 }: ChartsSectionProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 

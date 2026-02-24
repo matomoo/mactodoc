@@ -342,7 +342,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_SERVICE_DROP_RATE_NUM || 0), 0);
       const totalDenum = filteredData.reduce((sum, item) => sum + (item.G4_SERVICE_DROP_RATE_DENUM || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
+      return Number(totalDenum.toFixed(2)) > 0 ? 100 - Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     id: "G4_SERVICE_DROP_RATE_NUM",
     metric_num: "G4_SERVICE_DROP_RATE_NUM",

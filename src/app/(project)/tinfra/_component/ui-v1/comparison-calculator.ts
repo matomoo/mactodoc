@@ -3,7 +3,12 @@ import type { Data2G4GModel } from "@/types/schema";
 import type { MetricConfig, ComparisonResult, UnifiedMetricConfig } from "./comparison-types";
 import { toZonedTime } from "date-fns-tz";
 import { endOfDay, startOfDay } from "date-fns";
-import { calculateSuccessRate0, calculateSuccessRate100 } from "../../_function/helper";
+import {
+  calculateSuccessRate0,
+  calculateSuccessRate0Infra,
+  calculateSuccessRate100,
+  calculateSuccessRate100Infra,
+} from "../../_function/helper";
 
 // Unified growth calculation function
 export const calculateGrowthForMetric = (
@@ -26,13 +31,13 @@ export const calculateGrowthForMetric = (
 
   switch (growthType) {
     case "successRate100":
-      growth = calculateSuccessRate100(before, after);
+      growth = calculateSuccessRate100Infra(before, after);
       break;
     case "successRate0":
-      growth = calculateSuccessRate0(before, after);
+      growth = calculateSuccessRate0Infra(before, after);
       break;
     default:
-      growth = ((after - before) / before) * 100;
+      growth = Math.abs(((after - before) / before) * 100);
       break;
   }
 

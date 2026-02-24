@@ -1,7 +1,7 @@
 // hooks/useComparisonCalculation.ts
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { useMemo } from "react";
-import { subDays, differenceInDays, addDays, format } from "date-fns";
+import { subDays, differenceInDays, addDays } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import type { Data2G4GModel } from "@/types/schema";
 import type { ComparisonResult, DateRange } from "./comparison-types";
@@ -61,10 +61,8 @@ export function useComparisonCalculation(
     };
   }, [data, timezone, beforeRange, afterRange]);
 
-  // Get metric configurations
   const metricCalculators = useMemo(() => get2G4GMetricConfigs().filter((config) => config.tech === tech), [tech]);
 
-  // Calculate comparison data based on effective date ranges
   const comparisonData = useMemo((): ComparisonResult[] => {
     if (!data || data.length === 0) return [];
 
@@ -81,7 +79,6 @@ export function useComparisonCalculation(
     return calculateComparisonData(data, metricCalculators, effectiveBeforeRange, effectiveAfterRange, timezone);
   }, [data, metricCalculators, effectiveBeforeRange, effectiveAfterRange, timezone]);
 
-  // Filter for specific metrics
   const productivityMetrics = useMemo(
     () =>
       comparisonData.filter(
