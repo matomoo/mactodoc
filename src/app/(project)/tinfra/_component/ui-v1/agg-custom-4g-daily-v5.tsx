@@ -152,17 +152,6 @@ export default function PageAggCustom4GDaily({
 
           {/* Main content */}
           <div className="lg:col-span-9">
-            {/* Mobile Summary Dashboard */}
-            {/* <div className="mb-4 lg:hidden">
-              <SummaryDashboard
-                allCells={dataManagement.allCells}
-                filterBy={filterBy}
-                selectedCells={dataManagement.selectedCells}
-                selectedSectors={dataManagement.selectedSectors}
-                selectedBands={dataManagement.selectedBands}
-              />
-            </div> */}
-
             {/* Error/Empty States */}
             {filterBy === "cell" && dataManagement.selectedCells.length === 0 && (
               <NoDataState message={`Please select at least one ${filterLabel.toLowerCase()}`} />
@@ -248,8 +237,8 @@ export default function PageAggCustom4GDaily({
                       filteredData={filteredData}
                       filterBy={filterBy}
                       isExpanded={isPerformanceSummaryExpanded}
-                      // selectedKPIs={selectedKPIs}
-
+                      selectedKPIs={selectedKPIs}
+                      onSelectedKPIsChange={setSelectedKPIs}
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
                   </TabsContent>

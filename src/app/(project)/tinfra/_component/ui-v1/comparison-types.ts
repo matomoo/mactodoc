@@ -31,6 +31,7 @@ export const METRIC_CONFIGS: UnifiedMetricConfig[] = [
 export interface ComparisonResult {
   tech: "2G" | "4G" | "5G";
   metric: string;
+  metric_num: string;
   before: number;
   after: number;
   delta: number;

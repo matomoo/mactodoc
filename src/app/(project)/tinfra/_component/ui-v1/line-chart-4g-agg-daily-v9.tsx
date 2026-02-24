@@ -70,8 +70,6 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   const chartData = useMemo(() => {
     if (!data?.length) return { labels: [], datasets: [] };
 
-    console.log(data);
-
     const isPercentage = title.includes("%");
     const isAverage = aggregation === "avg" || title.includes("AVG");
     const isDenumBy1 = metric_denum === "DENUMBY1";

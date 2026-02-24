@@ -69,7 +69,7 @@ export const calculateComparisonData = (
   const beforeData = filterByDateRange(beforeRange.startDate, beforeRange.endDate);
   const afterData = filterByDateRange(afterRange.startDate, afterRange.endDate);
 
-  return metricCalculators.map(({ title, calculate, growthType = "standard", tech }) => {
+  return metricCalculators.map(({ title, metric_num, calculate, growthType = "standard", tech }) => {
     // If calculate is not provided, use metric_num to calculate sum
     const calcFn =
       calculate ??
@@ -88,29 +88,7 @@ export const calculateComparisonData = (
 
     return {
       metric: title,
-      before,
-      after,
-      delta,
-      growth,
-      tech,
-    };
-  });
-};
-
-// Alternative version with custom filter function (for more flexibility)
-export const calculateComparisonDataWithFilter = (
-  beforeData: Data2G4GModel[],
-  afterData: Data2G4GModel[],
-  metricCalculators: MetricConfig[],
-): ComparisonResult[] => {
-  return metricCalculators.map(({ name, calculate, growthType = "standard", tech }) => {
-    const before = calculate(beforeData);
-    const after = calculate(afterData);
-
-    const { delta, growth } = calculateGrowthForMetric(before, after, growthType);
-
-    return {
-      metric: name,
+      metric_num: metric_num,
       before,
       after,
       delta,

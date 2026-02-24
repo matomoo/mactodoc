@@ -14,14 +14,14 @@ interface PerformanceSummarySectionProps {
   filterBy: string;
   isExpanded: boolean;
   onToggle: () => void;
-  // selectedKPIs: string[];
-  // onSelectedKPIsChange: (selected: string[]) => void;
+  selectedKPIs: string[];
+  onSelectedKPIsChange: (selected: string[]) => void;
 }
 
 export function PerformanceSummarySection4G({
   filteredData,
-  // selectedKPIs,
-  // onSelectedKPIsChange,
+  selectedKPIs,
+  onSelectedKPIsChange,
 }: PerformanceSummarySectionProps) {
   return (
     <div className="mb-6">
@@ -29,8 +29,8 @@ export function PerformanceSummarySection4G({
         <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white shadow-sm">
           <TableComparison2G4GDaily
             data={filteredData}
-            // selectedKPIs={selectedKPIs}
-            // onSelectedKPIsChange={onSelectedKPIsChange}
+            selectedKPIs={selectedKPIs}
+            onSelectedKPIsChange={onSelectedKPIsChange}
             tech="4G"
           />
         </div>

@@ -18,13 +18,9 @@ import { get2G4GMetricConfigs } from "./metric-configs";
 const TableComparison2G4GDaily: React.FC<{
   data: Data2G4GModel[];
   tech: string;
-  // selectedKPIs: string[];
-  // onSelectedKPIsChange: (selected: string[]) => void;
-}> = ({
-  data,
-  tech,
-  // selectedKPIs, onSelectedKPIsChange
-}) => {
+  selectedKPIs: string[];
+  onSelectedKPIsChange: (selected: string[]) => void;
+}> = ({ data, tech, selectedKPIs, onSelectedKPIsChange }) => {
   const timezone = "Asia/Makassar";
 
   const dateStrings = data.map((item) => item.BEGIN_TIME);
@@ -51,8 +47,6 @@ const TableComparison2G4GDaily: React.FC<{
 
   // Pass date ranges to the hook so it can recalculate when they change
   const { comparisonData } = useComparisonCalculation(data, tech, beforeRange, afterRange);
-
-  // console.log(comparisonData)
 
   const DateRangePicker = ({
     title,
@@ -84,6 +78,30 @@ const TableComparison2G4GDaily: React.FC<{
     const getSelectedDate = (dateString: string) => {
       if (!dateString) return undefined;
       return toZonedTime(new Date(dateString), timezone);
+    };
+
+    const visibleCharts = get2G4GMetricConfigs().filter(
+      (chart) => chart.tech === "4G" && selectedKPIs.includes(chart.metric_num),
+    );
+
+    const toggleKPI = (metricNum: string) => {
+      if (selectedKPIs.includes(metricNum)) {
+        onSelectedKPIsChange(selectedKPIs.filter((id) => id !== metricNum));
+      } else {
+        onSelectedKPIsChange([...selectedKPIs, metricNum]);
+      }
+    };
+
+    const selectAll = () => {
+      onSelectedKPIsChange(
+        get2G4GMetricConfigs()
+          .filter((a) => a.tech === "4G")
+          .map((config) => config.metric_num),
+      );
+    };
+
+    const deselectAll = () => {
+      onSelectedKPIsChange([]);
     };
 
     return (
@@ -134,6 +152,8 @@ const TableComparison2G4GDaily: React.FC<{
     );
   };
 
+  const filteredComparisonData = comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
+
   return (
     <div className="w-full">
       <div className="w-full px-0 sm:px-0 md:px-0">
@@ -168,38 +188,43 @@ const TableComparison2G4GDaily: React.FC<{
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonData
-                    // .filter((row) => { return row.tech === tech })
-                    .map((row, _index) => (
-                      <tr key={row.metric} className="hover:bg-gray-50">
-                        <td className="border border-gray-200 p-3 font-medium">{row.metric}</td>
-                        <td className="border border-gray-200 p-3 text-right">{row.before.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
-                        <td
-                          className={`border border-gray-200 p-3 text-right ${
-                            row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
-                          }`}
-                        >
-                          {row.delta.toFixed(2)}
-                        </td>
-                        <td
-                          className={`border border-gray-200 p-3 text-right ${
-                            row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
-                          }`}
-                        >
-                          {row.growth.toFixed(2)}%
-                        </td>
-                        <td
-                          className={`border border-gray-200 p-3 text-center ${
-                            row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
-                          }`}
-                        >
-                          {row.growth > 2 ? "Improved" : row.growth < -2 ? "Degrade" : "Maintain"}
-                        </td>
-                      </tr>
-                    ))}
+                  {filteredComparisonData.map((row, _index) => (
+                    <tr key={row.metric} className="hover:bg-gray-50">
+                      <td className="border border-gray-200 p-3 font-medium">{row.metric}</td>
+                      <td className="border border-gray-200 p-3 text-right">{row.before.toFixed(2)}</td>
+                      <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
+                      <td
+                        className={`border border-gray-200 p-3 text-right ${
+                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                        }`}
+                      >
+                        {row.delta.toFixed(2)}
+                      </td>
+                      <td
+                        className={`border border-gray-200 p-3 text-right ${
+                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                        }`}
+                      >
+                        {row.growth.toFixed(2)}%
+                      </td>
+                      <td
+                        className={`border border-gray-200 p-3 text-center ${
+                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                        }`}
+                      >
+                        {row.growth > 2 ? "Improved" : row.growth < -2 ? "Degrade" : "Maintain"}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+
+              {/* Optional: Show a message when no KPIs are selected */}
+              {filteredComparisonData.length === 0 && (
+                <div className="py-4 text-center text-gray-500">
+                  No metrics selected. Please select KPIs to display.
+                </div>
+              )}
             </div>
           </div>
         </div>
