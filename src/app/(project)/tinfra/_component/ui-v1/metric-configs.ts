@@ -349,7 +349,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_SERVICE_DROP_RATE_DENUM",
   },
   {
-    title: "DL PRB Utilization (%)",
+    title: "DL PRB Utilization BH (%)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_DL_PRB_UTILIZATION_NUM || 0), 0);
@@ -361,7 +361,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_DL_PRB_UTILIZATION_DENUM",
   },
   {
-    title: "UL PRB Utilization (%)",
+    title: "UL PRB Utilization BH (%)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_UL_PRB_UTILIZATION_NUM || 0), 0);
@@ -374,7 +374,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   },
 
   {
-    title: "User DL Throughput (Mbps)",
+    title: "User DL Throughput BH (Mbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_DL_THP_NUM || 0), 0);
@@ -386,7 +386,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_USER_DL_THP_DENUM",
   },
   {
-    title: "User UL Throughput (Mbps)",
+    title: "User UL Throughput BH (Mbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_UL_THP_NUM || 0), 0);
@@ -398,7 +398,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_USER_UL_THP_DENUM",
   },
   {
-    title: "SE",
+    title: "SE BH",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_SE_NUM || 0), 0);
@@ -410,7 +410,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_SE_DENUM",
   },
   {
-    title: "CQI",
+    title: "CQI BH",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_AVG_CQI_NUM || 0), 0);

@@ -115,13 +115,11 @@ export function PerformanceSummarySection({
         </div>
       </div>
 
-      {isExpanded ? (
-        // Expanded view - show full table
+      {/* {isExpanded ? (
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
           <TableComparison2G4GDaily data={filteredData} tech="2G" />
         </div>
       ) : (
-        // Collapsed view - show summary cards
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <SummaryCard
             title="TCH Traffic (Erl)"
@@ -136,7 +134,7 @@ export function PerformanceSummarySection({
             color="green"
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
