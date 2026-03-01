@@ -55,6 +55,10 @@ export const sidebarItems: NavGroup[] = [
             title: "Site Level Daily",
             url: "/tinfra/displays/dashboard/4g/site/daily",
           },
+          {
+            title: "Site NOP Daily",
+            url: "/tinfra/displays/dashboard/4g/nop/daily",
+          },
         ],
       },
     ],

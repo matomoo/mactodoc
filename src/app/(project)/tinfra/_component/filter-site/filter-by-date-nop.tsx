@@ -164,25 +164,13 @@ export function FilterBy_Date_Nop() {
               <SelectValue placeholder="Select filter" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ambon">AMBON</SelectItem>
-              <SelectItem value="balikpapan">BALIKPAPAN</SelectItem>
-              <SelectItem value="banjarmasin">BANJARMASIN</SelectItem>
-              <SelectItem value="bone">BONE</SelectItem>
-              <SelectItem value="gorontalo">GORONTALO</SelectItem>
-              <SelectItem value="jayapura">JAYAPURA</SelectItem>
+              {/* <SelectItem value="all">ALL</SelectItem> */}
               <SelectItem value="kendari">KENDARI</SelectItem>
               <SelectItem value="makassar">MAKASSAR</SelectItem>
               <SelectItem value="manado">MANADO</SelectItem>
-              <SelectItem value="manokwari">MANOKWARI</SelectItem>
-              <SelectItem value="palangkaraya">PALANGKARAYA</SelectItem>
               <SelectItem value="palu">PALU</SelectItem>
               <SelectItem value="pare-pare">PARE-PARE</SelectItem>
-              <SelectItem value="pontianak">PONTIANAK</SelectItem>
-              <SelectItem value="samarinda">SAMARINDA</SelectItem>
-              <SelectItem value="sorong">SORONG</SelectItem>
-              <SelectItem value="tarakan">TARAKAN</SelectItem>
               <SelectItem value="ternate">TERNATE</SelectItem>
-              <SelectItem value="timika">TIMIKA</SelectItem>
             </SelectContent>
           </Select>
         </div>
