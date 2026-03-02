@@ -1,12 +1,12 @@
-// components/charts-section.tsx
 "use client";
 
 import { useState } from "react";
 
-import { Settings2 } from "lucide-react";
+import { ChartLine, ChartScatter, Layers, Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Data2G4GModel } from "@/types/schema";
 
 import LineChart4GAggDaily from "./agg-line-chart-4g-agg-daily-v9";
@@ -21,6 +21,9 @@ interface ChartsSectionProps {
   onSelectedKPIsChange: (selected: string[]) => void;
 }
 
+// Define the view mode type
+export type ViewMode = "metrics" | "aggregated" | "both";
+
 export function ChartsSection4G({
   filteredData,
   chartLayout,
@@ -29,6 +32,8 @@ export function ChartsSection4G({
   onSelectedKPIsChange,
 }: ChartsSectionProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // State for view mode - shared across all charts
+  const [viewMode, setViewMode] = useState<ViewMode>("both");
 
   const getGridColumnsClass = () => {
     switch (chartLayout) {
@@ -75,54 +80,94 @@ export function ChartsSection4G({
           <h2 className="font-semibold text-gray-900 text-lg">Detailed Metrics</h2>
         </div>
 
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Settings2 className="h-4 w-4" />
-              Customize KPIs ({selectedKPIs.length}/{get2G4GMetricConfigs().filter((a) => a.tech === "4G").length})
-            </Button>
-          </SheetTrigger>
+        <div className="flex items-center gap-2">
+          {/* View mode toggle moved to parent */}
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(val) => {
+              if (val) setViewMode(val as ViewMode);
+            }}
+            className="bg-muted/50 rounded-lg p-1 mr-2"
+          >
+            <ToggleGroupItem
+              value="metrics"
+              aria-label="Show metrics only"
+              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              size="sm"
+            >
+              <ChartLine className="h-4 w-4" />
+              <span className="hidden sm:inline">Metrics Only</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="aggregated"
+              aria-label="Show aggregated only"
+              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              size="sm"
+            >
+              <ChartScatter className="h-4 w-4" />
+              <span className="hidden sm:inline">Aggregated Only</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="both"
+              aria-label="Show both"
+              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              size="sm"
+            >
+              <Layers className="h-4 w-4" />
+              <span className="hidden sm:inline">Both</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
 
-          <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-md">
-            <SheetHeader className="mb-4">
-              <SheetTitle>Select KPIs to Display</SheetTitle>
-            </SheetHeader>
-
-            <div className="mb-4 flex gap-2">
-              <Button variant="outline" size="sm" onClick={selectAll} className="flex-1">
-                Select All
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings2 className="h-4 w-4" />
+                Customize KPIs ({selectedKPIs.length}/{get2G4GMetricConfigs().filter((a) => a.tech === "4G").length})
               </Button>
-              <Button variant="outline" size="sm" onClick={deselectAll} className="flex-1">
-                Deselect All
-              </Button>
-            </div>
+            </SheetTrigger>
 
-            <div className="space-y-2 pb-4">
-              {get2G4GMetricConfigs()
-                .filter((a) => a.tech === "4G")
-                .map((config) => (
-                  <label
-                    key={config.metric_num}
-                    className="flex cursor-pointer items-center rounded-lg border p-3 transition-colors hover:bg-gray-50"
-                  >
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      checked={selectedKPIs.includes(config.metric_num)}
-                      onChange={() => toggleKPI(config.metric_num)}
-                    />
-                    <span className="ml-3 font-medium text-sm">{config.title}</span>
-                  </label>
-                ))}
-            </div>
+            <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-md">
+              <SheetHeader className="mb-4">
+                <SheetTitle>Select KPIs to Display</SheetTitle>
+              </SheetHeader>
 
-            <div className="sticky bottom-0 mt-2 border-t bg-white pt-4">
-              <Button onClick={() => setIsSheetOpen(false)} className="w-full">
-                Apply ({selectedKPIs.length} selected)
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
+              <div className="mb-4 flex gap-2">
+                <Button variant="outline" size="sm" onClick={selectAll} className="flex-1">
+                  Select All
+                </Button>
+                <Button variant="outline" size="sm" onClick={deselectAll} className="flex-1">
+                  Deselect All
+                </Button>
+              </div>
+
+              <div className="space-y-2 pb-4">
+                {get2G4GMetricConfigs()
+                  .filter((a) => a.tech === "4G")
+                  .map((config) => (
+                    <label
+                      key={config.metric_num}
+                      className="flex cursor-pointer items-center rounded-lg border p-3 transition-colors hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={selectedKPIs.includes(config.metric_num)}
+                        onChange={() => toggleKPI(config.metric_num)}
+                      />
+                      <span className="ml-3 font-medium text-sm">{config.title}</span>
+                    </label>
+                  ))}
+              </div>
+
+              <div className="sticky bottom-0 mt-2 border-t bg-white pt-4">
+                <Button onClick={() => setIsSheetOpen(false)} className="w-full">
+                  Apply ({selectedKPIs.length} selected)
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       <div className={`grid ${getGridColumnsClass()} gap-4`}>
@@ -139,6 +184,8 @@ export function ChartsSection4G({
               title={chart.title}
               aggregation_by={aggregateBy}
               isExtractCellName={!!aggregateBy.includes("CELL")}
+              viewMode={viewMode}
+              // onViewModeChange is no longer needed as it's handled in parent
             />
           </div>
         ))}

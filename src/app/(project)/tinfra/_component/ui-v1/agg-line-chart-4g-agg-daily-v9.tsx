@@ -15,14 +15,15 @@ import {
   type ChartConfiguration,
 } from "chart.js";
 import type { Data2G4GModel } from "@/types/schema";
-import { extractCellName } from "../../_function/helper";
+// import { extractCellName } from "../../_function/helper";
 import {
   chartJsColors,
   chartJsColorsTransparent,
   chartJsV1Settings,
-  hexToRGBA,
+  // hexToRGBA,
 } from "../contexts/chartjs/chartjs-settings";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
+import type { ViewMode } from "./agg-charts-section-4g";
 
 Chart.register(
   Filler,
@@ -47,6 +48,8 @@ interface LineChartProps {
   showPayload?: boolean;
   showAggregatedKPI?: boolean;
   isExtractCellName?: boolean;
+  // Only viewMode needed now, onChange removed
+  viewMode: ViewMode;
 }
 
 const LineChart4GAggDaily: React.FC<LineChartProps> = ({
@@ -59,6 +62,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   showPayload = false,
   showAggregatedKPI = true,
   isExtractCellName = false,
+  // Only viewMode prop
+  viewMode,
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
@@ -142,7 +147,6 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       };
     });
 
-    // Return base data without gradient
     return {
       labels: sortedDates,
       datasets: metricDatasets,
@@ -226,35 +230,15 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
           }
         : null;
 
-    const payloadDataset = showPayload
-      ? {
-          label: "Total Payload (GB)",
-          data: sortedDates.map((date) => {
-            const totalPayload = sortedGroups.reduce(
-              (sum, groupKey) => sum + (groups[groupKey][date]?.payload || 0),
-              0,
-            );
-            return Number(totalPayload.toFixed(2));
-          }),
-          borderColor: "#ff6384",
-          backgroundColor: "rgba(255, 99, 132, 0.4)",
-          tension: 0.3,
-          pointRadius: 3,
-          fill: { target: "start" as const, above: "rgba(255, 99, 132, 0.3)" },
-          yAxisID: "y1" as const,
-          type: "line" as const,
-        }
-      : null;
+    // Combine all datasets based on view mode from parent
+    let allDatasets: any[] = [];
 
-    // Combine all datasets with proper typing
-    const allDatasets: any[] = [...metricDatasets];
-
-    if (aggregatedKPIDataset) {
-      allDatasets.push(aggregatedKPIDataset);
+    if (viewMode === "metrics" || viewMode === "both") {
+      allDatasets = [...metricDatasets];
     }
 
-    if (payloadDataset) {
-      allDatasets.push(payloadDataset);
+    if ((viewMode === "aggregated" || viewMode === "both") && aggregatedKPIDataset) {
+      allDatasets.push(aggregatedKPIDataset);
     }
 
     const chartData = {
@@ -341,11 +325,13 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               display: false,
             },
             position: "left",
+            // Hide y-axis if no metric datasets are shown
+            display: viewMode !== "aggregated",
           },
           y1: {
             beginAtZero: isTrafficChart,
             title: {
-              display: showAggregatedKPI,
+              display: showAggregatedKPI && viewMode !== "metrics",
               text: isTrafficChart ? `Total - ${title}` : `Agg - ${title}`,
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
@@ -362,7 +348,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             grid: {
               display: false,
             },
-            display: "auto",
+            display: viewMode !== "metrics" ? "auto" : false,
           },
           x: {
             ticks: {
@@ -393,7 +379,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         chartInstance.current = null;
       }
     };
-  }, [baseChartData, title, aggregation_by, showPayload, showAggregatedKPI, isTrafficChart, isDropRatePercentage]);
+  }, [baseChartData, title, aggregation_by, showAggregatedKPI, isTrafficChart, isDropRatePercentage, viewMode]);
 
   if (!data?.length) {
     return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;
@@ -401,6 +387,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
   return (
     <div className="flex h-full w-full flex-col">
+      {/* Removed the ViewToggle component from here */}
       <div className="h-80 rounded-lg bg-white p-2">
         <div className="h-full">
           <canvas ref={chartRef} />
