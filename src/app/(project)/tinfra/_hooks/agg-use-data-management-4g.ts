@@ -31,9 +31,9 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
         new Set(data.rows.map((item: Data2G4GModel) => String(item.G4_NOP ?? "Unknown"))),
       ).sort() as string[];
 
-      console.log(data.rows);
-      console.log(aggregateBy);
-      console.log(uniqueNops);
+      // console.log(data.rows);
+      // console.log(aggregateBy);
+      // console.log(uniqueNops);
 
       const uniqueCells: string[] = Array.from(
         new Set(
