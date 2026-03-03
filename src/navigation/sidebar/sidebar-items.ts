@@ -56,8 +56,23 @@ export const sidebarItems: NavGroup[] = [
             url: "/tinfra/displays/dashboard/4g/site/daily",
           },
           {
-            title: "Site NOP Daily",
+            title: "NOP Level Daily",
             url: "/tinfra/displays/dashboard/4g/nop/daily",
+          },
+          {
+            title: "Custom Level Daily",
+            url: "/tinfra/displays/dashboard/4g/custom-cluster/daily",
+          },
+        ],
+      },
+      {
+        title: "Custom Cluster",
+        url: "#",
+        icon: Fingerprint,
+        subItems: [
+          {
+            title: "Manage List",
+            url: "/tinfra/displays/dashboard/4g/custom-cluster/manage-list",
           },
         ],
       },

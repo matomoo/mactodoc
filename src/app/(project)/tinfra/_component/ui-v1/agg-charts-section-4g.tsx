@@ -88,12 +88,12 @@ export function ChartsSection4G({
             onValueChange={(val) => {
               if (val) setViewMode(val as ViewMode);
             }}
-            className="bg-muted/50 rounded-lg p-1 mr-2"
+            className="mr-2 rounded-lg bg-muted/50 p-1"
           >
             <ToggleGroupItem
               value="metrics"
               aria-label="Show metrics only"
-              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
               size="sm"
             >
               <ChartLine className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function ChartsSection4G({
             <ToggleGroupItem
               value="aggregated"
               aria-label="Show aggregated only"
-              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
               size="sm"
             >
               <ChartScatter className="h-4 w-4" />
@@ -111,7 +111,7 @@ export function ChartsSection4G({
             <ToggleGroupItem
               value="both"
               aria-label="Show both"
-              className="data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm gap-2 px-3"
+              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
               size="sm"
             >
               <Layers className="h-4 w-4" />

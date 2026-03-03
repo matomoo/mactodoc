@@ -59,9 +59,9 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   aggregation = "sum",
   aggregation_by = "NOP",
   title = "%",
-  showPayload = false,
+  // showPayload = false,
   showAggregatedKPI = true,
-  isExtractCellName = false,
+  // isExtractCellName = false,
   // Only viewMode prop
   viewMode,
 }) => {

@@ -5,6 +5,7 @@ interface filterState {
   // State
   dateRange2: string | null;
   filter: string | null;
+  clusterFilter: string | null;
   siteId: string | null;
   nop: string | null;
   kabupaten: string | null;
@@ -13,6 +14,7 @@ interface filterState {
   // Actions
   setDateRange2: (range: string | null) => void;
   setFilter: (filter: string | null) => void;
+  setClusterFilter: (clusterFilter: string | null) => void;
   setSiteId: (siteId: string | null) => void;
   setNop: (nop: string | null) => void;
   setKabupaten: (kabupaten: string | null) => void;
@@ -22,6 +24,7 @@ interface filterState {
   getParams: () => {
     dateRange2: string | null;
     filter: string | null;
+    clusterFilter: string | null;
     siteId: string | null;
     nop: string | null;
     kabupaten: string | null;
@@ -35,6 +38,7 @@ export const useFilterStore = create<filterState>()(
       // Initial state
       dateRange2: null,
       filter: null,
+      clusterFilter: null,
       siteId: null,
       nop: null,
       kabupaten: null,
@@ -43,6 +47,8 @@ export const useFilterStore = create<filterState>()(
       // Actions
       setDateRange2: (range) => set({ dateRange2: range }),
       setFilter: (filter) => set({ filter: filter }),
+      setClusterFilter: (clusterFilter) => set({ clusterFilter: clusterFilter }),
+
       setSiteId: (siteId) => set({ siteId: siteId }),
       setNop: (nop) => set({ nop: nop }),
       setKabupaten: (kabupaten) => set({ kabupaten: kabupaten }),
@@ -54,6 +60,7 @@ export const useFilterStore = create<filterState>()(
         return {
           dateRange2: state.dateRange2,
           filter: state.filter,
+          clusterFilter: state.clusterFilter,
           siteId: state.siteId,
           nop: state.nop,
           kabupaten: state.kabupaten,
