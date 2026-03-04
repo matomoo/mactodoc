@@ -11,6 +11,7 @@ export async function GET(request: Request) {
   const nop = searchParams.get("nop") || "---";
   const kabupaten = searchParams.get("kabupaten") || "---";
   const salesCluster = searchParams.get("salesCluster") || "---";
+  const clusterFilter = searchParams.get("clusterFilter") || "---";
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
 
@@ -29,15 +30,17 @@ export async function GET(request: Request) {
     formattedTgl1 = new Date(tgl_1).toISOString();
     formattedTgl2 = new Date(tgl_2).toISOString();
     const queryNop = `%${nop.toUpperCase()}%`;
+    const queryClusterFilter = `%${clusterFilter}%`;
+    console.log(queryClusterFilter);
 
-    const nopCondition = nop !== "All" ? sql`AND tref.nop LIKE ${queryNop}` : sql``;
+    const clusterFilterCondition =
+      clusterFilter !== "All" ? sql`AND tref2.nama_cluster LIKE ${queryClusterFilter}` : sql``;
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           SELECT
             t1."Begin Time" AS "BEGIN_TIME",
-            tref.nop AS "G4_NOP",
-            tref.kabupaten AS "G4_KABUPATEN",
-            tref.sales_cluster AS "G4_SALES_CLUSTER",            
+            tref2.nama_cluster AS "G4_NAMA_CLUSTER",
+            tref.siteid AS "G4_SITEID",           
             SUM(t1."DL Traffic Volume (MByte) AMQ") / 1024 AS "DL_PAYLOAD_GB",
             SUM(t1."UL Traffic Volume (MByte) AMQ") / 1024 AS "UL_PAYLOAD_GB",
             SUM(t1."4G Payload (MByte) AMQ") / 1024 AS "TOTAL_PAYLOAD_GB",
@@ -98,20 +101,19 @@ export async function GET(request: Request) {
             '_',
             t1."cellId"
           )
-          ${nopCondition}
+          INNER JOIN ref_query_cluster tref2 ON tref.siteid = tref2.siteid
+          ${clusterFilterCondition}
           WHERE
             t1."Begin Time" >= ${formattedTgl1} :: TIMESTAMP
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
           GROUP BY
             t1."Begin Time",
-            tref.nop,
-            tref.kabupaten,  
-            tref.sales_cluster
+            tref2.nama_cluster,
+            tref.siteid 
           ORDER BY
             t1."Begin Time",
-            tref.nop,
-            tref.kabupaten,  
-            tref.sales_cluster
+            tref2.nama_cluster,
+            tref.siteid 
         `);
 
     return NextResponse.json(result);

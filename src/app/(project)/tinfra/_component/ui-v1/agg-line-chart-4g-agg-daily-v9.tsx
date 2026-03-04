@@ -48,7 +48,6 @@ interface LineChartProps {
   showPayload?: boolean;
   showAggregatedKPI?: boolean;
   isExtractCellName?: boolean;
-  // Only viewMode needed now, onChange removed
   viewMode: ViewMode;
 }
 
@@ -63,7 +62,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   showAggregatedKPI = true,
   // isExtractCellName = false,
   // Only viewMode prop
-  viewMode,
+  viewMode = "aggregated",
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
@@ -72,6 +71,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   const isTrafficChart = useMemo(() => {
     return title.toLowerCase().includes("traffic") || title.toLowerCase().includes("payload");
   }, [title]);
+
+  const isViewModeAggregated = useMemo(() => viewMode === "aggregated", [viewMode]);
 
   // Separate data processing from gradient creation
   const baseChartData = useMemo(() => {
@@ -225,7 +226,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             pointHoverRadius: 3,
             borderDash: [3, 0] as [number, number],
             fill: { target: "start" as const },
-            yAxisID: "y1" as const,
+            yAxisID: viewMode === "aggregated" ? "y" : "y1",
             type: "line" as const,
           }
         : null;
@@ -325,8 +326,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               display: false,
             },
             position: "left",
-            // Hide y-axis if no metric datasets are shown
-            display: viewMode !== "aggregated",
+            display: true,
           },
           y1: {
             beginAtZero: isTrafficChart,

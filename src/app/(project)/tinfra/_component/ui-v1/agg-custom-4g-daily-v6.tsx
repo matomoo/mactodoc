@@ -24,6 +24,8 @@ interface AggCustomProps {
   aggregateBy?: string;
   filterLabel?: string;
   columnNumber?: number;
+  showViewModeState?: string;
+  aggMode?: string;
 }
 
 export default function PageAggCustom4GDaily({
@@ -31,8 +33,10 @@ export default function PageAggCustom4GDaily({
   aggregateBy = "CELL_NAME",
   filterLabel = "Cell Name",
   columnNumber = 2,
+  showViewModeState = "aggregated",
+  aggMode = "custom-cluster",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -48,13 +52,13 @@ export default function PageAggCustom4GDaily({
   const shouldFetch = !!dateRange2 && dateRange2.includes("|");
 
   const { isPending, error, data, isError } = useQuery({
-    queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${clusterFilter}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {
@@ -106,52 +110,54 @@ export default function PageAggCustom4GDaily({
       <Header
         onExportData={handleExportAllData}
         onToggleMobileFilters={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-        title="4G NOP Level Daily"
-        subtitle={`Performance NOP ${nop?.toUpperCase()} | Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
+        title={`4G ${aggMode === "nop" ? "NOP" : ` - ${clusterFilter?.toUpperCase()} - `} Level Daily`}
+        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
       />
 
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Left sidebar - Filters */}
-          <FilterSidebar4G
-            // Summary data
-            allCells={dataManagement.allCells}
-            filterBy={filterBy}
-            selectedCells={dataManagement.selectedCells}
-            selectedSectors={dataManagement.selectedSectors}
-            selectedBands={dataManagement.selectedBands}
-            // Filter data
-            filteredCells={dataManagement.filteredCells}
-            filteredSectors={dataManagement.filteredSectors}
-            filteredBands={dataManagement.filteredBands}
-            // Search states
-            cellSearch={dataManagement.cellSearch}
-            sectorSearch={dataManagement.sectorSearch}
-            bandSearch={dataManagement.bandSearch}
-            // Handlers
-            onFilterByChange={setFilterBy}
-            onCellSearchChange={dataManagement.setCellSearch}
-            onSectorSearchChange={dataManagement.setSectorSearch}
-            onBandSearchChange={dataManagement.setBandSearch}
-            onCellSelection={dataManagement.handleCellSelection}
-            onSectorSelection={dataManagement.handleSectorSelection}
-            onBandSelection={dataManagement.handleBandsSelection}
-            onSelectAllCells={dataManagement.selectAllCells}
-            onClearAllCells={dataManagement.clearAllCells}
-            onSelectAllSectors={dataManagement.selectAllSectors}
-            onClearAllSectors={dataManagement.clearAllSectors}
-            onSelectAllBands={dataManagement.selectAllBands}
-            onClearAllBands={dataManagement.clearAllBands}
-            onExportData={handleExportAllData}
-            // Configuration
-            filterLabel={filterLabel}
-            // Mobile overlay props
-            isMobileFilterOpen={isMobileFilterOpen}
-            onMobileFilterClose={() => setIsMobileFilterOpen(false)}
-          />
+          {aggMode !== "custom-cluster" && (
+            <FilterSidebar4G
+              // Summary data
+              allCells={dataManagement.allCells}
+              filterBy={filterBy}
+              selectedCells={dataManagement.selectedCells}
+              selectedSectors={dataManagement.selectedSectors}
+              selectedBands={dataManagement.selectedBands}
+              // Filter data
+              filteredCells={dataManagement.filteredCells}
+              filteredSectors={dataManagement.filteredSectors}
+              filteredBands={dataManagement.filteredBands}
+              // Search states
+              cellSearch={dataManagement.cellSearch}
+              sectorSearch={dataManagement.sectorSearch}
+              bandSearch={dataManagement.bandSearch}
+              // Handlers
+              onFilterByChange={setFilterBy}
+              onCellSearchChange={dataManagement.setCellSearch}
+              onSectorSearchChange={dataManagement.setSectorSearch}
+              onBandSearchChange={dataManagement.setBandSearch}
+              onCellSelection={dataManagement.handleCellSelection}
+              onSectorSelection={dataManagement.handleSectorSelection}
+              onBandSelection={dataManagement.handleBandsSelection}
+              onSelectAllCells={dataManagement.selectAllCells}
+              onClearAllCells={dataManagement.clearAllCells}
+              onSelectAllSectors={dataManagement.selectAllSectors}
+              onClearAllSectors={dataManagement.clearAllSectors}
+              onSelectAllBands={dataManagement.selectAllBands}
+              onClearAllBands={dataManagement.clearAllBands}
+              onExportData={handleExportAllData}
+              // Configuration
+              filterLabel={filterLabel}
+              // Mobile overlay props
+              isMobileFilterOpen={isMobileFilterOpen}
+              onMobileFilterClose={() => setIsMobileFilterOpen(false)}
+            />
+          )}
 
           {/* Main content */}
-          <div className="lg:col-span-9">
+          <div className={aggMode === "custom-cluster" ? "lg:col-span-12" : "lg:col-span-9"}>
             {/* Error/Empty States */}
             {filterBy === "cell" && dataManagement.selectedCells.length === 0 && (
               <NoDataState message={`Please select at least one ${filterLabel.toLowerCase()}`} />
@@ -227,6 +233,8 @@ export default function PageAggCustom4GDaily({
                       aggregateBy={aggregateBy}
                       selectedKPIs={selectedKPIs}
                       onSelectedKPIsChange={setSelectedKPIs}
+                      showViewModeState={showViewModeState}
+                      aggMode={aggMode}
                     />
                   </TabsContent>
 

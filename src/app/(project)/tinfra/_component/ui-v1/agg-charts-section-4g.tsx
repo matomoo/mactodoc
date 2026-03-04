@@ -19,6 +19,8 @@ interface ChartsSectionProps {
   aggregateBy: string;
   selectedKPIs: string[];
   onSelectedKPIsChange: (selected: string[]) => void;
+  showViewModeState?: string;
+  aggMode?: string;
 }
 
 // Define the view mode type
@@ -30,10 +32,12 @@ export function ChartsSection4G({
   aggregateBy,
   selectedKPIs,
   onSelectedKPIsChange,
+  showViewModeState = "aggregated",
+  aggMode = "custom-cluster",
 }: ChartsSectionProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   // State for view mode - shared across all charts
-  const [viewMode, setViewMode] = useState<ViewMode>("both");
+  const [viewMode, setViewMode] = useState<ViewMode>(showViewModeState as ViewMode);
 
   const getGridColumnsClass = () => {
     switch (chartLayout) {
@@ -82,42 +86,45 @@ export function ChartsSection4G({
 
         <div className="flex items-center gap-2">
           {/* View mode toggle moved to parent */}
-          <ToggleGroup
-            type="single"
-            value={viewMode}
-            onValueChange={(val) => {
-              if (val) setViewMode(val as ViewMode);
-            }}
-            className="mr-2 rounded-lg bg-muted/50 p-1"
-          >
-            <ToggleGroupItem
-              value="metrics"
-              aria-label="Show metrics only"
-              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
-              size="sm"
+          {aggMode !== "custom-cluster" && (
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(val) => {
+                if (val) setViewMode(val as ViewMode);
+              }}
+              className="mr-2 rounded-lg bg-muted/50 p-1"
             >
-              <ChartLine className="h-4 w-4" />
-              <span className="hidden sm:inline">Metrics Only</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="aggregated"
-              aria-label="Show aggregated only"
-              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
-              size="sm"
-            >
-              <ChartScatter className="h-4 w-4" />
-              <span className="hidden sm:inline">Aggregated Only</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="both"
-              aria-label="Show both"
-              className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
-              size="sm"
-            >
-              <Layers className="h-4 w-4" />
-              <span className="hidden sm:inline">Both</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
+              <ToggleGroupItem
+                value="metrics"
+                aria-label="Show metrics only"
+                className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                size="sm"
+              >
+                <ChartLine className="h-4 w-4" />
+                <span className="hidden sm:inline">Metrics Only</span>
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                value="aggregated"
+                aria-label="Show aggregated only"
+                className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                size="sm"
+              >
+                <ChartScatter className="h-4 w-4" />
+                <span className="hidden sm:inline">Aggregated Only</span>
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="both"
+                aria-label="Show both"
+                className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm"
+                size="sm"
+              >
+                <Layers className="h-4 w-4" />
+                <span className="hidden sm:inline">Both</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+          )}
 
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>

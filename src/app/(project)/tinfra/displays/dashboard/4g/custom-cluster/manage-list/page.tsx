@@ -2,7 +2,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,12 +38,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -106,7 +100,10 @@ export default function RefQueryClusterPage() {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [selectedCluster, setSelectedCluster] = useState<ClusterSummary | null>(null);
   const [selectedSiteForDelete, setSelectedSiteForDelete] = useState<RefQueryCluster | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+
+  // Single search state
+  const [searchInput, setSearchInput] = useState("");
+
   const [expandedCluster, setExpandedCluster] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<Record<string, number>>({});
   const [importProgress, setImportProgress] = useState(0);
@@ -123,6 +120,11 @@ export default function RefQueryClusterPage() {
 
   const queryClient = useQueryClient();
 
+  // Handle search input change
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  }, []);
+
   // Type guard to check if an object is a valid RefQueryCluster
   const isRefQueryCluster = useCallback((item: unknown): item is RefQueryCluster => {
     return (
@@ -137,7 +139,7 @@ export default function RefQueryClusterPage() {
     );
   }, []);
 
-  // Safe data extractor - wrapped in useCallback
+  // Safe data extractor
   const extractRows = useCallback(
     (data: unknown): RefQueryCluster[] => {
       if (!data) return [];
@@ -163,12 +165,12 @@ export default function RefQueryClusterPage() {
     [isRefQueryCluster],
   );
 
-  // Fetch data with proper typing
-  const { data, isPending, error, isError, refetch } = useQuery<unknown, Error>({
-    queryKey: ["ref-query-cluster", searchTerm],
+  // Fetch data with searchInput as dependency
+  const { data, isPending, error, isError } = useQuery<unknown, Error>({
+    queryKey: ["ref-query-cluster", searchInput],
     queryFn: async () => {
-      const url = searchTerm
-        ? `/tinfra/api/meas-db-ti-sul/ref-query-cluster?nama_cluster=${encodeURIComponent(searchTerm)}`
+      const url = searchInput
+        ? `/tinfra/api/meas-db-ti-sul/ref-query-cluster?nama_cluster=${encodeURIComponent(searchInput)}`
         : "/tinfra/api/meas-db-ti-sul/ref-query-cluster";
 
       const response = await fetch(url);
@@ -177,9 +179,10 @@ export default function RefQueryClusterPage() {
       }
       return response.json();
     },
+    staleTime: 300, // Small debounce to prevent too many requests
   });
 
-  // Process data to get cluster summaries with proper typing
+  // Process data to get cluster summaries
   const clusterSummaries = useMemo((): ClusterSummary[] => {
     const rows = extractRows(data);
 
@@ -201,132 +204,6 @@ export default function RefQueryClusterPage() {
     return Object.values(grouped).sort((a, b) => a.nama_cluster.localeCompare(b.nama_cluster));
   }, [data, extractRows]);
 
-  // Filter clusters based on search
-  const filteredClusters = useMemo((): ClusterSummary[] => {
-    if (!searchTerm) return clusterSummaries;
-
-    return clusterSummaries.filter(
-      (cluster) =>
-        cluster.nama_cluster.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cluster.site_ids.some((siteId) => siteId.toLowerCase().includes(searchTerm.toLowerCase())),
-    );
-  }, [clusterSummaries, searchTerm]);
-
-  // Insert mutation
-  const insertMutation = useMutation({
-    mutationFn: async (newData: RefQueryCluster) => {
-      const response = await fetch("/tinfra/api/meas-db-ti-sul/ref-query-cluster", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to insert data");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
-      toast.success("Data inserted successfully");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
-
-  // Bulk insert mutation
-  const bulkInsertMutation = useMutation({
-    mutationFn: async (dataArray: RefQueryCluster[]) => {
-      const results = [];
-      const errors = [];
-
-      for (let i = 0; i < dataArray.length; i++) {
-        try {
-          const response = await fetch("/tinfra/api/meas-db-ti-sul/ref-query-cluster", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataArray[i]),
-          });
-
-          if (!response.ok) {
-            const error = await response.json();
-            errors.push(`Row ${i + 1}: ${error.error || "Failed to insert"}`);
-          } else {
-            const result = await response.json();
-            results.push(result);
-          }
-        } catch (error) {
-          errors.push(`Row ${i + 1}: ${error instanceof Error ? error.message : "Unknown error"}`);
-        }
-
-        // Update progress
-        setImportProgress(((i + 1) / dataArray.length) * 100);
-      }
-
-      return {
-        success: errors.length === 0,
-        totalRows: dataArray.length,
-        insertedRows: results.length,
-        skippedRows: errors.length,
-        errors,
-        data: results.flatMap((r: any) => r.data),
-      };
-    },
-    onSuccess: (result: ImportResult) => {
-      setImportResult(result);
-      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
-
-      if (result.errors.length === 0) {
-        toast.success(`Successfully imported ${result.insertedRows} rows`);
-      } else {
-        toast.warning(`Imported ${result.insertedRows} rows with ${result.errors.length} errors`);
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(`Import failed: ${error.message}`);
-    },
-    onSettled: () => {
-      setIsImporting(false);
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (data: RefQueryCluster) => {
-      const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/ref-query-cluster?nama_cluster=${encodeURIComponent(data.nama_cluster)}&siteid=${encodeURIComponent(data.siteid)}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to delete data");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
-      setIsDeleteDialogOpen(false);
-      setSelectedCluster(null);
-      setSelectedSiteForDelete(null);
-      setExpandedCluster(null);
-      toast.success("Data deleted successfully");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -340,8 +217,8 @@ export default function RefQueryClusterPage() {
   };
 
   const handleDeleteSite = (clusterName: string, siteId: string) => {
-    // Find the cluster from filteredClusters
-    const cluster = filteredClusters.find((c) => c.nama_cluster === clusterName);
+    // Find the cluster from clusterSummaries
+    const cluster = clusterSummaries.find((c) => c.nama_cluster === clusterName);
     setSelectedCluster(cluster || null);
     setSelectedSiteForDelete({ nama_cluster: clusterName, siteid: siteId });
     setIsDeleteDialogOpen(true);
@@ -402,7 +279,7 @@ export default function RefQueryClusterPage() {
   };
 
   // Get paginated sites for a cluster
-  const getPaginatedSites = (cluster: ClusterSummary) => {
+  const getPaginatedSitesForCluster = (cluster: ClusterSummary) => {
     const page = currentPage[cluster.nama_cluster] || 1;
     const startIndex = (page - 1) * SITES_PER_PAGE;
     const endIndex = startIndex + SITES_PER_PAGE;
@@ -554,22 +431,120 @@ export default function RefQueryClusterPage() {
     resetImport();
   };
 
-  // Get paginated sites for a cluster
-  const getPaginatedSitesForCluster = (cluster: ClusterSummary) => {
-    const page = currentPage[cluster.nama_cluster] || 1;
-    const startIndex = (page - 1) * SITES_PER_PAGE;
-    const endIndex = startIndex + SITES_PER_PAGE;
-    const paginatedSites = cluster.site_ids.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(cluster.site_ids.length / SITES_PER_PAGE);
+  // Insert mutation
+  const insertMutation = useMutation({
+    mutationFn: async (newData: RefQueryCluster) => {
+      const response = await fetch("/tinfra/api/meas-db-ti-sul/ref-query-cluster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newData),
+      });
 
-    return {
-      sites: paginatedSites,
-      currentPage: page,
-      totalPages,
-      startIndex,
-      endIndex: Math.min(endIndex, cluster.site_ids.length),
-    };
-  };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to insert data");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
+      toast.success("Data inserted successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Bulk insert mutation
+  const bulkInsertMutation = useMutation({
+    mutationFn: async (dataArray: RefQueryCluster[]) => {
+      const results = [];
+      const errors = [];
+
+      for (let i = 0; i < dataArray.length; i++) {
+        try {
+          const response = await fetch("/tinfra/api/meas-db-ti-sul/ref-query-cluster", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataArray[i]),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            errors.push(`Row ${i + 1}: ${error.error || "Failed to insert"}`);
+          } else {
+            const result = await response.json();
+            results.push(result);
+          }
+        } catch (error) {
+          errors.push(`Row ${i + 1}: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+
+        // Update progress
+        setImportProgress(((i + 1) / dataArray.length) * 100);
+      }
+
+      return {
+        success: errors.length === 0,
+        totalRows: dataArray.length,
+        insertedRows: results.length,
+        skippedRows: errors.length,
+        errors,
+        data: results.flatMap((r: any) => r.data),
+      };
+    },
+    onSuccess: (result: ImportResult) => {
+      setImportResult(result);
+      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
+
+      if (result.errors.length === 0) {
+        toast.success(`Successfully imported ${result.insertedRows} rows`);
+      } else {
+        toast.warning(`Imported ${result.insertedRows} rows with ${result.errors.length} errors`);
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(`Import failed: ${error.message}`);
+    },
+    onSettled: () => {
+      setIsImporting(false);
+    },
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (data: RefQueryCluster) => {
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/ref-query-cluster?nama_cluster=${encodeURIComponent(data.nama_cluster)}&siteid=${encodeURIComponent(data.siteid)}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete data");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ref-query-cluster"] });
+      setIsDeleteDialogOpen(false);
+      setSelectedCluster(null);
+      setSelectedSiteForDelete(null);
+      setExpandedCluster(null);
+      toast.success("Data deleted successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
 
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
@@ -583,7 +558,7 @@ export default function RefQueryClusterPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Ref Query Cluster Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Manage List Custom Cluster</h1>
             <p className="text-sm text-gray-500 mt-1">
               Total Clusters: {clusterSummaries.length} | Total Sites: {totalSites}
             </p>
@@ -839,28 +814,28 @@ export default function RefQueryClusterPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input
               placeholder="Search by cluster name or site ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={handleSearchChange}
               className="pl-10"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Clusters List */}
         <div className="space-y-4">
-          {filteredClusters.length === 0 ? (
+          {clusterSummaries.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <NoDataState message="No clusters found" />
               </CardContent>
             </Card>
           ) : (
-            filteredClusters.map((cluster) => {
+            clusterSummaries.map((cluster) => {
               const {
                 sites,
                 currentPage: page,

@@ -66,12 +66,12 @@ export const sidebarItems: NavGroup[] = [
         ],
       },
       {
-        title: "Custom Cluster",
+        title: "Manage",
         url: "#",
         icon: Fingerprint,
         subItems: [
           {
-            title: "Manage List",
+            title: "Custom Cluster",
             url: "/tinfra/displays/dashboard/4g/custom-cluster/manage-list",
           },
         ],

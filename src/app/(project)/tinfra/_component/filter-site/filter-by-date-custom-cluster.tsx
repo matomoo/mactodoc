@@ -45,7 +45,7 @@ interface ClusterData {
   site_ids?: string[];
 }
 
-export function FilterBy_Date_Nop() {
+export function FilterBy_Date_CustomCluster() {
   // Default date range values
   const defaultFrom = subDays(new Date(), 7);
   const defaultTo = subDays(new Date(), 1);
@@ -196,34 +196,15 @@ export function FilterBy_Date_Nop() {
           </Popover>
         </div>
 
-        {/* NOP Filter */}
-        <div className="flex flex-col gap-2">
-          <div className="font-medium text-sm">Filter By NOP</div>
-          <Select value={nop ?? undefined} onValueChange={handleNopChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select NOP" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">ALL</SelectItem>
-              <SelectItem value="kendari">KENDARI</SelectItem>
-              <SelectItem value="makassar">MAKASSAR</SelectItem>
-              <SelectItem value="manado">MANADO</SelectItem>
-              <SelectItem value="palu">PALU</SelectItem>
-              <SelectItem value="pare-pare">PARE-PARE</SelectItem>
-              <SelectItem value="ternate">TERNATE</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Cluster Filter */}
         <div className="flex flex-col gap-2">
           <div className="font-medium text-sm">Filter By Cluster</div>
           <Select value={clusterFilter ?? undefined} onValueChange={handleClusterChange} disabled={isLoading}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-50">
               <SelectValue placeholder={isLoading ? "Loading clusters..." : "Select cluster"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">ALL CLUSTERS</SelectItem>
+              <SelectItem value="all">-- Select Cluster --</SelectItem>
               {isLoading ? (
                 <div className="flex items-center justify-center p-4">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -246,7 +227,7 @@ export function FilterBy_Date_Nop() {
       </div>
 
       {/* Active Filters Summary */}
-      {(nop || clusterFilter) && (
+      {/* {(nop || clusterFilter) && (
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <span>Active filters:</span>
           {nop && <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">NOP: {nop.toUpperCase()}</span>}
@@ -265,7 +246,7 @@ export function FilterBy_Date_Nop() {
             Clear all
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

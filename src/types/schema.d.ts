@@ -321,6 +321,7 @@ export interface Data2G4GModel {
   G4_SITEID_CELLID: string;
   G4_CELL_NAME: string;
   G4_KABUPATEN: string;
+  G4_NAMA_CLUSTER: string;
   G4_NOP: string;
   G4_BAND: string;
   G4_RRC_SETUP_SR_NUM: number;

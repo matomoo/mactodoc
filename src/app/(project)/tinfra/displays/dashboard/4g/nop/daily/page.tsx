@@ -20,7 +20,13 @@ export default function Page() {
       <div className="grid grid-cols-2 justify-between md:grid-cols-1">
         <FilterBy_Date_Nop />
       </div>
-      <PageAggCustom4GDaily apiPath={"meas-dy-nop-4g"} aggregateBy="G4_KABUPATEN" filterLabel="" />
+      <PageAggCustom4GDaily
+        apiPath={"meas-dy-nop-4g"}
+        aggregateBy="G4_KABUPATEN"
+        filterLabel=""
+        showViewModeState="aggregated"
+        aggMode="nop"
+      />
     </div>
   );
 }
