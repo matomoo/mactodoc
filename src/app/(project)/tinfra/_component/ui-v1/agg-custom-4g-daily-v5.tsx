@@ -17,6 +17,7 @@ import { formatDateForDisplay } from "../../_function/helper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
+import MeasTa4G from "./meas-ta-4g";
 
 interface AggCustomProps {
   area?: string;
@@ -176,6 +177,9 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="summary" className="px-6">
                         Table Comparison
                       </TabsTrigger>
+                      <TabsTrigger value="meas-ta-4g" className="px-6">
+                        TA
+                      </TabsTrigger>
                       <TabsTrigger value="site-info-4g" className="px-6">
                         Site Info
                       </TabsTrigger>
@@ -241,6 +245,11 @@ export default function PageAggCustom4GDaily({
                       onSelectedKPIsChange={setSelectedKPIs}
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
+                  </TabsContent>
+
+                  {/* Performance Site Info Tab Content */}
+                  <TabsContent value="meas-ta-4g" className="mt-0">
+                    <MeasTa4G apiPath={"meas-ta-site-4g"} aggregateBy="CELL_NAME" filterLabel="Cell Name" />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}

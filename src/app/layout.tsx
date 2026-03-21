@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Inter } from "next/font/google";
+import { Inter, Roboto } from "next/font/google";
 
 import type { Metadata } from "next";
 
@@ -16,6 +16,11 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto({ 
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto"
+});
 
 export const metadata: Metadata = {
   title: APP_CONFIG.meta.title,
@@ -40,7 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {/* Applies theme and layout preferences on load to avoid flicker and unnecessary server rerenders. */}
         <ThemeBootScript />
       </head>
-      <body className={`${inter.className} min-h-screen antialiased`}>
+      <body className={`${inter.className} ${roboto.variable} min-h-screen antialiased`}>
         <AuthProvider>
           <PreferencesStoreProvider
             themeMode={theme_mode}

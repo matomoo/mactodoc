@@ -1,9 +1,9 @@
 export const chartJsV1Settings = {
   titleFontSize: 14,
-  titleFonstFamily: "'Roboto'",
+  titleFontFamily: "var(--font-roboto)",
   titleFontWeight: "bold" as "bold" | "normal" | "lighter" | "bolder",
   legendFontSize: 8,
-  legendFonstFamily: "'Roboto'",
+  legendFontFamily: "var(--font-roboto)",
   legendFontWeight: "normal" as "bold" | "normal" | "lighter" | "bolder",
   tooltipTitleFontSize: 12,
   tooltipBodyFontSize: 9,
@@ -13,10 +13,10 @@ export const chartJsV1Settings = {
   xAxisTitleFontSize: 9,
   xAxisTickFontSize: 8,
   tooltipBackgroundColor: "rgba(0, 0, 0, 0.6)",
-  yAxisTick: "'Roboto'",
-  yAxisTitle: "'Roboto'",
-  xAxisTick: "'Roboto'",
-  xAxisTitle: "'Roboto'",
+  yAxisTick: "var(--font-roboto)",
+  yAxisTitle: "var(--font-roboto)",
+  xAxisTick: "var(--font-roboto)",
+  xAxisTitle: "var(--font-roboto)",
 };
 
 // (index * 137.5) % 360;

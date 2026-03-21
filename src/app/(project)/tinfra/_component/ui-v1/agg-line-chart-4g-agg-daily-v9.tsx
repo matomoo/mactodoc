@@ -68,11 +68,20 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   const chartInstance = useRef<Chart | null>(null);
 
   const isDropRatePercentage = title.toUpperCase().includes("DROP RATE");
+  const isSeCqi =
+    title.toUpperCase().includes("SE BH") ||
+    title.toUpperCase().includes("CQI BH");
   const isTrafficChart = useMemo(() => {
-    return title.toLowerCase().includes("traffic") || title.toLowerCase().includes("payload");
+    return (
+      title.toLowerCase().includes("traffic") ||
+      title.toLowerCase().includes("payload")
+    );
   }, [title]);
 
-  const isViewModeAggregated = useMemo(() => viewMode === "aggregated", [viewMode]);
+  const isViewModeAggregated = useMemo(
+    () => viewMode === "aggregated",
+    [viewMode],
+  );
 
   // Separate data processing from gradient creation
   const baseChartData = useMemo(() => {
@@ -82,7 +91,13 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     const isAverage = aggregation === "avg" || title.includes("AVG");
     const isDenumBy1 = metric_denum === "DENUMBY1";
 
-    const groups: Record<string, Record<string, { num: number; denum: number; count: number; payload: number }>> = {};
+    const groups: Record<
+      string,
+      Record<
+        string,
+        { num: number; denum: number; count: number; payload: number }
+      >
+    > = {};
     const dates = new Set<string>();
 
     data.forEach((item) => {
@@ -110,7 +125,9 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       groups[groupKey][date].payload += payloadValue;
     });
 
-    const sortedDates = Array.from(dates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    const sortedDates = Array.from(dates).sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    );
 
     const sortedGroups = Object.keys(groups).sort();
 
@@ -127,7 +144,11 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
         if (denum === 0) return 0;
 
-        let value = isDenumBy1 ? num : isDropRatePercentage ? 100 - num / denum : num / denum;
+        let value = isDenumBy1
+          ? num
+          : isDropRatePercentage
+            ? 100 - num / denum
+            : num / denum;
         if (isPercentage && !isDropRatePercentage) value *= 100;
         if (isAverage && groupData.count > 0) value /= groupData.count;
 
@@ -157,7 +178,15 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       isPercentage,
       isAverage,
     };
-  }, [data, metric_num, metric_denum, aggregation, title, isDropRatePercentage, isTrafficChart]);
+  }, [
+    data,
+    metric_num,
+    metric_denum,
+    aggregation,
+    title,
+    isDropRatePercentage,
+    isTrafficChart,
+  ]);
 
   useEffect(() => {
     if (!chartRef.current || !baseChartData.labels.length) return;
@@ -238,7 +267,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       allDatasets = [...metricDatasets];
     }
 
-    if ((viewMode === "aggregated" || viewMode === "both") && aggregatedKPIDataset) {
+    if (
+      (viewMode === "aggregated" || viewMode === "both") &&
+      aggregatedKPIDataset
+    ) {
       allDatasets.push(aggregatedKPIDataset);
     }
 
@@ -264,7 +296,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               usePointStyle: true,
               font: {
                 size: chartJsV1Settings.legendFontSize,
-                family: chartJsV1Settings.legendFonstFamily,
+                family: chartJsV1Settings.legendFontFamily,
                 weight: chartJsV1Settings.legendFontWeight,
               },
             },
@@ -274,7 +306,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             text: title,
             font: {
               size: chartJsV1Settings.titleFontSize,
-              family: chartJsV1Settings.titleFonstFamily,
+              // family: chartJsV1Settings.titleFontFamily,
               weight: chartJsV1Settings.titleFontWeight,
             },
           },
@@ -297,10 +329,13 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 if (datasetLabel.includes("Payload")) {
                   return `${datasetLabel}: ${value.toFixed(2)} GB`;
                 }
-                if (datasetLabel.includes("Agg") || datasetLabel.includes("Total")) {
-                  return `${datasetLabel}: ${value.toFixed(isPercentage ? 3 : 3)}${isPercentage ? "%" : ""}`;
+                if (
+                  datasetLabel.includes("Agg") ||
+                  datasetLabel.includes("Total")
+                ) {
+                  return `${datasetLabel}: ${value.toFixed(isPercentage ? 2 : 2)}${isPercentage ? "%" : ""}`;
                 }
-                return `${datasetLabel}: ${value.toFixed(isPercentage ? 3 : 3)}${isPercentage ? "%" : ""}`;
+                return `${datasetLabel}: ${value.toFixed(isPercentage ? 2 : 2)}${isPercentage ? "%" : ""}`;
               },
             },
           },
@@ -313,13 +348,28 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               text: String(aggregation_by),
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFonstFamily,
+                family: chartJsV1Settings.legendFontFamily,
                 weight: chartJsV1Settings.yAxisTitleFontWeight,
               },
             },
             ticks: {
               font: {
                 size: chartJsV1Settings.yAxisTickFontSize,
+              },
+              callback: (value) => {
+                if (typeof value === "number") {
+                  if (isPercentage && !isDropRatePercentage) {
+                    return `${value.toFixed(2)}%`;
+                  }
+                  if (isDropRatePercentage) {
+                    return `${value.toFixed(2)}%`;
+                  }
+                  if (isSeCqi) {
+                    return `${value.toFixed(2)}`;
+                  }
+                  return value.toFixed(0);
+                }
+                return value;
               },
             },
             grid: {
@@ -335,7 +385,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               text: isTrafficChart ? `Total - ${title}` : `Agg - ${title}`,
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFonstFamily,
+                family: chartJsV1Settings.legendFontFamily,
                 weight: chartJsV1Settings.yAxisTitleFontWeight,
               },
             },
@@ -379,10 +429,22 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         chartInstance.current = null;
       }
     };
-  }, [baseChartData, title, aggregation_by, showAggregatedKPI, isTrafficChart, isDropRatePercentage, viewMode]);
+  }, [
+    baseChartData,
+    title,
+    aggregation_by,
+    showAggregatedKPI,
+    isTrafficChart,
+    isDropRatePercentage,
+    viewMode,
+  ]);
 
   if (!data?.length) {
-    return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;
+    return (
+      <div className="flex items-center justify-center p-10 text-gray-500 text-lg">
+        No data available
+      </div>
+    );
   }
 
   return (

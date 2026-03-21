@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
 
@@ -15,43 +16,55 @@ export interface Profile {
 }
 
 export function useProfile() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   // Create default profile
-  const createDefaultProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .insert({
-          id: userId,
-          username: null,
-          full_name: null,
-          avatar_url: null,
-          website: null,
-        })
-        .select()
-        .single();
+  const createDefaultProfile = useCallback(
+    async (userId: string): Promise<Profile | null> => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .insert({
+            id: userId,
+            username: null,
+            full_name: null,
+            avatar_url: null,
+            website: null,
+          })
+          .select()
+          .single();
 
-      if (error) {
-        // Jika profile sudah ada, coba ambil yang sudah ada
-        if (error.code === "23505") {
-          // Unique violation
-          console.log("Profile already exists, fetching existing...");
-          const { data: existingData } = await supabase.from("profiles").select("*").eq("id", userId).single();
+        if (error) {
+          // Jika profile sudah ada, coba ambil yang sudah ada
+          if (error.code === "23505") {
+            // Unique violation
+            console.log("Profile already exists, fetching existing...");
+            const { data: existingData } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", userId)
+              .single();
 
-          if (existingData) return existingData;
+            if (existingData) return existingData;
+          }
+          throw error;
         }
-        throw error;
+        return data;
+      } catch (err) {
+        console.error("Failed to create default profile:", err);
+        toast.error("Failed to create profile. Please login again.");
+        // Logout and redirect to login page
+        await logout();
+        router.push("/auth/v1/login");
+        return null;
       }
-      return data;
-    } catch (err) {
-      console.error("Failed to create default profile:", err);
-      return null;
-    }
-  }, []);
+    },
+    [logout, router],
+  );
 
   // Fetch profile
   const fetchProfile = useCallback(async () => {
@@ -59,13 +72,20 @@ export function useProfile() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
       if (error) {
         if (error.code === "PGRST116") {
           // Profile doesn't exist, create default one
           const newProfile = await createDefaultProfile(user.id);
-          if (newProfile) setProfile(newProfile);
+          if (newProfile) {
+            setProfile(newProfile);
+          }
+          // If newProfile is null, the user has been redirected to login
         } else {
           toast.error("Failed to load profile");
           console.error(error);
@@ -103,7 +123,8 @@ export function useProfile() {
       toast.success("Profile updated successfully!");
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update profile";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update profile";
       toast.error(errorMessage);
       console.error(err);
       throw err;
