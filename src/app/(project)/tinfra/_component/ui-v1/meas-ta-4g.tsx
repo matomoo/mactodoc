@@ -16,27 +16,9 @@ import {
 import { ErrorState, NoDataState } from "./additional-component";
 import { useFilterStore } from "@/stores/filterStore";
 import { EnhancedLoadingState } from "./enhanced-loading-state";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import type { Data2G4GModel } from "@/types/schema";
 import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
-import { extractSectorFromCellId } from "../../_function/extract-sector";
 
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  BarController,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+Chart.register(CategoryScale, LinearScale, BarController, BarElement, Title, Tooltip, Legend);
 
 interface AggCustomProps {
   area?: string;
@@ -47,25 +29,14 @@ interface AggCustomProps {
 }
 
 export default function MeasTa4G({ apiPath }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch } =
-    useFilterStore();
-  const shouldFetch =
-    !!dateRange2 && dateRange2.includes("|") && siteId?.length === 6;
+  const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
+  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && siteId?.length === 6;
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
   const [allSectors, setAllSectors] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery({
-    queryKey: [
-      "meas-ta-4g",
-      apiPath,
-      dateRange2,
-      filter,
-      siteId,
-      nop,
-      kabupaten,
-      batch,
-    ],
+    queryKey: ["meas-ta-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
@@ -85,9 +56,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
 
   useEffect(() => {
     if (data?.rows) {
-      const uniqueSectors: string[] = Array.from(
-        new Set(data.rows.map((row: any) => row.sector)),
-      ).sort() as string[];
+      const uniqueSectors: string[] = Array.from(new Set(data.rows.map((row: any) => row.sector))).sort() as string[];
       setAllSectors(uniqueSectors);
     }
   }, [data]);
@@ -127,9 +96,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
       });
 
       // Sort TA ranges by sort_order
-      const sortedTaRanges = Array.from(allTaRanges).sort(
-        (a, b) => (sortOrderMap[a] ?? 0) - (sortOrderMap[b] ?? 0),
-      );
+      const sortedTaRanges = Array.from(allTaRanges).sort((a, b) => (sortOrderMap[a] ?? 0) - (sortOrderMap[b] ?? 0));
 
       // Create datasets for each cell
       const colors = [
@@ -168,7 +135,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
   useEffect(() => {
     Object.keys(chartInstances.current).forEach((sector) => {
       if (chartInstances.current[sector]) {
-        chartInstances.current[sector]!.destroy();
+        chartInstances.current[sector]?.destroy();
         chartInstances.current[sector] = null;
       }
     });
@@ -270,7 +237,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
     return () => {
       Object.keys(chartInstances.current).forEach((sector) => {
         if (chartInstances.current[sector]) {
-          chartInstances.current[sector]!.destroy();
+          chartInstances.current[sector]?.destroy();
           chartInstances.current[sector] = null;
         }
       });
@@ -279,8 +246,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
 
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
-  if (!shouldFetch)
-    return <NoDataState message="Please select a date range to view data" />;
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (!data?.rows || data.rows.length === 0) {
     return (
       <NoDataState message="No data available for the selected criteria. For demo purposes, available site ID is NBW001, NBW002, NBW003, NBW004, NBW005" />
@@ -292,8 +258,8 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
       <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Chart Section */}
-          {allSectors.map((sector: string, index: number) => (
-            <div key={sector} className="lg:col-span-12 mb-6">
+          {allSectors.map((sector: string, _index: number) => (
+            <div key={sector} className="mb-6 lg:col-span-12">
               <div className="rounded-md border p-4">
                 <div className="h-96">
                   <canvas
