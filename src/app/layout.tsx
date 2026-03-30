@@ -5,6 +5,7 @@ import { Geist, Inter, Roboto } from "next/font/google";
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_CONFIG } from "@/config/app-config";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { ThemeBootScript } from "@/scripts/theme-boot";
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             contentLayout={content_layout}
             navbarStyle={navbar_style}
           >
-            <Providers>{children}</Providers>
+            <TooltipProvider>
+              <Providers>{children}</Providers>
+            </TooltipProvider>
             <Toaster />
           </PreferencesStoreProvider>
         </AuthProvider>
