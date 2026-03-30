@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Inter, Roboto } from "next/font/google";
+import { Geist, Inter, Roboto } from "next/font/google";
 
 import type { Metadata } from "next";
 
@@ -13,13 +13,17 @@ import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provi
 
 import "./globals.css";
 
+import { cn } from "@/lib/utils";
+
 import { Providers } from "./providers";
 
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+
 const inter = Inter({ subsets: ["latin"] });
-const roboto = Roboto({ 
+const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  variable: "--font-roboto"
+  variable: "--font-roboto",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html
       lang="en"
-      className={theme_mode}
+      className={cn(theme_mode, "font-sans", geist.variable)}
       data-theme-preset={theme_preset}
       data-content-layout={content_layout}
       data-navbar-style={navbar_style}
