@@ -1,4 +1,3 @@
-@import "tailwindcss";
 @import "tw-animate-css";
 
 /* Theme preset styles: these override CSS variables based on the selected data-theme-preset */

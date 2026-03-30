@@ -298,8 +298,15 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 if (datasetLabel.includes("Payload")) {
                   return `${datasetLabel}: ${value.toFixed(2)} GB`;
                 }
+                if (isDropRatePercentage) {
+                  return `${datasetLabel}: ${value.toFixed(4)}`;
+                }
                 if (datasetLabel.includes("Agg") || datasetLabel.includes("Total")) {
                   return `${datasetLabel}: ${value.toFixed(isPercentage ? 2 : 2)}${isPercentage ? "%" : ""}`;
+                }
+
+                if (isSeCqi) {
+                  return `${datasetLabel}: ${value.toFixed(2)}`;
                 }
                 return `${datasetLabel}: ${value.toFixed(isPercentage ? 2 : 2)}${isPercentage ? "%" : ""}`;
               },
