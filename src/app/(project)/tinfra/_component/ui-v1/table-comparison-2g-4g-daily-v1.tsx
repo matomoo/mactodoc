@@ -195,24 +195,40 @@ const TableComparison2G4GDaily: React.FC<{
                       <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
                       <td
                         className={`border border-gray-200 p-3 text-right ${
-                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                          row.growth > 2 && row.delta > 0
+                            ? "text-green-600"
+                            : row.growth > 2 && row.delta < 0
+                              ? "text-red-600"
+                              : "text-yellow-600"
                         }`}
                       >
                         {row.delta.toFixed(2)}
                       </td>
                       <td
                         className={`border border-gray-200 p-3 text-right ${
-                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                          row.growth > 2 && row.delta > 0
+                            ? "text-green-600"
+                            : row.growth > 2 && row.delta < 0
+                              ? "text-red-600"
+                              : "text-yellow-600"
                         }`}
                       >
                         {row.growth.toFixed(2)}%
                       </td>
                       <td
                         className={`border border-gray-200 p-3 text-center ${
-                          row.growth > 2 ? "text-green-600" : row.growth < -2 ? "text-red-600" : "text-yellow-600"
+                          row.growth > 2 && row.delta > 0
+                            ? "text-green-600"
+                            : row.growth > 2 && row.delta < 0
+                              ? "text-red-600"
+                              : "text-yellow-600"
                         }`}
                       >
-                        {row.growth > 2 ? "Improved" : row.growth < -2 ? "Degrade" : "Maintain"}
+                        {row.growth > 2 && row.delta > 0
+                          ? "Improve"
+                          : row.growth > 2 && row.delta < 0
+                            ? "Degrade"
+                            : "Maintain"}
                       </td>
                     </tr>
                   ))}
