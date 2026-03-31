@@ -5,7 +5,7 @@ interface filterState {
   // State
   dateRange2: string | null;
   filter: string | null;
-  clusterFilter: string | null;
+  clusterFilter: string[] | null;
   siteId: string | null;
   nop: string | null;
   kabupaten: string | null;
@@ -14,7 +14,7 @@ interface filterState {
   // Actions
   setDateRange2: (range: string | null) => void;
   setFilter: (filter: string | null) => void;
-  setClusterFilter: (clusterFilter: string | null) => void;
+  setClusterFilter: (clusterFilter: string[] | null) => void;
   setSiteId: (siteId: string | null) => void;
   setNop: (nop: string | null) => void;
   setKabupaten: (kabupaten: string | null) => void;
@@ -24,7 +24,7 @@ interface filterState {
   getParams: () => {
     dateRange2: string | null;
     filter: string | null;
-    clusterFilter: string | null;
+    clusterFilter: string[] | null;
     siteId: string | null;
     nop: string | null;
     kabupaten: string | null;

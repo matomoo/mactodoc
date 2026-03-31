@@ -58,7 +58,7 @@ export default function PageAggCustom4GDaily({
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${clusterFilter}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {
@@ -98,6 +98,7 @@ export default function PageAggCustom4GDaily({
     exportToExcel(data.rows, filename);
   };
 
+  // console.log(data.rows);
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
@@ -110,7 +111,7 @@ export default function PageAggCustom4GDaily({
       <Header
         onExportData={handleExportAllData}
         onToggleMobileFilters={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-        title={`4G ${aggMode === "nop" ? "NOP" : ` - ${clusterFilter?.toUpperCase()} - `} Level Daily`}
+        title={`4G ${aggMode === "nop" ? "NOP" : ` - ${Array.isArray(clusterFilter) ? clusterFilter.join(", ").toUpperCase() : clusterFilter || ""} - `} Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
       />
 

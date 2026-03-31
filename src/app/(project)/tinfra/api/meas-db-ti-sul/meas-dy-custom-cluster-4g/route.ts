@@ -1,4 +1,4 @@
-// biome-ignore assist/source/organizeImports: <will fix later>
+// biome-ignore assist/source/organizeImports: <none>
 import type { Data2G4GModel } from "@/types/schema";
 import { db_conn_v2 } from "../../../_drizzle/db_ti_sul";
 import { sql } from "drizzle-orm";
@@ -30,17 +30,27 @@ export async function GET(request: Request) {
     formattedTgl1 = new Date(tgl_1).toISOString();
     formattedTgl2 = new Date(tgl_2).toISOString();
     const queryNop = `%${nop.toUpperCase()}%`;
-    const queryClusterFilter = `%${clusterFilter}%`;
-    console.log(queryClusterFilter);
 
-    const clusterFilterCondition =
-      clusterFilter !== "All" ? sql`AND tref2.nama_cluster LIKE ${queryClusterFilter}` : sql``;
+    // Handle multiple clusters - split by comma and filter out empty values
+    const clusterValues = clusterFilter.split(",").filter((c) => c.trim() !== "");
+
+    // biome-ignore lint/suspicious/noExplicitAny: <none>
+    let clusterFilterCondition: any;
+    if (clusterFilter === "---" || clusterFilter === "All" || clusterValues.length === 0) {
+      clusterFilterCondition = sql``;
+    } else if (clusterValues.length === 1) {
+      // Use exact match for single cluster
+      clusterFilterCondition = sql`AND tref2.nama_cluster = ${clusterValues[0].trim()}`;
+    } else {
+      // For multiple clusters, build the IN clause using raw SQL
+      const clusterList = clusterValues.map((c) => `'${c.trim()}'`).join(",");
+      clusterFilterCondition = sql.raw(`AND tref2.nama_cluster IN (${clusterList})`);
+    }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           SELECT
             t1."Begin Time" AS "BEGIN_TIME",
             tref2.nama_cluster AS "G4_NAMA_CLUSTER",
-            tref.siteid AS "G4_SITEID",           
             SUM(t1."DL Traffic Volume (MByte) AMQ") / 1024 AS "DL_PAYLOAD_GB",
             SUM(t1."UL Traffic Volume (MByte) AMQ") / 1024 AS "UL_PAYLOAD_GB",
             SUM(t1."4G Payload (MByte) AMQ") / 1024 AS "TOTAL_PAYLOAD_GB",
@@ -108,12 +118,10 @@ export async function GET(request: Request) {
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
           GROUP BY
             t1."Begin Time",
-            tref2.nama_cluster,
-            tref.siteid 
+            tref2.nama_cluster
           ORDER BY
             t1."Begin Time",
-            tref2.nama_cluster,
-            tref.siteid 
+            tref2.nama_cluster
         `);
 
     return NextResponse.json(result);

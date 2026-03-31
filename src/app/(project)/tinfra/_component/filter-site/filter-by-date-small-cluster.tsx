@@ -262,7 +262,7 @@ export function FilterBy_Date_CustomCluster() {
           <div className="font-medium text-sm">Filter By Cluster</div>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-400 justify-start text-left" disabled={isLoading}>
+              <Button variant="outline" className="w-50 justify-start text-left" disabled={isLoading}>
                 {tempClusterFilter && Array.isArray(tempClusterFilter) && tempClusterFilter.length > 0 ? (
                   <div className="flex gap-1 flex-wrap">
                     {tempClusterFilter.slice(0, 2).map((cluster: string) => (
@@ -336,16 +336,17 @@ export function FilterBy_Date_CustomCluster() {
             </PopoverContent>
           </Popover>
         </div>
-        {/* Process Button */}
-        <div className="flex justify-end items-end">
-          <Button
-            onClick={handleProcessFilters}
-            disabled={!hasChanges || !tempDateRange?.from || !tempDateRange?.to}
-            className="px-6"
-          >
-            Process Filters
-          </Button>
-        </div>
+      </div>
+
+      {/* Process Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleProcessFilters}
+          disabled={!hasChanges || !tempDateRange?.from || !tempDateRange?.to}
+          className="px-6"
+        >
+          Process Filters
+        </Button>
       </div>
 
       {/* Active Filters Summary */}
