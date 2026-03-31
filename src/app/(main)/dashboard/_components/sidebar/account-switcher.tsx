@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
+import { getInitials } from "@/app/(project)/app-setting/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -14,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function AccountSwitcher() {
@@ -30,8 +30,7 @@ export function AccountSwitcher() {
     email: user.email,
     avatar: user.user_metadata?.avatar_url || "", // Support avatar from metadata
     role: user.user_metadata?.role || "user",
-  }
-
+  };
 
   const handleLogout = async () => {
     try {

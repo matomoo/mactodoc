@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CircleUser, EllipsisVertical, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
+import { getInitials } from "@/app/(project)/app-setting/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function NavUser({
