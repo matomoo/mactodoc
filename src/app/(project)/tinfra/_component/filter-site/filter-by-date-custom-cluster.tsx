@@ -262,9 +262,9 @@ export function FilterBy_Date_CustomCluster() {
           <div className="font-medium text-sm">Filter By Cluster</div>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-400 justify-start text-left" disabled={isLoading}>
+              <Button variant="outline" className="justify-start text-left" disabled={isLoading}>
                 {tempClusterFilter && Array.isArray(tempClusterFilter) && tempClusterFilter.length > 0 ? (
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="flex flex-wrap gap-1">
                     {tempClusterFilter.slice(0, 2).map((cluster: string) => (
                       <Badge key={cluster} variant="secondary" className="text-xs">
                         {cluster}
