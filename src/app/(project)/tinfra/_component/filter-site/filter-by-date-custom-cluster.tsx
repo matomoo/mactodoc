@@ -347,28 +347,6 @@ export function FilterBy_Date_CustomCluster() {
           </Button>
         </div>
       </div>
-
-      {/* Active Filters Summary */}
-      {/* {(nop || clusterFilter) && (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Active filters:</span>
-          {nop && <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">NOP: {nop.toUpperCase()}</span>}
-          {clusterFilter && (
-            <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Cluster: {clusterFilter}</span>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-xs"
-            onClick={() => {
-              setNop(null);
-              setClusterFilter(null);
-            }}
-          >
-            Clear all
-          </Button>
-        </div>
-      )} */}
     </div>
   );
 }

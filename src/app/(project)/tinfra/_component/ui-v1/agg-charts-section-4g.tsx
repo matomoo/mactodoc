@@ -86,7 +86,7 @@ export function ChartsSection4G({
 
         <div className="flex items-center gap-2">
           {/* View mode toggle moved to parent */}
-          {aggMode !== "custom-cluster" && (
+          {aggMode === "custom-cluster" && (
             <ToggleGroup
               type="single"
               value={viewMode}

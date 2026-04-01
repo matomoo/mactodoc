@@ -56,7 +56,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   metric_num,
   metric_denum,
   aggregation = "sum",
-  aggregation_by = "NOP",
+  aggregation_by = "G4_NAMA_CLUSTER",
   title = "%",
   // showPayload = false,
   showAggregatedKPI = true,
@@ -88,8 +88,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
     data.forEach((item) => {
       const date = new Date(item.BEGIN_TIME).toLocaleDateString();
-
-      const groupKey = String(item.G4_KABUPATEN || "Unknown");
+      // change here for aggregate level
+      const groupKey = String(item[aggregation_by] || "Unknown");
 
       dates.add(date);
 
@@ -158,7 +158,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       isPercentage,
       isAverage,
     };
-  }, [data, metric_num, metric_denum, aggregation, title, isDropRatePercentage, isTrafficChart]);
+  }, [data, metric_num, metric_denum, aggregation, title, isDropRatePercentage, isTrafficChart, aggregation_by]);
 
   useEffect(() => {
     if (!chartRef.current || !baseChartData.labels.length) return;

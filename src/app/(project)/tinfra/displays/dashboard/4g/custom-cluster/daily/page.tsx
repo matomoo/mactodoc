@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterBy_Date_CustomCluster } from "@/app/(project)/tinfra/_component/filter-site/filter-by-date-custom-cluster";
-import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v6";
+import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v7";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function Page() {
