@@ -24,7 +24,7 @@ export default function Page() {
         apiPath={"meas-dy-custom-cluster-4g"}
         aggregateBy="G4_NAMA_CLUSTER"
         filterLabel=""
-        showViewModeState="aggregated"
+        showViewModeState="metrics"
         aggMode="custom-cluster"
       />
     </div>
