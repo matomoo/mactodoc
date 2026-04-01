@@ -42,6 +42,11 @@ export const sidebarItems: NavGroup[] = [
     label: "Aggregate",
     items: [
       {
+        title: "Site",
+        url: "/tinfra/displays/dashboard/aggregate/4g/site",
+        icon: Fingerprint,
+      },
+      {
         title: "Site-Cell",
         url: "/tinfra/displays/dashboard/aggregate/4g/site-cell",
         icon: Fingerprint,
