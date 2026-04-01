@@ -8,11 +8,10 @@ import { format, subDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFilterStore } from "@/stores/filterStore";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge"; // Make sure to import shadcn Badge
-import { X } from "lucide-react"; // Import X icon for badge removal
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 import { parseDateRange } from "../../_function/helper";
 
 export function FilterBy_Date_Multi_SiteId() {
@@ -27,6 +26,10 @@ export function FilterBy_Date_Multi_SiteId() {
   // State for badge items and input
   const [siteIdInput, setSiteIdInput] = useState("");
   const [siteIdBadges, setSiteIdBadges] = useState<string[]>([]);
+
+  // Temporary state for filters (not yet applied to store)
+  const [tempSiteIdBadges, setTempSiteIdBadges] = useState<string[]>([]);
+  const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>();
 
   // Parse the date range parameter into a DateRange object
 
@@ -68,8 +71,33 @@ export function FilterBy_Date_Multi_SiteId() {
         .map((id) => id.trim())
         .filter((id) => id.length > 0);
       setSiteIdBadges(existingSiteIds);
+      setTempSiteIdBadges(existingSiteIds);
     }
   }, [siteId]);
+
+  // Check if filters have changed from store values
+  const hasChanges =
+    tempDateRange?.from !== dateRange?.from ||
+    tempDateRange?.to !== dateRange?.to ||
+    tempSiteIdBadges.length !== siteIdBadges.length ||
+    !tempSiteIdBadges.every((id) => siteIdBadges.includes(id));
+
+  // Handler to process and apply filters to store
+  const handleProcessFilters = () => {
+    if (tempDateRange?.from && tempDateRange?.to) {
+      const rangeString = `${format(tempDateRange.from, "yyyy-MM-dd")}|${format(tempDateRange.to, "yyyy-MM-dd")}`;
+      setDateRange2(rangeString);
+      setDateRange(tempDateRange);
+    }
+
+    setSiteIdBadges(tempSiteIdBadges);
+    if (tempSiteIdBadges.length > 0) {
+      const siteIdString = tempSiteIdBadges.join(",");
+      setSiteId(siteIdString);
+    } else {
+      setSiteId(null);
+    }
+  };
 
   // Update store when siteIdBadges changes
   useEffect(() => {
@@ -81,7 +109,7 @@ export function FilterBy_Date_Multi_SiteId() {
     }
   }, [siteIdBadges, setSiteId]);
 
-  // Function to handle input changes and process pasted content
+  // Function to handle input changes and process pasted content (temporary state)
   const handleSiteIdInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSiteIdInput(value);
@@ -92,7 +120,7 @@ export function FilterBy_Date_Multi_SiteId() {
     }
   };
 
-  // Function to process and extract Site IDs from pasted content
+  // Function to process and extract Site IDs from pasted content (temporary state)
   const processSiteIds = (input: string) => {
     // Split by common delimiters: new lines, tabs, commas, spaces
     const siteIds = input
@@ -101,7 +129,7 @@ export function FilterBy_Date_Multi_SiteId() {
       .filter((id) => id.length > 0); // Remove empty strings
 
     if (siteIds.length > 0) {
-      setSiteIdBadges((prev) => {
+      setTempSiteIdBadges((prev) => {
         // Combine existing with new, remove duplicates
         const combined = [...prev, ...siteIds];
         return Array.from(new Set(combined));
@@ -110,7 +138,7 @@ export function FilterBy_Date_Multi_SiteId() {
     }
   };
 
-  // Function to handle manual addition (Enter key or blur)
+  // Function to handle manual addition (Enter key or blur) (temporary state)
   const handleAddSiteId = () => {
     if (siteIdInput.trim()) {
       const newIds = siteIdInput
@@ -119,7 +147,7 @@ export function FilterBy_Date_Multi_SiteId() {
         .map((id) => id.trim())
         .filter((id) => id.length > 0);
       if (newIds.length > 0) {
-        setSiteIdBadges((prev) => {
+        setTempSiteIdBadges((prev) => {
           const combined = [...prev, ...newIds];
           return Array.from(new Set(combined));
         });
@@ -128,14 +156,14 @@ export function FilterBy_Date_Multi_SiteId() {
     }
   };
 
-  // Function to remove a Site ID badge
+  // Function to remove a Site ID badge (temporary state)
   const removeSiteId = (siteIdToRemove: string) => {
-    setSiteIdBadges((prev) => prev.filter((id) => id !== siteIdToRemove));
+    setTempSiteIdBadges((prev) => prev.filter((id) => id !== siteIdToRemove));
   };
 
-  // Function to clear all Site ID badges
+  // Function to clear all Site ID badges (temporary state)
   const clearAllSiteIds = () => {
-    setSiteIdBadges([]);
+    setTempSiteIdBadges([]);
     setSiteIdInput("");
   };
 
@@ -152,25 +180,22 @@ export function FilterBy_Date_Multi_SiteId() {
     handleAddSiteId();
   };
 
-  // Handler to update dateRange state and Zustand store
+  // Handler to update dateRange state and Zustand store (temporary state)
   const handleDateRangeChange = (range: DateRange | undefined) => {
     if (!range) {
-      setDateRange(undefined);
+      setTempDateRange(undefined);
       setIsSelecting(false);
-      setDateRange2(null);
       return;
     }
 
     // If both dates are selected
     if (range.from && range.to) {
-      setDateRange(range);
-      const rangeString = `${format(range.from, "yyyy-MM-dd")}|${format(range.to, "yyyy-MM-dd")}`;
-      setDateRange2(rangeString);
+      setTempDateRange(range);
       setIsSelecting(false);
     }
     // If only from date is selected
     else if (range.from && !range.to) {
-      setDateRange({ from: range.from, to: undefined });
+      setTempDateRange({ from: range.from, to: undefined });
       setIsSelecting(true);
     }
   };
@@ -181,43 +206,46 @@ export function FilterBy_Date_Multi_SiteId() {
       const parsedRange = parseDateRange(dateRange2);
       if (parsedRange) {
         setDateRange(parsedRange);
+        setTempDateRange(parsedRange);
       }
     } else {
       setDateRange(undefined);
+      setTempDateRange(undefined);
     }
   }, [dateRange2]);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 md:flex-row">
         <div className="flex flex-col gap-2">
           <div className="font-medium text-sm">Date Range</div>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
-                className={cn("w-70 justify-start text-left font-normal", !dateRange && "text-muted-foreground")}
+                className={cn("w-70 justify-start text-left font-normal", !tempDateRange && "text-muted-foreground")}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
+                {tempDateRange?.from ? (
+                  tempDateRange.to ? (
                     <>
-                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                      {format(tempDateRange.from, "LLL dd, y")} - {format(tempDateRange.to, "LLL dd, y")}
                     </>
                   ) : (
-                    format(dateRange.from, "LLL dd, y")
+                    format(tempDateRange.from, "LLL dd, y")
                   )
                 ) : (
                   <span>Pick a date range</span>
                 )}
+                <CalendarIcon className="ml-auto h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
+                initialFocus
                 mode="range"
-                selected={dateRange}
+                defaultMonth={tempDateRange?.from}
+                selected={tempDateRange}
                 onSelect={handleDateRangeChange}
-                defaultMonth={dateRange?.from || new Date()}
                 numberOfMonths={2}
               />
               {isSelecting && (
@@ -230,25 +258,54 @@ export function FilterBy_Date_Multi_SiteId() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="font-medium text-sm">Site IDs</div>
-            {siteIdBadges.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllSiteIds}
-                className="h-6 px-2 text-muted-foreground text-xs hover:text-destructive"
-              >
-                Clear All
-              </Button>
-            )}
-          </div>
-
+          <div className="font-medium text-sm">Site IDs</div>
           <div className="space-y-2">
-            {/* Badges Display */}
-            {siteIdBadges.length > 0 && (
-              <div className="flex min-h-10 max-w-70 flex-wrap gap-1 rounded-md border bg-gray-50 p-2">
-                {siteIdBadges.map((siteIdItem) => (
+            {/* Input */}
+            <Input
+              type="search"
+              placeholder="Paste multiple Site IDs"
+              value={siteIdInput}
+              onChange={handleSiteIdInputChange}
+              onKeyDown={handleKeyDown}
+              onBlur={handleInputBlur}
+              className="w-70"
+            />
+          </div>
+        </div>
+
+        {/* Process Button */}
+        <div className="flex items-end justify-end">
+          <Button
+            onClick={handleProcessFilters}
+            disabled={!hasChanges || !tempDateRange?.from || !tempDateRange?.to}
+            className="px-6"
+          >
+            Process Filters
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-sm">Selected Site IDs</div>
+          {tempSiteIdBadges.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllSiteIds}
+              className="h-6 px-2 text-muted-foreground text-xs hover:text-destructive"
+            >
+              Clear All
+            </Button>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          {/* Badges Display */}
+          {tempSiteIdBadges.length > 0 && (
+            <div className="flex min-h-10 max-w-full flex-wrap gap-1 rounded-md border bg-gray-50 p-2">
+              {tempSiteIdBadges.length <= 10 ? (
+                tempSiteIdBadges.map((siteIdItem) => (
                   <Badge
                     key={siteIdItem}
                     variant="secondary"
@@ -263,25 +320,32 @@ export function FilterBy_Date_Multi_SiteId() {
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
-                ))}
-              </div>
-            )}
-
-            {/* Input */}
-            <Input
-              type="search"
-              placeholder="Paste Site IDs from Excel"
-              value={siteIdInput}
-              onChange={handleSiteIdInputChange}
-              onKeyDown={handleKeyDown}
-              onBlur={handleInputBlur}
-              className="w-70"
-            />
-          </div>
-
-          <p className="max-w-70 text-muted-foreground text-xs">
-            Paste multiple Site IDs separated by tabs, new lines, or commas
-          </p>
+                ))
+              ) : (
+                <>
+                  {tempSiteIdBadges.slice(0, 2).map((siteIdItem) => (
+                    <Badge
+                      key={siteIdItem}
+                      variant="secondary"
+                      className="flex items-center gap-1 py-1 pr-1 pl-2 text-xs"
+                    >
+                      {siteIdItem}
+                      <button
+                        type="button"
+                        onClick={() => removeSiteId(siteIdItem)}
+                        className="ml-0.5 rounded-full p-0.5 hover:text-destructive focus:outline-none"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                  <Badge variant="secondary" className="flex items-center gap-1 py-1 pr-1 pl-2 text-xs">
+                    +{tempSiteIdBadges.length - 2}
+                  </Badge>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

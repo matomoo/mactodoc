@@ -72,10 +72,7 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
-  // console.log("data", data);
-
   const dataManagement = useDataManagement4G({ data, aggregateBy });
-  // console.log("dataManagement", dataManagement);
 
   const { filteredData } = useDataFiltering4G({
     data,
@@ -163,6 +160,7 @@ export default function PageAggCustom4GDaily({
             // Mobile overlay props
             isMobileFilterOpen={isMobileFilterOpen}
             onMobileFilterClose={() => setIsMobileFilterOpen(false)}
+            aggregateBy={aggregateBy}
           />
 
           {/* Main content */}

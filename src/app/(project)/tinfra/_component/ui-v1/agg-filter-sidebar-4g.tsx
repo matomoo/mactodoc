@@ -46,6 +46,7 @@ interface FilterSidebarProps {
   // Mobile overlay props
   isMobileFilterOpen?: boolean;
   onMobileFilterClose?: () => void;
+  aggregateBy?: string;
 }
 
 interface EnhancedFilterWithSearchProps {
@@ -172,6 +173,7 @@ export function FilterSidebar4G({
   filterLabel,
   isMobileFilterOpen,
   onMobileFilterClose,
+  aggregateBy,
 }: FilterSidebarProps) {
   const FilterPanelContent = () => (
     <>
@@ -190,7 +192,7 @@ export function FilterSidebar4G({
             value="cell"
             className="data-[state=on]:border-blue-200 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700"
           >
-            <span className="font-medium text-sm">Kabupaten</span>
+            <span className="font-medium text-sm">{aggregateBy?.slice(aggregateBy.indexOf("_") + 1) || "Cell"}</span>
           </ToggleGroupItem>
           {/* <ToggleGroupItem
             value="sector"
