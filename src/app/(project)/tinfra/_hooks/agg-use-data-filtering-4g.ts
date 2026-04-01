@@ -28,10 +28,11 @@ export function useDataFiltering4G({
       if (!data || selectedCells.length === 0) return [];
 
       return data.rows.filter((item: Data2G4GModel) => {
-        const cellName = aggregateBy.includes("CELL")
-          ? extractCellName(String(item[aggregateBy as keyof Data2G4GModel] ?? "Unknown"))
-          : (String(item[aggregateBy as keyof Data2G4GModel]) ?? "Unknown");
-        return selectedCells.includes(cellName);
+        // const cellName = aggregateBy.includes("CELL")
+        //   ? extractCellName(String(item[aggregateBy as keyof Data2G4GModel] ?? "Unknown"))
+        //   : (String(item[aggregateBy as keyof Data2G4GModel]) ?? "Unknown");
+        // return selectedCells.includes(cellName);
+        return String(item[aggregateBy as keyof Data2G4GModel]) ?? "Unknown";
       });
     }
 
