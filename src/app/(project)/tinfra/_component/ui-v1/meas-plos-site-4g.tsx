@@ -5,7 +5,6 @@ import { useRef, useEffect, useMemo, useState } from "react";
 import {
   Chart,
   type ChartConfiguration,
-  type ChartDataset,
   CategoryScale,
   LinearScale,
   BarController,
@@ -188,6 +187,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
 
       const config: ChartConfiguration<"bar" | "line"> = {
         type: "bar",
+        // biome-ignore lint/suspicious/noExplicitAny: <none>
         data: siteChartData as any,
         options: {
           responsive: true,

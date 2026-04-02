@@ -287,7 +287,9 @@ export function FilterBy_Date_Multi_SiteId() {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <div className="font-medium text-sm">Selected Site IDs</div>
+          <div className="font-medium text-muted-foreground text-sm">
+            Paste SiteId from excel or type manually and press Enter then click Process Filters
+          </div>
           {tempSiteIdBadges.length > 0 && (
             <Button
               variant="ghost"
