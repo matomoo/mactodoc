@@ -28,6 +28,7 @@ interface AggCustomProps {
   columnNumber?: number;
   showViewModeState?: string;
   aggMode?: string;
+  isShowTa: boolean;
 }
 
 export default function PageAggCustom4GDaily({
@@ -37,6 +38,7 @@ export default function PageAggCustom4GDaily({
   columnNumber = 2,
   showViewModeState = "aggregated",
   aggMode = "custom-cluster",
+  isShowTa = true,
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -191,9 +193,11 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="summary" className="px-6">
                         Table Comparison
                       </TabsTrigger>
-                      <TabsTrigger value="meas-ta-4g" className="px-6">
-                        TA
-                      </TabsTrigger>
+                      {isShowTa && (
+                        <TabsTrigger value="meas-ta-4g" className="px-6">
+                          TA
+                        </TabsTrigger>
+                      )}
                       <TabsTrigger value="meas-plos-site-4g" className="px-6">
                         Packet Loss
                       </TabsTrigger>
