@@ -22,10 +22,12 @@ export default function Page() {
       </div>
       <PageAggCustom4GDaily
         apiPath={"aggregate/meas-dy-site-cell-4g"}
+        apiPathPloss={"aggregate/plos-dy-site-4g"}
         aggregateBy="G4_SITEID_CELLID"
         filterLabel=""
         showViewModeState="metrics"
-        aggMode="site"
+        aggMode="site-cell"
+        isShowTa={true}
       />
     </div>
   );

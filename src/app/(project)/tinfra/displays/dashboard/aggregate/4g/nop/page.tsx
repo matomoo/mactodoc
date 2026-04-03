@@ -22,6 +22,7 @@ export default function Page() {
       </div>
       <PageAggCustom4GDaily
         apiPath={"aggregate/meas-dy-nop-4g"}
+        apiPathPloss={"aggregate/plos-dy-nop-4g"}
         aggregateBy="G4_NOP"
         filterLabel=""
         showViewModeState="metrics"

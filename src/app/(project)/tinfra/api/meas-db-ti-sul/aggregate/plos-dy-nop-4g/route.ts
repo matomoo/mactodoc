@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   //   const siteId = searchParams.get("siteId") || "---";
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
-  const multiSite = searchParams.get("siteId") || "---";
+  const multiSite = searchParams.get("nop") || "---";
 
   if (!tgl_1 || !tgl_2) {
     return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
@@ -32,11 +32,11 @@ export async function GET(request: Request) {
       multiSiteCondition = sql``;
     } else if (multiSiteValues.length === 1) {
       // Use exact match for single cluster
-      multiSiteCondition = sql`tref.siteid = ${multiSiteValues[0].trim()}`;
+      multiSiteCondition = sql`tref.nop = ${multiSiteValues[0].trim()}`;
     } else {
       // For multiple clusters, build the IN clause using raw SQL
       const multiSiteList = multiSiteValues.map((c) => `'${c.trim()}'`).join(",");
-      multiSiteCondition = sql.raw(`tref.siteid IN (${multiSiteList})`);
+      multiSiteCondition = sql.raw(`tref.nop IN (${multiSiteList})`);
     }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
@@ -44,6 +44,7 @@ export async function GET(request: Request) {
               SELECT
                 t1."Begin Time",
                 tref.siteid,
+                tref.nop,
                 AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 AS "Avg Packet Loss Rate",
               CASE
                   WHEN AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 > 0.1 THEN
@@ -64,19 +65,20 @@ export async function GET(request: Request) {
                     AND t1."Begin Time" <= ${formattedTgl2} 
                 GROUP BY
                   t1."Begin Time",
-                  siteid
+                  tref.siteid,
+                  tref.nop 
                 ) SELECT
                 "Begin Time",
-                siteid AS "aggrby",
+                nop AS "aggrby",
                 SUM ( CASE WHEN "Remark" = 'FAIL' THEN 1 ELSE 0 END ) AS "FAIL Count",
                 AVG ( "Avg Packet Loss Rate" ) AS "Avg Packet Loss Rate"
               FROM
                 site_metrics 
               GROUP BY
                 "Begin Time",
-                siteid 
+                nop 
             ORDER BY
-              "Begin Time";  
+              "Begin Time";
         `);
 
     return NextResponse.json(result);

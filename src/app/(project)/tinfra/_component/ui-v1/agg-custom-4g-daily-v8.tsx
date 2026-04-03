@@ -18,11 +18,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
-import MeasPlosSite4G from "./meas-plos-site-4g";
+import MeasPlosSite4G from "./meas-plos-site-4g-site";
 
 interface AggCustomProps {
   area?: string;
   apiPath: string;
+  apiPathPloss?: string;
   aggregateBy?: string;
   filterLabel?: string;
   columnNumber?: number;
@@ -33,6 +34,7 @@ interface AggCustomProps {
 
 export default function PageAggCustom4GDaily({
   apiPath,
+  apiPathPloss = "aggregate/plos-dy-site-4g",
   aggregateBy = "CELL_NAME",
   filterLabel = "Cell Name",
   columnNumber = 2,
@@ -277,11 +279,7 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Plos Tab Content */}
                   <TabsContent value="meas-plos-site-4g" className="mt-0">
-                    <MeasPlosSite4G
-                      apiPath={"aggregate/plos-dy-site-4g"}
-                      aggregateBy="CELL_NAME"
-                      filterLabel="Cell Name"
-                    />
+                    <MeasPlosSite4G apiPath={apiPathPloss} aggregateBy={aggMode} filterLabel="Cell Name" />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}

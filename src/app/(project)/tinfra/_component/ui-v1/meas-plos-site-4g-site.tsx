@@ -23,6 +23,7 @@ Chart.register(CategoryScale, LinearScale, BarController, BarElement, Title, Too
 interface MeasPlos4GData {
   rows: {
     "Begin Time": string;
+    siteid: string;
     nop: string;
     "FAIL Count": number;
     "Avg Packet Loss Rate": number;
@@ -39,18 +40,12 @@ interface AggCustomProps {
 
 export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
-
-  // Determine if we're in NOP mode or site mode based on API path
-  const isNopMode = apiPath.includes("nop");
-
   const shouldFetch = Boolean(
-    dateRange2?.includes("|") &&
-      ((isNopMode && nop && nop.trim().length > 0 && nop !== "---" && nop !== "All") ||
-        (!isNopMode && siteId && siteId.trim().length > 0 && siteId !== "---" && siteId !== "All")),
+    dateRange2?.includes("|") && siteId && siteId.trim().length > 0 && siteId !== "---" && siteId !== "All",
   );
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
-  const [allEntities, setAllEntities] = useState<string[]>([]);
+  const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
     queryKey: ["meas-plos-site-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
@@ -59,7 +54,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,37 +66,36 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
     retry: 1,
   });
 
+  console.log(apiPath);
   console.log(data);
 
   useEffect(() => {
     if (data?.rows) {
-      const uniqueEntities: string[] = Array.from(
+      const uniqueSites: string[] = Array.from(
         // biome-ignore lint/suspicious/noExplicitAny: <none>
-        new Set(data.rows.map((row: any) => (isNopMode ? row.nop : row.siteid))),
+        new Set(data.rows.map((row: any) => row.aggrby)),
       ).sort() as string[];
-      setAllEntities(uniqueEntities);
+      setAllSites(uniqueSites);
     }
-  }, [data, isNopMode]);
+  }, [data]);
 
-  // Process chart data for each entity - moved before conditional returns
-  const getChartDataForEntity = useMemo(() => {
-    return (entityName: string) => {
+  // Process chart data for each site - moved before conditional returns
+  const getChartDataForSite = useMemo(() => {
+    return (siteId: string) => {
       if (!data?.rows || data.rows.length === 0) {
         return { labels: [], datasets: [] };
       }
 
-      // Filter data by entity (NOP or site ID)
+      // Filter data by site ID
       // biome-ignore lint/suspicious/noExplicitAny: <none>
-      const entityData = data.rows.filter((row: any) =>
-        isNopMode ? row.nop === entityName : row.siteid === entityName,
-      );
+      const siteData = data.rows.filter((row: any) => row.aggrby === siteId);
 
       // Group by date and organize by Avg Packet Loss Rate and FAIL Count
       const dateGroups: Record<string, { packetLoss: number; failCount: number }> = {};
       const allDates = new Set<string>();
 
       // biome-ignore lint/suspicious/noExplicitAny: <none>
-      entityData.forEach((row: any) => {
+      siteData.forEach((row: any) => {
         const beginTime = row["Begin Time"] || "Unknown";
         const avgPacketLossRate = Number(row["Avg Packet Loss Rate"]) || 0;
         const failCount = Number(row["FAIL Count"]) || 0;
@@ -155,7 +149,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
         datasets,
       };
     };
-  }, [data, isNopMode]);
+  }, [data]);
 
   useEffect(() => {
     Object.keys(chartInstances.current).forEach((key) => {
@@ -165,12 +159,12 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
       }
     });
 
-    allEntities.forEach((entityName: string) => {
-      // Get chart data for this entity
-      const entityChartData = getChartDataForEntity(entityName);
-      if (!entityChartData.labels.length) return;
+    allSites.forEach((siteId: string) => {
+      // Get chart data for this site
+      const siteChartData = getChartDataForSite(siteId);
+      if (!siteChartData.labels.length) return;
 
-      const chartKey = `${entityName}-ploss`;
+      const chartKey = `${siteId}-ploss`;
       const chartRef = chartRefs.current[chartKey];
       if (!chartRef) return;
 
@@ -180,7 +174,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
       const config: ChartConfiguration<"bar" | "line"> = {
         type: "bar",
         // biome-ignore lint/suspicious/noExplicitAny: <none>
-        data: entityChartData as any,
+        data: siteChartData as any,
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -201,7 +195,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
             },
             title: {
               display: true,
-              text: `Packet Loss Rate - ${isNopMode ? "NOP" : "Site"} ${entityName}`,
+              text: `Packet Loss Rate - Site ${siteId}`,
               font: {
                 size: chartJsV1Settings.titleFontSize,
                 weight: chartJsV1Settings.titleFontWeight,
@@ -306,7 +300,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
         }
       });
     };
-  }, [allEntities, getChartDataForEntity, isNopMode]);
+  }, [allSites, getChartDataForSite]);
 
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
@@ -320,17 +314,15 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
       <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Chart Section */}
-          {allEntities.map((entityName: string) => (
-            <div key={entityName} className="mb-8 lg:col-span-12">
+          {allSites.map((siteId: string) => (
+            <div key={siteId} className="mb-8 lg:col-span-12">
               <div className="rounded-lg border bg-gray-50 p-4">
-                <h3 className="mb-4 text-center font-semibold text-lg">
-                  Packet Loss - {isNopMode ? "NOP" : "Site"} {entityName}
-                </h3>
+                <h3 className="mb-4 text-center font-semibold text-lg">Packet Loss - Site {siteId}</h3>
                 <div className="rounded-md border bg-white p-4">
                   <div className="h-96">
                     <canvas
                       ref={(el) => {
-                        chartRefs.current[`${entityName}-ploss`] = el;
+                        chartRefs.current[`${siteId}-ploss`] = el;
                       }}
                     />
                   </div>
