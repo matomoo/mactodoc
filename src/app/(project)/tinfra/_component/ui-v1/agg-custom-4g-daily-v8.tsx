@@ -279,7 +279,12 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Plos Tab Content */}
                   <TabsContent value="meas-plos-site-4g" className="mt-0">
-                    <MeasPlosSite4G apiPath={apiPathPloss} aggregateBy={aggMode} filterLabel="Cell Name" />
+                    <MeasPlosSite4G
+                      apiPath={apiPathPloss}
+                      aggregateBy={aggMode}
+                      filterLabel="Cell Name"
+                      fieldToAggregate={""}
+                    />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}

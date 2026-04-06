@@ -26,6 +26,7 @@ export default function Page() {
         filterLabel=""
         showViewModeState="metrics"
         aggMode="site"
+        isShowTa={false}
       />
     </div>
   );
