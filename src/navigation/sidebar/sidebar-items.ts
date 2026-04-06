@@ -57,8 +57,18 @@ export const sidebarItems: NavGroup[] = [
         icon: Fingerprint,
       },
       {
+        title: "NOP - Kabupaten",
+        url: "/tinfra/displays/dashboard/aggregate/4g/nop-kabupaten",
+        icon: Fingerprint,
+      },
+      {
         title: "Kabupaten",
         url: "/tinfra/displays/dashboard/aggregate/4g/kabupaten",
+        icon: Fingerprint,
+      },
+      {
+        title: "Kabupaten - Kecamatan",
+        url: "/tinfra/displays/dashboard/aggregate/4g/kabupaten-kecamatan",
         icon: Fingerprint,
       },
       {
@@ -67,8 +77,18 @@ export const sidebarItems: NavGroup[] = [
         icon: Fingerprint,
       },
       {
+        title: "Kecamatan - Site",
+        url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan-site",
+        icon: Fingerprint,
+      },
+      {
         title: "Site",
         url: "/tinfra/displays/dashboard/aggregate/4g/site",
+        icon: Fingerprint,
+      },
+      {
+        title: "Site - Sector",
+        url: "/tinfra/displays/dashboard/aggregate/4g/site-sector",
         icon: Fingerprint,
       },
       {
