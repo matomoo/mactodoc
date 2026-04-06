@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterBy_Date_NopKabupaten } from "@/app/(project)/tinfra/_component/filter-site/filter-by-date-nop-kabupaten";
-import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v8";
+import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v9";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function Page() {
@@ -28,6 +28,7 @@ export default function Page() {
         showViewModeState="metrics"
         aggMode="nop"
         isShowTa={false}
+        fieldToAggregate="nop"
       />
     </div>
   );

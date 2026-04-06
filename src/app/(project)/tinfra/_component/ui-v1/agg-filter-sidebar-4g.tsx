@@ -146,7 +146,7 @@ export function EnhancedFilterWithSearch({
 }
 
 export function FilterSidebar4G({
-  allCells,
+  // allCells,
   filterBy,
   selectedCells,
   selectedSectors,
@@ -174,7 +174,7 @@ export function FilterSidebar4G({
   filterLabel,
   isMobileFilterOpen,
   onMobileFilterClose,
-  aggregateBy,
+  // aggregateBy,
   fieldToAggregate,
 }: FilterSidebarProps) {
   const FilterPanelContent = () => (
