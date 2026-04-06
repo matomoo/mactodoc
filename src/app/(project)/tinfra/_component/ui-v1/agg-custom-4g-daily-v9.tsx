@@ -44,7 +44,7 @@ export default function PageAggCustom4GDaily({
   isShowTa = true,
   fieldToAggregate = "Column to aggregate",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -58,7 +58,14 @@ export default function PageAggCustom4GDaily({
   );
 
   // Get the appropriate filter value based on fieldToAggregate
-  const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
+  const filterValue =
+    fieldToAggregate === "nop"
+      ? kabupaten
+      : fieldToAggregate === "kabupaten"
+        ? kabupaten
+        : fieldToAggregate === "kecamatan"
+          ? kecamatan
+          : siteId;
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&
@@ -85,7 +92,7 @@ export default function PageAggCustom4GDaily({
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {
@@ -99,7 +106,7 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
-  console.log(data);
+  console.log("data", data);
 
   const dataManagement = useDataManagement4G({ data, aggregateBy });
 
@@ -130,7 +137,7 @@ export default function PageAggCustom4GDaily({
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
-  if (!data?.rows || data.rows.length === 0) {
+  if (!data?.rows || data.rows.length === 0 || data === undefined) {
     return <NoDataState message="No data available for the selected criteria." />;
   }
 

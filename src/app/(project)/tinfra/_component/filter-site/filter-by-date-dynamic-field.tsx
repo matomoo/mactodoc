@@ -81,7 +81,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
       to: defaultTo,
     };
   });
-  const [tempNopFilter, setTempNopFilter] = useState<string[] | null>(storeFilteredData ? [storeFilteredData] : null);
+  const [tempDataFilter, setTempNopFilter] = useState<string[] | null>(storeFilteredData ? [storeFilteredData] : null);
 
   // Track if we're in the process of selecting a range
   const [isSelecting, setIsSelecting] = useState(false);
@@ -93,7 +93,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     isLoading,
     error,
   } = useQuery<NopData[]>({
-    queryKey: ["ref-query-dynamic"],
+    queryKey: ["ref-query-dynamic", fieldToSearch],
     queryFn: async () => {
       const response = await fetch(
         `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${fieldToSearch}`,
@@ -104,7 +104,10 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
       const data = await response.json();
 
       // Extract unique field names from response
-      const rows = Array.isArray(data) ? data : data?.rows || [];
+      const rows = data?.rows || [];
+      if (!Array.isArray(rows)) {
+        return [];
+      }
       const uniqueNops = Array.from(new Set(rows.map((item: Record<string, string>) => item[fieldToSearch]))).map(
         (name) => ({
           nama_nop: name as string,
@@ -116,7 +119,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  console.log(nops);
+  console.log("nops data:", nops, "type:", typeof nops, "isArray:", Array.isArray(nops));
 
   // Ensure Zustand store is updated with default date range on first load
   useEffect(() => {
@@ -157,14 +160,14 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
 
   // Toggle Kabupaten selection (temporary state)
   const toggleNop = (nopName: string) => {
-    // Handle case where tempNopFilter might be a string (old data) or array
+    // Handle case where tempDataFilter might be a string (old data) or array
     let currentNops: string[] = [];
 
-    if (Array.isArray(tempNopFilter)) {
-      currentNops = tempNopFilter;
-    } else if (tempNopFilter && typeof tempNopFilter === "string") {
+    if (Array.isArray(tempDataFilter)) {
+      currentNops = tempDataFilter;
+    } else if (tempDataFilter && typeof tempDataFilter === "string") {
       // Convert old string format to array
-      currentNops = [tempNopFilter];
+      currentNops = [tempDataFilter];
     }
 
     if (currentNops.includes(nopName)) {
@@ -191,15 +194,23 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
       setDateRange2(null);
     }
 
-    if (tempNopFilter && tempNopFilter.length > 0) {
+    if (tempDataFilter && tempDataFilter.length > 0) {
       if (fieldToSearch === "kabupaten") {
-        setKabupaten(tempNopFilter.join(","));
+        setKabupaten(tempDataFilter.join(","));
+      } else if (fieldToSearch === "kecamatan") {
+        setKecamatan(tempDataFilter.join(","));
+      } else if (fieldToSearch === "nop") {
+        setNop(tempDataFilter.join(","));
       } else {
-        setNop(tempNopFilter.join(","));
+        setNop(tempDataFilter.join(","));
       }
     } else {
       if (fieldToSearch === "kabupaten") {
         setKabupaten(null);
+      } else if (fieldToSearch === "kecamatan") {
+        setKecamatan(null);
+      } else if (fieldToSearch === "nop") {
+        setNop(null);
       } else {
         setNop(null);
       }
@@ -210,7 +221,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
   const hasChanges =
     tempDateRange?.from?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.from?.getTime() : undefined) ||
     tempDateRange?.to?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.to?.getTime() : undefined) ||
-    JSON.stringify(tempNopFilter) !== JSON.stringify(storeFilteredData ? [storeFilteredData] : null);
+    JSON.stringify(tempDataFilter) !== JSON.stringify(storeFilteredData ? [storeFilteredData] : null);
 
   // Update temporary date range if Zustand store changes externally
   useEffect(() => {
@@ -226,14 +237,15 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
 
   // Update temporary filter if Zustand store changes externally
   useEffect(() => {
-    const currentStoreData = fieldToSearch === "kabupaten" ? storeKabupaten : storeNop;
+    const currentStoreData =
+      fieldToSearch === "kabupaten" ? storeKabupaten : fieldToSearch === "kecamatan" ? storeKecamatan : storeNop;
     if (currentStoreData) {
       const dataArray = currentStoreData.split(",").filter((n) => n.trim() !== "");
       setTempNopFilter(dataArray.length > 0 ? dataArray : null);
     } else {
       setTempNopFilter(null);
     }
-  }, [storeKabupaten, storeNop, fieldToSearch]);
+  }, [storeKabupaten, storeNop, storeKecamatan, fieldToSearch]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -293,8 +305,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
               variant="outline"
               size="sm"
               onClick={() => {
-                if (nops && nops.length > 0) {
-                  const allNopNames = nops.map((nop) => nop.nama_nop);
+                if (Array.isArray(nops) && nops.length > 0) {
+                  const allNopNames = (nops || []).map((nop) => nop.nama_nop);
                   handleNopFilterChange(allNopNames);
                 }
               }}
@@ -308,16 +320,16 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoading}>
-                  {tempNopFilter && Array.isArray(tempNopFilter) && tempNopFilter.length > 0 ? (
+                  {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {tempNopFilter.slice(0, 2).map((nop: string) => (
+                      {tempDataFilter.slice(0, 2).map((nop: string) => (
                         <Badge key={nop} variant="secondary" className="text-xs">
                           {nop}
                         </Badge>
                       ))}
-                      {tempNopFilter.length > 2 && (
+                      {tempDataFilter.length > 2 && (
                         <Badge variant="secondary" className="text-xs">
-                          +{tempNopFilter.length - 2}
+                          +{tempDataFilter.length - 2}
                         </Badge>
                       )}
                     </div>
@@ -378,13 +390,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                               ? "Kecamatans"
                               : "NOPs"}
                         </div>
-                      ) : nops && nops.length > 0 ? (
-                        nops.map((nop) => {
+                      ) : Array.isArray(nops) && nops.length > 0 ? (
+                        (nops || []).map((nop) => {
                           const isSelected =
-                            (Array.isArray(tempNopFilter)
-                              ? tempNopFilter
-                              : tempNopFilter
-                                ? [tempNopFilter]
+                            (Array.isArray(tempDataFilter)
+                              ? tempDataFilter
+                              : tempDataFilter
+                                ? [tempDataFilter]
                                 : []
                             )?.includes(nop.nama_nop) || false;
                           return (
@@ -413,16 +425,16 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                     </CommandGroup>
                   </CommandList>
                 </Command>
-                {tempNopFilter && Array.isArray(tempNopFilter) && tempNopFilter.length > 0 && (
+                {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 && (
                   <div className="flex items-center justify-between border-t p-2">
                     <span className="text-muted-foreground text-xs">
-                      {tempNopFilter.length}{" "}
+                      {tempDataFilter.length}{" "}
                       {fieldToSearch === "kabupaten"
                         ? "Kabupaten"
                         : fieldToSearch === "kecamatan"
                           ? "Kecamatan"
                           : "NOP"}
-                      {tempNopFilter.length > 1 ? "s" : ""} selected
+                      {tempDataFilter.length > 1 ? "s" : ""} selected
                     </span>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearNops}>
                       <X className="mr-1 h-3 w-3" />
