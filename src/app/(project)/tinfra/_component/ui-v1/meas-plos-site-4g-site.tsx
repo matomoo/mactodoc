@@ -40,7 +40,7 @@ interface AggCustomProps {
 }
 
 export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan } = useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
@@ -62,7 +62,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -74,8 +74,8 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
     retry: 1,
   });
 
-  console.log(apiPath);
-  console.log(data);
+  // console.log(apiPath);
+  // console.log(data);
 
   useEffect(() => {
     if (data?.rows) {
@@ -203,7 +203,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
             },
             title: {
               display: true,
-              text: `Packet Loss Rate - Site ${siteId}`,
+              text: `Packet Loss Rate - ${fieldToAggregate === undefined ? "" : fieldToAggregate.toUpperCase()} ${siteId}`,
               font: {
                 size: chartJsV1Settings.titleFontSize,
                 weight: chartJsV1Settings.titleFontWeight,
@@ -308,7 +308,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
         }
       });
     };
-  }, [allSites, getChartDataForSite]);
+  }, [allSites, getChartDataForSite, fieldToAggregate]);
 
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;

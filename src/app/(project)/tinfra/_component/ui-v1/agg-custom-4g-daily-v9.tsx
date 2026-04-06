@@ -106,7 +106,8 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
-  console.log("data", data);
+  // console.log("data", data);
+  // console.log("filterValue", filterValue);
 
   const dataManagement = useDataManagement4G({ data, aggregateBy });
 
@@ -134,12 +135,12 @@ export default function PageAggCustom4GDaily({
     exportToExcel(data.rows, filename);
   };
 
+  if (!data?.rows || data.rows.length === 0 || filterValue === null) {
+    return <NoDataState message="No data available for selected criteria." />;
+  }
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
-  if (!data?.rows || data.rows.length === 0 || data === undefined) {
-    return <NoDataState message="No data available for the selected criteria." />;
-  }
 
   return (
     <div className="min-h-screen">
