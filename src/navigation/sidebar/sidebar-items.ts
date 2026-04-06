@@ -47,6 +47,11 @@ export const sidebarItems: NavGroup[] = [
         icon: Fingerprint,
       },
       {
+        title: "Region - NOP",
+        url: "/tinfra/displays/dashboard/aggregate/4g/region-nop",
+        icon: Fingerprint,
+      },
+      {
         title: "NOP",
         url: "/tinfra/displays/dashboard/aggregate/4g/nop",
         icon: Fingerprint,
