@@ -52,6 +52,11 @@ export const sidebarItems: NavGroup[] = [
         icon: Fingerprint,
       },
       {
+        title: "Kecamatan",
+        url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan",
+        icon: Fingerprint,
+      },
+      {
         title: "Site",
         url: "/tinfra/displays/dashboard/aggregate/4g/site",
         icon: Fingerprint,

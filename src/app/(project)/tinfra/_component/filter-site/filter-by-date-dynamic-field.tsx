@@ -59,13 +59,16 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     dateRange2: storeDateRange,
     nop: storeNop,
     kabupaten: storeKabupaten,
+    kecamatan: storeKecamatan,
     setDateRange2,
     setNop,
     setKabupaten,
+    setKecamatan,
   } = useFilterStore();
 
   // Get the correct store value based on fieldToSearch
-  const storeFilteredData = fieldToSearch === "kabupaten" ? storeKabupaten : storeNop;
+  const storeFilteredData =
+    fieldToSearch === "kabupaten" ? storeKabupaten : fieldToSearch === "kecamatan" ? storeKecamatan : storeNop;
 
   // Local state for temporary filters (not yet applied to store)
   const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(() => {
@@ -90,17 +93,15 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     isLoading,
     error,
   } = useQuery<NopData[]>({
-    queryKey: ["ref-query-kabupaten"],
+    queryKey: ["ref-query-dynamic"],
     queryFn: async () => {
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-kabupaten?fieldToSearch=${fieldToSearch}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${fieldToSearch}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-
-      console.log("data", data);
 
       // Extract unique field names from response
       const rows = Array.isArray(data) ? data : data?.rows || [];
@@ -114,6 +115,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
+
+  console.log(nops);
 
   // Ensure Zustand store is updated with default date range on first load
   useEffect(() => {
@@ -280,7 +283,10 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
 
         {/* Multi-Select Filter */}
         <div className="flex flex-col gap-2">
-          <div className="font-medium text-sm">Filter By {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}</div>
+          <div className="font-medium text-sm">
+            Filter By{" "}
+            {fieldToSearch === "kabupaten" ? "Kabupaten" : fieldToSearch === "kecamatan" ? "Kecamatan" : "NOP"}
+          </div>
           <div className="flex gap-2">
             {/* Select All Button */}
             <Button
@@ -294,7 +300,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
               }}
               className="text-xs"
             >
-              Select All {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}
+              Select All{" "}
+              {fieldToSearch === "kabupaten" ? "Kabupatens" : fieldToSearch === "kecamatan" ? "Kecamatans" : "NOPs"}
             </Button>
 
             {/* Multi-Select Dropdown */}
@@ -317,17 +324,45 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                   ) : (
                     <span className="text-muted-foreground">
                       {isLoading
-                        ? `Loading ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}...`
-                        : `Select ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}`}
+                        ? `Loading ${
+                            fieldToSearch === "kabupaten"
+                              ? "Kabupatens"
+                              : fieldToSearch === "kecamatan"
+                                ? "Kecamatans"
+                                : "NOPs"
+                          }...`
+                        : `Select ${
+                            fieldToSearch === "kabupaten"
+                              ? "Kabupatens"
+                              : fieldToSearch === "kecamatan"
+                                ? "Kecamatans"
+                                : "NOPs"
+                          }`}
                     </span>
                   )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0" align="start">
                 <Command>
-                  <CommandInput placeholder={`Search ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}...`} />
+                  <CommandInput
+                    placeholder={`Search ${
+                      fieldToSearch === "kabupaten"
+                        ? "Kabupatens"
+                        : fieldToSearch === "kecamatan"
+                          ? "Kecamatans"
+                          : "NOPs"
+                    }...`}
+                  />
                   <CommandList>
-                    <CommandEmpty>No {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"} found.</CommandEmpty>
+                    <CommandEmpty>
+                      No{" "}
+                      {fieldToSearch === "kabupaten"
+                        ? "Kabupatens"
+                        : fieldToSearch === "kecamatan"
+                          ? "Kecamatans"
+                          : "NOPs"}{" "}
+                      found.
+                    </CommandEmpty>
                     <CommandGroup>
                       {isLoading ? (
                         <div className="flex items-center justify-center p-4">
@@ -336,7 +371,12 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                         </div>
                       ) : error ? (
                         <div className="p-4 text-red-500 text-sm">
-                          Error loading {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}
+                          Error loading{" "}
+                          {fieldToSearch === "kabupaten"
+                            ? "Kabupatens"
+                            : fieldToSearch === "kecamatan"
+                              ? "Kecamatans"
+                              : "NOPs"}
                         </div>
                       ) : nops && nops.length > 0 ? (
                         nops.map((nop) => {
@@ -361,7 +401,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                         })
                       ) : (
                         <div className="p-4 text-gray-500 text-sm">
-                          No {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"} found
+                          No{" "}
+                          {fieldToSearch === "kabupaten"
+                            ? "Kabupatens"
+                            : fieldToSearch === "kecamatan"
+                              ? "Kecamatans"
+                              : "NOPs"}{" "}
+                          found
                         </div>
                       )}
                     </CommandGroup>
@@ -370,7 +416,12 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                 {tempNopFilter && Array.isArray(tempNopFilter) && tempNopFilter.length > 0 && (
                   <div className="flex items-center justify-between border-t p-2">
                     <span className="text-muted-foreground text-xs">
-                      {tempNopFilter.length} {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}
+                      {tempNopFilter.length}{" "}
+                      {fieldToSearch === "kabupaten"
+                        ? "Kabupaten"
+                        : fieldToSearch === "kecamatan"
+                          ? "Kecamatan"
+                          : "NOP"}
                       {tempNopFilter.length > 1 ? "s" : ""} selected
                     </span>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearNops}>
@@ -400,7 +451,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
           <div className="flex items-center gap-2 text-gray-500 text-sm">
             <span>Active filters:</span>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
-              {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}: {storeFilteredData.toUpperCase()}
+              {fieldToSearch.toUpperCase()}
+              {storeFilteredData.toUpperCase()}
             </span>
             <Button
               variant="ghost"
@@ -409,6 +461,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
               onClick={() => {
                 if (fieldToSearch === "kabupaten") {
                   setKabupaten(null);
+                } else if (fieldToSearch === "kecamatan") {
+                  setKecamatan(null);
                 } else {
                   setNop(null);
                 }

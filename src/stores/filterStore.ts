@@ -9,6 +9,7 @@ interface filterState {
   siteId: string | null;
   nop: string | null;
   kabupaten: string | null;
+  kecamatan: string | null;
   batch: string | null;
 
   // Actions
@@ -18,6 +19,7 @@ interface filterState {
   setSiteId: (siteId: string | null) => void;
   setNop: (nop: string | null) => void;
   setKabupaten: (kabupaten: string | null) => void;
+  setKecamatan: (kecamatan: string | null) => void;
   setBatch: (batch: string | null) => void;
 
   // Helper to get all params as object
@@ -28,6 +30,7 @@ interface filterState {
     siteId: string | null;
     nop: string | null;
     kabupaten: string | null;
+    kecamatan: string | null;
     batch: string | null;
   };
 }
@@ -42,6 +45,7 @@ export const useFilterStore = create<filterState>()(
       siteId: null,
       nop: null,
       kabupaten: null,
+      kecamatan: null,
       batch: null,
 
       // Actions
@@ -52,6 +56,7 @@ export const useFilterStore = create<filterState>()(
       setSiteId: (siteId) => set({ siteId: siteId }),
       setNop: (nop) => set({ nop: nop }),
       setKabupaten: (kabupaten) => set({ kabupaten: kabupaten }),
+      setKecamatan: (kecamatan) => set({ kecamatan: kecamatan }),
       setBatch: (batch) => set({ batch: batch }),
 
       // Helper function
@@ -64,6 +69,7 @@ export const useFilterStore = create<filterState>()(
           siteId: state.siteId,
           nop: state.nop,
           kabupaten: state.kabupaten,
+          kecamatan: state.kecamatan,
           batch: state.batch,
         };
       },
