@@ -36,12 +36,20 @@ interface AggCustomProps {
   aggregateBy?: string;
   filterLabel?: string;
   columnNumber?: number;
+  fieldToAggregate: string;
 }
 
-export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
+export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch } = useFilterStore();
+  // Get the appropriate filter value based on fieldToAggregate
+  const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
+
   const shouldFetch = Boolean(
-    dateRange2?.includes("|") && siteId && siteId.trim().length > 0 && siteId !== "---" && siteId !== "All",
+    dateRange2?.includes("|") &&
+      filterValue &&
+      filterValue.trim().length > 0 &&
+      filterValue !== "---" &&
+      filterValue !== "All",
   );
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
@@ -54,7 +62,7 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -316,18 +324,20 @@ export default function MeasPlosSite4G({ apiPath }: AggCustomProps) {
           {/* Chart Section */}
           {allSites.map((siteId: string) => (
             <div key={siteId} className="mb-8 lg:col-span-12">
-              <div className="rounded-lg border bg-gray-50 p-4">
-                <h3 className="mb-4 text-center font-semibold text-lg">Packet Loss - Site {siteId}</h3>
-                <div className="rounded-md border bg-white p-4">
-                  <div className="h-96">
-                    <canvas
-                      ref={(el) => {
-                        chartRefs.current[`${siteId}-ploss`] = el;
-                      }}
-                    />
-                  </div>
+              {/* <div className="rounded-lg border bg-gray-50 p-4"> */}
+              {/* <h3 className="mb-4 text-center font-semibold text-lg">
+                  Packet Loss - Site {siteId}
+                </h3> */}
+              <div className="rounded-md border bg-white p-4">
+                <div className="h-96">
+                  <canvas
+                    ref={(el) => {
+                      chartRefs.current[`${siteId}-ploss`] = el;
+                    }}
+                  />
                 </div>
               </div>
+              {/* </div> */}
             </div>
           ))}
         </div>

@@ -9,8 +9,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
-  const searchByParams = searchParams.get("nop") || "---";
-  const fieldToAggregate = searchParams.get("field_to_aggregate") || "---";
+  const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
+  const searchByParams = searchParams.get(fieldToAggregate) || "---";
 
   if (!tgl_1 || !tgl_2) {
     return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
@@ -30,10 +30,10 @@ export async function GET(request: Request) {
     if (searchByParams === "---" || searchByParams === "All" || searchValues.length === 0) {
       searchByCondition = sql``;
     } else if (searchValues.length === 1) {
-      searchByCondition = sql`tref.${fieldToAggregate} = ${searchValues[0].trim()}`;
+      searchByCondition = sql`tref.${sql.raw(fieldToAggregate)} = ${searchValues[0].trim()}`;
     } else {
       const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql.raw(`tref.${fieldToAggregate} IN (${multiSearchList})`);
+      searchByCondition = sql`tref.${sql.raw(fieldToAggregate)} IN (${sql.raw(multiSearchList)})`;
     }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
               SELECT
                 t1."Begin Time",
                 tref.siteid,
-                tref.${fieldToAggregate},
+                tref.${sql.raw(fieldToAggregate)},
                 AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 AS "Avg Packet Loss Rate",
               CASE
                   WHEN AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 > 0.1 THEN
@@ -63,17 +63,17 @@ export async function GET(request: Request) {
                 GROUP BY
                   t1."Begin Time",
                   tref.siteid,
-                  tref.${fieldToAggregate} 
+                  tref.${sql.raw(fieldToAggregate)} 
                 ) SELECT
                 "Begin Time",
-                ${fieldToAggregate} AS "aggrby",
+                ${sql.raw(fieldToAggregate)} AS "aggrby",
                 SUM ( CASE WHEN "Remark" = 'FAIL' THEN 1 ELSE 0 END ) AS "FAIL Count",
                 AVG ( "Avg Packet Loss Rate" ) AS "Avg Packet Loss Rate"
               FROM
                 site_metrics 
               GROUP BY
                 "Begin Time",
-                ${fieldToAggregate} 
+                ${sql.raw(fieldToAggregate)} 
             ORDER BY
               "Begin Time";
         `);

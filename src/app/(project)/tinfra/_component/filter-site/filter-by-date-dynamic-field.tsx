@@ -48,14 +48,24 @@ interface NopData {
   site_ids?: string[];
 }
 
-export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: string }) {
+export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: string }) {
   // Default date range values
   const defaultFrom = subDays(new Date(), 7);
   const defaultTo = subDays(new Date(), 1);
   const defaultRangeString = `${format(defaultFrom, "yyyy-MM-dd")}|${format(defaultTo, "yyyy-MM-dd")}`;
 
   // Use Zustand store
-  const { dateRange2: storeDateRange, nop: storeNop, setDateRange2, setNop } = useFilterStore();
+  const {
+    dateRange2: storeDateRange,
+    nop: storeNop,
+    kabupaten: storeKabupaten,
+    setDateRange2,
+    setNop,
+    setKabupaten,
+  } = useFilterStore();
+
+  // Get the correct store value based on fieldToSearch
+  const storeFilteredData = fieldToSearch === "kabupaten" ? storeKabupaten : storeNop;
 
   // Local state for temporary filters (not yet applied to store)
   const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(() => {
@@ -68,7 +78,7 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
       to: defaultTo,
     };
   });
-  const [tempNopFilter, setTempNopFilter] = useState<string[] | null>(storeNop ? [storeNop] : null);
+  const [tempNopFilter, setTempNopFilter] = useState<string[] | null>(storeFilteredData ? [storeFilteredData] : null);
 
   // Track if we're in the process of selecting a range
   const [isSelecting, setIsSelecting] = useState(false);
@@ -92,11 +102,13 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
 
       console.log("data", data);
 
-      // Extract unique Kabupaten names from response
+      // Extract unique field names from response
       const rows = Array.isArray(data) ? data : data?.rows || [];
-      const uniqueNops = Array.from(new Set(rows.map((item: { kabupaten: string }) => item.kabupaten))).map((name) => ({
-        nama_nop: name as string,
-      }));
+      const uniqueNops = Array.from(new Set(rows.map((item: Record<string, string>) => item[fieldToSearch]))).map(
+        (name) => ({
+          nama_nop: name as string,
+        }),
+      );
 
       return uniqueNops;
     },
@@ -177,9 +189,17 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
     }
 
     if (tempNopFilter && tempNopFilter.length > 0) {
-      setNop(tempNopFilter.join(","));
+      if (fieldToSearch === "kabupaten") {
+        setKabupaten(tempNopFilter.join(","));
+      } else {
+        setNop(tempNopFilter.join(","));
+      }
     } else {
-      setNop(null);
+      if (fieldToSearch === "kabupaten") {
+        setKabupaten(null);
+      } else {
+        setNop(null);
+      }
     }
   };
 
@@ -187,7 +207,7 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
   const hasChanges =
     tempDateRange?.from?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.from?.getTime() : undefined) ||
     tempDateRange?.to?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.to?.getTime() : undefined) ||
-    JSON.stringify(tempNopFilter) !== JSON.stringify(storeNop ? [storeNop] : null);
+    JSON.stringify(tempNopFilter) !== JSON.stringify(storeFilteredData ? [storeFilteredData] : null);
 
   // Update temporary date range if Zustand store changes externally
   useEffect(() => {
@@ -201,15 +221,16 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
     }
   }, [storeDateRange]);
 
-  // Update temporary Kabupaten filter if Zustand store changes externally
+  // Update temporary filter if Zustand store changes externally
   useEffect(() => {
-    if (storeNop) {
-      const nopArray = storeNop.split(",").filter((n) => n.trim() !== "");
-      setTempNopFilter(nopArray.length > 0 ? nopArray : null);
+    const currentStoreData = fieldToSearch === "kabupaten" ? storeKabupaten : storeNop;
+    if (currentStoreData) {
+      const dataArray = currentStoreData.split(",").filter((n) => n.trim() !== "");
+      setTempNopFilter(dataArray.length > 0 ? dataArray : null);
     } else {
       setTempNopFilter(null);
     }
-  }, [storeNop]);
+  }, [storeKabupaten, storeNop, fieldToSearch]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -257,9 +278,9 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
           </Popover>
         </div>
 
-        {/* Multi-Select Kabupaten Filter */}
+        {/* Multi-Select Filter */}
         <div className="flex flex-col gap-2">
-          <div className="font-medium text-sm">Filter By Kabupaten</div>
+          <div className="font-medium text-sm">Filter By {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}</div>
           <div className="flex gap-2">
             {/* Select All Button */}
             <Button
@@ -273,7 +294,7 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
               }}
               className="text-xs"
             >
-              Select All Kabupatens
+              Select All {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}
             </Button>
 
             {/* Multi-Select Dropdown */}
@@ -295,16 +316,18 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
                     </div>
                   ) : (
                     <span className="text-muted-foreground">
-                      {isLoading ? "Loading Kabupatens..." : "Select Kabupatens"}
+                      {isLoading
+                        ? `Loading ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}...`
+                        : `Select ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}`}
                     </span>
                   )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0" align="start">
                 <Command>
-                  <CommandInput placeholder="Search Kabupatens..." />
+                  <CommandInput placeholder={`Search ${fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}...`} />
                   <CommandList>
-                    <CommandEmpty>No Kabupatens found.</CommandEmpty>
+                    <CommandEmpty>No {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"} found.</CommandEmpty>
                     <CommandGroup>
                       {isLoading ? (
                         <div className="flex items-center justify-center p-4">
@@ -312,7 +335,9 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
                           <span className="text-sm">Loading...</span>
                         </div>
                       ) : error ? (
-                        <div className="p-4 text-red-500 text-sm">Error loading Kabupatens</div>
+                        <div className="p-4 text-red-500 text-sm">
+                          Error loading {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"}
+                        </div>
                       ) : nops && nops.length > 0 ? (
                         nops.map((nop) => {
                           const isSelected =
@@ -335,7 +360,9 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
                           );
                         })
                       ) : (
-                        <div className="p-4 text-gray-500 text-sm">No Kabupatens found</div>
+                        <div className="p-4 text-gray-500 text-sm">
+                          No {fieldToSearch === "kabupaten" ? "Kabupatens" : "NOPs"} found
+                        </div>
                       )}
                     </CommandGroup>
                   </CommandList>
@@ -343,7 +370,7 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
                 {tempNopFilter && Array.isArray(tempNopFilter) && tempNopFilter.length > 0 && (
                   <div className="flex items-center justify-between border-t p-2">
                     <span className="text-muted-foreground text-xs">
-                      {tempNopFilter.length} Kabupaten
+                      {tempNopFilter.length} {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}
                       {tempNopFilter.length > 1 ? "s" : ""} selected
                     </span>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearNops}>
@@ -369,18 +396,22 @@ export function FilterBy_Date_Kabupaten({ fieldToSearch }: { fieldToSearch: stri
         </div>
 
         {/* Active Filters Summary */}
-        {storeNop && (
+        {storeFilteredData && (
           <div className="flex items-center gap-2 text-gray-500 text-sm">
             <span>Active filters:</span>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
-              Kabupaten: {storeNop.toUpperCase()}
+              {fieldToSearch === "kabupaten" ? "Kabupaten" : "NOP"}: {storeFilteredData.toUpperCase()}
             </span>
             <Button
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs"
               onClick={() => {
-                setNop(null);
+                if (fieldToSearch === "kabupaten") {
+                  setKabupaten(null);
+                } else {
+                  setNop(null);
+                }
               }}
             >
               Clear all

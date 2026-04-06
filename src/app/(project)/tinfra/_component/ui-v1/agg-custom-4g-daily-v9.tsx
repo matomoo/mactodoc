@@ -30,17 +30,19 @@ interface AggCustomProps {
   showViewModeState?: string;
   aggMode?: string;
   isShowTa: boolean;
+  fieldToAggregate?: string;
 }
 
 export default function PageAggCustom4GDaily({
   apiPath,
-  apiPathPloss = "aggregate/plos-dy-site-4g",
+  apiPathPloss = "---",
   aggregateBy = "CELL_NAME",
   filterLabel = "Cell Name",
   columnNumber = 2,
   showViewModeState = "aggregated",
   aggMode = "custom-cluster",
   isShowTa = true,
+  fieldToAggregate = "Column to aggregate",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -55,16 +57,35 @@ export default function PageAggCustom4GDaily({
       .map((chart) => chart.metric_num),
   );
 
-  const shouldFetch = !!dateRange2 && dateRange2.includes("|");
+  // Get the appropriate filter value based on fieldToAggregate
+  const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
+  const shouldFetch = Boolean(
+    dateRange2?.includes("|") &&
+      filterValue && // Now uses the correct filter
+      filterValue.trim().length > 0 &&
+      filterValue !== "---" &&
+      filterValue !== "All",
+  );
   const { isPending, error, data, isError } = useQuery({
-    queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryKey: [
+      "PageAggCustom4GDaily",
+      apiPath,
+      dateRange2,
+      filter,
+      filterValue,
+      nop,
+      kabupaten,
+      batch,
+      clusterFilter,
+      fieldToAggregate,
+    ],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {
@@ -78,6 +99,8 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
+  console.log(data);
+
   const dataManagement = useDataManagement4G({ data, aggregateBy });
 
   const { filteredData } = useDataFiltering4G({
@@ -88,8 +111,6 @@ export default function PageAggCustom4GDaily({
     selectedBands: dataManagement.selectedBands,
     aggregateBy,
   });
-
-  // console.log(filteredData);
 
   const { summaryMetrics } = useSummaryMetrics4G({
     filteredData,
@@ -125,7 +146,7 @@ export default function PageAggCustom4GDaily({
               ? ` - ${Array.isArray(siteId) ? siteId.join(", ").toUpperCase() : siteId || ""} - `
               : ""
         } Level Daily`}
-        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
+        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0] || "", 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1] || "", 2)}`}
       />
 
       <div className="py-4 lg:py-6">
@@ -167,6 +188,7 @@ export default function PageAggCustom4GDaily({
             isMobileFilterOpen={isMobileFilterOpen}
             onMobileFilterClose={() => setIsMobileFilterOpen(false)}
             aggregateBy={aggregateBy}
+            fieldToAggregate={fieldToAggregate}
           />
 
           {/* Main content */}
@@ -279,7 +301,12 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Plos Tab Content */}
                   <TabsContent value="meas-plos-site-4g" className="mt-0">
-                    <MeasPlosSite4G apiPath={apiPathPloss} aggregateBy={aggMode} filterLabel="Cell Name" />
+                    <MeasPlosSite4G
+                      apiPath={apiPathPloss}
+                      aggregateBy={aggMode}
+                      filterLabel="Cell Name"
+                      fieldToAggregate={fieldToAggregate}
+                    />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}

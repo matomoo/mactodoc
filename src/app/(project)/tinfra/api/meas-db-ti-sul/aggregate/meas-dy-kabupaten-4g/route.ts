@@ -7,8 +7,8 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const searchByParams = searchParams.get("nop") || "---";
-  const fieldToAggregate = searchParams.get("field_to_aggregate") || "---";
+  const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
+  const searchByParams = searchParams.get(fieldToAggregate) || "---";
 
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
@@ -30,16 +30,16 @@ export async function GET(request: Request) {
     if (searchByParams === "---" || searchByParams === "All" || searchValues.length === 0) {
       searchByCondition = sql``;
     } else if (searchValues.length === 1) {
-      searchByCondition = sql`AND tref.${fieldToAggregate} = ${searchValues[0].trim()}`;
+      searchByCondition = sql`AND tref.${sql.raw(fieldToAggregate)} = ${searchValues[0].trim()}`;
     } else {
       const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql.raw(`AND tref.${fieldToAggregate} IN (${multiSearchList})`);
+      searchByCondition = sql`AND tref.${sql.raw(fieldToAggregate)} IN (${sql.raw(multiSearchList)})`;
     }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           SELECT
             t1."Begin Time" AS "BEGIN_TIME",
-            tref.${fieldToAggregate} AS "G4_AGGRBY",
+            tref.${sql.raw(fieldToAggregate)} AS "G4_AGGRBY",
             SUM(t1."DL Traffic Volume (MByte) AMQ") / 1024 AS "DL_PAYLOAD_GB",
             SUM(t1."UL Traffic Volume (MByte) AMQ") / 1024 AS "UL_PAYLOAD_GB",
             SUM(t1."4G Payload (MByte) AMQ") / 1024 AS "TOTAL_PAYLOAD_GB",
@@ -106,10 +106,10 @@ export async function GET(request: Request) {
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
           GROUP BY
             t1."Begin Time",
-            tref.${fieldToAggregate}
+            tref.${sql.raw(fieldToAggregate)}
           ORDER BY
             t1."Begin Time",
-            tref.${fieldToAggregate}
+            tref.${sql.raw(fieldToAggregate)}
         `);
 
     return NextResponse.json(result);
