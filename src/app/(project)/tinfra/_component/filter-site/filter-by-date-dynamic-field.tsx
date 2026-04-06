@@ -58,17 +58,25 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
   const {
     dateRange2: storeDateRange,
     nop: storeNop,
+    region: storeRegion,
     kabupaten: storeKabupaten,
     kecamatan: storeKecamatan,
     setDateRange2,
     setNop,
+    setRegion,
     setKabupaten,
     setKecamatan,
   } = useFilterStore();
 
   // Get the correct store value based on fieldToSearch
   const storeFilteredData =
-    fieldToSearch === "kabupaten" ? storeKabupaten : fieldToSearch === "kecamatan" ? storeKecamatan : storeNop;
+    fieldToSearch === "region"
+      ? storeRegion
+      : fieldToSearch === "kabupaten"
+        ? storeKabupaten
+        : fieldToSearch === "kecamatan"
+          ? storeKecamatan
+          : storeNop;
 
   // Local state for temporary filters (not yet applied to store)
   const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(() => {
@@ -81,7 +89,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
       to: defaultTo,
     };
   });
-  const [tempDataFilter, setTempNopFilter] = useState<string[] | null>(storeFilteredData ? [storeFilteredData] : null);
+  const [tempDataFilter, setTempDataFilter] = useState<string[] | null>(storeFilteredData ? [storeFilteredData] : null);
 
   // Track if we're in the process of selecting a range
   const [isSelecting, setIsSelecting] = useState(false);
@@ -108,18 +116,25 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
       if (!Array.isArray(rows)) {
         return [];
       }
-      const uniqueNops = Array.from(new Set(rows.map((item: Record<string, string>) => item[fieldToSearch]))).map(
+      const uniqueResults = Array.from(new Set(rows.map((item: Record<string, string>) => item[fieldToSearch]))).map(
         (name) => ({
           nama_nop: name as string,
         }),
       );
 
-      return uniqueNops;
+      return uniqueResults;
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  console.log("nops data:", nops, "type:", typeof nops, "isArray:", Array.isArray(nops));
+  // console.log(
+  //   "nops data:",
+  //   nops,
+  //   "type:",
+  //   typeof nops,
+  //   "isArray:",
+  //   Array.isArray(nops),
+  // );
 
   // Ensure Zustand store is updated with default date range on first load
   useEffect(() => {
@@ -155,7 +170,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
 
   // Handler for Kabupaten filter change (temporary state)
   const handleNopFilterChange = (nops: string[] | null) => {
-    setTempNopFilter(nops);
+    setTempDataFilter(nops);
   };
 
   // Toggle Kabupaten selection (temporary state)
@@ -199,6 +214,8 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
         setKabupaten(tempDataFilter.join(","));
       } else if (fieldToSearch === "kecamatan") {
         setKecamatan(tempDataFilter.join(","));
+      } else if (fieldToSearch === "region") {
+        setRegion(tempDataFilter.join(","));
       } else if (fieldToSearch === "nop") {
         setNop(tempDataFilter.join(","));
       } else {
@@ -238,14 +255,20 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
   // Update temporary filter if Zustand store changes externally
   useEffect(() => {
     const currentStoreData =
-      fieldToSearch === "kabupaten" ? storeKabupaten : fieldToSearch === "kecamatan" ? storeKecamatan : storeNop;
+      fieldToSearch === "kabupaten"
+        ? storeKabupaten
+        : fieldToSearch === "kecamatan"
+          ? storeKecamatan
+          : fieldToSearch === "region"
+            ? storeRegion
+            : storeNop;
     if (currentStoreData) {
       const dataArray = currentStoreData.split(",").filter((n) => n.trim() !== "");
-      setTempNopFilter(dataArray.length > 0 ? dataArray : null);
+      setTempDataFilter(dataArray.length > 0 ? dataArray : null);
     } else {
-      setTempNopFilter(null);
+      setTempDataFilter(null);
     }
-  }, [storeKabupaten, storeNop, storeKecamatan, fieldToSearch]);
+  }, [storeKabupaten, storeNop, storeKecamatan, fieldToSearch, storeRegion]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -297,7 +320,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
         <div className="flex flex-col gap-2">
           <div className="font-medium text-sm">
             Filter By{" "}
-            {fieldToSearch === "kabupaten" ? "Kabupaten" : fieldToSearch === "kecamatan" ? "Kecamatan" : "NOP"}
+            {fieldToSearch === "kabupaten"
+              ? "Kabupaten"
+              : fieldToSearch === "kecamatan"
+                ? "Kecamatan"
+                : fieldToSearch === "region"
+                  ? "Region"
+                  : "NOP"}
           </div>
           <div className="flex gap-2">
             {/* Select All Button */}
@@ -313,7 +342,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
               className="text-xs"
             >
               Select All{" "}
-              {fieldToSearch === "kabupaten" ? "Kabupatens" : fieldToSearch === "kecamatan" ? "Kecamatans" : "NOPs"}
+              {fieldToSearch === "region"
+                ? "Region"
+                : fieldToSearch === "kabupaten"
+                  ? "Kabupatens"
+                  : fieldToSearch === "kecamatan"
+                    ? "Kecamatans"
+                    : "NOPs"}
             </Button>
 
             {/* Multi-Select Dropdown */}
@@ -344,11 +379,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                                 : "NOPs"
                           }...`
                         : `Select ${
-                            fieldToSearch === "kabupaten"
-                              ? "Kabupatens"
-                              : fieldToSearch === "kecamatan"
-                                ? "Kecamatans"
-                                : "NOPs"
+                            fieldToSearch === "region"
+                              ? "Regions"
+                              : fieldToSearch === "kabupaten"
+                                ? "Kabupatens"
+                                : fieldToSearch === "kecamatan"
+                                  ? "Kecamatans"
+                                  : "NOPs"
                           }`}
                     </span>
                   )}
@@ -358,21 +395,25 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                 <Command>
                   <CommandInput
                     placeholder={`Search ${
-                      fieldToSearch === "kabupaten"
-                        ? "Kabupatens"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatans"
-                          : "NOPs"
+                      fieldToSearch === "region"
+                        ? "Regions"
+                        : fieldToSearch === "kabupaten"
+                          ? "Kabupatens"
+                          : fieldToSearch === "kecamatan"
+                            ? "Kecamatans"
+                            : "NOPs"
                     }...`}
                   />
                   <CommandList>
                     <CommandEmpty>
                       No{" "}
-                      {fieldToSearch === "kabupaten"
-                        ? "Kabupatens"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatans"
-                          : "NOPs"}{" "}
+                      {fieldToSearch === "region"
+                        ? "Regions"
+                        : fieldToSearch === "kabupaten"
+                          ? "Kabupatens"
+                          : fieldToSearch === "kecamatan"
+                            ? "Kecamatans"
+                            : "NOPs"}{" "}
                       found.
                     </CommandEmpty>
                     <CommandGroup>
@@ -384,11 +425,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                       ) : error ? (
                         <div className="p-4 text-red-500 text-sm">
                           Error loading{" "}
-                          {fieldToSearch === "kabupaten"
-                            ? "Kabupatens"
-                            : fieldToSearch === "kecamatan"
-                              ? "Kecamatans"
-                              : "NOPs"}
+                          {fieldToSearch === "region"
+                            ? "Regions"
+                            : fieldToSearch === "kabupaten"
+                              ? "Kabupatens"
+                              : fieldToSearch === "kecamatan"
+                                ? "Kecamatans"
+                                : "NOPs"}
                         </div>
                       ) : Array.isArray(nops) && nops.length > 0 ? (
                         (nops || []).map((nop) => {
@@ -414,11 +457,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                       ) : (
                         <div className="p-4 text-gray-500 text-sm">
                           No{" "}
-                          {fieldToSearch === "kabupaten"
-                            ? "Kabupatens"
-                            : fieldToSearch === "kecamatan"
-                              ? "Kecamatans"
-                              : "NOPs"}{" "}
+                          {fieldToSearch === "region"
+                            ? "Regions"
+                            : fieldToSearch === "kabupaten"
+                              ? "Kabupatens"
+                              : fieldToSearch === "kecamatan"
+                                ? "Kecamatans"
+                                : "NOPs"}{" "}
                           found
                         </div>
                       )}
@@ -429,11 +474,13 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
                   <div className="flex items-center justify-between border-t p-2">
                     <span className="text-muted-foreground text-xs">
                       {tempDataFilter.length}{" "}
-                      {fieldToSearch === "kabupaten"
-                        ? "Kabupaten"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatan"
-                          : "NOP"}
+                      {fieldToSearch === "region"
+                        ? "Region"
+                        : fieldToSearch === "kabupaten"
+                          ? "Kabupaten"
+                          : fieldToSearch === "kecamatan"
+                            ? "Kecamatan"
+                            : "NOP"}
                       {tempDataFilter.length > 1 ? "s" : ""} selected
                     </span>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearNops}>
@@ -461,9 +508,15 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
         {/* Active Filters Summary */}
         {storeFilteredData && (
           <div className="flex items-center gap-2 text-gray-500 text-sm">
-            <span>Active filters:</span>
+            <span>Active filters: </span>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
-              {fieldToSearch.toUpperCase()}
+              {/* {fieldToSearch === "region"
+                ? "Region"
+                : fieldToSearch === "kabupaten"
+                  ? "Kabupaten"
+                  : fieldToSearch === "kecamatan"
+                    ? "Kecamatan"
+                    : "NOP"} */}
               {storeFilteredData.toUpperCase()}
             </span>
             <Button
@@ -471,7 +524,9 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
               size="sm"
               className="h-6 px-2 text-xs"
               onClick={() => {
-                if (fieldToSearch === "kabupaten") {
+                if (fieldToSearch === "region") {
+                  setRegion(null);
+                } else if (fieldToSearch === "kabupaten") {
                   setKabupaten(null);
                 } else if (fieldToSearch === "kecamatan") {
                   setKecamatan(null);

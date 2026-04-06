@@ -44,7 +44,7 @@ export default function PageAggCustom4GDaily({
   isShowTa = true,
   fieldToAggregate = "Column to aggregate",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -85,6 +85,7 @@ export default function PageAggCustom4GDaily({
       kabupaten,
       batch,
       clusterFilter,
+      region,
       fieldToAggregate,
     ],
     queryFn: async () => {
@@ -92,7 +93,7 @@ export default function PageAggCustom4GDaily({
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {

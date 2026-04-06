@@ -40,7 +40,7 @@ interface AggCustomProps {
 }
 
 export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region } = useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
@@ -56,13 +56,13 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
   const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
-    queryKey: ["meas-plos-site-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryKey: ["meas-plos-site-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

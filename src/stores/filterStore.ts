@@ -8,6 +8,7 @@ interface filterState {
   clusterFilter: string[] | null;
   siteId: string | null;
   nop: string | null;
+  region: string | null;
   kabupaten: string | null;
   kecamatan: string | null;
   batch: string | null;
@@ -18,6 +19,7 @@ interface filterState {
   setClusterFilter: (clusterFilter: string[] | null) => void;
   setSiteId: (siteId: string | null) => void;
   setNop: (nop: string | null) => void;
+  setRegion: (region: string | null) => void;
   setKabupaten: (kabupaten: string | null) => void;
   setKecamatan: (kecamatan: string | null) => void;
   setBatch: (batch: string | null) => void;
@@ -29,6 +31,7 @@ interface filterState {
     clusterFilter: string[] | null;
     siteId: string | null;
     nop: string | null;
+    region: string | null;
     kabupaten: string | null;
     kecamatan: string | null;
     batch: string | null;
@@ -44,6 +47,7 @@ export const useFilterStore = create<filterState>()(
       clusterFilter: null,
       siteId: null,
       nop: null,
+      region: null,
       kabupaten: null,
       kecamatan: null,
       batch: null,
@@ -55,6 +59,7 @@ export const useFilterStore = create<filterState>()(
 
       setSiteId: (siteId) => set({ siteId: siteId }),
       setNop: (nop) => set({ nop: nop }),
+      setRegion: (region) => set({ region: region }),
       setKabupaten: (kabupaten) => set({ kabupaten: kabupaten }),
       setKecamatan: (kecamatan) => set({ kecamatan: kecamatan }),
       setBatch: (batch) => set({ batch: batch }),
@@ -68,6 +73,7 @@ export const useFilterStore = create<filterState>()(
           clusterFilter: state.clusterFilter,
           siteId: state.siteId,
           nop: state.nop,
+          region: state.region,
           kabupaten: state.kabupaten,
           kecamatan: state.kecamatan,
           batch: state.batch,
