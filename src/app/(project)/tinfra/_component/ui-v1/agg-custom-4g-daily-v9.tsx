@@ -235,9 +235,11 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="meas-plos-site-4g" className="px-6">
                         Packet Loss
                       </TabsTrigger>
-                      <TabsTrigger value="hq-tutela" className="px-6">
-                        TUTELA
-                      </TabsTrigger>
+                      {aggMode === "region" && (
+                        <TabsTrigger value="hq-tutela" className="px-6">
+                          TUTELA
+                        </TabsTrigger>
+                      )}
                       {/* <TabsTrigger value="site-info-4g" className="px-6">
                           Site Info
                         </TabsTrigger> */}
