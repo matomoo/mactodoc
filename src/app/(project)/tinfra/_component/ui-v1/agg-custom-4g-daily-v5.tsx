@@ -15,7 +15,7 @@ import { useDataFiltering4G } from "../../_hooks/use-data-filtering-4g";
 import { useSummaryMetrics4G } from "../../_hooks/use-summary-metrics-4g";
 import { formatDateForDisplay } from "../../_function/helper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PageSiteInfo from "./site-info-4g";
+// import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";

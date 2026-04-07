@@ -12,6 +12,7 @@ interface filterState {
   kabupaten: string | null;
   kecamatan: string | null;
   batch: string | null;
+  weekRange: [number, number];
 
   // Actions
   setDateRange2: (range: string | null) => void;
@@ -23,6 +24,7 @@ interface filterState {
   setKabupaten: (kabupaten: string | null) => void;
   setKecamatan: (kecamatan: string | null) => void;
   setBatch: (batch: string | null) => void;
+  setWeekRange: (range: [number, number]) => void;
 
   // Helper to get all params as object
   getParams: () => {
@@ -35,6 +37,7 @@ interface filterState {
     kabupaten: string | null;
     kecamatan: string | null;
     batch: string | null;
+    weekRange: [number, number];
   };
 }
 
@@ -51,6 +54,7 @@ export const useFilterStore = create<filterState>()(
       kabupaten: null,
       kecamatan: null,
       batch: null,
+      weekRange: [202601, 202652], // Default to full year 2026
 
       // Actions
       setDateRange2: (range) => set({ dateRange2: range }),
@@ -63,6 +67,7 @@ export const useFilterStore = create<filterState>()(
       setKabupaten: (kabupaten) => set({ kabupaten: kabupaten }),
       setKecamatan: (kecamatan) => set({ kecamatan: kecamatan }),
       setBatch: (batch) => set({ batch: batch }),
+      setWeekRange: (range) => set({ weekRange: range }),
 
       // Helper function
       getParams: () => {
@@ -77,6 +82,7 @@ export const useFilterStore = create<filterState>()(
           kabupaten: state.kabupaten,
           kecamatan: state.kecamatan,
           batch: state.batch,
+          weekRange: state.weekRange,
         };
       },
     }),
