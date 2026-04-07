@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g";
+import MeasPlosSite4G from "./meas-plos-site-4g-site";
 
 interface AggCustomProps {
   area?: string;
@@ -180,9 +181,12 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="meas-ta-4g" className="px-6">
                         TA
                       </TabsTrigger>
-                      <TabsTrigger value="site-info-4g" className="px-6">
-                        Site Info
+                      <TabsTrigger value="meas-plos-site-4g" className="px-6">
+                        Packet Loss
                       </TabsTrigger>
+                      {/* <TabsTrigger value="site-info-4g" className="px-6">
+                        Site Info
+                      </TabsTrigger> */}
                     </TabsList>
 
                     {/* Layout toggle only shows when Charts tab is active */}
@@ -253,8 +257,16 @@ export default function PageAggCustom4GDaily({
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}
-                  <TabsContent value="site-info-4g" className="mt-0">
+                  {/* <TabsContent value="site-info-4g" className="mt-0">
                     <PageSiteInfo apiPath={"site-info-4g"} aggregateBy="CELL_NAME" filterLabel="Cell Name" />
+                  </TabsContent> */}
+                  <TabsContent value="meas-plos-site-4g" className="mt-0">
+                    <MeasPlosSite4G
+                      apiPath={"aggregate/plos-dy-site-4g"}
+                      aggregateBy={"site"}
+                      filterLabel="Cell Name"
+                      fieldToAggregate={""}
+                    />
                   </TabsContent>
                 </Tabs>
               </>
