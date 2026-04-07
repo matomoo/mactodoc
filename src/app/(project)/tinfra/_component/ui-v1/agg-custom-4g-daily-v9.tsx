@@ -30,7 +30,8 @@ interface AggCustomProps {
   columnNumber?: number;
   showViewModeState?: string;
   aggMode?: string;
-  isShowTa: boolean;
+  isShowTa?: boolean;
+  isShowHqTutela?: boolean;
   fieldToAggregate?: string;
 }
 
@@ -42,7 +43,8 @@ export default function PageAggCustom4GDaily({
   columnNumber = 2,
   showViewModeState = "aggregated",
   aggMode = "custom-cluster",
-  isShowTa = true,
+  isShowTa = false,
+  isShowHqTutela = false,
   fieldToAggregate = "Column to aggregate",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
@@ -235,7 +237,7 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="meas-plos-site-4g" className="px-6">
                         Packet Loss
                       </TabsTrigger>
-                      {aggMode === "region" && (
+                      {isShowHqTutela && (
                         <TabsTrigger value="hq-tutela" className="px-6">
                           TUTELA
                         </TabsTrigger>

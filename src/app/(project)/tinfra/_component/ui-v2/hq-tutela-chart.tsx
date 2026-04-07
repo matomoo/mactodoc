@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from "chart.js";
 
-import { Slider } from "@/components/ui/slider";
+import { WeekRangeSelect } from "@/components/ui/week-range-select";
 import { useFilterStore } from "@/stores/filterStore";
 
 import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
@@ -83,9 +83,6 @@ export default function KPIChart({
     retry: 1,
   });
 
-  // console.log(apiPath);
-  // console.log(data);
-
   useEffect(() => {
     if (data?.rows) {
       // Removed unused setAllSites reference
@@ -98,10 +95,15 @@ export default function KPIChart({
       return { labels: [], datasets: [], weekRange: [202601, 202652] };
     }
 
-    // Get min and max week from data
+    // Get min and max week from data and normalize
     const weeks = data.rows.map((row) => row.year_week);
     const minWeek = Math.min(...weeks);
     const maxWeek = Math.max(...weeks);
+
+    // Normalize week range - if week 53 exists, start from week 1 of that year
+    const minWeekYear = Math.floor(minWeek / 100);
+    const minWeekNum = minWeek % 100;
+    const normalizedMinWeek = minWeekNum === 53 ? (minWeekYear + 1) * 100 + 1 : minWeek;
 
     // Filter data by week range
     const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
@@ -156,7 +158,7 @@ export default function KPIChart({
     return {
       labels: sortedData.map((row) => `Week ${row.year_week}`),
       datasets,
-      weekRange: [minWeek, maxWeek],
+      weekRange: [normalizedMinWeek, maxWeek],
     };
   }, [data, weekRange]);
 
@@ -285,37 +287,24 @@ export default function KPIChart({
   const sliderMin = getChartData.weekRange[0] || 202601;
   const sliderMax = getChartData.weekRange[1] || 202652;
 
-  // Helper function to convert week number to display format
-  const formatWeekDisplay = (week: number) => {
-    const year = Math.floor(week / 100);
-    const weekNum = week % 100;
-    return `${year}-W${weekNum.toString().padStart(2, "0")}`;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          {/* Week Range Slider Section */}
+          {/* Week Range Select Section */}
           <div className="mb-6 lg:col-span-12">
             <div className="rounded-md border bg-white p-4">
               <div className="mb-4">
-                <label htmlFor="week-range-slider" className="mb-2 block font-medium text-gray-700 text-sm">
-                  Week Range: {formatWeekDisplay(weekRange[0])} - {formatWeekDisplay(weekRange[1])}
-                </label>
-                <Slider
-                  id="week-range-slider"
-                  value={weekRange}
-                  onValueChange={(value) => setWeekRange(value as [number, number])}
-                  min={sliderMin}
-                  max={sliderMax}
-                  step={1}
-                  className="w-full"
+                <h3 className="mb-4 font-semibold text-gray-800 text-lg">Select Week Range</h3>
+                <WeekRangeSelect
+                  initialWeekRange={weekRange}
+                  onWeekRangeChange={(newWeekRange) => {
+                    setWeekRange(newWeekRange);
+                  }}
+                  minWeek={sliderMin}
+                  maxWeek={sliderMax}
+                  availableWeeks={data?.rows?.map((row) => row.year_week)}
                 />
-                <div className="mt-1 flex justify-between text-gray-500 text-xs">
-                  <span>{formatWeekDisplay(sliderMin)}</span>
-                  <span>{formatWeekDisplay(sliderMax)}</span>
-                </div>
               </div>
             </div>
           </div>

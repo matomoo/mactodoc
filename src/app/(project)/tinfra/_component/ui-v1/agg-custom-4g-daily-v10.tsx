@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
+import HqTutelaChart from "../ui-v2/hq-tutela-chart";
 
 interface AggCustomProps {
   area?: string;
@@ -32,6 +33,7 @@ interface AggCustomProps {
   isShowTa: boolean;
   fieldToAggregate?: string;
   fieldToAggregate2?: string;
+  isShowHqTutela?: boolean;
 }
 
 export default function PageAggCustom4GDaily({
@@ -45,6 +47,7 @@ export default function PageAggCustom4GDaily({
   isShowTa = true,
   fieldToAggregate = "Column to aggregate",
   fieldToAggregate2 = "Column to aggregate 2",
+  isShowHqTutela = false,
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -237,6 +240,11 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="meas-plos-site-4g" className="px-6">
                         Packet Loss
                       </TabsTrigger>
+                      {isShowHqTutela && (
+                        <TabsTrigger value="hq-tutela" className="px-6">
+                          TUTELA
+                        </TabsTrigger>
+                      )}
                       {/* <TabsTrigger value="site-info-4g" className="px-6">
                           Site Info
                         </TabsTrigger> */}
@@ -319,6 +327,11 @@ export default function PageAggCustom4GDaily({
                       filterLabel="Cell Name"
                       fieldToAggregate={fieldToAggregate}
                     />
+                  </TabsContent>
+
+                  {/* Performance Tutela Tab Content */}
+                  <TabsContent value="hq-tutela" className="mt-0">
+                    <HqTutelaChart apiPath={"aggregate/hq-tutela"} fieldToAggregate={"region"} />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}
