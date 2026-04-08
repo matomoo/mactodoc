@@ -10,6 +10,9 @@ export async function GET(request: Request) {
   const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
   const searchByParams = searchParams.get(fieldToAggregate) || "---";
 
+  console.log("fieldToAggregate", fieldToAggregate);
+  console.log("searchByParams", searchByParams);
+
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
 
@@ -30,32 +33,27 @@ export async function GET(request: Request) {
     if (searchByParams === "---" || searchByParams === "All" || searchValues.length === 0) {
       searchByCondition = sql``;
     } else if (searchValues.length === 1) {
-      searchByCondition = sql`AND tref.${sql.raw(fieldToAggregate)} = ${searchValues[0].trim()}`;
+      searchByCondition = sql`AND t1.location = ${searchValues[0].trim()}`;
     } else {
       const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql`AND tref.${sql.raw(fieldToAggregate)} IN (${sql.raw(multiSearchList)})`;
+      searchByCondition = sql`AND t1.location IN (${sql.raw(multiSearchList)})`;
     }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
-          WITH tref_agg AS (
-              SELECT region
-              FROM ref_cell_4g
-              GROUP BY region
-          )
           SELECT 
+              t1.location,
               t1.year_week,
               COUNT(CASE WHEN t1.status = 'Lose' THEN 1 END) AS "Lose",
               COUNT(CASE WHEN t1.status = 'Win' THEN 1 END) AS "Win",
               '11' AS target_kpi
           FROM
               raw_tutela t1
-          INNER JOIN tref_agg tref
-              ON tref.region = t1.location
           WHERE
               t1.provider = 'Telkomsel'
               AND t1.level = 'Region'
               ${searchByCondition}
           GROUP BY
+              t1.location,
               t1.year_week
           ORDER BY
               t1.year_week;

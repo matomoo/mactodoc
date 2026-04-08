@@ -29,18 +29,24 @@ export function WeekRangeSelect({
 
   // Generate week options if not provided
   const weekOptions = useMemo(() => {
+    let options: number[] = [];
+
     if (availableWeeks) {
-      return availableWeeks.sort((a, b) => a - b);
+      // Remove duplicates from availableWeeks
+      options = [...new Set(availableWeeks)].sort((a, b) => a - b);
+    } else {
+      // Generate range and ensure uniqueness
+      const uniqueOptions = new Set<number>();
+      for (let week = minWeek; week <= maxWeek; week++) {
+        const year = Math.floor(week / 100);
+        const weekNum = week % 100;
+        if (weekNum >= 1 && weekNum <= 53) {
+          uniqueOptions.add(week);
+        }
+      }
+      options = Array.from(uniqueOptions).sort((a, b) => a - b);
     }
 
-    const options: number[] = [];
-    for (let week = minWeek; week <= maxWeek; week++) {
-      const year = Math.floor(week / 100);
-      const weekNum = week % 100;
-      if (weekNum >= 1 && weekNum <= 53) {
-        options.push(week);
-      }
-    }
     return options;
   }, [availableWeeks, minWeek, maxWeek]);
 
@@ -54,32 +60,53 @@ export function WeekRangeSelect({
   // Handle week changes
   const handleStartWeekChange = (value: string) => {
     const newStartWeek = parseInt(value);
+    console.log(
+      `Start week changed from ${formatWeekDisplay(startWeek)} to ${formatWeekDisplay(newStartWeek)}`,
+    );
     setStartWeek(newStartWeek);
 
     // Ensure end week is not before start week
     if (newStartWeek > endWeek) {
       setEndWeek(newStartWeek);
       onWeekRangeChange([newStartWeek, newStartWeek]);
+      console.log(
+        `End week auto-adjusted to ${formatWeekDisplay(newStartWeek)} to maintain valid range`,
+      );
     } else {
       onWeekRangeChange([newStartWeek, endWeek]);
+      console.log(
+        `Range updated: ${formatWeekDisplay(newStartWeek)} - ${formatWeekDisplay(endWeek)}`,
+      );
     }
   };
 
   const handleEndWeekChange = (value: string) => {
     const newEndWeek = parseInt(value);
+    console.log(
+      `End week changed from ${formatWeekDisplay(endWeek)} to ${formatWeekDisplay(newEndWeek)}`,
+    );
     setEndWeek(newEndWeek);
 
     // Ensure start week is not after end week
     if (newEndWeek < startWeek) {
       setStartWeek(newEndWeek);
       onWeekRangeChange([newEndWeek, newEndWeek]);
+      console.log(
+        `Start week auto-adjusted to ${formatWeekDisplay(newEndWeek)} to maintain valid range`,
+      );
     } else {
       onWeekRangeChange([startWeek, newEndWeek]);
+      console.log(
+        `Range updated: ${formatWeekDisplay(startWeek)} - ${formatWeekDisplay(newEndWeek)}`,
+      );
     }
   };
 
   // Filter end week options based on start week
   const endWeekOptions = weekOptions.filter((week) => week >= startWeek);
+
+  console.log(startWeek);
+  console.log(weekOptions);
 
   return (
     <div className="week-range-select space-y-4">
@@ -124,7 +151,7 @@ export function WeekRangeSelect({
       </div>
 
       {/* Selected Range Display */}
-      <div className="p-3 bg-gray-50 rounded border">
+      {/* <div className="p-3 bg-gray-50 rounded border">
         <div className="text-sm font-medium text-gray-700">Selected Range:</div>
         <div className="text-sm text-gray-600">
           {formatWeekDisplay(startWeek)} - {formatWeekDisplay(endWeek)}
@@ -132,7 +159,7 @@ export function WeekRangeSelect({
         <div className="text-xs text-gray-500 mt-1">
           {endWeek - startWeek + 1} weeks selected
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

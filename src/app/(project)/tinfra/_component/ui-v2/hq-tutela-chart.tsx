@@ -75,7 +75,9 @@ export default function KPIChart({ apiPath, fieldToAggregate }: AggCustomProps) 
   const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region, weekRange, setWeekRange } =
     useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
-  const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
+  const filterValue = fieldToAggregate === "region" ? region : fieldToAggregate === "kabupaten" ? kabupaten : siteId;
+
+  console.log(fieldToAggregate);
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&
@@ -556,13 +558,6 @@ export default function KPIChart({ apiPath, fieldToAggregate }: AggCustomProps) 
             ) : (
               // Single chart
               <div className="rounded-md border bg-white p-4">
-                <WeekRangeSelect
-                  initialWeekRange={weekRange}
-                  onWeekRangeChange={setWeekRange}
-                  minWeek={sliderMin}
-                  maxWeek={sliderMax}
-                  availableWeeks={data?.rows?.map((row) => row.year_week)}
-                />
                 <div className="h-96">
                   <canvas
                     ref={(el) => {

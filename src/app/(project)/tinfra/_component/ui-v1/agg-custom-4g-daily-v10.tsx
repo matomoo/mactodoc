@@ -333,7 +333,7 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Tutela Tab Content */}
                   <TabsContent value="hq-tutela" className="mt-0">
-                    <HqTutelaChart apiPath={apiPathTutela} fieldToAggregate={"region"} />
+                    <HqTutelaChart apiPath={apiPathTutela} fieldToAggregate={aggMode} />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}
