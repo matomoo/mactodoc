@@ -173,7 +173,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
 
     // Filter data by week range
     const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
-    console.log("filteredData", filteredData);
+    // console.log("filteredData", filteredData);
 
     // Check if multiple kabupaten are selected
     const selectedKabupatenValues =
@@ -444,8 +444,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
                       apiPath={"aggregate/hq-tutela/by-metric"}
                       fieldToAggregate={fieldToAggregate}
                       provider={"All"}
-                      level={"Kabupaten"}
-                      location={kabupaten}
+                      level={tutelaLevel}
+                      location={filterValue || "kabupaten"}
                     />
                   </div>
                 );

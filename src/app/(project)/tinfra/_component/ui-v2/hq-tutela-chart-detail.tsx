@@ -275,13 +275,13 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
           data: dataPoints,
           borderColor: color,
           backgroundColor: color.replace("1)", "0.1)"),
-          borderWidth: 2,
+          borderWidth: 3.5,
           type: "line" as const,
           yAxisID: "y",
-          tension: 0.1,
+          tension: 0.3,
           fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
+          pointRadius: 0,
+          pointHoverRadius: 0,
           datalabels: {
             display: false,
           },
@@ -364,6 +364,9 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
                 family: chartJsV1Settings.xAxisTick,
               },
             },
+            grid: {
+              display: false,
+            },
           },
           y: {
             type: "linear" as const,
@@ -384,6 +387,15 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
                 size: chartJsV1Settings.yAxisTickFontSize,
                 family: chartJsV1Settings.yAxisTick,
               },
+              callback: (value) => {
+                if (typeof value === "number") {
+                  return value.toFixed(0);
+                }
+                return value;
+              },
+            },
+            grid: {
+              display: false,
             },
           },
         },
