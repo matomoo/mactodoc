@@ -74,9 +74,10 @@ interface AggCustomProps {
   fieldToAggregate: string;
   provider: string;
   level: string;
+  location: string;
 }
 
-export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, level }: AggCustomProps) {
+export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, level, location }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region, weekRange, setWeekRange } =
     useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
@@ -112,6 +113,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
           `region=${region}`,
           `provider=${provider}`,
           `level=${level}`,
+          `location=${location}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
           `tgl_2=${dateRange2?.split("|")[1]}`,
         ].join("&"),
@@ -125,6 +127,8 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
     refetchOnWindowFocus: false,
     retry: 1,
   });
+
+  console.log("Data:", data);
 
   useEffect(() => {
     if (data?.rows) {
