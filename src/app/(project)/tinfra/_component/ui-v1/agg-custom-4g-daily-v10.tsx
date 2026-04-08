@@ -25,6 +25,7 @@ interface AggCustomProps {
   area?: string;
   apiPath: string;
   apiPathPloss?: string;
+  apiPathTutela?: string;
   aggregateBy?: string;
   filterLabel?: string;
   columnNumber?: number;
@@ -39,6 +40,7 @@ interface AggCustomProps {
 export default function PageAggCustom4GDaily({
   apiPath,
   apiPathPloss = "---",
+  apiPathTutela = "---",
   aggregateBy = "CELL_NAME",
   filterLabel = "Cell Name",
   columnNumber = 2,
@@ -142,12 +144,12 @@ export default function PageAggCustom4GDaily({
     exportToExcel(data.rows, filename);
   };
 
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
+  if (isPending) return <EnhancedLoadingState />;
+  if (isError) return <ErrorState message={error.message} />;
   if (!data?.rows || data.rows.length === 0 || filterValue === null) {
     return <NoDataState message="No data available for selected criteria." />;
   }
-  if (isPending) return <EnhancedLoadingState />;
-  if (isError) return <ErrorState message={error.message} />;
-  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
 
   return (
     <div className="min-h-screen">
@@ -331,7 +333,7 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Tutela Tab Content */}
                   <TabsContent value="hq-tutela" className="mt-0">
-                    <HqTutelaChart apiPath={"aggregate/hq-tutela"} fieldToAggregate={"region"} />
+                    <HqTutelaChart apiPath={apiPathTutela} fieldToAggregate={"region"} />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}

@@ -17,12 +17,12 @@ interface WeekRangeSelectProps {
   availableWeeks?: number[];
 }
 
-export function WeekRangeSelect({ 
-  initialWeekRange = [202601, 202652], 
+export function WeekRangeSelect({
+  initialWeekRange = [202601, 202652],
   onWeekRangeChange,
   minWeek = 202501,
   maxWeek = 202653,
-  availableWeeks
+  availableWeeks,
 }: WeekRangeSelectProps) {
   const [startWeek, setStartWeek] = useState<number>(initialWeekRange[0]);
   const [endWeek, setEndWeek] = useState<number>(initialWeekRange[1]);
@@ -32,7 +32,7 @@ export function WeekRangeSelect({
     if (availableWeeks) {
       return availableWeeks.sort((a, b) => a - b);
     }
-    
+
     const options: number[] = [];
     for (let week = minWeek; week <= maxWeek; week++) {
       const year = Math.floor(week / 100);
@@ -48,14 +48,14 @@ export function WeekRangeSelect({
   const formatWeekDisplay = (week: number) => {
     const year = Math.floor(week / 100);
     const weekNum = week % 100;
-    return `${year}-W${weekNum.toString().padStart(2, '0')}`;
+    return `${year}-W${weekNum.toString().padStart(2, "0")}`;
   };
 
   // Handle week changes
   const handleStartWeekChange = (value: string) => {
     const newStartWeek = parseInt(value);
     setStartWeek(newStartWeek);
-    
+
     // Ensure end week is not before start week
     if (newStartWeek > endWeek) {
       setEndWeek(newStartWeek);
@@ -68,7 +68,7 @@ export function WeekRangeSelect({
   const handleEndWeekChange = (value: string) => {
     const newEndWeek = parseInt(value);
     setEndWeek(newEndWeek);
-    
+
     // Ensure start week is not after end week
     if (newEndWeek < startWeek) {
       setStartWeek(newEndWeek);
@@ -79,23 +79,23 @@ export function WeekRangeSelect({
   };
 
   // Filter end week options based on start week
-  const endWeekOptions = weekOptions.filter(week => week >= startWeek);
+  const endWeekOptions = weekOptions.filter((week) => week >= startWeek);
 
   return (
     <div className="week-range-select space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Start Week Select */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            From Week
-          </label>
-          <Select value={startWeek.toString()} onValueChange={handleStartWeekChange}>
+          <label className="text-sm font-medium text-gray-700">From Week</label>
+          <Select
+            value={startWeek.toString()}
+            onValueChange={handleStartWeekChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select start week" />
             </SelectTrigger>
             <SelectContent className="max-h-60">
-              {weekOptions.map((week) => (
-                <SelectItem key={week} value={week.toString()}>
+              {weekOptions.map((week, index) => (
+                <SelectItem key={`week-${index}`} value={week.toString()}>
                   {formatWeekDisplay(week)}
                 </SelectItem>
               ))}
@@ -105,16 +105,16 @@ export function WeekRangeSelect({
 
         {/* End Week Select */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            To Week
-          </label>
-          <Select value={endWeek.toString()} onValueChange={handleEndWeekChange}>
+          <label className="text-sm font-medium text-gray-700">To Week</label>
+          <Select
+            value={endWeek.toString()}
+            onValueChange={handleEndWeekChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select end week" />
             </SelectTrigger>
             <SelectContent className="max-h-60">
-              {endWeekOptions.map((week) => (
-                <SelectItem key={week} value={week.toString()}>
+              {endWeekOptions.map((week, index) => (
+                <SelectItem key={`end-week-${index}`} value={week.toString()}>
                   {formatWeekDisplay(week)}
                 </SelectItem>
               ))}
@@ -125,9 +125,7 @@ export function WeekRangeSelect({
 
       {/* Selected Range Display */}
       <div className="p-3 bg-gray-50 rounded border">
-        <div className="text-sm font-medium text-gray-700">
-          Selected Range:
-        </div>
+        <div className="text-sm font-medium text-gray-700">Selected Range:</div>
         <div className="text-sm text-gray-600">
           {formatWeekDisplay(startWeek)} - {formatWeekDisplay(endWeek)}
         </div>

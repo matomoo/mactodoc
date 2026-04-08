@@ -23,6 +23,7 @@ export default function Page() {
       <PageAggCustom4GDaily
         apiPath={"aggregate/meas-dy-dynamic-4g-level2"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
+        apiPathTutela={"aggregate/hq-tutela/region"}
         aggregateBy="G4_AGGRBY2"
         filterLabel=""
         showViewModeState="metrics"

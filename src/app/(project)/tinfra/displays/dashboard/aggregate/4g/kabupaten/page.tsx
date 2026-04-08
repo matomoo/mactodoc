@@ -23,11 +23,13 @@ export default function Page() {
       <PageAggCustom4GDaily
         apiPath={"aggregate/meas-dy-kabupaten-4g"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
+        apiPathTutela={"aggregate/hq-tutela/kabupaten"}
         aggregateBy="G4_AGGRBY"
         filterLabel=""
         showViewModeState="metrics"
         aggMode="kabupaten"
         isShowTa={false}
+        isShowHqTutela={true}
         fieldToAggregate="kabupaten"
       />
     </div>

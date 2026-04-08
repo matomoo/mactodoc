@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -25,11 +25,41 @@ Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend);
 
 interface MeasPlos4GData {
   rows: {
+    location: string;
     year_week: number;
     Lose: string;
     Win: string;
     target_kpi: string;
   }[];
+}
+
+interface ChartDataSet {
+  label: string;
+  data: number[];
+  borderColor?: string;
+  backgroundColor?: string;
+  borderWidth?: number;
+  type?: "bar" | "line";
+  yAxisID?: string;
+  stack?: string;
+  borderDash?: number[];
+  datalabels?: {
+    display: boolean;
+  };
+  tension?: number;
+}
+
+interface KabupatenChartData {
+  labels: string[];
+  datasets: ChartDataSet[];
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: ChartDataSet[];
+  weekRange: [number, number];
+  kabupatenData: { [key: string]: KabupatenChartData };
+  isMultiKabupaten: boolean;
 }
 
 interface AggCustomProps {
@@ -41,14 +71,7 @@ interface AggCustomProps {
   fieldToAggregate: string;
 }
 
-export default function KPIChart({
-  apiPath,
-  fieldToAggregate,
-  labels = ["202502", "202503", "202504", "202505"],
-  loseData = [7, 7, 7, 6],
-  winData = [9, 9, 9, 10],
-  targetKPIData = [11, 11, 11, 11],
-}: AggCustomProps) {
+export default function KPIChart({ apiPath, fieldToAggregate }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region, weekRange, setWeekRange } =
     useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
@@ -63,6 +86,7 @@ export default function KPIChart({
   );
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
+  const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
     queryKey: ["hq-tutela", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region],
@@ -85,14 +109,24 @@ export default function KPIChart({
 
   useEffect(() => {
     if (data?.rows) {
-      // Removed unused setAllSites reference
+      const uniqueSites: string[] = Array.from(
+        // biome-ignore lint/suspicious/noExplicitAny: <none>
+        new Set(data.rows.map((row: any) => row.location)),
+      ).sort() as string[];
+      setAllSites(uniqueSites);
     }
   }, [data]);
 
   // Process chart data - moved before conditional returns
-  const getChartData = useMemo(() => {
+  const getChartData = useMemo((): ChartData => {
     if (!data?.rows || data.rows.length === 0) {
-      return { labels: [], datasets: [], weekRange: [202601, 202652] };
+      return {
+        labels: [],
+        datasets: [],
+        weekRange: [202601, 202652],
+        kabupatenData: {},
+        isMultiKabupaten: false,
+      };
     }
 
     // Get min and max week from data and normalize
@@ -107,9 +141,102 @@ export default function KPIChart({
 
     // Filter data by week range
     const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
+    console.log("filteredData", filteredData);
+
+    // Check if multiple kabupaten are selected
+    const selectedKabupatenValues =
+      kabupaten
+        ?.split(",")
+        .map((k) => k.trim())
+        .filter((k) => k && k !== "---" && k !== "All") || [];
+    const isMultiKabupaten = selectedKabupatenValues.length > 1;
+
+    if (isMultiKabupaten) {
+      // Group data by kabupaten
+      const kabupatenGroups: { [key: string]: any[] } = {};
+
+      filteredData.forEach((row) => {
+        const location = row.location || "Unknown";
+        if (!kabupatenGroups[location]) {
+          kabupatenGroups[location] = [];
+        }
+        kabupatenGroups[location].push(row);
+      });
+
+      // Process each kabupaten data
+      const kabupatenData: { [key: string]: any } = {};
+      const allLabels = [...new Set(filteredData.map((row) => `Week ${row.year_week}`))].sort();
+
+      Object.keys(kabupatenGroups).forEach((kab) => {
+        const kabData = kabupatenGroups[kab];
+        const sortedKabData = [...kabData].sort((a, b) => a.year_week - b.year_week);
+
+        kabupatenData[kab] = {
+          labels: allLabels,
+          datasets: [
+            {
+              label: `${kab} - Lose`,
+              data: allLabels.map((label) => {
+                const weekNum = parseInt(label.replace("Week ", ""));
+                const row = sortedKabData.find((r) => r.year_week === weekNum);
+                return row ? Number(row.Lose) || 0 : 0;
+              }),
+              borderColor: "rgba(255, 99, 132, 1)",
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+              borderWidth: 2,
+              type: "bar" as const,
+              yAxisID: "y",
+              stack: `${kab}-stack1`,
+              datalabels: { display: true },
+            },
+            {
+              label: `${kab} - Win`,
+              data: allLabels.map((label) => {
+                const weekNum = parseInt(label.replace("Week ", ""));
+                const row = sortedKabData.find((r) => r.year_week === weekNum);
+                return row ? Number(row.Win) || 0 : 0;
+              }),
+              borderColor: "rgba(75, 192, 192, 1)",
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+              borderWidth: 2,
+              type: "bar" as const,
+              yAxisID: "y",
+              stack: `${kab}-stack1`,
+              datalabels: { display: true },
+            },
+            {
+              label: `${kab} - Target KPI`,
+              data: allLabels.map((label) => {
+                const weekNum = parseInt(label.replace("Week ", ""));
+                const row = sortedKabData.find((r) => r.year_week === weekNum);
+                return row ? Number(row.target_kpi) || 0 : 0;
+              }),
+              borderColor: "rgba(54, 162, 235, 1)",
+              backgroundColor: "rgba(54, 162, 235, 0.1)",
+              borderWidth: 2,
+              type: "line" as const,
+              yAxisID: "y",
+              borderDash: [5, 5],
+              tension: 0.1,
+              datalabels: { display: false },
+            },
+          ],
+        };
+      });
+
+      return {
+        labels: allLabels,
+        datasets: [],
+        weekRange: [normalizedMinWeek, maxWeek],
+        kabupatenData,
+        isMultiKabupaten,
+      };
+    }
+    // Single kabupaten logic (existing)
+    const siteData = filteredData.filter((row: any) => row.location === kabupaten);
 
     // Sort data by year_week
-    const sortedData = [...filteredData].sort((a, b) => a.year_week - b.year_week);
+    const sortedData = [...siteData].sort((a, b) => a.year_week - b.year_week);
 
     // Create datasets for the chart
     const datasets = [
@@ -123,7 +250,7 @@ export default function KPIChart({
         yAxisID: "y",
         stack: "stack1",
         datalabels: {
-          display: true, // hide the labels on points
+          display: true,
         },
       },
       {
@@ -136,7 +263,7 @@ export default function KPIChart({
         yAxisID: "y",
         stack: "stack1",
         datalabels: {
-          display: true, // hide the labels on points
+          display: true,
         },
       },
       {
@@ -150,7 +277,7 @@ export default function KPIChart({
         borderDash: [5, 5],
         tension: 0.1,
         datalabels: {
-          display: false, // hide the labels on points
+          display: false,
         },
       },
     ];
@@ -159,8 +286,10 @@ export default function KPIChart({
       labels: sortedData.map((row) => `Week ${row.year_week}`),
       datasets,
       weekRange: [normalizedMinWeek, maxWeek],
+      kabupatenData: {},
+      isMultiKabupaten: false,
     };
-  }, [data, weekRange]);
+  }, [data, weekRange, kabupaten]);
 
   useEffect(() => {
     // Clean up existing charts
@@ -171,100 +300,197 @@ export default function KPIChart({
       }
     });
 
-    // Create single chart for all data
     const chartData = getChartData;
     if (!chartData.labels.length) return;
 
-    const chartKey = "hq-tutela";
-    const chartRef = chartRefs.current[chartKey];
-    if (!chartRef) return;
+    if (chartData.isMultiKabupaten) {
+      // Create multiple charts - one for each kabupaten
+      Object.keys(chartData.kabupatenData).forEach((kabupaten, index) => {
+        const kabData = chartData.kabupatenData[kabupaten];
+        const chartKey = `hq-tutela-${kabupaten}`;
+        const chartRef = chartRefs.current[chartKey];
+        if (!chartRef) return;
 
-    const ctx = chartRef.getContext("2d");
-    if (!ctx) return;
+        const ctx = chartRef.getContext("2d");
+        if (!ctx) return;
 
-    const config: ChartConfiguration = {
-      type: "bar",
-      data: chartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          datalabels: {
-            display: false,
-          },
-          legend: {
-            position: "top" as const,
-            labels: {
-              usePointStyle: true,
-              font: {
-                size: chartJsV1Settings.legendFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.legendFontWeight,
+        const config: ChartConfiguration = {
+          type: "bar",
+          data: kabData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              datalabels: {
+                display: false,
+              },
+              legend: {
+                position: "top" as const,
+                labels: {
+                  usePointStyle: true,
+                  font: {
+                    size: chartJsV1Settings.legendFontSize,
+                    family: chartJsV1Settings.legendFontFamily,
+                    weight: chartJsV1Settings.legendFontWeight,
+                  },
+                },
+              },
+              title: {
+                display: true,
+                text: `TUTELA - ${kabupaten}`,
+                font: {
+                  size: chartJsV1Settings.titleFontSize,
+                  weight: chartJsV1Settings.titleFontWeight,
+                },
+              },
+              tooltip: {
+                backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+                titleFont: {
+                  size: chartJsV1Settings.tooltipTitleFontSize,
+                },
+                bodyFont: {
+                  size: chartJsV1Settings.tooltipBodyFontSize,
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: false,
+                  text: "Week",
+                  font: {
+                    size: chartJsV1Settings.xAxisTitleFontSize,
+                    family: chartJsV1Settings.xAxisTitle,
+                  },
+                },
+                ticks: {
+                  font: {
+                    size: chartJsV1Settings.xAxisTickFontSize,
+                    family: chartJsV1Settings.xAxisTick,
+                  },
+                },
+              },
+              y: {
+                type: "linear" as const,
+                display: true,
+                position: "left" as const,
+                beginAtZero: true,
+                stacked: true,
+                title: {
+                  display: true,
+                  text: "Count",
+                  font: {
+                    size: chartJsV1Settings.yAxisTitleFontSize,
+                    family: chartJsV1Settings.yAxisTitle,
+                    weight: chartJsV1Settings.yAxisTitleFontWeight,
+                  },
+                },
+                ticks: {
+                  font: {
+                    size: chartJsV1Settings.yAxisTickFontSize,
+                    family: chartJsV1Settings.yAxisTick,
+                  },
+                },
               },
             },
           },
-          title: {
-            display: true,
-            text: `TUTELA KPI - ${fieldToAggregate === undefined ? "" : fieldToAggregate.toUpperCase()} SULAWESI`,
-            font: {
-              size: chartJsV1Settings.titleFontSize,
-              weight: chartJsV1Settings.titleFontWeight,
+        };
+
+        chartInstances.current[chartKey] = new Chart(ctx, config);
+      });
+    } else {
+      // Create single chart for single kabupaten
+      const chartKey = "hq-tutela";
+      const chartRef = chartRefs.current[chartKey];
+      if (!chartRef) return;
+
+      const ctx = chartRef.getContext("2d");
+      if (!ctx) return;
+
+      const config: ChartConfiguration = {
+        type: "bar",
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: {
+              display: false,
+            },
+            legend: {
+              position: "top" as const,
+              labels: {
+                usePointStyle: true,
+                font: {
+                  size: chartJsV1Settings.legendFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.legendFontWeight,
+                },
+              },
+            },
+            title: {
+              display: true,
+              text: `TUTELA - ${fieldToAggregate === undefined ? "" : fieldToAggregate.toUpperCase()} SULAWESI`,
+              font: {
+                size: chartJsV1Settings.titleFontSize,
+                weight: chartJsV1Settings.titleFontWeight,
+              },
+            },
+            tooltip: {
+              backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+              titleFont: {
+                size: chartJsV1Settings.tooltipTitleFontSize,
+              },
+              bodyFont: {
+                size: chartJsV1Settings.tooltipBodyFontSize,
+              },
             },
           },
-          tooltip: {
-            backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
-            titleFont: {
-              size: chartJsV1Settings.tooltipTitleFontSize,
+          scales: {
+            x: {
+              title: {
+                display: false,
+                text: "Week",
+                font: {
+                  size: chartJsV1Settings.xAxisTitleFontSize,
+                  family: chartJsV1Settings.xAxisTitle,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.xAxisTickFontSize,
+                  family: chartJsV1Settings.xAxisTick,
+                },
+              },
             },
-            bodyFont: {
-              size: chartJsV1Settings.tooltipBodyFontSize,
+            y: {
+              type: "linear" as const,
+              display: true,
+              position: "left" as const,
+              beginAtZero: true,
+              stacked: true,
+              title: {
+                display: true,
+                text: "Count",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+              },
             },
           },
         },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: "Week",
-              font: {
-                size: chartJsV1Settings.xAxisTitleFontSize,
-                family: chartJsV1Settings.xAxisTitle,
-              },
-            },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.xAxisTickFontSize,
-                family: chartJsV1Settings.xAxisTick,
-              },
-            },
-          },
-          y: {
-            type: "linear" as const,
-            display: true,
-            position: "left" as const,
-            beginAtZero: true,
-            stacked: true,
-            title: {
-              display: true,
-              text: "Count",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.yAxisTitle,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
-              },
-            },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
-                family: chartJsV1Settings.yAxisTick,
-              },
-            },
-          },
-        },
-      },
-    };
+      };
 
-    chartInstances.current[chartKey] = new Chart(ctx, config);
+      chartInstances.current[chartKey] = new Chart(ctx, config);
+    }
 
     return () => {
       Object.keys(chartInstances.current).forEach((key) => {
@@ -276,9 +502,9 @@ export default function KPIChart({
     };
   }, [getChartData, fieldToAggregate]);
 
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
-  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (!data?.rows || data.rows.length === 0) {
     return <NoDataState message="No data available for the selected criteria." />;
   }
@@ -310,15 +536,42 @@ export default function KPIChart({
           </div>
           {/* Chart Section */}
           <div className="mb-8 lg:col-span-12">
-            <div className="rounded-md border bg-white p-4">
-              <div className="h-96">
-                <canvas
-                  ref={(el) => {
-                    chartRefs.current["hq-tutela"] = el;
-                  }}
-                />
+            {getChartData.isMultiKabupaten ? (
+              // Multiple charts - one for each kabupaten
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-1 xl:grid-cols-1">
+                {Object.keys(getChartData.kabupatenData).map((kabupaten) => {
+                  return (
+                    <div key={kabupaten} className="rounded-md border bg-white p-4">
+                      <div className="h-80">
+                        <canvas
+                          ref={(el) => {
+                            chartRefs.current[`hq-tutela-${kabupaten}`] = el;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            ) : (
+              // Single chart
+              <div className="rounded-md border bg-white p-4">
+                <WeekRangeSelect
+                  initialWeekRange={weekRange}
+                  onWeekRangeChange={setWeekRange}
+                  minWeek={sliderMin}
+                  maxWeek={sliderMax}
+                  availableWeeks={data?.rows?.map((row) => row.year_week)}
+                />
+                <div className="h-96">
+                  <canvas
+                    ref={(el) => {
+                      chartRefs.current["hq-tutela"] = el;
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
