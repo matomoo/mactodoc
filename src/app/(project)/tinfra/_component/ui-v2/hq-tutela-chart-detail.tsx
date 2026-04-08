@@ -20,7 +20,6 @@ import { useFilterStore } from "@/stores/filterStore";
 import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 import { ErrorState, NoDataState } from "../ui-v1/additional-component";
 import { EnhancedLoadingState } from "../ui-v1/enhanced-loading-state";
-import KPIChartDetail from "./hq-tutela-chart-detail";
 
 Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend);
 
@@ -31,6 +30,9 @@ interface MeasPlos4GData {
     Lose: string;
     Win: string;
     target_kpi: string;
+    provider: string;
+    level: string;
+    metric: string;
   }[];
 }
 
@@ -70,17 +72,16 @@ interface AggCustomProps {
   targetKPIData?: number[];
   apiPath: string;
   fieldToAggregate: string;
-  tutelaProvider: string;
-  tutelaLevel: string;
+  provider: string;
+  level: string;
 }
 
-export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tutelaLevel }: AggCustomProps) {
+export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, level }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region, weekRange, setWeekRange } =
     useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue = fieldToAggregate === "region" ? region : fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
-  console.log(apiPath);
   console.log(fieldToAggregate);
 
   const shouldFetch = Boolean(
@@ -95,19 +96,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
   const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
-    queryKey: [
-      "hq-tutela",
-      apiPath,
-      dateRange2,
-      filter,
-      siteId,
-      nop,
-      kabupaten,
-      batch,
-      region,
-      tutelaProvider,
-      tutelaLevel,
-    ],
+    queryKey: ["hq-tutela", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region, provider, level],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
@@ -121,8 +110,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
           `kabupaten=${kabupaten}`,
           `kecamatan=${kecamatan}`,
           `region=${region}`,
-          `provider=${tutelaProvider}`,
-          `level=${tutelaLevel}`,
+          `provider=${provider}`,
+          `level=${level}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
           `tgl_2=${dateRange2?.split("|")[1]}`,
         ].join("&"),
@@ -136,8 +125,6 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
     refetchOnWindowFocus: false,
     retry: 1,
   });
-
-  console.log(data);
 
   useEffect(() => {
     if (data?.rows) {
@@ -173,164 +160,83 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
 
     // Filter data by week range
     const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
-    console.log("filteredData", filteredData);
 
-    // Check if multiple kabupaten are selected
-    const selectedKabupatenValues =
-      kabupaten
-        ?.split(",")
-        .map((k) => k.trim())
-        .filter((k) => k && k !== "---" && k !== "All") || [];
-    const isMultiKabupaten = selectedKabupatenValues.length > 1;
+    // Group data by provider and create line chart datasets
+    const providerGroups: { [key: string]: any[] } = {};
 
-    if (isMultiKabupaten) {
-      // Group data by kabupaten
-      const kabupatenGroups: { [key: string]: any[] } = {};
+    filteredData.forEach((row) => {
+      const provider = row.provider || "Unknown";
+      if (!providerGroups[provider]) {
+        providerGroups[provider] = [];
+      }
+      providerGroups[provider].push(row);
+    });
 
-      filteredData.forEach((row) => {
-        const location = row.location || "Unknown";
-        if (!kabupatenGroups[location]) {
-          kabupatenGroups[location] = [];
-        }
-        kabupatenGroups[location].push(row);
-      });
+    // Get all unique weeks sorted
+    const allWeeks = [...new Set(filteredData.map((row) => row.year_week))].sort();
+    const labels = allWeeks.map((week) => `Week ${week}`);
 
-      // Process each kabupaten data
-      const kabupatenData: { [key: string]: any } = {};
-      const allLabels = [...new Set(filteredData.map((row) => `Week ${row.year_week}`))].sort();
+    // Define colors for different providers
+    const providerColors = [
+      "rgba(255, 99, 132, 1)", // Red
+      "rgba(54, 162, 235, 1)", // Blue
+      "rgba(255, 206, 86, 1)", // Yellow
+      "rgba(75, 192, 192, 1)", // Green
+      "rgba(153, 102, 255, 1)", // Purple
+      "rgba(255, 159, 64, 1)", // Orange
+    ];
 
-      Object.keys(kabupatenGroups).forEach((kab) => {
-        const kabData = kabupatenGroups[kab];
-        const sortedKabData = [...kabData].sort((a, b) => a.year_week - b.year_week);
+    // Create datasets for each provider (line chart)
+    const datasets = Object.keys(providerGroups).map((provider, index) => {
+      const providerData = providerGroups[provider];
+      const color = providerColors[index % providerColors.length];
 
-        kabupatenData[kab] = {
-          labels: allLabels,
-          datasets: [
-            {
-              label: `${kab} - Lose`,
-              data: allLabels.map((label) => {
-                const weekNum = parseInt(label.replace("Week ", ""), 10);
-                const row = sortedKabData.find((r) => r.year_week === weekNum);
-                return row ? Number(row.Lose) || 0 : 0;
-              }),
-              borderColor: "rgba(255, 99, 132, 1)",
-              backgroundColor: "rgba(255, 99, 132, 0.6)",
-              borderWidth: 2,
-              type: "bar" as const,
-              yAxisID: "y",
-              stack: `${kab}-stack1`,
-              datalabels: { display: true },
-            },
-            {
-              label: `${kab} - Win`,
-              data: allLabels.map((label) => {
-                const weekNum = parseInt(label.replace("Week ", ""), 10);
-                const row = sortedKabData.find((r) => r.year_week === weekNum);
-                return row ? Number(row.Win) || 0 : 0;
-              }),
-              borderColor: "rgba(75, 192, 192, 1)",
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-              borderWidth: 2,
-              type: "bar" as const,
-              yAxisID: "y",
-              stack: `${kab}-stack1`,
-              datalabels: { display: true },
-            },
-            {
-              label: `${kab} - Target KPI`,
-              data: allLabels.map((label) => {
-                const weekNum = parseInt(label.replace("Week ", ""), 10);
-                const row = sortedKabData.find((r) => r.year_week === weekNum);
-                return row ? Number(row.target_kpi) || 0 : 0;
-              }),
-              borderColor: "rgba(54, 162, 235, 1)",
-              backgroundColor: "rgba(54, 162, 235, 0.1)",
-              borderWidth: 2,
-              type: "line" as const,
-              yAxisID: "y",
-              borderDash: [5, 5],
-              tension: 0.1,
-              datalabels: { display: false },
-            },
-          ],
-        };
+      // Create data points for each week
+      const dataPoints = allWeeks.map((week) => {
+        const row = providerData.find((r) => r.year_week === week);
+        // Use the metric value - assuming we want to show a specific metric
+        return row ? Number(row.Win) || 0 : 0; // You can change this to Lose or target_kpi
       });
 
       return {
-        labels: allLabels,
-        datasets: [],
-        weekRange: [normalizedMinWeek, maxWeek],
-        kabupatenData,
-        isMultiKabupaten,
-      };
-    }
-    // Single kabupaten logic (existing)
-    const siteData = filteredData.filter((row: any) => row.location === kabupaten);
-
-    // Sort data by year_week
-    const sortedData = [...siteData].sort((a, b) => a.year_week - b.year_week);
-
-    // Create datasets for the chart
-    const datasets = [
-      {
-        label: "Lose",
-        data: sortedData.map((row) => Number(row.Lose) || 0),
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.6)",
-        borderWidth: 2,
-        type: "bar" as const,
-        yAxisID: "y",
-        stack: "stack1",
-        datalabels: {
-          display: true,
-        },
-      },
-      {
-        label: "Win",
-        data: sortedData.map((row) => Number(row.Win) || 0),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderWidth: 2,
-        type: "bar" as const,
-        yAxisID: "y",
-        stack: "stack1",
-        datalabels: {
-          display: true,
-        },
-      },
-      {
-        label: "Target KPI",
-        data: sortedData.map((row) => Number(row.target_kpi) || 0),
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.1)",
+        label: provider,
+        data: dataPoints,
+        borderColor: color,
+        backgroundColor: color.replace("1)", "0.1)"),
         borderWidth: 2,
         type: "line" as const,
         yAxisID: "y",
-        borderDash: [5, 5],
         tension: 0.1,
+        fill: false,
+        pointRadius: 4,
+        pointHoverRadius: 6,
         datalabels: {
           display: false,
         },
-      },
-    ];
+      };
+    });
 
     return {
-      labels: sortedData.map((row) => `Week ${row.year_week}`),
+      labels,
       datasets,
       weekRange: [normalizedMinWeek, maxWeek],
       kabupatenData: {},
       isMultiKabupaten: false,
     };
-  }, [data, weekRange, kabupaten]);
+  }, [data, weekRange]);
 
   // Unified chart configuration function
   const createChartConfig = useCallback((data: any, title: string): ChartConfiguration => {
     return {
-      type: "bar",
+      type: "line",
       data: data,
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: "index",
+          intersect: false,
+        },
         plugins: {
           datalabels: {
             display: false,
@@ -367,8 +273,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
         scales: {
           x: {
             title: {
-              display: false,
-              text: "Week",
+              display: true,
+              text: "Year Week",
               font: {
                 size: chartJsV1Settings.xAxisTitleFontSize,
                 family: chartJsV1Settings.xAxisTitle,
@@ -386,10 +292,9 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
             display: true,
             position: "left" as const,
             beginAtZero: true,
-            stacked: true,
             title: {
               display: true,
-              text: "Count",
+              text: "Metric Value",
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
                 family: chartJsV1Settings.yAxisTitle,
@@ -420,33 +325,17 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
     const chartData = getChartData;
     if (!chartData.labels.length) return;
 
-    if (chartData.isMultiKabupaten) {
-      // Create multiple charts - one for each kabupaten
-      Object.keys(chartData.kabupatenData).forEach((kabupaten) => {
-        const kabData = chartData.kabupatenData[kabupaten];
-        const chartKey = `hq-tutela-${kabupaten}`;
-        const chartRef = chartRefs.current[chartKey];
-        if (!chartRef) return;
+    // Create single line chart
+    const chartKey = "hq-tutela-detail";
+    const chartRef = chartRefs.current[chartKey];
+    if (!chartRef) return;
 
-        const ctx = chartRef.getContext("2d");
-        if (!ctx) return;
+    const ctx = chartRef.getContext("2d");
+    if (!ctx) return;
 
-        const config = createChartConfig(kabData, `TUTELA - ${fieldToAggregate.toUpperCase()} ${kabupaten}`);
-        chartInstances.current[chartKey] = new Chart(ctx, config);
-      });
-    } else {
-      // Create single chart for single kabupaten
-      const chartKey = "hq-tutela";
-      const chartRef = chartRefs.current[chartKey];
-      if (!chartRef) return;
-
-      const ctx = chartRef.getContext("2d");
-      if (!ctx) return;
-
-      const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} ${kabupaten}`;
-      const config = createChartConfig(chartData, title);
-      chartInstances.current[chartKey] = new Chart(ctx, config);
-    }
+    const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} - Provider Metrics`;
+    const config = createChartConfig(chartData, title);
+    chartInstances.current[chartKey] = new Chart(ctx, config);
 
     return () => {
       Object.keys(chartInstances.current).forEach((key) => {
@@ -456,7 +345,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
         }
       });
     };
-  }, [getChartData, fieldToAggregate, createChartConfig, kabupaten]);
+  }, [getChartData, fieldToAggregate, createChartConfig]);
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
@@ -490,39 +379,18 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
               </div>
             </div>
           </div>
-          {/* Chart Section */}
-          <div className="mb-8 grid grid-cols-1 gap-4 lg:col-span-12 lg:grid-cols-1 xl:grid-cols-1">
-            {getChartData.isMultiKabupaten ? (
-              // Multiple charts - one for each kabupaten
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-1 xl:grid-cols-1">
-                {Object.keys(getChartData.kabupatenData).map((kabupaten) => {
-                  return (
-                    <div key={kabupaten} className="rounded-md border bg-white p-4">
-                      <div className="h-80">
-                        <canvas
-                          ref={(el) => {
-                            chartRefs.current[`hq-tutela-${kabupaten}`] = el;
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              // Single chart
-              <div className="rounded-md border bg-white p-4">
-                <div className="h-96">
-                  <canvas
-                    ref={(el) => {
-                      chartRefs.current["hq-tutela"] = el;
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <KPIChartDetail apiPath={apiPath} fieldToAggregate={fieldToAggregate} provider={"All"} level={"region"} />
+        </div>
+        {/* Chart Section */}
+        <div className="mb-8 lg:col-span-12">
+          {/* Line Chart */}
+          <div className="rounded-md border bg-white p-4">
+            <div className="h-96">
+              <canvas
+                ref={(el) => {
+                  chartRefs.current["hq-tutela-detail"] = el;
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

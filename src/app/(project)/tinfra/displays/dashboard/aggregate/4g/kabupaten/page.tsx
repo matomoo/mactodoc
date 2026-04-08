@@ -23,7 +23,7 @@ export default function Page() {
       <PageAggCustom4GDaily
         apiPath={"aggregate/meas-dy-kabupaten-4g"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
-        apiPathTutela={"aggregate/hq-tutela/kabupaten"}
+        apiPathTutela={"aggregate/hq-tutela/aggr-by-region-kabupaten"}
         aggregateBy="G4_AGGRBY"
         filterLabel=""
         showViewModeState="metrics"
@@ -31,6 +31,8 @@ export default function Page() {
         isShowTa={false}
         isShowHqTutela={true}
         fieldToAggregate="kabupaten"
+        tutelaLevel="Kabupaten"
+        tutelaProvider="Telkomsel"
       />
     </div>
   );

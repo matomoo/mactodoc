@@ -9,9 +9,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
   const searchByParams = searchParams.get(fieldToAggregate) || "---";
+  const searchByParams2 = searchParams.get("level") || "---";
+  const searchByParams3 = searchParams.get("provider") || "---";
 
   // console.log("fieldToAggregate", fieldToAggregate);
   // console.log("searchByParams", searchByParams);
+  // console.log("searchByParams2", searchByParams2);
+  // console.log("searchByParams3", searchByParams3);
 
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
@@ -41,19 +45,24 @@ export async function GET(request: Request) {
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           SELECT 
+              t1.level,    
               t1.location,
               t1.year_week,
+              t1.provider,
+              SUM ( t1.rank ) AS rank,
               COUNT(CASE WHEN t1.status = 'Lose' THEN 1 END) AS "Lose",
               COUNT(CASE WHEN t1.status = 'Win' THEN 1 END) AS "Win",
               '11' AS target_kpi
           FROM
               raw_tutela t1
           WHERE
-              t1.provider = 'Telkomsel'
-              AND t1.level = 'Kabupaten'
-              ${searchByCondition}
+              t1.level = ${searchByParams2}
+              AND t1.provider = ${searchByParams3}
+              ${searchByCondition}              
           GROUP BY
+              t1.level,
               t1.location,
+              t1.provider,
               t1.year_week
           ORDER BY
               t1.year_week;

@@ -20,6 +20,7 @@ import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqTutelaChart from "../ui-v2/hq-tutela-chart";
+import HqTutelaChartDetail from "../ui-v2/hq-tutela-chart-detail";
 
 interface AggCustomProps {
   area?: string;
@@ -34,6 +35,8 @@ interface AggCustomProps {
   isShowTa?: boolean;
   isShowHqTutela?: boolean;
   fieldToAggregate?: string;
+  tutelaLevel?: string;
+  tutelaProvider?: string;
 }
 
 export default function PageAggCustom4GDaily({
@@ -48,6 +51,8 @@ export default function PageAggCustom4GDaily({
   isShowTa = false,
   isShowHqTutela = false,
   fieldToAggregate = "Column to aggregate",
+  tutelaLevel = "site",
+  tutelaProvider = "Telkomsel",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -330,7 +335,12 @@ export default function PageAggCustom4GDaily({
 
                   {/* Performance Tutela Tab Content */}
                   <TabsContent value="hq-tutela" className="mt-0">
-                    <HqTutelaChart apiPath={apiPathTutela} fieldToAggregate={aggMode} />
+                    <HqTutelaChart
+                      apiPath={apiPathTutela}
+                      fieldToAggregate={aggMode}
+                      tutelaLevel={tutelaLevel}
+                      tutelaProvider={tutelaProvider}
+                    />
                   </TabsContent>
 
                   {/* Performance Site Info Tab Content */}
