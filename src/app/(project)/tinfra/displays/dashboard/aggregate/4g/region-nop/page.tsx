@@ -29,7 +29,7 @@ export default function Page() {
         showViewModeState="metrics"
         aggMode="region"
         isShowTa={false}
-        isShowHqTutela={true}
+        isShowHqTutela={false}
         fieldToAggregate="region"
         fieldToAggregate2="nop"
       />
