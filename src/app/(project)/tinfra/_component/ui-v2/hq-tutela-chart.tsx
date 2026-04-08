@@ -338,7 +338,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
             beginAtZero: true,
             stacked: true,
             title: {
-              display: true,
+              display: false,
               text: "Count",
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,

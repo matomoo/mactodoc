@@ -124,7 +124,20 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
   const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
-    queryKey: ["hq-tutela", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region, provider, level],
+    queryKey: [
+      "hq-tutela",
+      apiPath,
+      dateRange2,
+      filter,
+      siteId,
+      nop,
+      kabupaten,
+      batch,
+      region,
+      provider,
+      level,
+      weekRange,
+    ],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
@@ -155,7 +168,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
     retry: 1,
   });
 
-  console.log("Data:", data);
+  // console.log("Data:", data);
 
   useEffect(() => {
     if (data?.rows) {
@@ -338,7 +351,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
         scales: {
           x: {
             title: {
-              display: true,
+              display: false,
               text: "Year Week",
               font: {
                 size: chartJsV1Settings.xAxisTitleFontSize,
@@ -358,7 +371,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
             position: "left" as const,
             beginAtZero: true,
             title: {
-              display: true,
+              display: false,
               text: "Metric Value",
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
@@ -400,7 +413,8 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
       const ctx = chartRef.getContext("2d");
       if (!ctx) return;
 
-      const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} - ${getMetricDisplayName(metric)}`;
+      // const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} ${kabupaten} - ${getMetricDisplayName(metric)}`;
+      const title = `${getMetricDisplayName(metric)}`;
       const config = createChartConfig(metricData, title);
       chartInstances.current[chartKey] = new Chart(ctx, config);
     });
@@ -413,7 +427,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
         }
       });
     };
-  }, [getChartData, fieldToAggregate, createChartConfig, getMetricDisplayName]);
+  }, [getChartData, createChartConfig, getMetricDisplayName]);
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
@@ -427,47 +441,28 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
   const sliderMax = getChartData.weekRange[1] || 202652;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          {/* Week Range Select Section */}
-          <div className="mb-6 lg:col-span-12">
-            <div className="rounded-md border bg-white p-4">
-              <div className="mb-4">
-                <h3 className="mb-4 font-semibold text-gray-800 text-lg">Select Week Range</h3>
-                <WeekRangeSelect
-                  initialWeekRange={weekRange}
-                  onWeekRangeChange={(newWeekRange) => {
-                    setWeekRange(newWeekRange);
-                  }}
-                  minWeek={sliderMin}
-                  maxWeek={sliderMax}
-                  availableWeeks={data?.rows?.map((row) => row.year_week)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Chart Section */}
-        <div className="mb-8 lg:col-span-12">
-          {/* Multiple Charts - One for each metric */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-1 xl:grid-cols-2">
-            {Object.keys(getChartData.kabupatenData).map((metric) => {
-              return (
-                <div key={metric} className="rounded-md border bg-white p-4">
-                  <div className="h-80">
-                    <canvas
-                      ref={(el) => {
-                        chartRefs.current[`hq-tutela-detail-${metric}`] = el;
-                      }}
-                    />
-                  </div>
+    <div className="min-h-screen bg-gray-50 mt-4">
+      {/* <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6"> */}
+      {/* Chart Section */}
+      <div className="mb-8 lg:col-span-12">
+        {/* Multiple Charts - One for each metric */}
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-2 xl:grid-cols-2">
+          {Object.keys(getChartData.kabupatenData).map((metric) => {
+            return (
+              <div key={metric} className="rounded-md border bg-white p-2">
+                <div className="h-80">
+                  <canvas
+                    ref={(el) => {
+                      chartRefs.current[`hq-tutela-detail-${metric}`] = el;
+                    }}
+                  />
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
+      {/* </div> */}
     </div>
   );
 }
