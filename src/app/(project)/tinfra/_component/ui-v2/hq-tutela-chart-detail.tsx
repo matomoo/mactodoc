@@ -33,6 +33,7 @@ interface MeasPlos4GData {
     provider: string;
     level: string;
     metric: string;
+    rank: string;
   }[];
 }
 
@@ -50,6 +51,9 @@ interface ChartDataSet {
     display: boolean;
   };
   tension?: number;
+  fill?: boolean;
+  pointRadius?: number;
+  pointHoverRadius?: number;
 }
 
 interface KabupatenChartData {
@@ -94,6 +98,29 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
   );
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
+
+  // Define metric name mapping
+  const getMetricDisplayName = useCallback((metric: string): string => {
+    const metricMap: { [key: string]: string } = {
+      consistentquality_overall: "Consistent Quality Overall",
+      download_5g: "Download 5G",
+      download_overall: "Download Overall",
+      gamesexperience_5g: "Games Experience 5G",
+      gamesexperience_overall: "Games Experience Overall",
+      onxcoveragesim_5g: "On Xcoverage Sim 5G",
+      onxcoveragesim_overall: "On Xcoverage Sim Overall",
+      reliability_overall: "Reliability Overall",
+      timeon_5g: "Time On 5G",
+      timeon_overall: "Time On Overall",
+      upload_5g: "Upload 5G",
+      upload_overall: "Upload Overall",
+      videoexperience_5g: "Video Experience 5G",
+      videoexperience_overall: "Video Experience Overall",
+      voiceexperience_5g: "Voice Experience 5G",
+      voiceexperience_overall: "Voice Experience Overall",
+    };
+    return metricMap[metric] || metric;
+  }, []);
   const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
@@ -165,67 +192,101 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
     // Filter data by week range
     const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
 
-    // Group data by provider and create line chart datasets
-    const providerGroups: { [key: string]: any[] } = {};
+    // Group data by metric and create separate chart data for each metric
+    const metricGroups: { [key: string]: (typeof data.rows)[0][] } = {};
 
     filteredData.forEach((row) => {
-      const provider = row.provider || "Unknown";
-      if (!providerGroups[provider]) {
-        providerGroups[provider] = [];
+      const metric = row.metric || "Unknown";
+      if (!metricGroups[metric]) {
+        metricGroups[metric] = [];
       }
-      providerGroups[provider].push(row);
+      metricGroups[metric].push(row);
     });
 
-    // Get all unique weeks sorted
     const allWeeks = [...new Set(filteredData.map((row) => row.year_week))].sort();
     const labels = allWeeks.map((week) => `Week ${week}`);
 
-    // Define colors for different providers
-    const providerColors = [
-      "rgba(255, 99, 132, 1)", // Red
-      "rgba(54, 162, 235, 1)", // Blue
-      "rgba(255, 206, 86, 1)", // Yellow
-      "rgba(75, 192, 192, 1)", // Green
-      "rgba(153, 102, 255, 1)", // Purple
-      "rgba(255, 159, 64, 1)", // Orange
-    ];
+    // Define colors for specific providers
+    const getProviderColor = (providerName: string): string => {
+      const provider = providerName.toLowerCase();
+      if (provider === "telkomsel") {
+        return "rgba(255, 99, 132, 1)"; // Red
+      }
+      if (provider === "indosat") {
+        return "rgba(255, 206, 86, 1)"; // Yellow
+      }
+      if (provider === "xl" || provider === "xl axiata") {
+        return "rgba(54, 162, 235, 1)"; // Blue
+      }
+      // Default colors for other providers
+      const defaultColors = [
+        "rgba(75, 192, 192, 1)", // Green
+        "rgba(153, 102, 255, 1)", // Purple
+        "rgba(255, 159, 64, 1)", // Orange
+      ];
+      const index = provider.charCodeAt(0) % defaultColors.length;
+      return defaultColors[index];
+    };
 
-    // Create datasets for each provider (line chart)
-    const datasets = Object.keys(providerGroups).map((provider, index) => {
-      const providerData = providerGroups[provider];
-      const color = providerColors[index % providerColors.length];
+    // Create separate chart data for each metric
+    const metricChartData: { [key: string]: KabupatenChartData } = {};
 
-      // Create data points for each week
-      const dataPoints = allWeeks.map((week) => {
-        const row = providerData.find((r) => r.year_week === week);
-        // Use the metric value - assuming we want to show a specific metric
-        return row ? Number(row.Win) || 0 : 0; // You can change this to Lose or target_kpi
+    Object.keys(metricGroups).forEach((metric) => {
+      const metricData = metricGroups[metric];
+
+      // Group by provider within this metric
+      const providerGroups: { [key: string]: (typeof data.rows)[0][] } = {};
+      metricData.forEach((row) => {
+        const provider = row.provider || "Unknown";
+        if (!providerGroups[provider]) {
+          providerGroups[provider] = [];
+        }
+        providerGroups[provider].push(row);
       });
 
-      return {
-        label: provider,
-        data: dataPoints,
-        borderColor: color,
-        backgroundColor: color.replace("1)", "0.1)"),
-        borderWidth: 2,
-        type: "line" as const,
-        yAxisID: "y",
-        tension: 0.1,
-        fill: false,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        datalabels: {
-          display: false,
-        },
+      // Create datasets for each provider within this metric
+      const datasets: ChartDataSet[] = [];
+
+      Object.keys(providerGroups).forEach((provider) => {
+        const providerData = providerGroups[provider];
+        const color = getProviderColor(provider);
+
+        // Create data points for each week using rank
+        const dataPoints = allWeeks.map((week) => {
+          const row = providerData.find((r) => r.year_week === week);
+          return row ? Number(row.rank) || 0 : 0;
+        });
+
+        datasets.push({
+          label: provider,
+          data: dataPoints,
+          borderColor: color,
+          backgroundColor: color.replace("1)", "0.1)"),
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          datalabels: {
+            display: false,
+          },
+        });
+      });
+
+      metricChartData[metric] = {
+        labels,
+        datasets,
       };
     });
 
     return {
       labels,
-      datasets,
+      datasets: [],
       weekRange: [normalizedMinWeek, maxWeek],
-      kabupatenData: {},
-      isMultiKabupaten: false,
+      kabupatenData: metricChartData,
+      isMultiKabupaten: true, // Use this to indicate multiple metrics
     };
   }, [data, weekRange]);
 
@@ -329,17 +390,20 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
     const chartData = getChartData;
     if (!chartData.labels.length) return;
 
-    // Create single line chart
-    const chartKey = "hq-tutela-detail";
-    const chartRef = chartRefs.current[chartKey];
-    if (!chartRef) return;
+    // Create separate chart for each metric
+    Object.keys(chartData.kabupatenData).forEach((metric) => {
+      const metricData = chartData.kabupatenData[metric];
+      const chartKey = `hq-tutela-detail-${metric}`;
+      const chartRef = chartRefs.current[chartKey];
+      if (!chartRef) return;
 
-    const ctx = chartRef.getContext("2d");
-    if (!ctx) return;
+      const ctx = chartRef.getContext("2d");
+      if (!ctx) return;
 
-    const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} - Provider Metrics`;
-    const config = createChartConfig(chartData, title);
-    chartInstances.current[chartKey] = new Chart(ctx, config);
+      const title = `TUTELA - ${fieldToAggregate?.toUpperCase() ?? ""} - ${getMetricDisplayName(metric)}`;
+      const config = createChartConfig(metricData, title);
+      chartInstances.current[chartKey] = new Chart(ctx, config);
+    });
 
     return () => {
       Object.keys(chartInstances.current).forEach((key) => {
@@ -349,7 +413,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
         }
       });
     };
-  }, [getChartData, fieldToAggregate, createChartConfig]);
+  }, [getChartData, fieldToAggregate, createChartConfig, getMetricDisplayName]);
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
@@ -386,15 +450,21 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
         </div>
         {/* Chart Section */}
         <div className="mb-8 lg:col-span-12">
-          {/* Line Chart */}
-          <div className="rounded-md border bg-white p-4">
-            <div className="h-96">
-              <canvas
-                ref={(el) => {
-                  chartRefs.current["hq-tutela-detail"] = el;
-                }}
-              />
-            </div>
+          {/* Multiple Charts - One for each metric */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-1 xl:grid-cols-2">
+            {Object.keys(getChartData.kabupatenData).map((metric) => {
+              return (
+                <div key={metric} className="rounded-md border bg-white p-4">
+                  <div className="h-80">
+                    <canvas
+                      ref={(el) => {
+                        chartRefs.current[`hq-tutela-detail-${metric}`] = el;
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
