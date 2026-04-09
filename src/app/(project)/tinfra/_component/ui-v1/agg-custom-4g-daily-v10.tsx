@@ -66,13 +66,15 @@ export default function PageAggCustom4GDaily({
 
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue =
-    fieldToAggregate === "nop"
-      ? kabupaten
-      : fieldToAggregate === "kabupaten"
-        ? kabupaten
-        : fieldToAggregate === "kecamatan"
-          ? kecamatan
-          : siteId;
+    fieldToAggregate === "region"
+      ? region
+      : fieldToAggregate === "nop"
+        ? nop
+        : fieldToAggregate === "kabupaten"
+          ? kabupaten
+          : fieldToAggregate === "kecamatan"
+            ? kecamatan
+            : siteId;
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&

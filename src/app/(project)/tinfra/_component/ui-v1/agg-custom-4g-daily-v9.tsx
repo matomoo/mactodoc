@@ -78,13 +78,15 @@ export default function PageAggCustom4GDaily({
 
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue =
-    fieldToAggregate === "nop"
-      ? kabupaten
-      : fieldToAggregate === "kabupaten"
-        ? kabupaten
-        : fieldToAggregate === "kecamatan"
-          ? kecamatan
-          : siteId;
+    fieldToAggregate === "region"
+      ? region
+      : fieldToAggregate === "nop"
+        ? nop
+        : fieldToAggregate === "kabupaten"
+          ? kabupaten
+          : fieldToAggregate === "kecamatan"
+            ? kecamatan
+            : siteId;
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&
@@ -104,6 +106,8 @@ export default function PageAggCustom4GDaily({
     siteId,
     shouldFetch,
     userAgent: navigator.userAgent,
+    timestamp: new Date().toISOString(),
+    localStorage: localStorage.getItem("filter-storage"),
   });
   const { isPending, error, data, isError } = useQuery({
     queryKey: [
