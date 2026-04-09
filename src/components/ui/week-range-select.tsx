@@ -29,10 +29,10 @@ export function WeekRangeSelect({
 
   // Sync with initialWeekRange when it changes (e.g., after cookies cleared)
   useEffect(() => {
-    console.log(
-      "WeekRangeSelect - initialWeekRange changed:",
-      initialWeekRange,
-    );
+    // console.log(
+    //   "WeekRangeSelect - initialWeekRange changed:",
+    //   initialWeekRange,
+    // );
     setStartWeek(initialWeekRange[0]);
     setEndWeek(initialWeekRange[1]);
   }, [initialWeekRange]);
@@ -61,14 +61,14 @@ export function WeekRangeSelect({
   }, [availableWeeks, minWeek, maxWeek]);
 
   // Debug logging for state
-  useEffect(() => {
-    console.log("WeekRangeSelect - state updated:", {
-      startWeek,
-      endWeek,
-      weekOptions: weekOptions.slice(0, 5), // Show first 5 options
-      totalOptions: weekOptions.length,
-    });
-  }, [startWeek, endWeek, weekOptions]);
+  // useEffect(() => {
+  //   console.log("WeekRangeSelect - state updated:", {
+  //     startWeek,
+  //     endWeek,
+  //     weekOptions: weekOptions.slice(0, 5), // Show first 5 options
+  //     totalOptions: weekOptions.length,
+  //   });
+  // }, [startWeek, endWeek, weekOptions]);
 
   // Format week for display
   const formatWeekDisplay = (week: number) => {
@@ -80,54 +80,67 @@ export function WeekRangeSelect({
   // Handle week changes
   const handleStartWeekChange = (value: string) => {
     const newStartWeek = parseInt(value);
-    console.log(
-      `Start week changed from ${formatWeekDisplay(startWeek)} to ${formatWeekDisplay(newStartWeek)}`,
-    );
+    // console.log(
+    //   `Start week changed from ${formatWeekDisplay(startWeek)} to ${formatWeekDisplay(newStartWeek)}`,
+    // );
     setStartWeek(newStartWeek);
 
     // Ensure end week is not before start week
     if (newStartWeek > endWeek) {
       setEndWeek(newStartWeek);
       onWeekRangeChange([newStartWeek, newStartWeek]);
-      console.log(
-        `End week auto-adjusted to ${formatWeekDisplay(newStartWeek)} to maintain valid range`,
-      );
+      // console.log(
+      //   `End week auto-adjusted to ${formatWeekDisplay(newStartWeek)} to maintain valid range`,
+      // );
     } else {
       onWeekRangeChange([newStartWeek, endWeek]);
-      console.log(
-        `Range updated: ${formatWeekDisplay(newStartWeek)} - ${formatWeekDisplay(endWeek)}`,
-      );
+      // console.log(
+      //   `Range updated: ${formatWeekDisplay(newStartWeek)} - ${formatWeekDisplay(endWeek)}`,
+      // );
     }
   };
 
   const handleEndWeekChange = (value: string) => {
     const newEndWeek = parseInt(value);
-    console.log(
-      `End week changed from ${formatWeekDisplay(endWeek)} to ${formatWeekDisplay(newEndWeek)}`,
-    );
+    // console.log(
+    //   `End week changed from ${formatWeekDisplay(endWeek)} to ${formatWeekDisplay(newEndWeek)}`,
+    // );
     setEndWeek(newEndWeek);
 
     // Ensure start week is not after end week
     if (newEndWeek < startWeek) {
       setStartWeek(newEndWeek);
       onWeekRangeChange([newEndWeek, newEndWeek]);
-      console.log(
-        `Start week auto-adjusted to ${formatWeekDisplay(newEndWeek)} to maintain valid range`,
-      );
+      // console.log(
+      //   `Start week auto-adjusted to ${formatWeekDisplay(newEndWeek)} to maintain valid range`,
+      // );
     } else {
       onWeekRangeChange([startWeek, newEndWeek]);
-      console.log(
-        `Range updated: ${formatWeekDisplay(startWeek)} - ${formatWeekDisplay(newEndWeek)}`,
-      );
+      // console.log(
+      //   `Range updated: ${formatWeekDisplay(startWeek)} - ${formatWeekDisplay(newEndWeek)}`,
+      // );
     }
   };
 
   // Filter end week options based on start week
   const endWeekOptions = weekOptions.filter((week) => week >= startWeek);
 
-  console.log("startWeek", startWeek);
-  console.log("weekOptions", weekOptions);
-  console.log("endWeekOptions", endWeekOptions);
+  // Ensure endWeek is always valid and defaults to last available option
+  useEffect(() => {
+    if (endWeekOptions.length > 0 && !endWeekOptions.includes(endWeek)) {
+      const lastWeek = endWeekOptions[endWeekOptions.length - 1];
+      // console.log(
+      //   "WeekRangeSelect - Setting endWeek to last available:",
+      //   lastWeek,
+      // );
+      setEndWeek(lastWeek);
+      onWeekRangeChange([startWeek, lastWeek]);
+    }
+  }, [endWeekOptions, endWeek, startWeek, onWeekRangeChange]);
+
+  // console.log("startWeek", startWeek);
+  // console.log("weekOptions", weekOptions);
+  // console.log("endWeekOptions", endWeekOptions);
 
   return (
     <div className="week-range-select space-y-4">

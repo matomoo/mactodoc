@@ -97,18 +97,18 @@ export default function PageAggCustom4GDaily({
   );
 
   // Debug logging for troubleshooting
-  console.log("Debug - Filter values:", {
-    dateRange2,
-    filterValue,
-    fieldToAggregate,
-    region,
-    kabupaten,
-    siteId,
-    shouldFetch,
-    userAgent: navigator.userAgent,
-    timestamp: new Date().toISOString(),
-    localStorage: localStorage.getItem("filter-storage"),
-  });
+  // console.log("Debug - Filter values:", {
+  //   dateRange2,
+  //   filterValue,
+  //   fieldToAggregate,
+  //   region,
+  //   kabupaten,
+  //   siteId,
+  //   shouldFetch,
+  //   userAgent: navigator.userAgent,
+  //   timestamp: new Date().toISOString(),
+  //   localStorage: localStorage.getItem("filter-storage"),
+  // });
   const { isPending, error, data, isError } = useQuery({
     queryKey: [
       "PageAggCustom4GDaily",

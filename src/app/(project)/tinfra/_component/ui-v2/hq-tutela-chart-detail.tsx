@@ -87,7 +87,7 @@ export default function KPIChartDetail({ apiPath, fieldToAggregate, provider, le
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue = fieldToAggregate === "region" ? region : fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
-  console.log(fieldToAggregate);
+  // console.log(fieldToAggregate);
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&

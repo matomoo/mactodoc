@@ -95,19 +95,19 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
   const [allSites, setAllSites] = useState<string[]>([]);
 
   // Debug logging for troubleshooting
-  console.log("Debug - Filter values - hq-tutela-chart:", {
-    dateRange2,
-    filterValue,
-    fieldToAggregate,
-    region,
-    kabupaten,
-    siteId,
-    shouldFetch,
-    weekRange,
-    userAgent: navigator.userAgent,
-    timestamp: new Date().toISOString(),
-    localStorage: localStorage.getItem("filter-storage"),
-  });
+  // console.log("Debug - Filter values - hq-tutela-chart:", {
+  //   dateRange2,
+  //   filterValue,
+  //   fieldToAggregate,
+  //   region,
+  //   kabupaten,
+  //   siteId,
+  //   shouldFetch,
+  //   weekRange,
+  //   userAgent: navigator.userAgent,
+  //   timestamp: new Date().toISOString(),
+  //   localStorage: localStorage.getItem("filter-storage"),
+  // });
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
     queryKey: [

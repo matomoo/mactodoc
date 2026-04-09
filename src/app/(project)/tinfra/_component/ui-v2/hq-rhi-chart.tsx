@@ -93,7 +93,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
   const filterValue = fieldToAggregate === "region" ? region : fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
   // console.log(apiPath);
-  console.log(fieldToAggregate);
+  // console.log(fieldToAggregate);
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&
@@ -423,7 +423,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
 
     // Unified chart creation - iterate through all kabupaten data
     Object.keys(chartData.kabupatenData).forEach((kabupaten) => {
-      console.log("Creating chart for", kabupaten);
+      // console.log("Creating chart for", kabupaten);
       const kabData = chartData.kabupatenData[kabupaten];
       const chartKey = `hq-rhi-${kabupaten}`;
       const chartRef = chartRefs.current[chartKey];
