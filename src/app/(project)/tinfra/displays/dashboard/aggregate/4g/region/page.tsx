@@ -35,6 +35,8 @@ export default function Page() {
         fieldToAggregate="region"
         tutelaLevel="Region"
         tutelaProvider="Telkomsel"
+        rhiLevel="Region"
+        rhiProvider="Telkomsel"
       />
     </div>
   );

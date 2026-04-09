@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import {
   CategoryScale,
   Chart,
   type ChartConfiguration,
+  type ChartOptions,
   Legend,
   LinearScale,
   LineElement,
@@ -25,11 +26,23 @@ Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend);
 
 interface MeasPlos4GData {
   rows: {
-    location: string;
-    year_week: number;
-    Lose: string;
-    Win: string;
-    target_kpi: string;
+    yearweek: number;
+    fail2g: string;
+    good2g: string;
+    total2g: string;
+    fail4g: string;
+    good4g: string;
+    total4g: string;
+    fail5g: string;
+    good5g: string;
+    total5g: string;
+    totalfail: string;
+    totalgood: string;
+    totalall: string;
+    percent_rhi_all: string;
+    target_rhi: string;
+    rhiLevel?: string;
+    rhiProvider?: string;
   }[];
 }
 
@@ -59,7 +72,7 @@ interface ChartData {
   datasets: ChartDataSet[];
   weekRange: [number, number];
   kabupatenData: { [key: string]: KabupatenChartData };
-  isMultiKabupaten: boolean;
+  isMultiValues: boolean;
 }
 
 interface AggCustomProps {
@@ -80,7 +93,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
   const filterValue = fieldToAggregate === "region" ? region : fieldToAggregate === "kabupaten" ? kabupaten : siteId;
 
   // console.log(apiPath);
-  // console.log(fieldToAggregate);
+  console.log(fieldToAggregate);
 
   const shouldFetch = Boolean(
     dateRange2?.includes("|") &&
@@ -91,7 +104,6 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
   );
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
-  const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
     queryKey: ["hq-rhi", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region, rhiProvider, rhiLevel],
@@ -124,17 +136,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
     retry: 1,
   });
 
-  console.log(data);
-
-  useEffect(() => {
-    if (data?.rows) {
-      const uniqueSites: string[] = Array.from(
-        // biome-ignore lint/suspicious/noExplicitAny: <none>
-        new Set(data.rows.map((row: any) => row.location)),
-      ).sort() as string[];
-      setAllSites(uniqueSites);
-    }
-  }, [data]);
+  //   console.log(data);
 
   // Process chart data - moved before conditional returns
   const getChartData = useMemo((): ChartData => {
@@ -144,12 +146,12 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
         datasets: [],
         weekRange: [202601, 202652],
         kabupatenData: {},
-        isMultiKabupaten: false,
+        isMultiValues: false,
       };
     }
 
     // Get min and max week from data and normalize
-    const weeks = data.rows.map((row) => row.year_week);
+    const weeks = data.rows.map((row) => row.yearweek);
     const minWeek = Math.min(...weeks);
     const maxWeek = Math.max(...weeks);
 
@@ -159,90 +161,121 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
     const normalizedMinWeek = minWeekNum === 53 ? (minWeekYear + 1) * 100 + 1 : minWeek;
 
     // Filter data by week range
-    const filteredData = data.rows.filter((row) => row.year_week >= weekRange[0] && row.year_week <= weekRange[1]);
+    const filteredData = data.rows.filter((row) => row.yearweek >= weekRange[0] && row.yearweek <= weekRange[1]);
     // console.log("filteredData", filteredData);
 
     // Check if multiple kabupaten are selected
     const selectedKabupatenValues =
-      kabupaten
+      filterValue
         ?.split(",")
         .map((k) => k.trim())
         .filter((k) => k && k !== "---" && k !== "All") || [];
-    const isMultiKabupaten = selectedKabupatenValues.length > 1;
+    const isMultiValues = selectedKabupatenValues.length > 1;
 
     // Group data by kabupaten (unified approach for both single and multi)
-    const kabupatenGroups: { [key: string]: any[] } = {};
+    // biome-ignore lint/suspicious/noExplicitAny: <none>
+    const valueGroups: { [key: string]: any[] } = {};
 
-    if (isMultiKabupaten) {
-      // Multiple kabupaten: group by location
-      filteredData.forEach((row) => {
-        const location = row.location || "Unknown";
-        if (!kabupatenGroups[location]) {
-          kabupatenGroups[location] = [];
-        }
-        kabupatenGroups[location].push(row);
+    if (isMultiValues) {
+      // Multiple kabupaten: group by location (since new API doesn't have location, create groups based on kabupaten selection)
+      selectedKabupatenValues.forEach((kabValue) => {
+        valueGroups[kabValue] = filteredData;
       });
     } else {
-      // Single kabupaten: use the selected kabupaten as key
-      const siteData = filteredData.filter((row: any) => row.location === kabupaten);
-      if (siteData.length > 0) {
-        kabupatenGroups[kabupaten || "Default"] = siteData;
+      // Single selection: use the filterValue as key (supports region, kabupaten, or siteId)
+      if (filterValue && filterValue !== "---" && filterValue !== "All") {
+        valueGroups[filterValue] = filteredData;
+      } else {
+        valueGroups.Default = filteredData;
       }
     }
 
     // Process each kabupaten data (unified logic)
+    // biome-ignore lint/suspicious/noExplicitAny: <none>
     const kabupatenData: { [key: string]: any } = {};
-    const allLabels = [...new Set(filteredData.map((row) => `Week ${row.year_week}`))].sort();
+    const allLabels = [...new Set(filteredData.map((row) => `Week ${row.yearweek}`))].sort();
 
-    Object.keys(kabupatenGroups).forEach((kab) => {
-      const kabData = kabupatenGroups[kab];
-      const sortedKabData = [...kabData].sort((a, b) => a.year_week - b.year_week);
+    Object.keys(valueGroups).forEach((kab) => {
+      const kabData = valueGroups[kab];
+      const sortedKabData = [...kabData].sort((a, b) => a.yearweek - b.yearweek);
 
       kabupatenData[kab] = {
         labels: allLabels,
         datasets: [
           {
-            label: `${kab} - Lose`,
+            label: `Fail 2G`,
             data: allLabels.map((label) => {
               const weekNum = parseInt(label.replace("Week ", ""), 10);
-              const row = sortedKabData.find((r) => r.year_week === weekNum);
-              return row ? Number(row.Lose) || 0 : 0;
+              const row = sortedKabData.find((r) => r.yearweek === weekNum);
+              return row ? Number(row.fail2g) || 0 : 0;
             }),
             borderColor: "rgba(255, 99, 132, 1)",
             backgroundColor: "rgba(255, 99, 132, 0.6)",
             borderWidth: 2,
             type: "bar" as const,
             yAxisID: "y",
-            stack: `${kab}-stack1`,
+            stack: `${kab}-stack`,
             datalabels: { display: true },
           },
           {
-            label: `${kab} - Win`,
+            label: `Fail 4G`,
             data: allLabels.map((label) => {
               const weekNum = parseInt(label.replace("Week ", ""), 10);
-              const row = sortedKabData.find((r) => r.year_week === weekNum);
-              return row ? Number(row.Win) || 0 : 0;
+              const row = sortedKabData.find((r) => r.yearweek === weekNum);
+              return row ? Number(row.fail4g) || 0 : 0;
             }),
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            borderColor: "rgba(255, 159, 64, 1)",
+            backgroundColor: "rgba(255, 159, 64, 0.6)",
             borderWidth: 2,
             type: "bar" as const,
             yAxisID: "y",
-            stack: `${kab}-stack1`,
+            stack: `${kab}-stack`,
             datalabels: { display: true },
           },
           {
-            label: `${kab} - Target KPI`,
+            label: `Fail 5G`,
             data: allLabels.map((label) => {
               const weekNum = parseInt(label.replace("Week ", ""), 10);
-              const row = sortedKabData.find((r) => r.year_week === weekNum);
-              return row ? Number(row.target_kpi) || 0 : 0;
+              const row = sortedKabData.find((r) => r.yearweek === weekNum);
+              return row ? Number(row.fail5g) || 0 : 0;
+            }),
+            borderColor: "rgba(255, 205, 86, 1)",
+            backgroundColor: "rgba(255, 205, 86, 0.6)",
+            borderWidth: 2,
+            type: "bar" as const,
+            yAxisID: "y",
+            stack: `${kab}-stack`,
+            datalabels: { display: true },
+          },
+          {
+            label: `RHI All (%)`,
+            data: allLabels.map((label) => {
+              const weekNum = parseInt(label.replace("Week ", ""), 10);
+              const row = sortedKabData.find((r) => r.yearweek === weekNum);
+              return row ? Number(row.percent_rhi_all) || 0 : 0;
+            }),
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.1)",
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            type: "line" as const,
+            yAxisID: "y1",
+            tension: 0.3,
+            datalabels: { display: false },
+          },
+          {
+            label: `Target RHI (%)`,
+            data: allLabels.map((label) => {
+              const weekNum = parseInt(label.replace("Week ", ""), 10);
+              const row = sortedKabData.find((r) => r.yearweek === weekNum);
+              return row ? Number(row.target_rhi) || 0 : 0;
             }),
             borderColor: "rgba(54, 162, 235, 1)",
             backgroundColor: "rgba(54, 162, 235, 0.1)",
             borderWidth: 2,
             type: "line" as const,
-            yAxisID: "y",
+            yAxisID: "y1",
             borderDash: [5, 5],
             tension: 0.1,
             datalabels: { display: false },
@@ -256,94 +289,123 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
       datasets: [],
       weekRange: [normalizedMinWeek, maxWeek],
       kabupatenData,
-      isMultiKabupaten,
+      isMultiValues,
     };
-  }, [data, weekRange, kabupaten]);
+  }, [data, weekRange, filterValue]);
 
   // Unified chart configuration function
-  const createChartConfig = useCallback((data: any, title: string): ChartConfiguration => {
-    return {
-      type: "bar",
-      data: data,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          datalabels: {
-            display: false,
-          },
-          legend: {
-            position: "top" as const,
-            labels: {
-              usePointStyle: true,
-              font: {
-                size: chartJsV1Settings.legendFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.legendFontWeight,
-              },
-            },
-          },
-          title: {
-            display: true,
-            text: title,
-            font: {
-              size: chartJsV1Settings.titleFontSize,
-              weight: chartJsV1Settings.titleFontWeight,
-            },
-          },
-          tooltip: {
-            backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
-            titleFont: {
-              size: chartJsV1Settings.tooltipTitleFontSize,
-            },
-            bodyFont: {
-              size: chartJsV1Settings.tooltipBodyFontSize,
-            },
-          },
-        },
-        scales: {
-          x: {
-            title: {
+  const createChartConfig = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: <none>
+    (data: any, title: string): ChartConfiguration => {
+      return {
+        type: "bar",
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: {
               display: false,
-              text: "Week",
-              font: {
-                size: chartJsV1Settings.xAxisTitleFontSize,
-                family: chartJsV1Settings.xAxisTitle,
+            },
+            legend: {
+              position: "top" as const,
+              labels: {
+                usePointStyle: true,
+                font: {
+                  size: chartJsV1Settings.legendFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.legendFontWeight,
+                },
               },
             },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.xAxisTickFontSize,
-                family: chartJsV1Settings.xAxisTick,
-              },
-            },
-          },
-          y: {
-            type: "linear" as const,
-            display: true,
-            position: "left" as const,
-            beginAtZero: true,
-            stacked: true,
             title: {
-              display: false,
-              text: "Count",
+              display: true,
+              text: title,
               font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.yAxisTitle,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
+                size: chartJsV1Settings.titleFontSize,
+                weight: chartJsV1Settings.titleFontWeight,
               },
             },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
-                family: chartJsV1Settings.yAxisTick,
+            tooltip: {
+              backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+              titleFont: {
+                size: chartJsV1Settings.tooltipTitleFontSize,
+              },
+              bodyFont: {
+                size: chartJsV1Settings.tooltipBodyFontSize,
               },
             },
           },
+          scales: {
+            x: {
+              title: {
+                display: false,
+                text: "Week",
+                font: {
+                  size: chartJsV1Settings.xAxisTitleFontSize,
+                  family: chartJsV1Settings.xAxisTitle,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.xAxisTickFontSize,
+                  family: chartJsV1Settings.xAxisTick,
+                },
+              },
+            },
+            y: {
+              type: "linear" as const,
+              display: true,
+              position: "left" as const,
+              stacked: true,
+              title: {
+                display: true,
+                text: "Fail Count",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+              },
+            },
+            y1: {
+              type: "linear" as const,
+              display: true,
+              position: "right" as const,
+              min: 0,
+              max: 1,
+              title: {
+                display: true,
+                text: "RHI Percentage",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                callback: (value: number) => `${(value * 100).toFixed(1)}%`,
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+            },
+          } as ChartOptions["scales"],
         },
-      },
-    };
-  }, []);
+      };
+    },
+    [],
+  );
 
   useEffect(() => {
     // Clean up existing charts
@@ -357,8 +419,11 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
     const chartData = getChartData;
     if (!chartData.labels.length) return;
 
+    // console.log("chartData", chartData);
+
     // Unified chart creation - iterate through all kabupaten data
     Object.keys(chartData.kabupatenData).forEach((kabupaten) => {
+      console.log("Creating chart for", kabupaten);
       const kabData = chartData.kabupatenData[kabupaten];
       const chartKey = `hq-rhi-${kabupaten}`;
       const chartRef = chartRefs.current[chartKey];
@@ -367,7 +432,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
       const ctx = chartRef.getContext("2d");
       if (!ctx) return;
 
-      const config = createChartConfig(kabData, `TUTELA - ${fieldToAggregate.toUpperCase()} ${kabupaten}`);
+      const config = createChartConfig(kabData, `RHI - ${fieldToAggregate.toUpperCase()} ${filterValue}`);
       chartInstances.current[chartKey] = new Chart(ctx, config);
     });
 
@@ -379,7 +444,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
         }
       });
     };
-  }, [getChartData, fieldToAggregate, createChartConfig]);
+  }, [getChartData, fieldToAggregate, createChartConfig, filterValue]);
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
@@ -391,6 +456,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
   // Get week range from data or fallback to 2026
   const sliderMin = getChartData.weekRange[0] || 202601;
   const sliderMax = getChartData.weekRange[1] || 202652;
+
+  // console.log(getChartData);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -408,7 +475,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
                   }}
                   minWeek={sliderMin}
                   maxWeek={sliderMax}
-                  availableWeeks={data?.rows?.map((row) => row.year_week)}
+                  availableWeeks={data?.rows?.map((row) => row.yearweek)}
                 />
               </div>
             </div>

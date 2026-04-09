@@ -40,6 +40,8 @@ interface AggCustomProps {
   fieldToAggregate?: string;
   tutelaLevel?: string;
   tutelaProvider?: string;
+  rhiLevel?: string;
+  rhiProvider?: string;
 }
 
 export default function PageAggCustom4GDaily({
@@ -58,6 +60,8 @@ export default function PageAggCustom4GDaily({
   fieldToAggregate = "Column to aggregate",
   tutelaLevel = "site",
   tutelaProvider = "Telkomsel",
+  rhiLevel = "site",
+  rhiProvider = "Telkomsel",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -89,6 +93,18 @@ export default function PageAggCustom4GDaily({
       filterValue !== "---" &&
       filterValue !== "All",
   );
+
+  // Debug logging for troubleshooting
+  console.log("Debug - Filter values:", {
+    dateRange2,
+    filterValue,
+    fieldToAggregate,
+    region,
+    kabupaten,
+    siteId,
+    shouldFetch,
+    userAgent: navigator.userAgent,
+  });
   const { isPending, error, data, isError } = useQuery({
     queryKey: [
       "PageAggCustom4GDaily",
@@ -358,8 +374,8 @@ export default function PageAggCustom4GDaily({
                       <HqRhiChart
                         apiPath={apiPathRhi}
                         fieldToAggregate={fieldToAggregate}
-                        rhiProvider={tutelaProvider}
-                        rhiLevel={tutelaLevel}
+                        rhiProvider={rhiProvider}
+                        rhiLevel={rhiLevel}
                       />
                     </TabsContent>
                   )}

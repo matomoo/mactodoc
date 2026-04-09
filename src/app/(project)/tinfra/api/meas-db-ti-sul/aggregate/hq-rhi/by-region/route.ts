@@ -55,6 +55,7 @@ export async function GET(request: Request) {
           aggregated AS (
               SELECT
                   t1.weeknum AS yearweek,
+                  t1.regional AS region,
                   COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL2G,
                   COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD2G,
                   COUNT(CASE WHEN t1.tech = '2g' THEN 1 END) AS TOTAL2G,
@@ -70,7 +71,7 @@ export async function GET(request: Request) {
                   raw_rhi t1
                   LEFT JOIN tref_agg tref ON t1.site_id = tref.siteid 
               GROUP BY
-                  t1.weeknum
+                  t1.weeknum, t1.regional
           )
           SELECT
               agg.*,
