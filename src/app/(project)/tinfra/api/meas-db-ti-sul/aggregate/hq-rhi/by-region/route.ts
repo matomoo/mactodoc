@@ -42,27 +42,46 @@ export async function GET(request: Request) {
     }
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
-          SELECT 
-              t1.level,    
-              t1.location,
-              t1.provider,
-              t1.year_week,
-              COUNT(CASE WHEN t1.status = 'Lose' THEN 1 END) AS "Lose",
-              COUNT(CASE WHEN t1.status = 'Win' THEN 1 END) AS "Win",
-              '11' AS target_kpi
+          WITH tref_agg AS (
+              SELECT DISTINCT ON (siteid)
+                  siteid,
+                  kabupaten,
+                  nop,
+                  kecamatan,
+                  region 
+              FROM ref_cell_4g
+              ORDER BY siteid
+          ),
+          aggregated AS (
+              SELECT
+                  t1.weeknum AS yearweek,
+                  COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL2G,
+                  COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD2G,
+                  COUNT(CASE WHEN t1.tech = '2g' THEN 1 END) AS TOTAL2G,
+                  COUNT(CASE WHEN t1.tech = '4g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL4G,
+                  COUNT(CASE WHEN t1.tech = '4g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD4G,
+                  COUNT(CASE WHEN t1.tech = '4g' THEN 1 END) AS TOTAL4G,
+                  COUNT(CASE WHEN t1.tech = '5g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL5G,
+                  COUNT(CASE WHEN t1.tech = '5g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD5G,
+                  COUNT(CASE WHEN t1.tech = '5g' THEN 1 END) AS TOTAL5G,
+                  COUNT(CASE WHEN t1.remark_week = 'FAIL' THEN 1 END) AS TOTALFAIL,
+                  COUNT(CASE WHEN t1.remark_week = 'GOOD' THEN 1 END) AS TOTALGOOD
+              FROM
+                  raw_rhi t1
+                  LEFT JOIN tref_agg tref ON t1.site_id = tref.siteid 
+              GROUP BY
+                  t1.weeknum
+          )
+          SELECT
+              agg.*,
+              (agg.TOTALFAIL + agg.TOTALGOOD) AS TOTALALL,
+              ROUND(1.0 * agg.TOTALGOOD / NULLIF(agg.TOTALFAIL + agg.TOTALGOOD, 0), 4) AS PERCENT_RHI_ALL,
+              target.target_rhi
           FROM
-              raw_tutela t1
-          WHERE
-              t1.provider = ${searchByParams3}
-              AND t1.level = ${searchByParams2}
-              ${searchByCondition}
-          GROUP BY
-              t1.level,
-              t1.location,
-              t1.provider,
-              t1.year_week
+              aggregated agg
+              LEFT JOIN target_kpi_hq target ON agg.yearweek = target.year_week
           ORDER BY
-              t1.year_week;
+              agg.yearweek;
         `);
 
     // console.log("Search params:", { fieldToAggregate, searchByParams, tgl_1, tgl_2 });

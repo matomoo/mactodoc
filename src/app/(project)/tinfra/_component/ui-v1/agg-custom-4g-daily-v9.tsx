@@ -21,12 +21,14 @@ import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqTutelaChart from "../ui-v2/hq-tutela-chart";
 import HqTutelaChartDetail from "../ui-v2/hq-tutela-chart-detail";
+import HqRhiChart from "../ui-v2/hq-rhi-chart";
 
 interface AggCustomProps {
   area?: string;
   apiPath: string;
   apiPathPloss?: string;
   apiPathTutela?: string;
+  apiPathRhi?: string;
   aggregateBy?: string;
   filterLabel?: string;
   columnNumber?: number;
@@ -34,6 +36,7 @@ interface AggCustomProps {
   aggMode?: string;
   isShowTa?: boolean;
   isShowHqTutela?: boolean;
+  isShowHqRhi?: boolean;
   fieldToAggregate?: string;
   tutelaLevel?: string;
   tutelaProvider?: string;
@@ -43,6 +46,7 @@ export default function PageAggCustom4GDaily({
   apiPath,
   apiPathPloss = "---",
   apiPathTutela = "---",
+  apiPathRhi = "---",
   aggregateBy = "CELL_NAME",
   filterLabel = "Cell Name",
   columnNumber = 2,
@@ -50,6 +54,7 @@ export default function PageAggCustom4GDaily({
   aggMode = "custom-cluster",
   isShowTa = false,
   isShowHqTutela = false,
+  isShowHqRhi = false,
   fieldToAggregate = "Column to aggregate",
   tutelaLevel = "site",
   tutelaProvider = "Telkomsel",
@@ -249,6 +254,11 @@ export default function PageAggCustom4GDaily({
                           TUTELA
                         </TabsTrigger>
                       )}
+                      {isShowHqRhi && (
+                        <TabsTrigger value="hq-rhi" className="px-6">
+                          RHI
+                        </TabsTrigger>
+                      )}
                       {/* <TabsTrigger value="site-info-4g" className="px-6">
                           Site Info
                         </TabsTrigger> */}
@@ -343,10 +353,16 @@ export default function PageAggCustom4GDaily({
                     />
                   </TabsContent>
 
-                  {/* Performance Site Info Tab Content */}
-                  {/* <TabsContent value="site-info-4g" className="mt-0">
-                      <PageSiteInfo apiPath={"site-info-4g"} aggregateBy="CELL_NAME" filterLabel="Cell Name" />
-                    </TabsContent> */}
+                  {isShowHqRhi && (
+                    <TabsContent value="hq-rhi" className="mt-0">
+                      <HqRhiChart
+                        apiPath={apiPathRhi}
+                        fieldToAggregate={fieldToAggregate}
+                        rhiProvider={tutelaProvider}
+                        rhiLevel={tutelaLevel}
+                      />
+                    </TabsContent>
+                  )}
                 </Tabs>
               </>
             )}

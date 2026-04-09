@@ -24,12 +24,14 @@ export default function Page() {
         apiPath={"aggregate/meas-dy-dynamic-4g"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
         apiPathTutela={"aggregate/hq-tutela/aggr-by-region-kabupaten"}
+        apiPathRhi={"aggregate/hq-rhi/by-region"}
         aggregateBy="G4_AGGRBY"
         filterLabel=""
         showViewModeState="metrics"
         aggMode="region"
         isShowTa={false}
         isShowHqTutela={true}
+        isShowHqRhi={true}
         fieldToAggregate="region"
         tutelaLevel="Region"
         tutelaProvider="Telkomsel"

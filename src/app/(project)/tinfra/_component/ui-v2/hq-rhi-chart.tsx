@@ -20,7 +20,6 @@ import { useFilterStore } from "@/stores/filterStore";
 import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 import { ErrorState, NoDataState } from "../ui-v1/additional-component";
 import { EnhancedLoadingState } from "../ui-v1/enhanced-loading-state";
-import KPIChartDetail from "./hq-tutela-chart-detail";
 
 Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend);
 
@@ -70,11 +69,11 @@ interface AggCustomProps {
   targetKPIData?: number[];
   apiPath: string;
   fieldToAggregate: string;
-  tutelaProvider: string;
-  tutelaLevel: string;
+  rhiProvider: string;
+  rhiLevel: string;
 }
 
-export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tutelaLevel }: AggCustomProps) {
+export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLevel }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region, weekRange, setWeekRange } =
     useFilterStore();
   // Get the appropriate filter value based on fieldToAggregate
@@ -95,19 +94,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
   const [allSites, setAllSites] = useState<string[]>([]);
 
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
-    queryKey: [
-      "hq-tutela",
-      apiPath,
-      dateRange2,
-      filter,
-      siteId,
-      nop,
-      kabupaten,
-      batch,
-      region,
-      tutelaProvider,
-      tutelaLevel,
-    ],
+    queryKey: ["hq-rhi", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region, rhiProvider, rhiLevel],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
@@ -121,8 +108,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
           `kabupaten=${kabupaten}`,
           `kecamatan=${kecamatan}`,
           `region=${region}`,
-          `provider=${tutelaProvider}`,
-          `level=${tutelaLevel}`,
+          `provider=${rhiProvider}`,
+          `level=${rhiLevel}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
           `tgl_2=${dateRange2?.split("|")[1]}`,
         ].join("&"),
@@ -373,7 +360,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
     // Unified chart creation - iterate through all kabupaten data
     Object.keys(chartData.kabupatenData).forEach((kabupaten) => {
       const kabData = chartData.kabupatenData[kabupaten];
-      const chartKey = `hq-tutela-${kabupaten}`;
+      const chartKey = `hq-rhi-${kabupaten}`;
       const chartRef = chartRefs.current[chartKey];
       if (!chartRef) return;
 
@@ -436,17 +423,10 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
                     <div className="h-80">
                       <canvas
                         ref={(el) => {
-                          chartRefs.current[`hq-tutela-${kabupaten}`] = el;
+                          chartRefs.current[`hq-rhi-${kabupaten}`] = el;
                         }}
                       />
                     </div>
-                    <KPIChartDetail
-                      apiPath={"aggregate/hq-tutela/by-metric"}
-                      fieldToAggregate={fieldToAggregate}
-                      provider={"All"}
-                      level={tutelaLevel}
-                      location={filterValue || "kabupaten"}
-                    />
                   </div>
                 );
               })}
