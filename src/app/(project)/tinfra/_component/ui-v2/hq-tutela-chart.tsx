@@ -60,7 +60,7 @@ interface ChartData {
   datasets: ChartDataSet[];
   weekRange: [number, number];
   kabupatenData: { [key: string]: KabupatenChartData };
-  isMultiKabupaten: boolean;
+  isMultiValues: boolean;
 }
 
 interface AggCustomProps {
@@ -94,6 +94,21 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
   const [allSites, setAllSites] = useState<string[]>([]);
 
+  // Debug logging for troubleshooting
+  console.log("Debug - Filter values - hq-tutela-chart:", {
+    dateRange2,
+    filterValue,
+    fieldToAggregate,
+    region,
+    kabupaten,
+    siteId,
+    shouldFetch,
+    weekRange,
+    userAgent: navigator.userAgent,
+    timestamp: new Date().toISOString(),
+    localStorage: localStorage.getItem("filter-storage"),
+  });
+
   const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
     queryKey: [
       "hq-tutela",
@@ -107,6 +122,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
       region,
       tutelaProvider,
       tutelaLevel,
+      shouldFetch, // Add shouldFetch to queryKey to ensure re-fetch when it changes
     ],
     queryFn: async () => {
       if (!shouldFetch) {
@@ -137,7 +153,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
     retry: 1,
   });
 
-  console.log(data);
+  // console.log(data);
 
   useEffect(() => {
     if (data?.rows) {
@@ -157,7 +173,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
         datasets: [],
         weekRange: [202601, 202652],
         kabupatenData: {},
-        isMultiKabupaten: false,
+        isMultiValues: false,
       };
     }
 
@@ -177,29 +193,30 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
 
     // Check if multiple kabupaten are selected
     const selectedKabupatenValues =
-      kabupaten
+      filterValue
         ?.split(",")
         .map((k) => k.trim())
         .filter((k) => k && k !== "---" && k !== "All") || [];
-    const isMultiKabupaten = selectedKabupatenValues.length > 1;
+    const isMultiValues = selectedKabupatenValues.length > 1;
 
     // Group data by kabupaten (unified approach for both single and multi)
-    const kabupatenGroups: { [key: string]: any[] } = {};
+    const valueGroups: { [key: string]: any[] } = {};
 
-    if (isMultiKabupaten) {
+    if (isMultiValues) {
       // Multiple kabupaten: group by location
       filteredData.forEach((row) => {
         const location = row.location || "Unknown";
-        if (!kabupatenGroups[location]) {
-          kabupatenGroups[location] = [];
+        if (!valueGroups[location]) {
+          valueGroups[location] = [];
         }
-        kabupatenGroups[location].push(row);
+        valueGroups[location].push(row);
       });
     } else {
       // Single kabupaten: use the selected kabupaten as key
-      const siteData = filteredData.filter((row: any) => row.location === kabupaten);
-      if (siteData.length > 0) {
-        kabupatenGroups[kabupaten || "Default"] = siteData;
+      if (filterValue && filterValue !== "---" && filterValue !== "All") {
+        valueGroups[filterValue] = filteredData;
+      } else {
+        valueGroups.Default = filteredData;
       }
     }
 
@@ -207,8 +224,8 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
     const kabupatenData: { [key: string]: any } = {};
     const allLabels = [...new Set(filteredData.map((row) => `Week ${row.year_week}`))].sort();
 
-    Object.keys(kabupatenGroups).forEach((kab) => {
-      const kabData = kabupatenGroups[kab];
+    Object.keys(valueGroups).forEach((kab) => {
+      const kabData = valueGroups[kab];
       const sortedKabData = [...kabData].sort((a, b) => a.year_week - b.year_week);
 
       kabupatenData[kab] = {
@@ -269,9 +286,9 @@ export default function KPIChart({ apiPath, fieldToAggregate, tutelaProvider, tu
       datasets: [],
       weekRange: [normalizedMinWeek, maxWeek],
       kabupatenData,
-      isMultiKabupaten,
+      isMultiValues,
     };
-  }, [data, weekRange, kabupaten]);
+  }, [data, weekRange, filterValue?.split, filterValue]);
 
   // Unified chart configuration function
   const createChartConfig = useCallback((data: any, title: string): ChartConfiguration => {

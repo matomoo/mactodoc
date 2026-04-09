@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,16 @@ export function WeekRangeSelect({
   const [startWeek, setStartWeek] = useState<number>(initialWeekRange[0]);
   const [endWeek, setEndWeek] = useState<number>(initialWeekRange[1]);
 
+  // Sync with initialWeekRange when it changes (e.g., after cookies cleared)
+  useEffect(() => {
+    console.log(
+      "WeekRangeSelect - initialWeekRange changed:",
+      initialWeekRange,
+    );
+    setStartWeek(initialWeekRange[0]);
+    setEndWeek(initialWeekRange[1]);
+  }, [initialWeekRange]);
+
   // Generate week options if not provided
   const weekOptions = useMemo(() => {
     let options: number[] = [];
@@ -49,6 +59,16 @@ export function WeekRangeSelect({
 
     return options;
   }, [availableWeeks, minWeek, maxWeek]);
+
+  // Debug logging for state
+  useEffect(() => {
+    console.log("WeekRangeSelect - state updated:", {
+      startWeek,
+      endWeek,
+      weekOptions: weekOptions.slice(0, 5), // Show first 5 options
+      totalOptions: weekOptions.length,
+    });
+  }, [startWeek, endWeek, weekOptions]);
 
   // Format week for display
   const formatWeekDisplay = (week: number) => {
@@ -105,8 +125,9 @@ export function WeekRangeSelect({
   // Filter end week options based on start week
   const endWeekOptions = weekOptions.filter((week) => week >= startWeek);
 
-  console.log(startWeek);
-  console.log(weekOptions);
+  console.log("startWeek", startWeek);
+  console.log("weekOptions", weekOptions);
+  console.log("endWeekOptions", endWeekOptions);
 
   return (
     <div className="week-range-select space-y-4">
