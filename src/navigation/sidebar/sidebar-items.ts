@@ -35,6 +35,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard/default",
         icon: LayoutDashboard,
       },
+      {
+        title: "Summary",
+        url: "/tinfra/displays/dashboard-v2/summary",
+        icon: LayoutDashboard,
+      },
     ],
   },
   {
