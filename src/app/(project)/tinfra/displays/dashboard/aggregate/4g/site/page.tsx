@@ -29,6 +29,13 @@ export default function Page() {
         showViewModeState="metrics"
         aggMode="site"
         isShowTa={false}
+        isShowHqRhi={true}
+        apiPathRhi={"aggregate/hq-rhi/by-region"}
+        fieldToAggregate="site_id"
+        tutelaLevel="Kabupaten"
+        tutelaProvider="Telkomsel"
+        rhiLevel="Kabupaten"
+        rhiProvider="Telkomsel"
       />
     </div>
   );

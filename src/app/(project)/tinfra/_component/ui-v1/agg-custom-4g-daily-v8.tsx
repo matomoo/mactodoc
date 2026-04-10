@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
+import HqRhiChart from "../ui-v2/hq-rhi-chart";
 
 interface AggCustomProps {
   area?: string;
@@ -30,6 +31,13 @@ interface AggCustomProps {
   showViewModeState?: string;
   aggMode?: string;
   isShowTa: boolean;
+  isShowHqRhi?: boolean;
+  apiPathRhi?: string;
+  fieldToAggregate?: string;
+  tutelaLevel?: string;
+  tutelaProvider?: string;
+  rhiLevel?: string;
+  rhiProvider?: string;
 }
 
 export default function PageAggCustom4GDaily({
@@ -41,6 +49,13 @@ export default function PageAggCustom4GDaily({
   showViewModeState = "aggregated",
   aggMode = "custom-cluster",
   isShowTa = true,
+  isShowHqRhi = false,
+  apiPathRhi = "aggregate/hq-rhi/by-region",
+  fieldToAggregate = "Column to aggregate",
+  tutelaLevel = "site",
+  tutelaProvider = "Telkomsel",
+  rhiLevel = "site",
+  rhiProvider = "Telkomsel",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -203,9 +218,11 @@ export default function PageAggCustom4GDaily({
                       <TabsTrigger value="meas-plos-site-4g" className="px-6">
                         Packet Loss
                       </TabsTrigger>
-                      {/* <TabsTrigger value="site-info-4g" className="px-6">
-                          Site Info
-                        </TabsTrigger> */}
+                      {isShowHqRhi && (
+                        <TabsTrigger value="hq-rhi" className="px-6">
+                          RHI
+                        </TabsTrigger>
+                      )}
                     </TabsList>
 
                     {/* Layout toggle only shows when Charts tab is active */}
@@ -287,10 +304,16 @@ export default function PageAggCustom4GDaily({
                     />
                   </TabsContent>
 
-                  {/* Performance Site Info Tab Content */}
-                  {/* <TabsContent value="site-info-4g" className="mt-0">
-                      <PageSiteInfo apiPath={"site-info-4g"} aggregateBy="CELL_NAME" filterLabel="Cell Name" />
-                    </TabsContent> */}
+                  {isShowHqRhi && (
+                    <TabsContent value="hq-rhi" className="mt-0">
+                      <HqRhiChart
+                        apiPath={apiPathRhi}
+                        fieldToAggregate={fieldToAggregate}
+                        rhiProvider={rhiProvider}
+                        rhiLevel={rhiLevel}
+                      />
+                    </TabsContent>
+                  )}
                 </Tabs>
               </>
             )}

@@ -116,7 +116,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
         [
           `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}`,
           `batch=${batch}`,
-          `siteId=${siteId}`,
+          `site_id=${siteId}`,
           `nop=${nop}`,
           `kabupaten=${kabupaten}`,
           `kecamatan=${kecamatan}`,

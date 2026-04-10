@@ -17,8 +17,8 @@ export async function GET(request: Request) {
       ? "regional"
       : fieldToAggregate === "kabupaten"
         ? "t1.kabupaten"
-        : fieldToAggregate === "siteId"
-          ? "siteId"
+        : fieldToAggregate === "site_id"
+          ? "site_id"
           : "no_data";
 
   const tgl_1 = searchParams.get("tgl_1");
