@@ -12,8 +12,14 @@ export async function GET(request: Request) {
   const searchByParams2 = searchParams.get("level") || "---";
   const searchByParams3 = searchParams.get("provider") || "---";
 
-  // console.log("fieldToAggregate", fieldToAggregate);
-  // console.log("searchByParams", searchByParams);
+  const aggregateColumn =
+    fieldToAggregate === "region"
+      ? "regional"
+      : fieldToAggregate === "kabupaten"
+        ? "t1.kabupaten"
+        : fieldToAggregate === "siteId"
+          ? "siteId"
+          : "no_data";
 
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
@@ -35,11 +41,69 @@ export async function GET(request: Request) {
     if (searchByParams === "---" || searchByParams === "All" || searchValues.length === 0) {
       searchByCondition = sql``;
     } else if (searchValues.length === 1) {
-      searchByCondition = sql`AND t1.location = ${searchValues[0].trim()}`;
+      searchByCondition = sql`${sql.raw(aggregateColumn)} = ${searchValues[0].trim()}`;
     } else {
       const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql`AND t1.location IN (${sql.raw(multiSearchList)})`;
+      searchByCondition = sql`${sql.raw(aggregateColumn)} IN (${sql.raw(multiSearchList)})`;
     }
+
+    // console.log("hq-rhi > debugging values:", {
+    //   fieldToAggregate,
+    //   searchByParams,
+    //   aggregateColumn,
+    //   searchValues,
+    //   searchByCondition: searchByCondition.toString()
+    // });
+
+    // Build the raw SQL string for logging
+    const _rawSQL = `
+          WITH tref_agg AS (
+              SELECT DISTINCT ON (siteid)
+                  siteid,
+                  kabupaten,
+                  nop,
+                  kecamatan,
+                  region 
+              FROM ref_cell_4g
+              ORDER BY siteid
+          ),
+          aggregated AS (
+              SELECT
+                  t1.weeknum AS yearweek,
+                  ${aggregateColumn} AS ${fieldToAggregate},
+                  COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL2G,
+                  COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD2G,
+                  COUNT(CASE WHEN t1.tech = '2g' THEN 1 END) AS TOTAL2G,
+                  COUNT(CASE WHEN t1.tech = '4g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL4G,
+                  COUNT(CASE WHEN t1.tech = '4g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD4G,
+                  COUNT(CASE WHEN t1.tech = '4g' THEN 1 END) AS TOTAL4G,
+                  COUNT(CASE WHEN t1.tech = '5g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL5G,
+                  COUNT(CASE WHEN t1.tech = '5g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD5G,
+                  COUNT(CASE WHEN t1.tech = '5g' THEN 1 END) AS TOTAL5G,
+                  COUNT(CASE WHEN t1.remark_week = 'FAIL' THEN 1 END) AS TOTALFAIL,
+                  COUNT(CASE WHEN t1.remark_week = 'GOOD' THEN 1 END) AS TOTALGOOD
+              FROM
+                  raw_rhi t1
+                  LEFT JOIN tref_agg tref ON t1.site_id = tref.siteid 
+              WHERE
+                  ${searchByCondition}
+              GROUP BY
+                  t1.weeknum, ${aggregateColumn}
+          )
+          SELECT
+              agg.*,
+              (agg.TOTALFAIL + agg.TOTALGOOD) AS TOTALALL,
+              ROUND(1.0 * agg.TOTALGOOD / NULLIF(agg.TOTALFAIL + agg.TOTALGOOD, 0), 4) AS PERCENT_RHI_ALL,
+              target.target_rhi
+          FROM
+              aggregated agg
+              LEFT JOIN target_kpi_hq target ON agg.yearweek = target.year_week
+          ORDER BY
+              agg.yearweek;
+        `;
+
+    // console.log("Raw SQL Query:", rawSQL);
+    // console.log("Search Condition:", searchByCondition.toString());
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           WITH tref_agg AS (
@@ -55,7 +119,7 @@ export async function GET(request: Request) {
           aggregated AS (
               SELECT
                   t1.weeknum AS yearweek,
-                  t1.regional AS region,
+                  ${sql.raw(aggregateColumn)} AS ${sql.raw(fieldToAggregate)},
                   COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'FAIL' THEN 1 END) AS FAIL2G,
                   COUNT(CASE WHEN t1.tech = '2g' AND t1.remark_week = 'GOOD' THEN 1 END) AS GOOD2G,
                   COUNT(CASE WHEN t1.tech = '2g' THEN 1 END) AS TOTAL2G,
@@ -70,8 +134,10 @@ export async function GET(request: Request) {
               FROM
                   raw_rhi t1
                   LEFT JOIN tref_agg tref ON t1.site_id = tref.siteid 
+              WHERE
+                  ${searchByCondition}
               GROUP BY
-                  t1.weeknum, t1.regional
+                  t1.weeknum, ${sql.raw(aggregateColumn)}
           )
           SELECT
               agg.*,
@@ -85,8 +151,6 @@ export async function GET(request: Request) {
               agg.yearweek;
         `);
 
-    // console.log("Search params:", { fieldToAggregate, searchByParams, tgl_1, tgl_2 });
-    // console.log("Search condition:", _searchByCondition);
     // console.log("Result:", result);
     return NextResponse.json(result);
   } catch (error) {

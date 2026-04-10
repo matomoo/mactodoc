@@ -43,6 +43,7 @@ interface MeasPlos4GData {
     target_rhi: string;
     rhiLevel?: string;
     rhiProvider?: string;
+    [key: string]: string | number | undefined;
   }[];
 }
 
@@ -136,7 +137,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
     retry: 1,
   });
 
-  //   console.log(data);
+  console.log("data", data);
 
   // Process chart data - moved before conditional returns
   const getChartData = useMemo((): ChartData => {
@@ -171,16 +172,22 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
         .map((k) => k.trim())
         .filter((k) => k && k !== "---" && k !== "All") || [];
     const isMultiValues = selectedKabupatenValues.length > 1;
+    console.log(isMultiValues);
 
     // Group data by kabupaten (unified approach for both single and multi)
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     const valueGroups: { [key: string]: any[] } = {};
 
     if (isMultiValues) {
-      // Multiple kabupaten: group by location (since new API doesn't have location, create groups based on kabupaten selection)
+      // Multiple kabupaten: group by kabupaten - filter data for each specific kabupaten
       selectedKabupatenValues.forEach((kabValue) => {
-        valueGroups[kabValue] = filteredData;
+        const kabSpecificData = filteredData.filter((row) => {
+          const rowKabupaten = row[fieldToAggregate];
+          return rowKabupaten === kabValue;
+        });
+        valueGroups[kabValue] = kabSpecificData;
       });
+      console.log("selectedKabupatenValues", selectedKabupatenValues);
     } else {
       // Single selection: use the filterValue as key (supports region, kabupaten, or siteId)
       if (filterValue && filterValue !== "---" && filterValue !== "All") {
@@ -291,7 +298,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
       kabupatenData,
       isMultiValues,
     };
-  }, [data, weekRange, filterValue]);
+  }, [data, weekRange, filterValue, fieldToAggregate]);
 
   // Unified chart configuration function
   const createChartConfig = useCallback(
@@ -423,7 +430,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
 
     // Unified chart creation - iterate through all kabupaten data
     Object.keys(chartData.kabupatenData).forEach((kabupaten) => {
-      // console.log("Creating chart for", kabupaten);
+      console.log("Creating chart for", kabupaten);
       const kabData = chartData.kabupatenData[kabupaten];
       const chartKey = `hq-rhi-${kabupaten}`;
       const chartRef = chartRefs.current[chartKey];
@@ -432,7 +439,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
       const ctx = chartRef.getContext("2d");
       if (!ctx) return;
 
-      const config = createChartConfig(kabData, `RHI - ${fieldToAggregate.toUpperCase()} ${filterValue}`);
+      const config = createChartConfig(kabData, `RHI - ${fieldToAggregate.toUpperCase()} ${kabupaten}`);
       chartInstances.current[chartKey] = new Chart(ctx, config);
     });
 
@@ -444,7 +451,7 @@ export default function KPIChart({ apiPath, fieldToAggregate, rhiProvider, rhiLe
         }
       });
     };
-  }, [getChartData, fieldToAggregate, createChartConfig, filterValue]);
+  }, [getChartData, fieldToAggregate, createChartConfig]);
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
