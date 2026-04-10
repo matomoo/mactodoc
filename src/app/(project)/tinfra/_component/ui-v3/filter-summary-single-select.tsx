@@ -10,7 +10,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { X } from "lucide-react";
-import { useFilterStore } from "@/stores/filterStore";
+import { useSummaryStore } from "@/stores/summaryStore";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -73,7 +73,7 @@ export function Filter_Summary() {
     setRegion,
     setKabupaten,
     setKecamatan,
-  } = useFilterStore();
+  } = useSummaryStore();
 
   // Local state for temporary filters (not yet applied to store)
   const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(() => {
