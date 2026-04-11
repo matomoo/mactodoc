@@ -3,6 +3,7 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { Filter_Summary } from "../../../_component/ui-v3/filter-summary-single-select";
+import SummaryLayout from "../../../_component/ui-v3/summary-layout";
 
 export default function Page() {
   const { loading } = useRequireAuth();
@@ -17,9 +18,8 @@ export default function Page() {
 
   return (
     <div className="grid grid-cols-1 gap-2 rounded-2xl bg-linear-to-br from-purple-50 via-white to-blue-50 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="grid grid-cols-2 justify-between md:grid-cols-1">
-        <Filter_Summary />
-      </div>
+      <Filter_Summary />
+      <SummaryLayout />
     </div>
   );
 }

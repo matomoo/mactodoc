@@ -19,53 +19,24 @@ export async function GET(request: Request) {
           ? "site_id"
           : "no_data";
 
-  //   const tgl_1 = searchParams.get("tgl_1");
-  //   const tgl_2 = searchParams.get("tgl_2");
-
-  //   if (!tgl_1 || !tgl_2) {
-  //     return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
-  //   }
-
-  // let formattedTgl1: string;
-  // let formattedTgl2: string;
-
   try {
-    // formattedTgl1 = new Date(tgl_1).toISOString();
-    // formattedTgl2 = new Date(tgl_2).toISOString();
     const searchValues = searchByParams.split(",").filter((c) => c.trim() !== "");
 
     // biome-ignore lint/suspicious/noExplicitAny: <none>
-    let searchByCondition: any;
+    let _searchByCondition: any;
     if (searchByParams === "---" || searchByParams === "All" || searchValues.length === 0) {
-      searchByCondition = sql``;
+      _searchByCondition = sql``;
     } else if (searchValues.length === 1) {
-      searchByCondition = sql`${sql.raw(aggregateColumn)} = ${searchValues[0].trim()}`;
+      _searchByCondition = sql`${sql.raw(aggregateColumn)} = ${searchValues[0].trim()}`;
     } else {
       const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql`${sql.raw(aggregateColumn)} IN (${sql.raw(multiSearchList)})`;
+      _searchByCondition = sql`${sql.raw(aggregateColumn)} IN (${sql.raw(multiSearchList)})`;
     }
-
-    // console.log("hq-rhi > debugging values:", {
-    //   fieldToAggregate,
-    //   searchByParams,
-    //   aggregateColumn,
-    //   searchValues,
-    //   searchByCondition: searchByCondition.toString()
-    // });
-
-    // Build the raw SQL string for logging
-    const _rawSQL = `
-          select DISTINCT year_week from raw_tutela ORDER BY year_week
-        `;
-
-    // console.log("Raw SQL Query:", rawSQL);
-    // console.log("Search Condition:", searchByCondition.toString());
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           select DISTINCT year_week from raw_tutela ORDER BY year_week
         `);
 
-    // console.log("Result:", result);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
