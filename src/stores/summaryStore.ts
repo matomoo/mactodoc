@@ -14,6 +14,7 @@ interface summaryState {
   batch: string | null;
   weekRange: [number, number];
   yearweek: string | null;
+  viewBy: string | null;
 
   // Actions
   setDateRange2: (range: string | null) => void;
@@ -27,6 +28,7 @@ interface summaryState {
   setBatch: (batch: string | null) => void;
   setWeekRange: (range: [number, number]) => void;
   setYearweek: (yearweek: string | null) => void;
+  setViewBy: (viewBy: string | null) => void;
 
   // Helper to get all params as object
   getParams: () => {
@@ -41,6 +43,7 @@ interface summaryState {
     batch: string | null;
     weekRange: [number, number];
     yearweek: string | null;
+    viewBy: string | null;
   };
 }
 
@@ -59,6 +62,7 @@ export const useSummaryStore = create<summaryState>()(
       batch: null,
       weekRange: [202601, 202652], // Default to full year 2026
       yearweek: null,
+      viewBy: null,
 
       // Actions
       setDateRange2: (range) => set({ dateRange2: range }),
@@ -73,6 +77,7 @@ export const useSummaryStore = create<summaryState>()(
       setBatch: (batch) => set({ batch: batch }),
       setWeekRange: (range) => set({ weekRange: range }),
       setYearweek: (yearweek) => set({ yearweek: yearweek }),
+      setViewBy: (viewBy) => set({ viewBy: viewBy }),
 
       // Helper function
       getParams: () => {
@@ -89,6 +94,7 @@ export const useSummaryStore = create<summaryState>()(
           batch: state.batch,
           weekRange: state.weekRange,
           yearweek: state.yearweek,
+          viewBy: state.viewBy,
         };
       },
     }),

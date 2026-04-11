@@ -14,6 +14,7 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
 import { Badge } from "@/components/ui/badge";
+import { useSummaryStore } from "@/stores/summaryStore";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, ChartLegend, ChartDataLabels);
 
@@ -71,21 +72,30 @@ interface ChartDataItem {
 
 interface TutelaChartContentProps {
   tutelaApiPath: string;
+  tutelaLevel: string;
+  tutelaLocation: string;
 }
 
-export default function TutelaChartContent({ tutelaApiPath }: TutelaChartContentProps) {
+export default function TutelaChartContent({ tutelaApiPath, tutelaLevel, tutelaLocation }: TutelaChartContentProps) {
+  const { yearweek, viewBy, nop, region, kabupaten, kecamatan } = useSummaryStore();
+
+  const valueLocation =
+    viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
+
   const {
     data: rawData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["tutela-data", tutelaApiPath],
+    queryKey: ["tutela-data", yearweek, tutelaApiPath, tutelaLevel, valueLocation],
     queryFn: async () => {
       if (!tutelaApiPath || tutelaApiPath === "noUrl") {
         return [];
       }
 
-      const response = await fetch(tutelaApiPath);
+      const response = await fetch(
+        [`${tutelaApiPath}?level=${viewBy}`, `&location=${valueLocation}`, `&yearweek=${yearweek}`].join("&"),
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

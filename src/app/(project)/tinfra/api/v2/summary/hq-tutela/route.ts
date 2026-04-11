@@ -9,18 +9,27 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
   const searchByParams = searchParams.get(fieldToAggregate) || "---";
-  const searchByParams2 = searchParams.get("level") || "---";
-  const searchByParams3 = searchParams.get("provider") || "---";
+  const searchByYearWeek = searchParams.get("yearweek") || "---";
+  const searchByLevel = searchParams.get("level") || "---";
+  const searchByLocation = searchParams.get("location") || "---";
 
-  // console.log("fieldToAggregate", fieldToAggregate);
-  // console.log("searchByParams", searchByParams);
+  console.log("debug", { searchByYearWeek, searchByLevel, searchByLocation });
 
-  // const tgl_1 = searchParams.get("tgl_1");
+  const tgl_1 = searchParams.get("yearweek");
   // const tgl_2 = searchParams.get("tgl_2");
 
-  // if (!tgl_1 || !tgl_2) {
-  //   return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
-  // }
+  if (!tgl_1) {
+    return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
+  }
+
+  const paramLevel =
+    searchByLevel === "region"
+      ? "Region"
+      : searchByLevel === "nop"
+        ? "Nop"
+        : searchByLevel === "kabupaten"
+          ? "Kabupaten"
+          : "noLevel";
 
   // let formattedTgl1: string;
   // let formattedTgl2: string;
@@ -43,7 +52,7 @@ export async function GET(request: Request) {
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           WITH params AS (
-              SELECT 202612 AS selected_week
+              SELECT ${sql.raw(searchByYearWeek)} AS selected_week
           ),
           base AS (
               SELECT
@@ -59,8 +68,8 @@ export async function GET(request: Request) {
                   '11' AS target_kpi
               FROM raw_tutela t1
               WHERE
-                  t1.LEVEL     = 'Region'
-                  AND t1.LOCATION  = 'SULAWESI'
+                  t1.LEVEL     = ${paramLevel}
+                  AND t1.LOCATION  = ${searchByLocation}
                   AND t1.rank IS NOT NULL
                   AND t1.year_week IN (
                       SELECT DISTINCT year_week

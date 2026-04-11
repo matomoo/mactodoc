@@ -67,12 +67,14 @@ export function Filter_Summary() {
     region: storeRegion,
     kabupaten: storeKabupaten,
     kecamatan: storeKecamatan,
+    viewBy: storeViewBy,
     setDateRange2,
     setYearweek,
     setNop,
     setRegion,
     setKabupaten,
     setKecamatan,
+    setViewBy,
   } = useSummaryStore();
 
   // Local state for temporary filters (not yet applied to store)
@@ -86,12 +88,13 @@ export function Filter_Summary() {
       to: defaultTo,
     };
   });
+  const [tempViewBy, setTempViewBy] = useState<string | null>(null);
   const [tempDataFilter, setTempDataFilter] = useState<string | null>(null);
+  const [tempYearweek, setTempYearweek] = useState<string | null>(null);
 
   // Track if we're in the process of selecting a range
   const [isSelecting, setIsSelecting] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [viewBy, setViewBy] = useState<string>("region");
 
   // Fetch NOPs from API
   const {
@@ -99,9 +102,11 @@ export function Filter_Summary() {
     isLoading,
     error,
   } = useQuery<NopData[]>({
-    queryKey: ["ref-query-dynamic", viewBy],
+    queryKey: ["ref-query-dynamic", tempViewBy],
     queryFn: async () => {
-      const response = await fetch(`/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${viewBy}`);
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${tempViewBy}`,
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -112,11 +117,11 @@ export function Filter_Summary() {
       if (!Array.isArray(rows)) {
         return [];
       }
-      const uniqueResults = Array.from(new Set(rows.map((item: Record<string, string>) => item[viewBy]))).map(
-        (name) => ({
-          nama_nop: name as string,
-        }),
-      );
+      const uniqueResults = Array.from(
+        new Set(rows.map((item: Record<string, string>) => item[tempViewBy as keyof Record<string, string>])),
+      ).map((name) => ({
+        nama_nop: name as string,
+      }));
 
       return uniqueResults;
     },
@@ -191,6 +196,9 @@ export function Filter_Summary() {
 
   // Process button handler - apply temporary filters to Zustand store
   const handleProcessFilters = () => {
+    // Submit yearweek
+    setYearweek(tempYearweek);
+
     if (tempDateRange?.from && tempDateRange?.to) {
       const rangeString = `${format(tempDateRange.from, "yyyy-MM-dd")}|${format(tempDateRange.to, "yyyy-MM-dd")}`;
       setDateRange2(rangeString);
@@ -199,44 +207,32 @@ export function Filter_Summary() {
     }
 
     if (tempDataFilter) {
-      if (viewBy === "kabupaten") {
+      setViewBy(tempViewBy);
+      if (tempViewBy === "kabupaten") {
         setKabupaten(tempDataFilter);
-      } else if (viewBy === "kecamatan") {
+      } else if (tempViewBy === "kecamatan") {
         setKecamatan(tempDataFilter);
-      } else if (viewBy === "region") {
+      } else if (tempViewBy === "region") {
         setRegion(tempDataFilter);
-      } else if (viewBy === "nop") {
+      } else if (tempViewBy === "nop") {
         setNop(tempDataFilter);
       } else {
-        setNop(tempDataFilter);
+        setNop(null);
       }
     } else {
-      if (viewBy === "kabupaten") {
+      if (tempViewBy === "region") {
+        setRegion(null);
+      } else if (tempViewBy === "kabupaten") {
         setKabupaten(null);
-      } else if (viewBy === "kecamatan") {
+      } else if (tempViewBy === "kecamatan") {
         setKecamatan(null);
-      } else if (viewBy === "nop") {
+      } else if (tempViewBy === "nop") {
         setNop(null);
       } else {
         setNop(null);
       }
     }
   };
-
-  // Check if filters have changed from store values
-  const currentStoreData =
-    viewBy === "kabupaten"
-      ? storeKabupaten
-      : viewBy === "kecamatan"
-        ? storeKecamatan
-        : viewBy === "region"
-          ? storeRegion
-          : storeNop;
-
-  const hasChanges =
-    tempDateRange?.from?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.from?.getTime() : undefined) ||
-    tempDateRange?.to?.getTime() !== (storeDateRange ? parseDateRange(storeDateRange)?.to?.getTime() : undefined) ||
-    JSON.stringify(tempDataFilter) !== JSON.stringify(currentStoreData);
 
   // Update temporary date range if Zustand store changes externally
   useEffect(() => {
@@ -250,14 +246,35 @@ export function Filter_Summary() {
     }
   }, [storeDateRange]);
 
+  // Initialize tempViewBy from storeViewBy only on component mount
+  useEffect(() => {
+    if (tempViewBy === null && storeViewBy) {
+      setTempViewBy(storeViewBy);
+    }
+  }, [tempViewBy, storeViewBy]);
+
+  // Initialize tempYearweek from storeYearweek only on component mount
+  useEffect(() => {
+    if (tempYearweek === null && storeYearweek) {
+      setTempYearweek(storeYearweek);
+    }
+  }, [tempYearweek, storeYearweek]);
+
+  // Clear tempDataFilter when tempViewBy changes to prevent carrying over values from different view types
+  useEffect(() => {
+    if (tempViewBy !== null) {
+      setTempDataFilter(null);
+    }
+  }, [tempViewBy]);
+
   // Update temporary filter if Zustand store changes externally
   useEffect(() => {
     const currentStoreData =
-      viewBy === "kabupaten"
+      storeViewBy === "kabupaten"
         ? storeKabupaten
-        : viewBy === "kecamatan"
+        : storeViewBy === "kecamatan"
           ? storeKecamatan
-          : viewBy === "region"
+          : storeViewBy === "region"
             ? storeRegion
             : storeNop;
     if (currentStoreData) {
@@ -265,7 +282,7 @@ export function Filter_Summary() {
     } else {
       setTempDataFilter(null);
     }
-  }, [storeKabupaten, storeNop, storeKecamatan, viewBy, storeRegion]);
+  }, [storeKabupaten, storeNop, storeKecamatan, storeViewBy, storeRegion]);
 
   // Set default week to last available week
   useEffect(() => {
@@ -275,12 +292,14 @@ export function Filter_Summary() {
     }
   }, [weekList, storeYearweek, setYearweek]);
 
+  // console.log("debug:", { tempViewBy, storeViewBy, tempDataFilter });
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
         {/* Week Range Select */}
         <div className="flex flex-col gap-2">
-          <Select value={storeYearweek || ""} onValueChange={setYearweek}>
+          <Select value={tempYearweek || ""} onValueChange={setTempYearweek}>
             <SelectTrigger className="w-45">
               <SelectValue placeholder="Select Week" />
             </SelectTrigger>
@@ -346,7 +365,7 @@ export function Filter_Summary() {
 
         {/* Select ViewBy */}
         <div className="flex flex-col gap-2">
-          <Select value={viewBy} onValueChange={setViewBy}>
+          <Select value={tempViewBy || ""} onValueChange={setTempViewBy}>
             <SelectTrigger className="w-45">
               <SelectValue placeholder="Select View By" />
             </SelectTrigger>
@@ -359,7 +378,7 @@ export function Filter_Summary() {
         </div>
 
         {/* Single-Select Dropdown Region */}
-        {viewBy === "region" && (
+        {tempViewBy === "region" && (
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoading}>
@@ -416,7 +435,7 @@ export function Filter_Summary() {
         )}
 
         {/* Single-Select Dropdown NOP */}
-        {viewBy === "nop" && (
+        {tempViewBy === "nop" && (
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoading}>
@@ -473,7 +492,7 @@ export function Filter_Summary() {
         )}
 
         {/* Single-Select Dropdown Kabupaten */}
-        {viewBy === "kabupaten" && (
+        {tempViewBy === "kabupaten" && (
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoading}>
@@ -533,11 +552,7 @@ export function Filter_Summary() {
 
         {/* Process Button */}
         <div className="flex items-end justify-end">
-          <Button
-            onClick={handleProcessFilters}
-            disabled={!hasChanges || !tempDateRange?.from || !tempDateRange?.to}
-            className="px-6"
-          >
+          <Button onClick={handleProcessFilters} disabled={!tempDateRange?.from || !tempDateRange?.to} className="px-6">
             Process Filters
           </Button>
         </div>
