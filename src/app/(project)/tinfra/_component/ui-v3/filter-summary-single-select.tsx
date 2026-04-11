@@ -137,7 +137,7 @@ export function Filter_Summary() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  console.log("debug", { weekData });
+  // console.log("debug", { weekData });
 
   // Extract the actual data from the response
   const weekList = weekData?.rows || weekData || [];

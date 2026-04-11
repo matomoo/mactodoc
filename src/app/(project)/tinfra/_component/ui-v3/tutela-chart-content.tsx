@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
+import { Badge } from "@/components/ui/badge";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, ChartLegend, ChartDataLabels);
 
@@ -64,6 +65,8 @@ const getProviderColor = (providerName: string): string => {
 interface ChartDataItem {
   provider: string;
   avg_percentage: number;
+  wow_diff: number;
+  rank_remark: string;
 }
 
 interface TutelaChartContentProps {
@@ -142,6 +145,8 @@ export default function TutelaChartContent({ tutelaApiPath }: TutelaChartContent
       acc[item.metric].push({
         provider: item.provider,
         avg_percentage: item.avg_percentage,
+        rank_remark: item.rank_remark,
+        wow_diff: item.wow_diff,
       });
       return acc;
     },
@@ -175,12 +180,13 @@ export default function TutelaChartContent({ tutelaApiPath }: TutelaChartContent
                 weight: "bold" as const,
                 size: 11,
               },
-              formatter: (value: number) => `${value.toFixed(1)}%`,
+              formatter: (value: number) => `${value.toFixed(2)}%`,
             },
           },
           scales: {
             x: {
               beginAtZero: true,
+              display: false,
               title: {
                 display: false,
                 text: "Average Percentage (%)",
@@ -203,7 +209,7 @@ export default function TutelaChartContent({ tutelaApiPath }: TutelaChartContent
           datasets: [
             {
               label: "Avg %",
-              data: sortedChartData.map((item) => item.avg_percentage),
+              data: sortedChartData.map((item) => Number(item.avg_percentage.toFixed(2))),
               backgroundColor: sortedChartData.map((item) => getProviderColor(item.provider)),
               borderColor: sortedChartData.map((item) => getProviderColor(item.provider)),
               borderWidth: 1,
@@ -216,6 +222,23 @@ export default function TutelaChartContent({ tutelaApiPath }: TutelaChartContent
             <h3 className="font-medium text-gray-700 text-sm">{getMetricDisplayName(metric)}</h3>
             <div style={{ height: "150px" }}>
               <Bar data={chartDataForChart} options={chartOptions} />
+            </div>
+            <div>
+              {sortedChartData && (
+                <Badge
+                  className={
+                    (sortedChartData.find((item) => item.provider === "Telkomsel")?.wow_diff ?? 0) > 0
+                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      : "bg-red-100 text-red-800 hover:bg-red-200"
+                  }
+                >
+                  {" "}
+                  WOW {sortedChartData.filter((item) => item.provider === "Telkomsel")[0].wow_diff.toFixed(2)}%
+                </Badge>
+              )}
+              {sortedChartData && (
+                <div>{sortedChartData.filter((item) => item.provider === "Telkomsel")[0].rank_remark}</div>
+              )}
             </div>
           </div>
         );
