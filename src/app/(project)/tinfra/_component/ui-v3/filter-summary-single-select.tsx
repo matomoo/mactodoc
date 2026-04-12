@@ -552,7 +552,12 @@ export function Filter_Summary() {
 
         {/* Process Button */}
         <div className="flex items-end justify-end">
-          <Button onClick={handleProcessFilters} disabled={!tempDateRange?.from || !tempDateRange?.to} className="px-6">
+          <Button
+            onClick={handleProcessFilters}
+            // disabled={!tempDateRange?.from || !tempDateRange?.to}
+            disabled={!tempDataFilter}
+            className="px-6"
+          >
             Process Filters
           </Button>
         </div>

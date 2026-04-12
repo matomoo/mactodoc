@@ -52,15 +52,15 @@ export async function GET(request: Request) {
       searchByCondition2 = sql`AND weeknum = ${searchByYearWeek}`;
     }
 
-    console.log("hq-rhi > debugging values:", {
-      fieldToAggregate,
-      searchByYearWeek,
-      searchByParams,
-      searchByValueLocation,
-      aggregateColumn,
-      searchValues,
-      searchByCondition: searchByCondition.toString(),
-    });
+    // console.log("hq-rhi > debugging values:", {
+    //   fieldToAggregate,
+    //   searchByYearWeek,
+    //   searchByParams,
+    //   searchByValueLocation,
+    //   aggregateColumn,
+    //   searchValues,
+    //   searchByCondition: searchByCondition.toString(),
+    // });
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           WITH tref_agg AS (

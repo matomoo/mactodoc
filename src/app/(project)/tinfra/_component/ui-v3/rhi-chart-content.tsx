@@ -7,16 +7,28 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip as ChartTooltip,
   Legend as ChartLegend,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import { Badge } from "@/components/ui/badge";
 import { useSummaryStore } from "@/stores/summaryStore";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, ChartLegend, ChartDataLabels);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  ChartTooltip,
+  ChartLegend,
+  ChartDataLabels,
+);
 
 interface ChartDataItem {
   percent_rhi_all: number;
@@ -115,7 +127,7 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
 
   const data = rawData || [];
 
-  console.log("Debug", { data, rhiPercentageData });
+  // console.log("Debug", { data, rhiPercentageData });
 
   if (isLoading) {
     return (
@@ -157,6 +169,70 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
     },
     {} as Record<string, ChartDataItem[]>,
   );
+
+  // Prepare data for line chart
+  const lineChartData = {
+    labels: rhiPercentageData?.map((item: any) => item.yearweek) || [],
+    datasets: [
+      {
+        label: "RHI Percentage",
+        data: rhiPercentageData?.map((item: any) => parseFloat(item.percent_rhi_all)) || [],
+        borderColor: "rgb(75, 192, 192)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        tension: 0.3,
+        pointRadius: 2,
+        pointHoverRadius: 3,
+        datalabels: {
+          display: false,
+        },
+      },
+    ],
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        position: "top" as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => `${context.parsed.y.toFixed(2)}%`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: false,
+          text: "Year Week",
+        },
+        ticks: {
+          display: true, // Hide x-axis labels
+        },
+        grid: {
+          display: true,
+        },
+      },
+      y: {
+        display: true,
+        beginAtZero: true,
+        title: {
+          display: false,
+          text: "RHI Percentage (%)",
+        },
+        ticks: {
+          display: true,
+          // callback: (value: any) => `${value}%`,
+        },
+        grid: {
+          display: false,
+        },
+      },
+    },
+  };
 
   return (
     <div className="flex flex-row gap-6 overflow-x-auto">
@@ -208,9 +284,21 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
 
         return (
           <div key={metric} className="shrink-0 space-y-2" style={{ minWidth: "300px" }}>
-            {/* Percentage */}
-            <div>{data && <div className="text-7xl">{parseFloat(data[0].percent_rhi_all).toFixed(2)}</div>}</div>
-            {/* Chart of percent_rhi_all, get data from api2 */}
+            <div className="flex flex-row items-center">
+              {/* Percentage of selected yearweek */}
+              <div>{data && <div className="text-6xl">{parseFloat(data[0].percent_rhi_all).toFixed(2)}</div>}</div>
+              {/* Chart of percent_rhi_all, get data from rhiPercentageData */}
+              <div style={{ width: "250px", height: "200px" }}>
+                {rhiPercentageData && rhiPercentageData.length > 0 ? (
+                  <Line data={lineChartData} options={lineChartOptions} />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <p className="text-gray-500">No RHI percentage data available</p>
+                  </div>
+                )}
+              </div>
+              <div> </div>
+            </div>
           </div>
         );
       })}
