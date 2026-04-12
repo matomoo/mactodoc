@@ -76,15 +76,6 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
 
       return dataArray.map((item: any) => ({
         ...item,
-        avg_percentage: parseFloat(item.avg_percentage),
-        target_kpi: parseFloat(item.target_kpi),
-        total_win: parseInt(item.total_win, 10),
-        total_lose: parseInt(item.total_lose, 10),
-        wow_current_pct: item.wow_current_pct ? parseFloat(item.wow_current_pct) : null,
-        wow_prev_pct: item.wow_prev_pct ? parseFloat(item.wow_prev_pct) : null,
-        wow_diff: item.wow_diff ? parseFloat(item.wow_diff) : null,
-        current_rank: parseInt(item.current_rank, 10),
-        prev_rank: item.prev_rank ? parseInt(item.prev_rank, 10) : null,
       }));
     },
     enabled: !!(rhiApiPath && rhiApiPath !== "noUrl"),
@@ -125,9 +116,44 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
     enabled: !!(rhiApiPath && rhiApiPath !== "noUrl"),
   });
 
+  // for rhi wow
+  const {
+    data: rhiWowData,
+    isLoading: rhiWowLoading,
+    error: rhiWowError,
+  } = useQuery({
+    queryKey: ["rhi-wow-data", yearweek, rhiApiPath, rhiLevel, valueLocation],
+    queryFn: async () => {
+      if (!rhiApiPath || rhiApiPath === "noUrl") {
+        return [];
+      }
+
+      const response = await fetch(
+        [
+          `${rhiApiPath}-2?level=${viewBy}`,
+          `valueLocation=${valueLocation}`,
+          `yearweek=${yearweek}`,
+          `fieldToAggregate=${viewBy}`,
+        ].join("&"),
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+
+      // Handle API response format with rows property
+      const dataArray = result.rows || result || [];
+
+      return dataArray.map((item: any) => ({
+        ...item,
+      }));
+    },
+    enabled: !!(rhiApiPath && rhiApiPath !== "noUrl"),
+  });
+
   const data = rawData || [];
 
-  // console.log("Debug", { data, rhiPercentageData });
+  console.log("Debug", { data, rhiPercentageData, rhiWowData });
 
   if (isLoading) {
     return (
@@ -236,57 +262,26 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
 
   return (
     <div className="flex flex-row gap-6 overflow-x-auto">
-      {Object.entries(groupedData).map(([metric, chartData]) => {
-        const chartOptions = {
-          indexAxis: "y" as const,
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false,
-            },
-            title: {
-              display: false,
-            },
-            tooltip: {
-              callbacks: {
-                label: (context: any) => `${context.parsed.x.toFixed(2)}%`,
-              },
-            },
-            datalabels: {
-              anchor: "center" as const,
-              align: "center" as const,
-              color: "#ffffff",
-              font: {
-                weight: "bold" as const,
-                size: 11,
-              },
-              formatter: (value: number) => `${value.toFixed(2)}%`,
-            },
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              display: false,
-              title: {
-                display: false,
-                text: "Average Percentage (%)",
-              },
-            },
-            y: {
-              title: {
-                display: false,
-                text: "Provider",
-              },
-            },
-          },
-        };
-
+      {Object.entries(groupedData).map(([metric]) => {
         return (
           <div key={metric} className="shrink-0 space-y-2" style={{ minWidth: "300px" }}>
             <div className="flex flex-row items-center">
               {/* Percentage of selected yearweek */}
-              <div>{data && <div className="text-6xl">{parseFloat(data[0].percent_rhi_all).toFixed(2)}</div>}</div>
+              <div>
+                {data && <h3 className="text-6xl">{parseFloat(data[0].percent_rhi_all).toFixed(2)}</h3>}
+                {rhiWowData && (
+                  <Badge
+                    className={
+                      (rhiWowData[0].wow_diff ?? 0) > 0
+                        ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        : "bg-red-100 text-red-800 hover:bg-red-200"
+                    }
+                  >
+                    {" "}
+                    WOW {parseFloat(rhiWowData[0].wow_diff).toFixed(2)}%
+                  </Badge>
+                )}
+              </div>
               {/* Chart of percent_rhi_all, get data from rhiPercentageData */}
               <div style={{ width: "250px", height: "200px" }}>
                 {rhiPercentageData && rhiPercentageData.length > 0 ? (
