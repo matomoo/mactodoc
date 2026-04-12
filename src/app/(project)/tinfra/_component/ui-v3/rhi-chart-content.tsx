@@ -268,7 +268,18 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
             <div className="flex flex-row items-center">
               {/* Percentage of selected yearweek */}
               <div>
-                {data && <h3 className="text-6xl">{parseFloat(data[0].percent_rhi_all).toFixed(2)}</h3>}
+                {data && (
+                  <h3
+                    className="text-6xl"
+                    style={{
+                      fontSize: "3.2rem",
+                      lineHeight: "1.1",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {parseFloat(data[0].percent_rhi_all).toFixed(2)}
+                  </h3>
+                )}
                 {rhiWowData && (
                   <Badge
                     className={
