@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const searchByLevel = searchParams.get("level") || "---";
   const searchByLocation = searchParams.get("location") || "---";
 
-  console.log("debug", { searchByYearWeek, searchByLevel, searchByLocation });
+  //   console.log("debug", { searchByYearWeek, searchByLevel, searchByLocation });
 
   const tgl_1 = searchParams.get("yearweek");
   // const tgl_2 = searchParams.get("tgl_2");

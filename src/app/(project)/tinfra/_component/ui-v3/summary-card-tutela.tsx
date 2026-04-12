@@ -3,6 +3,7 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TutelaChartContent from "./tutela-chart-content";
+import RhiChartContent from "./rhi-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -10,6 +11,7 @@ interface IProps {
   tutelaApiPath?: string;
   tutelaLevel?: string;
   tutelaLocation?: string;
+  rhiApiPath?: string;
 }
 
 export default function SummaryCard({
@@ -17,6 +19,7 @@ export default function SummaryCard({
   tutelaApiPath = "noUrl",
   tutelaLevel = "noLevel",
   tutelaLocation = "noLocation",
+  rhiApiPath = "noUrl",
   className = "",
 }: IProps) {
   return (
@@ -25,7 +28,13 @@ export default function SummaryCard({
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        <TutelaChartContent tutelaApiPath={tutelaApiPath} tutelaLevel={tutelaLevel} tutelaLocation={tutelaLocation} />
+        {cardTitle === "Tutela" ? (
+          <TutelaChartContent tutelaApiPath={tutelaApiPath} tutelaLevel={tutelaLevel} tutelaLocation={tutelaLocation} />
+        ) : cardTitle === "RHI" ? (
+          <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={tutelaLevel} rhiLocation={tutelaLocation} />
+        ) : (
+          <div>TODO: On Progress</div>
+        )}
       </CardContent>
     </Card>
   );
