@@ -4,6 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TutelaChartContent from "./tutela-chart-content";
 import RhiChartContent from "./rhi-chart-content";
+import OoklaChartContent from "./ookla-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -12,6 +13,11 @@ interface IProps {
   tutelaLevel?: string;
   tutelaLocation?: string;
   rhiApiPath?: string;
+  rhiLevel?: string;
+  rhiLocation?: string;
+  ooklaApiPath?: string;
+  ooklaLevel?: string;
+  ooklaLocation?: string;
 }
 
 export default function SummaryCard({
@@ -20,6 +26,11 @@ export default function SummaryCard({
   tutelaLevel = "noLevel",
   tutelaLocation = "noLocation",
   rhiApiPath = "noUrl",
+  rhiLevel = "noLevel",
+  rhiLocation = "noLocation",
+  ooklaApiPath = "noUrl",
+  ooklaLevel = "noLevel",
+  ooklaLocation = "noLocation",
   className = "",
 }: IProps) {
   return (
@@ -31,7 +42,9 @@ export default function SummaryCard({
         {cardTitle === "Tutela" ? (
           <TutelaChartContent tutelaApiPath={tutelaApiPath} tutelaLevel={tutelaLevel} tutelaLocation={tutelaLocation} />
         ) : cardTitle === "RHI" ? (
-          <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={tutelaLevel} rhiLocation={tutelaLocation} />
+          <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={rhiLevel} rhiLocation={rhiLocation} />
+        ) : cardTitle === "Ookla" ? (
+          <OoklaChartContent ooklaApiPath={ooklaApiPath} ooklaLevel={ooklaLevel} ooklaLocation={ooklaLocation} />
         ) : (
           <div>TODO: On Progress</div>
         )}

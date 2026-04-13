@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: <none> */
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
@@ -76,7 +77,7 @@ interface TutelaChartContentProps {
   tutelaLocation: string;
 }
 
-export default function TutelaChartContent({ tutelaApiPath, tutelaLevel, tutelaLocation }: TutelaChartContentProps) {
+export default function TutelaChartContent({ tutelaApiPath, tutelaLevel }: TutelaChartContentProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan } = useSummaryStore();
 
   const valueLocation =

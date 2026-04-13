@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: <none> */
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
@@ -14,19 +15,10 @@ import {
   Legend as ChartLegend,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Bar, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { Badge } from "@/components/ui/badge";
 import { useSummaryStore } from "@/stores/summaryStore";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 ChartJS.register(
   CategoryScale,
@@ -51,7 +43,7 @@ interface RhiChartContentProps {
   rhiLocation: string;
 }
 
-export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: RhiChartContentProps) {
+export default function RhiChartContent({ rhiApiPath, rhiLevel }: RhiChartContentProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan } = useSummaryStore();
 
   const valueLocation =
@@ -94,8 +86,8 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
   // for chart rhi percentage
   const {
     data: rhiPercentageData,
-    isLoading: rhiPercentageLoading,
-    error: rhiPercentageError,
+    // isLoading: rhiPercentageLoading,
+    // error: rhiPercentageError,
   } = useQuery({
     queryKey: ["rhi-data-all", yearweek, rhiApiPath, rhiLevel, valueLocation],
     queryFn: async () => {
@@ -129,8 +121,8 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
   // for rhi wow
   const {
     data: rhiWowData,
-    isLoading: rhiWowLoading,
-    error: rhiWowError,
+    // isLoading: rhiWowLoading,
+    // error: rhiWowError,
   } = useQuery({
     queryKey: ["rhi-wow-data", yearweek, rhiApiPath, rhiLevel, valueLocation],
     queryFn: async () => {
@@ -333,9 +325,9 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
                         {/* <TableCell className="text-xs py-1">
                           {item.region}
                         </TableCell> */}
-                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_2g}</TableCell>
-                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_4g}</TableCell>
-                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_5g}</TableCell>
+                        <TableCell className="py-1 text-xs">{item.mostly_kpi_fail_2g}</TableCell>
+                        <TableCell className="py-1 text-xs">{item.mostly_kpi_fail_4g}</TableCell>
+                        <TableCell className="py-1 text-xs">{item.mostly_kpi_fail_5g}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
