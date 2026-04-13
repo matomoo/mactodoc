@@ -137,6 +137,17 @@ export async function GET(request: Request) {
                       PARTITION BY region ORDER BY yearweek
                   ))::NUMERIC, 4)                                                                       AS wow_diff
               FROM with_pct
+          ),
+          mostly_fail AS (
+              SELECT
+                  weeknum,
+                  MODE() WITHIN GROUP (ORDER BY most_fail_kpi_2g) AS mostly_kpi_fail_2g,
+                  MODE() WITHIN GROUP (ORDER BY most_fail_kpi_4g) AS mostly_kpi_fail_4g,
+                  MODE() WITHIN GROUP (ORDER BY most_fail_kpi_5g) AS mostly_kpi_fail_5g
+              FROM raw_rhi
+              WHERE regional = 'SULAWESI'
+                AND weeknum = (SELECT selected_week FROM params)
+              GROUP BY weeknum
           )
           SELECT
               w.yearweek,
@@ -151,9 +162,14 @@ export async function GET(request: Request) {
 
               CASE WHEN (SELECT valid FROM is_valid) THEN (SELECT year_week FROM prev_week) ELSE NULL END  AS prev_yearweek,
               CASE WHEN (SELECT valid FROM is_valid) THEN w.prev_percent_rhi_all                ELSE NULL END  AS prev_percent_rhi_all,
-              CASE WHEN (SELECT valid FROM is_valid) THEN w.wow_diff                            ELSE NULL END  AS wow_diff
+              CASE WHEN (SELECT valid FROM is_valid) THEN w.wow_diff                            ELSE NULL END  AS wow_diff,
+              
+              mf.mostly_kpi_fail_2g,
+              mf.mostly_kpi_fail_4g,
+              mf.mostly_kpi_fail_5g
 
           FROM wow w
+          LEFT JOIN mostly_fail mf ON mf.weeknum = w.yearweek
           WHERE w.yearweek = (SELECT selected_week FROM params)
           ORDER BY w.yearweek;
         `);

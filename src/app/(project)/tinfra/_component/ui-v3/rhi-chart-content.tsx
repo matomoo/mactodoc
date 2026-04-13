@@ -17,6 +17,16 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar, Line } from "react-chartjs-2";
 import { Badge } from "@/components/ui/badge";
 import { useSummaryStore } from "@/stores/summaryStore";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 ChartJS.register(
   CategoryScale,
@@ -153,7 +163,7 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
 
   const data = rawData || [];
 
-  console.log("Debug", { data, rhiPercentageData, rhiWowData });
+  // console.log("Debug", { data, rhiPercentageData, rhiWowData });
 
   if (isLoading) {
     return (
@@ -305,6 +315,33 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel, rhiLocation }: R
               </div>
               <div> </div>
             </div>
+            {rhiWowData && (
+              <div>
+                {/* generate table shadcn with data from rhiWowData, column region, mostly_kpi_fail_2g,mostly_kpi_fail_4g,mostly_kpi_fail_5g */}
+                <Table className="text-xs">
+                  <TableHeader>
+                    <TableRow>
+                      {/* <TableHead className="text-xs">Region</TableHead> */}
+                      <TableHead className="text-xs">Mostly KPI Fail 2G</TableHead>
+                      <TableHead className="text-xs">Mostly KPI Fail 4G</TableHead>
+                      <TableHead className="text-xs">Mostly KPI Fail 5G</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rhiWowData.map((item: any) => (
+                      <TableRow key={item.region}>
+                        {/* <TableCell className="text-xs py-1">
+                          {item.region}
+                        </TableCell> */}
+                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_2g}</TableCell>
+                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_4g}</TableCell>
+                        <TableCell className="text-xs py-1">{item.mostly_kpi_fail_5g}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
         );
       })}
