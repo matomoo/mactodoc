@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TutelaChartContent from "./tutela-chart-content";
 import RhiChartContent from "./rhi-chart-content";
 import OoklaChartContent from "./ookla-chart-content";
+import RciChartContent from "./rci-chart-content";
+import UnbalanceChartContent from "./unbalance-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -18,6 +20,12 @@ interface IProps {
   ooklaApiPath?: string;
   ooklaLevel?: string;
   ooklaLocation?: string;
+  rciApiPath?: string;
+  rciLevel?: string;
+  rciLocation?: string;
+  unbalanceApiPath?: string;
+  unbalanceLevel?: string;
+  unbalanceLocation?: string;
 }
 
 export default function SummaryCard({
@@ -31,6 +39,12 @@ export default function SummaryCard({
   ooklaApiPath = "noUrl",
   ooklaLevel = "noLevel",
   ooklaLocation = "noLocation",
+  rciApiPath = "noUrl",
+  rciLevel = "noLevel",
+  rciLocation = "noLocation",
+  unbalanceApiPath = "noUrl",
+  unbalanceLevel = "noLevel",
+  unbalanceLocation = "noLocation",
   className = "",
 }: IProps) {
   return (
@@ -45,6 +59,14 @@ export default function SummaryCard({
           <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={rhiLevel} rhiLocation={rhiLocation} />
         ) : cardTitle === "Ookla" ? (
           <OoklaChartContent ooklaApiPath={ooklaApiPath} ooklaLevel={ooklaLevel} ooklaLocation={ooklaLocation} />
+        ) : cardTitle === "RCI" ? (
+          <RciChartContent rciApiPath={rciApiPath} rciLevel={rciLevel} rciLocation={rciLocation} />
+        ) : cardTitle === "Unbalance" ? (
+          <UnbalanceChartContent
+            unbalanceApiPath={unbalanceApiPath}
+            unbalanceLevel={unbalanceLevel}
+            unbalanceLocation={unbalanceLocation}
+          />
         ) : (
           <div>TODO: On Progress</div>
         )}

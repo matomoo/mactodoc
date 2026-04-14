@@ -263,7 +263,7 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel }: RhiChartConten
   };
 
   return (
-    <div className="flex flex-row gap-6 overflow-x-auto">
+    <div className="flex flex-row gap-6">
       {Object.entries(groupedData).map(([metric]) => {
         return (
           <div key={metric} className="shrink-0 space-y-2" style={{ minWidth: "300px" }}>
@@ -305,7 +305,6 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel }: RhiChartConten
                   </div>
                 )}
               </div>
-              <div> </div>
             </div>
             {rhiWowData && (
               <div>

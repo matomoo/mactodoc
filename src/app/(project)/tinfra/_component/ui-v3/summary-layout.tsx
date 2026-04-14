@@ -8,6 +8,12 @@ export default function SummaryLayout() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <SummaryCard cardTitle={"Tutela"} tutelaApiPath="/tinfra/api/v2/summary/hq-tutela" className="lg:col-span-2" />
         <SummaryCard cardTitle={"RHI"} rhiApiPath="/tinfra/api/v2/summary/hq-rhi" className="lg:col-span-1" />
+        <SummaryCard cardTitle={"RCI"} rciApiPath="/tinfra/api/v2/summary/hq-rci-unb" className="lg:col-span-1" />
+        <SummaryCard
+          cardTitle={"Unbalance"}
+          unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
+          className="lg:col-span-1"
+        />
         <SummaryCard cardTitle={"Ookla"} ooklaApiPath="/tinfra/api/v2/summary/hq-ookla" className="lg:col-span-2" />
       </div>
     </div>
