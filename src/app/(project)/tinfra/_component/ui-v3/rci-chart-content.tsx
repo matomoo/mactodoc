@@ -261,7 +261,7 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
   return (
     <div className="space-y-2">
       {Object.entries(groupedData).map(([metric, techData]) => (
-        <div key={metric} className="flex flex-row items-center">
+        <div key={metric} className="flex flex-row items-center lg:overflow-x-auto">
           {/* Column 1: Value */}
           <div>
             {techData && (
@@ -291,7 +291,7 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
           </div>
           {/* Chart of percent_rhi_all, get data from rhiPercentageData */}
           {/* here column 2 and 3 */}
-          <div className="col-span-2" style={{ height: "200px" }}>
+          <div className="col-span-2" style={{ width: "280px", height: "200px" }}>
             {rciChart && rciChart.length > 0 ? (
               <Line data={lineChartData} options={lineChartOptions} />
             ) : (

@@ -24,7 +24,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Ch
 const getKpiColumns = (): string[] => {
   return [
     // "pct_achv_rci",
-    "pct_achv_p1",
+    "pct_achv_unbalance_p1",
   ];
 };
 
@@ -53,9 +53,21 @@ interface ApiDataItem {
   pct_achv_rci: string;
   prev_pct_achv_rci: string;
   wow_pct_achv_rci: string;
+  balanced_count: string;
   unbalanced_p1_count: string;
+  unbalanced_p2_count: string;
+  unbalanced_p3_count: string;
+  wow_pct_achv_balanced: string;
+  wow_pct_achv_unbalance_p1: string;
+  wow_pct_achv_unbalance_p2: string;
+  wow_pct_achv_unbalance_p3: string;
   total_unbalanced_3method: string;
-  pct_achv_p1: string;
+  p1_unbalance_v2_l18l21_vs_l23: string;
+  p1_unbalance_v1_l18l21: string;
+  p1_unbalance_v3_thp_l9: string;
+  p1_unbalance_v2_l18l21_40: string;
+
+  pct_achv_balanced: string;
   prev_pct_achv_p1: string;
   wow_pct_achv_p1: string;
 }
@@ -263,7 +275,7 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
   return (
     <div className="space-y-2">
       {Object.entries(groupedData).map(([metric, techData]) => (
-        <div key={metric} className="flex flex-row items-center">
+        <div key={metric} className="flex flex-row items-center lg:overflow-x-auto">
           {/* Column 1: Value */}
           <div>
             {techData && (
@@ -293,7 +305,7 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
           </div>
           {/* Chart of percent_rhi_all, get data from rhiPercentageData */}
           {/* here column 2 and 3 */}
-          <div className="col-span-2" style={{ height: "200px" }}>
+          <div className="col-span-2" style={{ width: "280px", height: "200px" }}>
             {unbalanceChart && unbalanceChart.length > 0 ? (
               <Line data={lineChartData} options={lineChartOptions} />
             ) : (
@@ -306,68 +318,114 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
       ))}
       {/* here is span 3 col */}
       {data && (
-        <div className="col-span-3">
+        <div className="col-span-3 h-32 overflow-y-auto">
           {/* generate table shadcn with data from rhiWowData, column region, mostly_kpi_fail_2g,mostly_kpi_fail_4g,mostly_kpi_fail_5g */}
-          {/* <Table className="text-xs">
+          <Table className="text-xs">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-xs">Remark</TableHead>
                 <TableHead className="text-xs">Count</TableHead>
+                <TableHead className="text-xs">WOW</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow key={"green"}>
-                <TableCell className="py-1 text-xs">GREEN</TableCell>
+              <TableRow key={"balanced"}>
+                <TableCell className="py-1 text-xs">Balanced</TableCell>
                 {data.map((item: any) => (
-                  <TableCell
-                    key={`green-${item.provider}`}
-                    className="py-1 text-xs">
-                    {item.green_count}
+                  <TableCell key={`balanced-${item.provider}`} className="py-1 text-xs">
+                    {item.balanced_count}
+                  </TableCell>
+                ))}
+                {data.map((item: any) => (
+                  <TableCell key={`balanced-${item.provider}`} className="py-1 text-xs">
+                    {parseFloat(item.wow_pct_achv_balanced.toString()).toFixed(2)}
                   </TableCell>
                 ))}
               </TableRow>
-              <TableRow key={"investment"}>
-                <TableCell className="py-1 text-xs">INVESTMENT</TableCell>
+              <TableRow key={"unbalanced_p1"}>
+                <TableCell className="py-1 text-xs">Unbalanced P1</TableCell>
                 {data.map((item: any) => (
-                  <TableCell
-                    key={`investment-${item.provider}`}
-                    className="py-1 text-xs">
-                    {item.investment_count}
+                  <TableCell key={`unbalanced_p1-${item.provider}`} className="py-1 text-xs">
+                    {item.unbalanced_p1_count}
+                  </TableCell>
+                ))}
+                {data.map((item: any) => (
+                  <TableCell key={`unbalanced_p1-${item.provider}`} className="py-1 text-xs">
+                    {parseFloat(item.wow_pct_achv_unbalance_p1.toString()).toFixed(2)}
                   </TableCell>
                 ))}
               </TableRow>
-              <TableRow key={"operation"}>
-                <TableCell className="py-1 text-xs">OPERATION</TableCell>
+              <TableRow key={"unbalanced_p2"}>
+                <TableCell className="py-1 text-xs">Unbalanced P2</TableCell>
                 {data.map((item: any) => (
-                  <TableCell
-                    key={`operation-${item.provider}`}
-                    className="py-1 text-xs">
-                    {item.operation_count}
+                  <TableCell key={`unbalanced_p2-${item.provider}`} className="py-1 text-xs">
+                    {item.unbalanced_p2_count}
+                  </TableCell>
+                ))}
+                {data.map((item: any) => (
+                  <TableCell key={`unbalanced_p2-${item.provider}`} className="py-1 text-xs">
+                    {parseFloat(item.wow_pct_achv_unbalance_p2.toString()).toFixed(2)}
                   </TableCell>
                 ))}
               </TableRow>
-              <TableRow key={"optimization"}>
-                <TableCell className="py-1 text-xs">OPTIM</TableCell>
+              <TableRow key={"unbalanced_p3"}>
+                <TableCell className="py-1 text-xs">Unbalanced P3</TableCell>
                 {data.map((item: any) => (
-                  <TableCell
-                    key={`optim-${item.provider}`}
-                    className="py-1 text-xs">
-                    {item.optim_count}
+                  <TableCell key={`unbalanced_p3-${item.provider}`} className="py-1 text-xs">
+                    {item.unbalanced_p3_count}
                   </TableCell>
                 ))}
-              </TableRow>
-              <TableRow key={"vendor"}>
-                <TableCell className="py-1 text-xs">Vendor</TableCell>
                 {data.map((item: any) => (
-                  <TableCell
-                    key={`vendor-${item.provider}`}
-                    className="py-1 text-xs">
-                    {item.vendor_count}
+                  <TableCell key={`unbalanced_p3-${item.provider}`} className="py-1 text-xs">
+                    {parseFloat(item.wow_pct_achv_unbalance_p3.toString()).toFixed(2)}
                   </TableCell>
                 ))}
               </TableRow>
             </TableBody>
-          </Table> */}
+          </Table>
+
+          <Table className="text-xs">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">Status Finansial Regional Unbalanced P1</TableHead>
+                <TableHead className="text-xs">Count</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow key={"balanced"}>
+                <TableCell className="py-1 text-xs">{"Unbalance V2 - L18L21 vs L23 >40%"}</TableCell>
+                {data.map((item: any) => (
+                  <TableCell key={`balanced-${item.provider}`} className="py-1 text-xs">
+                    {item.p1_unbalance_v2_l18l21_vs_l23}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow key={"unbalanced_p1"}>
+                <TableCell className="py-1 text-xs">{"Unbalance V1 - L18L21 >30%"}</TableCell>
+                {data.map((item: any) => (
+                  <TableCell key={`unbalanced_p1-${item.provider}`} className="py-1 text-xs">
+                    {item.p1_unbalance_v1_l18l21}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow key={"unbalanced_p2"}>
+                <TableCell className="py-1 text-xs">{"Unbalance V3 - thp L9 >3Mbps to colo"}</TableCell>
+                {data.map((item: any) => (
+                  <TableCell key={`unbalanced_p2-${item.provider}`} className="py-1 text-xs">
+                    {item.p1_unbalance_v3_thp_l9}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow key={"unbalanced_p3"}>
+                <TableCell className="py-1 text-xs">{"Unbalance V2 - L18L21 >40%"}</TableCell>
+                {data.map((item: any) => (
+                  <TableCell key={`unbalanced_p3-${item.provider}`} className="py-1 text-xs">
+                    {item.p1_unbalance_v2_l18l21_40}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

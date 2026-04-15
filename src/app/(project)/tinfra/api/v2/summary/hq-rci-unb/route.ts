@@ -65,14 +65,14 @@ export async function GET(request: Request) {
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
         WITH params AS (
-            SELECT ${sql.raw(searchByYearWeek)} AS selected_week  
+            SELECT ${sql.raw(searchByYearWeek)} AS selected_week
         ),
 
         week_scope AS (
             SELECT DISTINCT week
             FROM raw_rci_unb
             WHERE week <= (SELECT selected_week FROM params)
-            AND region = ${searchByValueLocation.trim()}     
+            AND region = ${searchByValueLocation.trim()}
             ORDER BY week DESC
             LIMIT 2
         ),
@@ -96,19 +96,19 @@ export async function GET(request: Request) {
             SELECT
                 week,
                 region,
-                COUNT(CASE WHEN "Simplify Remark" = 'Green' THEN 1 END)    AS green_count,
-                COUNT(CASE WHEN "Simplify Remark" = 'Investment' THEN 1 END)    AS investment_count,
-                COUNT(CASE WHEN "Simplify Remark" = 'Operation' THEN 1 END)    AS operation_count,
-                COUNT(CASE WHEN "Simplify Remark" = 'Optim' THEN 1 END)    AS optim_count,
-                COUNT(CASE WHEN "Simplify Remark" = 'Vendor' THEN 1 END)    AS vendor_count,
-                COUNT("Simplify Remark")                                     AS total_simplify_remark,
+                COUNT(CASE WHEN "Simplify Remark" = 'Green'      THEN 1 END) AS green_count,
+                COUNT(CASE WHEN "Simplify Remark" = 'Investment' THEN 1 END) AS investment_count,
+                COUNT(CASE WHEN "Simplify Remark" = 'Operation'  THEN 1 END) AS operation_count,
+                COUNT(CASE WHEN "Simplify Remark" = 'Optim'      THEN 1 END) AS optim_count,
+                COUNT(CASE WHEN "Simplify Remark" = 'Vendor'     THEN 1 END) AS vendor_count,
+                COUNT("Simplify Remark")                                      AS total_simplify_remark,
                 ROUND(
-                    (COUNT(CASE WHEN "Simplify Remark" = 'Optim' THEN 1 END)::NUMERIC
-                    / NULLIF(COUNT("Simplify Remark"), 0) * 100)::NUMERIC, 4
-                )                                                            AS pct_achv_rci
+                    COUNT(CASE WHEN "Simplify Remark" = 'Optim' THEN 1 END)::NUMERIC
+                    / NULLIF(COUNT("Simplify Remark"), 0) * 100, 4
+                )                                                             AS pct_achv_rci
             FROM raw_rci_unb
             WHERE week IN (SELECT week FROM week_scope)
-            AND region = ${searchByValueLocation.trim()}     
+            AND region = ${searchByValueLocation.trim()}
             GROUP BY week, region
         ),
 
@@ -117,10 +117,10 @@ export async function GET(request: Request) {
                 *,
                 ROUND(LAG(pct_achv_rci) OVER (
                     PARTITION BY region ORDER BY week
-                )::NUMERIC, 4)                                               AS prev_pct_achv_rci,
+                )::NUMERIC, 4)                                                AS prev_pct_achv_rci,
                 ROUND((pct_achv_rci - LAG(pct_achv_rci) OVER (
                     PARTITION BY region ORDER BY week
-                ))::NUMERIC, 4)                                              AS wow_pct_achv_rci
+                ))::NUMERIC, 4)                                               AS wow_pct_achv_rci
             FROM rci_agg
         ),
 
@@ -128,36 +128,84 @@ export async function GET(request: Request) {
             SELECT
                 week,
                 region,
-                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' THEN 1 END)  AS unbalanced_p1_count,
-                COUNT(unbalanced_3method)                                           AS total_unbalanced_3method,
+                COUNT(CASE WHEN unbalanced_3method = 'balanced'      THEN 1 END) AS balanced_count,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' THEN 1 END) AS unbalanced_p1_count,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p2' THEN 1 END) AS unbalanced_p2_count,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p3' THEN 1 END) AS unbalanced_p3_count,
+                COUNT(unbalanced_3method)                                         AS total_unbalanced_3method,
+
+                -- P1 breakdown (only rows where unbalanced_3method = 'unbalanced_p1')
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' AND "Status Final Regional" = 'Unbalance V2 - L18L21 vs L23 >40%' THEN 1 END) AS p1_unbalance_v2_l18l21_vs_l23,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' AND "Status Final Regional" = 'Unbalance V1 - L18L21 >30%' THEN 1 END) AS p1_unbalance_v1_l18l21,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' AND "Status Final Regional" = 'Unbalance V3 - thp L9 >3Mbps to colo' THEN 1 END) AS p1_unbalance_v3_thp_l9,
+                COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' AND "Status Final Regional" = 'Unbalance V2 - L18L21 >40%' THEN 1 END) AS p1_unbalance_v2_l18l21_40,
+
                 ROUND(
-                    (COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' THEN 1 END)::NUMERIC
-                    / NULLIF(COUNT(unbalanced_3method), 0) * 100)::NUMERIC, 4
-                )                                                                   AS pct_achv_p1
+                    COUNT(CASE WHEN unbalanced_3method = 'balanced' THEN 1 END)::NUMERIC
+                    / NULLIF(COUNT(unbalanced_3method), 0) * 100, 4
+                )                                                                 AS pct_achv_balanced,
+                ROUND(
+                    COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p1' THEN 1 END)::NUMERIC
+                    / NULLIF(COUNT(unbalanced_3method), 0) * 100, 4
+                )                                                                 AS pct_achv_unbalance_p1,
+                ROUND(
+                    COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p2' THEN 1 END)::NUMERIC
+                    / NULLIF(COUNT(unbalanced_3method), 0) * 100, 4
+                )                                                                 AS pct_achv_unbalance_p2,
+                ROUND(
+                    COUNT(CASE WHEN unbalanced_3method = 'unbalanced_p3' THEN 1 END)::NUMERIC
+                    / NULLIF(COUNT(unbalanced_3method), 0) * 100, 4
+                )                                                                 AS pct_achv_unbalance_p3
             FROM raw_rci_unb
             WHERE week IN (SELECT week FROM week_scope)
-            AND region = ${searchByValueLocation.trim()}     
+            AND region = ${searchByValueLocation.trim()}
             GROUP BY week, region
         ),
 
         unb_wow AS (
             SELECT
                 *,
-                ROUND(LAG(pct_achv_p1) OVER (
+                -- WoW Balanced
+                ROUND(LAG(pct_achv_balanced) OVER (
                     PARTITION BY region ORDER BY week
-                )::NUMERIC, 4)                                                      AS prev_pct_achv_p1,
-                ROUND((pct_achv_p1 - LAG(pct_achv_p1) OVER (
+                )::NUMERIC, 4)                                                    AS prev_pct_achv_balanced,
+                ROUND((pct_achv_balanced - LAG(pct_achv_balanced) OVER (
                     PARTITION BY region ORDER BY week
-                ))::NUMERIC, 4)                                                     AS wow_pct_achv_p1
+                ))::NUMERIC, 4)                                                   AS wow_pct_achv_balanced,
+
+                -- WoW Unbalanced P1
+                ROUND(LAG(pct_achv_unbalance_p1) OVER (
+                    PARTITION BY region ORDER BY week
+                )::NUMERIC, 4)                                                    AS prev_pct_achv_unbalance_p1,
+                ROUND((pct_achv_unbalance_p1 - LAG(pct_achv_unbalance_p1) OVER (
+                    PARTITION BY region ORDER BY week
+                ))::NUMERIC, 4)                                                   AS wow_pct_achv_unbalance_p1,
+
+                -- WoW Unbalanced P2
+                ROUND(LAG(pct_achv_unbalance_p2) OVER (
+                    PARTITION BY region ORDER BY week
+                )::NUMERIC, 4)                                                    AS prev_pct_achv_unbalance_p2,
+                ROUND((pct_achv_unbalance_p2 - LAG(pct_achv_unbalance_p2) OVER (
+                    PARTITION BY region ORDER BY week
+                ))::NUMERIC, 4)                                                   AS wow_pct_achv_unbalance_p2,
+
+                -- WoW Unbalanced P3
+                ROUND(LAG(pct_achv_unbalance_p3) OVER (
+                    PARTITION BY region ORDER BY week
+                )::NUMERIC, 4)                                                    AS prev_pct_achv_unbalance_p3,
+                ROUND((pct_achv_unbalance_p3 - LAG(pct_achv_unbalance_p3) OVER (
+                    PARTITION BY region ORDER BY week
+                ))::NUMERIC, 4)                                                   AS wow_pct_achv_unbalance_p3
             FROM unb_agg
         )
 
         SELECT
-            r.week                                                                          AS yearweek,
-            CASE WHEN (SELECT valid FROM is_valid) THEN (SELECT week FROM prev_week) 
-                ELSE NULL END                                                              AS prev_yearweek,
+            r.week                                                                           AS yearweek,
+            CASE WHEN (SELECT valid FROM is_valid) THEN (SELECT week FROM prev_week)
+                ELSE NULL END                                                               AS prev_yearweek,
             r.region,
 
+            -- RCI
             r.green_count,
             r.investment_count,
             r.operation_count,
@@ -165,14 +213,41 @@ export async function GET(request: Request) {
             r.vendor_count,
             r.total_simplify_remark,
             r.pct_achv_rci,
-            CASE WHEN (SELECT valid FROM is_valid) THEN r.prev_pct_achv_rci ELSE NULL END  AS prev_pct_achv_rci,
-            CASE WHEN (SELECT valid FROM is_valid) THEN r.wow_pct_achv_rci  ELSE NULL END  AS wow_pct_achv_rci,
+            CASE WHEN (SELECT valid FROM is_valid) THEN r.prev_pct_achv_rci  ELSE NULL END  AS prev_pct_achv_rci,
+            CASE WHEN (SELECT valid FROM is_valid) THEN r.wow_pct_achv_rci   ELSE NULL END  AS wow_pct_achv_rci,
 
+            -- Unbalanced counts
+            u.balanced_count,
             u.unbalanced_p1_count,
+            u.unbalanced_p2_count,
+            u.unbalanced_p3_count,
             u.total_unbalanced_3method,
-            u.pct_achv_p1,
-            CASE WHEN (SELECT valid FROM is_valid) THEN u.prev_pct_achv_p1  ELSE NULL END  AS prev_pct_achv_p1,
-            CASE WHEN (SELECT valid FROM is_valid) THEN u.wow_pct_achv_p1   ELSE NULL END  AS wow_pct_achv_p1
+                
+                -- P1 Breakdown columns
+            u.p1_unbalance_v2_l18l21_vs_l23,   -- Unbalance V2 - L18L21 vs L23 >40%
+            u.p1_unbalance_v1_l18l21,           -- Unbalance V1 - L18L21 >30%
+            u.p1_unbalance_v3_thp_l9,           -- Unbalance V3 - thp L9 >3Mbps to colo
+            u.p1_unbalance_v2_l18l21_40,        -- Unbalance V2 - L18L21 >40%
+
+            -- Balanced
+            u.pct_achv_balanced,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.prev_pct_achv_balanced       ELSE NULL END AS prev_pct_achv_balanced,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.wow_pct_achv_balanced        ELSE NULL END AS wow_pct_achv_balanced,
+
+            -- Unbalanced P1
+            u.pct_achv_unbalance_p1,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.prev_pct_achv_unbalance_p1   ELSE NULL END AS prev_pct_achv_unbalance_p1,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.wow_pct_achv_unbalance_p1    ELSE NULL END AS wow_pct_achv_unbalance_p1,
+
+            -- Unbalanced P2
+            u.pct_achv_unbalance_p2,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.prev_pct_achv_unbalance_p2   ELSE NULL END AS prev_pct_achv_unbalance_p2,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.wow_pct_achv_unbalance_p2    ELSE NULL END AS wow_pct_achv_unbalance_p2,
+
+            -- Unbalanced P3
+            u.pct_achv_unbalance_p3,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.prev_pct_achv_unbalance_p3   ELSE NULL END AS prev_pct_achv_unbalance_p3,
+            CASE WHEN (SELECT valid FROM is_valid) THEN u.wow_pct_achv_unbalance_p3    ELSE NULL END AS wow_pct_achv_unbalance_p3
 
         FROM rci_wow r
         JOIN unb_wow u ON u.week = r.week
