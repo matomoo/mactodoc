@@ -77,7 +77,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["productivity-data", yearweek, productivityApiPath, productivityLevel, valueLocation],
+    queryKey: ["productivity-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
         return [];
@@ -86,10 +86,10 @@ export default function ProductivityChartContent({ productivityApiPath, producti
       const response = await fetch(
         [
           `${productivityApiPath}?level=${viewBy}`,
-          `&valueLocation=${valueLocation}`,
-          `&yearweek=${yearweek}`,
-          `&tgl_1=${dateRange2?.split("|")[0]}`,
-          `&tgl_2=${dateRange2?.split("|")[1]}`,
+          `valueLocation=${valueLocation}`,
+          `yearweek=${yearweek}`,
+          `tgl_1=${dateRange2?.split("|")[0]}`,
+          `tgl_2=${dateRange2?.split("|")[1]}`,
         ].join("&"),
       );
       if (!response.ok) {

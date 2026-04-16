@@ -9,9 +9,8 @@ export default function SummaryLayout() {
         <SummaryCard
           cardTitle={"Productivity"}
           productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
-          className="lg:col-span-2"
+          className="lg:col-span-1"
         />
-        <SummaryCard cardTitle={"Tutela"} tutelaApiPath="/tinfra/api/v2/summary/hq-tutela" className="lg:col-span-2" />
         <SummaryCard cardTitle={"RHI"} rhiApiPath="/tinfra/api/v2/summary/hq-rhi" className="lg:col-span-1" />
         <SummaryCard cardTitle={"RCI"} rciApiPath="/tinfra/api/v2/summary/hq-rci-unb" className="lg:col-span-1" />
         <SummaryCard
@@ -19,6 +18,7 @@ export default function SummaryLayout() {
           unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
           className="lg:col-span-1"
         />
+        <SummaryCard cardTitle={"Tutela"} tutelaApiPath="/tinfra/api/v2/summary/hq-tutela" className="lg:col-span-2" />
         <SummaryCard cardTitle={"Ookla"} ooklaApiPath="/tinfra/api/v2/summary/hq-ookla" className="lg:col-span-2" />
       </div>
     </div>

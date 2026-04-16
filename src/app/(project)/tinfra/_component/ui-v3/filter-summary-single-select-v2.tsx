@@ -8,8 +8,7 @@ import { format, subDays, parseISO, isValid } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { X } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { useSummaryStore } from "@/stores/summaryStore";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -66,14 +65,14 @@ export function Filter_Summary() {
     nop: storeNop,
     region: storeRegion,
     kabupaten: storeKabupaten,
-    kecamatan: storeKecamatan,
+    // kecamatan: storeKecamatan,
     viewBy: storeViewBy,
     setDateRange2,
     setYearweek,
     setNop,
     setRegion,
     setKabupaten,
-    setKecamatan,
+    // setKecamatan,
     setViewBy,
   } = useSummaryStore();
 
@@ -193,10 +192,29 @@ export function Filter_Summary() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // console.log("debug", { weekData });
+  // API to fetch week range data
+  const { data: dataProductivityLatestDate, isLoading: _isLoadingProductivityLatestDate } = useQuery({
+    queryKey: ["ref-productivity-latest-date"],
+    queryFn: async () => {
+      const response = await fetch(`/tinfra/api/v2/summary/ref-productivity-latest-date`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
 
   // Extract the actual data from the response
   const weekList = weekData?.rows || weekData || [];
+  const productivityLatestDateList = dataProductivityLatestDate || [];
+
+  console.log("debug", {
+    weekData,
+    dataProductivityLatestDate,
+    productivityLatestDateList,
+  });
 
   // Ensure Zustand store is updated with default date range on first load
   useEffect(() => {
@@ -211,24 +229,28 @@ export function Filter_Summary() {
   }, [isFirstLoad, storeDateRange, setDateRange2, defaultRangeString]);
 
   // Handler to update date range and directly submit to zustand store
-  const handleDateRangeChange = (range: DateRange | undefined) => {
-    if (!range) {
-      setDateRange2(null);
-      setIsSelecting(false);
-      return;
-    }
+  // const handleDateRangeChange = (range: DateRange | undefined) => {
+  //   console.log("handleDateRangeChange called with:", range);
+  //   if (!range) {
+  //     console.log("No range, setting to null");
+  //     setDateRange2(null);
+  //     setIsSelecting(false);
+  //     return;
+  //   }
 
-    // If both dates are selected, submit to store
-    if (range.from && range.to) {
-      const rangeString = `${format(range.from, "yyyy-MM-dd")}|${format(range.to, "yyyy-MM-dd")}`;
-      setDateRange2(rangeString);
-      setIsSelecting(false);
-    }
-    // If only from date is selected
-    else if (range.from && !range.to) {
-      setIsSelecting(true);
-    }
-  };
+  //   // If both dates are selected, submit to store
+  //   if (range.from && range.to) {
+  //     const rangeString = `${format(range.from, "yyyy-MM-dd")}|${format(range.to, "yyyy-MM-dd")}`;
+  //     console.log("Both dates selected, setting range:", rangeString);
+  //     setDateRange2(rangeString);
+  //     setIsSelecting(false);
+  //   }
+  //   // If only from date is selected
+  //   else if (range.from && !range.to) {
+  //     console.log("Only from date selected, setting isSelecting to true");
+  //     setIsSelecting(true);
+  //   }
+  // };
 
   // Select handlers for each dropdown type
   const selectRegion = (itemName: string) => {
@@ -317,9 +339,42 @@ export function Filter_Summary() {
               <Calendar
                 mode="range"
                 selected={parseDateRange(storeDateRange)}
-                onSelect={handleDateRangeChange}
+                onSelect={(range) => {
+                  if (range?.from && range?.to) {
+                    const rangeString = `${format(range.from, "yyyy-MM-dd")}|${format(range.to, "yyyy-MM-dd")}`;
+                    setDateRange2(rangeString);
+                    setIsSelecting(false);
+                  } else if (range?.from && !range?.to) {
+                    console.log("Only from date selected, setting isSelecting to true");
+                    setIsSelecting(true);
+                  } else {
+                    console.log("No range selected, setting to null");
+                    setDateRange2(null);
+                    setIsSelecting(false);
+                  }
+                }}
                 defaultMonth={parseDateRange(storeDateRange)?.from || new Date()}
                 numberOfMonths={2}
+                disabled={{
+                  // before: new Date(productivityLatestDateList[0]?.Date || ""),
+                  after: new Date(productivityLatestDateList[0]?.Date || ""),
+                }}
+                // Debug: log disabled dates
+                modifiers={{
+                  disabled: (date) => {
+                    const latestDate = new Date(productivityLatestDateList[0]?.Date || "");
+                    const isDisabled = date ? date > latestDate : false;
+                    // console.log(
+                    //   "Date:",
+                    //   date,
+                    //   "Latest:",
+                    //   latestDate,
+                    //   "Is disabled:",
+                    //   isDisabled,
+                    // );
+                    return isDisabled;
+                  },
+                }}
               />
               {isSelecting && (
                 <div className="border-t p-2 text-center text-muted-foreground text-xs">
