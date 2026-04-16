@@ -7,6 +7,7 @@ import RhiChartContent from "./rhi-chart-content";
 import OoklaChartContent from "./ookla-chart-content";
 import RciChartContent from "./rci-chart-content";
 import UnbalanceChartContent from "./unbalance-chart-content";
+import ProductivityChartContent from "./productivity-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -26,6 +27,7 @@ interface IProps {
   unbalanceApiPath?: string;
   unbalanceLevel?: string;
   unbalanceLocation?: string;
+  productivityApiPath?: string;
 }
 
 export default function SummaryCard({
@@ -45,6 +47,7 @@ export default function SummaryCard({
   unbalanceApiPath = "noUrl",
   unbalanceLevel = "noLevel",
   unbalanceLocation = "noLocation",
+  productivityApiPath = "noUrl",
   className = "",
 }: IProps) {
   return (
@@ -66,6 +69,12 @@ export default function SummaryCard({
             unbalanceApiPath={unbalanceApiPath}
             unbalanceLevel={unbalanceLevel}
             unbalanceLocation={unbalanceLocation}
+          />
+        ) : cardTitle === "Productivity" ? (
+          <ProductivityChartContent
+            productivityApiPath={productivityApiPath}
+            productivityLevel="noLevel"
+            productivityLocation="noLocation"
           />
         ) : (
           <div>TODO: On Progress</div>

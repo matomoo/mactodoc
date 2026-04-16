@@ -129,7 +129,7 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
   const data = rciData || [];
   const rciChart = rciChartData || [];
 
-  console.log("debug:", { data, rciChart });
+  // console.log("debug:", { data, rciChart });
 
   if (isLoading) {
     return (

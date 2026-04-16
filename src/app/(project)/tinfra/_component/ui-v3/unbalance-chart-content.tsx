@@ -143,7 +143,7 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
   const data = unbalanceData || [];
   const unbalanceChart = unbalanceChartData || [];
 
-  console.log("debug:", { data, unbalanceChart });
+  // console.log("debug:", { data, unbalanceChart });
 
   if (isLoading) {
     return (
