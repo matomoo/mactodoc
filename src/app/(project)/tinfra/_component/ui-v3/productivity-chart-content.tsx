@@ -107,7 +107,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
 
   const data = rciData || [];
 
-  console.log("debug:", { data });
+  // console.log("debug:", { data });
 
   if (isLoading) {
     return (

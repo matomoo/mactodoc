@@ -228,6 +228,8 @@ export default function TutelaChartContent({ tutelaApiPath, tutelaLevel }: Tutel
           ],
         };
 
+        // console.log({ sortedChartData });
+
         return (
           <div key={metric} className="shrink-0 space-y-2" style={{ minWidth: "300px" }}>
             <h3 className="font-medium text-gray-700 text-sm">{getMetricDisplayName(metric)}</h3>
@@ -244,7 +246,7 @@ export default function TutelaChartContent({ tutelaApiPath, tutelaLevel }: Tutel
                   }
                 >
                   {" "}
-                  WOW {sortedChartData.filter((item) => item.provider === "Telkomsel")[0].wow_diff.toFixed(2)}%
+                  WOW {sortedChartData.filter((item) => item.provider === "Telkomsel")[0].wow_diff?.toFixed(2) || "NA"}%
                 </Badge>
               )}
               {sortedChartData && (

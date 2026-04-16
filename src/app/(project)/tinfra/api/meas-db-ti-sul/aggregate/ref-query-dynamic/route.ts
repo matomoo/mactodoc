@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const searchByThis = searchParams.get("searchByThis");
     const fieldToSearch = searchParams.get("fieldToSearch");
+    const searchNop = searchParams.get("nop");
 
     // Validate fieldToSearch to prevent SQL injection
     const allowedFields = ["kabupaten", "kecamatan", "nop", "siteid", "region"];
@@ -19,11 +20,11 @@ export async function GET(request: Request) {
 
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     let query: any;
-    if (searchByThis) {
+    if (fieldToSearch === "kabupaten") {
       // When searching for specific value, return matching records
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 
-        WHERE ${sql.raw(fieldToSearch)} = ${searchByThis}
+        WHERE nop = ${searchNop}
         ORDER BY ${sql.raw(fieldToSearch)}
       `;
     } else {

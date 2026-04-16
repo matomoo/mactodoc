@@ -2,7 +2,7 @@
 
 // biome-ignore assist/source/organizeImports: <none>
 import { useRequireAuth } from "@/hooks/use-require-auth";
-import { Filter_Summary } from "../../../_component/ui-v3/filter-summary-single-select";
+import { Filter_Summary } from "../../../_component/ui-v3/filter-summary-single-select-v2";
 import SummaryLayout from "../../../_component/ui-v3/summary-layout";
 
 export default function Page() {
