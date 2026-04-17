@@ -53,10 +53,32 @@ interface WeekData {
 }
 
 export function Filter_Summary() {
+  // API to fetch productivity latest date data
+  const { data: dataProductivityLatestDate, isLoading: _isLoadingProductivityLatestDate } = useQuery({
+    queryKey: ["ref-productivity-latest-date"],
+    queryFn: async () => {
+      const response = await fetch(`/tinfra/api/v2/summary/ref-productivity-latest-date`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Extract the actual data from the response
+  const productivityLatestDateList = dataProductivityLatestDate || [];
+
   // Default date range values
-  const defaultFrom = subDays(new Date(), 7);
-  const defaultTo = subDays(new Date(), 1);
+  const latestDate = productivityLatestDateList[0]?.Date
+    ? new Date(productivityLatestDateList[0].Date)
+    : subDays(new Date(), 1);
+  const defaultFrom = subDays(latestDate, 6);
+  const defaultTo = latestDate;
   const defaultRangeString = `${format(defaultFrom, "yyyy-MM-dd")}|${format(defaultTo, "yyyy-MM-dd")}`;
+
+  // console.log({ productivityLatestDateList, latestDate });
 
   // Use Zustand store
   const {
@@ -192,41 +214,32 @@ export function Filter_Summary() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // API to fetch week range data
-  const { data: dataProductivityLatestDate, isLoading: _isLoadingProductivityLatestDate } = useQuery({
-    queryKey: ["ref-productivity-latest-date"],
-    queryFn: async () => {
-      const response = await fetch(`/tinfra/api/v2/summary/ref-productivity-latest-date`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  });
-
   // Extract the actual data from the response
   const weekList = weekData?.rows || weekData || [];
-  const productivityLatestDateList = dataProductivityLatestDate || [];
 
-  console.log("debug", {
-    weekData,
-    dataProductivityLatestDate,
-    productivityLatestDateList,
-  });
+  // console.log("debug", {
+  //   weekData,
+  //   dataProductivityLatestDate,
+  //   productivityLatestDateList,
+  // });
 
   // Ensure Zustand store is updated with default date range on first load
-  useEffect(() => {
-    if (isFirstLoad) {
-      // If storeDateRange is not set in store, set it with default value
-      if (!storeDateRange) {
-        setDateRange2(defaultRangeString);
-      }
+  // useEffect(() => {
+  //   if (isFirstLoad) {
+  //     // If storeDateRange is not set in store, set it with default value
+  //     if (!storeDateRange) {
+  //       setDateRange2(defaultRangeString);
+  //     }
 
-      setIsFirstLoad(false);
+  //     setIsFirstLoad(false);
+  //   }
+  // }, [isFirstLoad, storeDateRange, setDateRange2, defaultRangeString]);
+
+  useEffect(() => {
+    if (productivityLatestDateList.length !== 0) {
+      setDateRange2(defaultRangeString);
     }
-  }, [isFirstLoad, storeDateRange, setDateRange2, defaultRangeString]);
+  }, [setDateRange2, defaultRangeString, productivityLatestDateList]);
 
   // Handler to update date range and directly submit to zustand store
   // const handleDateRangeChange = (range: DateRange | undefined) => {
