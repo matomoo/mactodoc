@@ -100,7 +100,7 @@ export function Filter_Summary() {
 
   // Track if we're in the process of selecting a range
   const [isSelecting, setIsSelecting] = useState(false);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  // const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Track popover open states
   const [regionPopoverOpen, setRegionPopoverOpen] = useState(false);

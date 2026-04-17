@@ -50,14 +50,27 @@ interface TechGroupedData {
 
 interface ApiDataItem {
   selected_date: string;
-  yoy_payload_growth_pct: number;
-  yoy_traffic_growth_pct: number;
-  wow_payload_growth_pct: number;
-  wow_traffic_growth_pct: number;
-  mtd_payload_growth_pct: number;
-  mtd_traffic_growth_pct: number;
+  branch: string;
+  mtd_traffic_this_year: number;
+  mtd_traffic_last_year: number;
+  mtd_traffic_diff: string;
+  mtd_payload_this_year: number;
+  mtd_payload_last_year: number;
+  mtd_payload_diff: string;
+  wow_traffic_current: number;
+  wow_traffic_prior: number;
+  wow_traffic_diff: string;
+  wow_payload_current: number;
+  wow_payload_prior: number;
+  wow_payload_diff: string;
 
-  region: string;
+  region?: string;
+  yoy_payload_growth_pct?: number;
+  yoy_traffic_growth_pct?: number;
+  wow_payload_growth_pct?: number;
+  wow_traffic_growth_pct?: number;
+  mtd_payload_growth_pct?: number;
+  mtd_traffic_growth_pct?: number;
 }
 
 interface IProps {
@@ -73,7 +86,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
     viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
 
   const {
-    data: rciData,
+    data: productivityData,
     isLoading,
     error,
   } = useQuery({
@@ -105,9 +118,55 @@ export default function ProductivityChartContent({ productivityApiPath, producti
     enabled: !!(productivityApiPath && productivityApiPath !== "noUrl"),
   });
 
-  const data = rciData || [];
+  const {
+    data: productivityNopData,
+    isLoading: isLoadingProductivityNop,
+    error: errorProductivityNop,
+  } = useQuery({
+    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
+    queryFn: async () => {
+      if (!productivityApiPath || productivityApiPath === "noUrl") {
+        return [];
+      }
 
-  // console.log("debug:", { data });
+      const response = await fetch(
+        [
+          `${productivityApiPath}-nop?level=${viewBy}`,
+          `valueLocation=${valueLocation}`,
+          `yearweek=${yearweek}`,
+          `tgl_1=${dateRange2?.split("|")[0]}`,
+          `tgl_2=${dateRange2?.split("|")[1]}`,
+        ].join("&"),
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+
+      // Handle API response format with rows property
+      const dataArray = result.rows || result || [];
+
+      return dataArray as ApiDataItem[];
+    },
+    enabled: !!(productivityApiPath && productivityApiPath !== "noUrl"),
+  });
+
+  const data = productivityData || [];
+  const dataNop = productivityNopData || [];
+
+  console.log("debug:", { data, dataNop });
+
+  // Sort dataNop by Yoy payload growth (smallest to largest)
+  const sortedByPayloadYoY = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
+    (a, b) =>
+      parseFloat(a.yoy_payload_growth_pct?.toString() || "0") - parseFloat(b.yoy_payload_growth_pct?.toString() || "0"),
+  );
+
+  // Sort dataNop by Yoy traffic growth (smallest to largest)
+  const sortedByTrafficYoy = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
+    (a, b) =>
+      parseFloat(a.yoy_traffic_growth_pct?.toString() || "0") - parseFloat(b.yoy_traffic_growth_pct?.toString() || "0"),
+  );
 
   if (isLoading) {
     return (
@@ -158,7 +217,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
           const mtdColumn = kpiColumn.replace("yoy_", "mtd_");
 
           acc[kpiColumn][tech].push({
-            provider: item.region, // Use region as provider name
+            provider: item.region || "Unknown", // Use region as provider name
             value: parseFloat(String(value)),
             wow_diff: item[wowColumn as keyof ApiDataItem]
               ? parseFloat(String(item[wowColumn as keyof ApiDataItem]))
@@ -182,53 +241,155 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   );
 
   return (
-    <div className="flex flex-row gap-4 space-y-4">
-      {Object.entries(groupedData).map(([metric, techData]) => (
-        <div key={metric} className="space-y-2">
-          {techData && (
-            <h4
-              className="font-bold text-lg"
-              style={{
-                fontSize: "1.125rem",
-                lineHeight: "1.1",
-              }}
-            >
-              {getMetricDisplayName(metric)}
-            </h4>
-          )}
-          {techData && (
-            <div className="flex flex-col space-y-1">
-              <Badge
-                className={
-                  (techData.ALL[0].ytd_pct ?? 0) > 0
-                    ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    : "bg-red-100 text-red-800 hover:bg-red-200"
-                }
+    <div className="h-96 space-y-6 overflow-x-auto">
+      {/* Original charts */}
+      <div className="flex flex-row gap-4 space-y-4">
+        {Object.entries(groupedData).map(([metric, techData]) => (
+          <div key={metric} className="space-y-2">
+            {techData && (
+              <h4
+                className="font-bold text-lg"
+                style={{
+                  fontSize: "1.125rem",
+                  lineHeight: "1.1",
+                }}
               >
-                YTD {parseFloat((techData.ALL[0].ytd_pct ?? 0).toString()).toFixed(2)} %
-              </Badge>
-              <Badge
-                className={
-                  (techData.ALL[0].mtd_pct ?? 0) > 0
-                    ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    : "bg-red-100 text-red-800 hover:bg-red-200"
-                }
-              >
-                MTD {parseFloat((techData.ALL[0].mtd_pct ?? 0).toString()).toFixed(2)} %
-              </Badge>
-              <Badge
-                className={
-                  (techData.ALL[0].wow_pct ?? 0) > 0
-                    ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    : "bg-red-100 text-red-800 hover:bg-red-200"
-                }
-              >
-                WOW {parseFloat((techData.ALL[0].wow_pct ?? 0).toString()).toFixed(2)} %
-              </Badge>
-            </div>
-          )}
-        </div>
-      ))}
+                {getMetricDisplayName(metric)}
+              </h4>
+            )}
+            {techData && (
+              <div className="flex flex-col space-y-1">
+                <Badge
+                  className={
+                    (techData.ALL[0].ytd_pct ?? 0) > 0
+                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      : "bg-red-100 text-red-800 hover:bg-red-200"
+                  }
+                >
+                  YTD {parseFloat((techData.ALL[0].ytd_pct ?? 0).toString()).toFixed(2)} %
+                </Badge>
+                <Badge
+                  className={
+                    (techData.ALL[0].mtd_pct ?? 0) > 0
+                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      : "bg-red-100 text-red-800 hover:bg-red-200"
+                  }
+                >
+                  MTD {parseFloat((techData.ALL[0].mtd_pct ?? 0).toString()).toFixed(2)} %
+                </Badge>
+                <Badge
+                  className={
+                    (techData.ALL[0].wow_pct ?? 0) > 0
+                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      : "bg-red-100 text-red-800 hover:bg-red-200"
+                  }
+                >
+                  WOW {parseFloat((techData.ALL[0].wow_pct ?? 0).toString()).toFixed(2)} %
+                </Badge>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {/* Payload Table */}
+      <div className="space-y-2">
+        <h4 className="font-bold text-md">Payload</h4>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>NOP</TableHead>
+              <TableHead className="font-medium text-xs">Ytd Growth %</TableHead>
+              <TableHead className="font-medium text-xs">MTD Growth %</TableHead>
+              <TableHead className="font-medium text-xs">WoW Growth %</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedByPayloadYoY.map((item, index) => (
+              <TableRow key={`payload-${index}`}>
+                <TableCell className="font-medium text-xs">{item.branch}</TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.yoy_payload_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.yoy_payload_growth_pct}%
+                </TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.mtd_payload_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.mtd_payload_growth_pct}%
+                </TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.wow_payload_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.wow_payload_growth_pct}%
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Traffic Table */}
+      <div className="space-y-2">
+        <h3 className="font-bold text-md">Traffic</h3>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-medium text-xs">Branch</TableHead>
+              <TableHead className="font-medium text-xs">Ytd Growth %</TableHead>
+
+              <TableHead className="font-medium text-xs">MTD Growth %</TableHead>
+              <TableHead className="font-medium text-xs">WoW Growth %</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedByTrafficYoy.map((item, index) => (
+              <TableRow key={`traffic-${index}`}>
+                <TableCell className="font-medium text-xs">{item.branch}</TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.yoy_traffic_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.yoy_traffic_growth_pct}%
+                </TableCell>
+
+                <TableCell
+                  className={
+                    parseFloat(item.mtd_traffic_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.mtd_traffic_growth_pct}%
+                </TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.wow_traffic_growth_pct?.toString() || "0") >= 0
+                      ? "text-xs text-green-600"
+                      : "text-xs text-red-600"
+                  }
+                >
+                  {item.wow_traffic_growth_pct}%
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
