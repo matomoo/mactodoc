@@ -1,5 +1,6 @@
 "use client";
 
+import SummaryCardAchv from "./summary-card-achv";
 import SummaryCard from "./summary-card-tutela";
 
 export default function SummaryLayout() {
@@ -10,6 +11,13 @@ export default function SummaryLayout() {
           cardTitle={"Productivity"}
           productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
           className="lg:col-span-1"
+        />
+        <SummaryCardAchv
+          cardTitle={"Hq-Achv"}
+          unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
+          rciApiPath="/tinfra/api/v2/summary/hq-rci-unb"
+          rhiApiPath="/tinfra/api/v2/summary/hq-rhi-2"
+          className="lg:col-span-2"
         />
         <SummaryCard cardTitle={"RHI"} rhiApiPath="/tinfra/api/v2/summary/hq-rhi" className="lg:col-span-1" />
         <SummaryCard cardTitle={"RCI"} rciApiPath="/tinfra/api/v2/summary/hq-rci-unb" className="lg:col-span-1" />

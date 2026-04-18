@@ -9,6 +9,8 @@ import RciChartContent from "./rci-chart-content";
 import UnbalanceChartContent from "./unbalance-chart-content";
 import ProductivityChartContent from "./productivity-chart-content";
 import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
+import HqAchvDynamicChartContent2 from "./hq-achv-dynamic-chart-content-2";
+import HqAchvDynamicChartContent3 from "./hq-achv-dynamic-chart-content-3";
 
 interface IProps {
   cardTitle: string;
@@ -35,7 +37,7 @@ interface IProps {
   kpiColumnValue?: string;
 }
 
-export default function SummaryCard({
+export default function SummaryCardAchv({
   cardTitle = "noTitel",
   tutelaApiPath = "noUrl",
   tutelaLevel = "noLevel",
@@ -62,40 +64,32 @@ export default function SummaryCard({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{cardTitle === "Hq-Achv" ? "Achievement" : cardTitle}</CardTitle>
+        <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        {cardTitle === "Tutela" ? (
-          <TutelaChartContent tutelaApiPath={tutelaApiPath} tutelaLevel={tutelaLevel} tutelaLocation={tutelaLocation} />
-        ) : cardTitle === "RHI" ? (
-          <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={rhiLevel} rhiLocation={rhiLocation} />
-        ) : cardTitle === "Ookla" ? (
-          <OoklaChartContent ooklaApiPath={ooklaApiPath} ooklaLevel={ooklaLevel} ooklaLocation={ooklaLocation} />
-        ) : cardTitle === "RCI" ? (
-          <RciChartContent rciApiPath={rciApiPath} rciLevel={rciLevel} rciLocation={rciLocation} />
-        ) : cardTitle === "Unbalance" ? (
-          <UnbalanceChartContent
-            unbalanceApiPath={unbalanceApiPath}
-            unbalanceLevel={unbalanceLevel}
-            unbalanceLocation={unbalanceLocation}
-          />
-        ) : cardTitle === "Productivity" ? (
-          <ProductivityChartContent
-            productivityApiPath={productivityApiPath}
-            productivityLevel="noLevel"
-            productivityLocation="noLocation"
-          />
-        ) : cardTitle === "Hq-Achv" ? (
-          <HqAchvDynamicChartContent
+        <div className="flex flex-row gap-4">
+          <HqAchvDynamicChartContent3
             apiPath={unbalanceApiPath}
-            chartMaxValue={chartMaxValue}
-            targetValue={targetValue}
-            annotationLabel={annotationLabel}
-            kpiColumnValue={kpiColumnValue}
+            chartMaxValue={3}
+            targetValue={2}
+            annotationLabel="Unbalance"
+            kpiColumnValue="pct_achv_unbalance_p1"
           />
-        ) : (
-          <div>TODO: On Progress</div>
-        )}
+          <HqAchvDynamicChartContent3
+            apiPath={rciApiPath}
+            chartMaxValue={2}
+            targetValue={1}
+            annotationLabel="RCI"
+            kpiColumnValue="pct_achv_rci"
+          />
+          <HqAchvDynamicChartContent2
+            apiPath={rhiApiPath}
+            chartMaxValue={100}
+            targetValue={95.25}
+            annotationLabel="RHI"
+            kpiColumnValue="percent_rhi_all"
+          />
+        </div>
       </CardContent>
     </Card>
   );
