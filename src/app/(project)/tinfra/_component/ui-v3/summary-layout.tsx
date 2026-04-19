@@ -17,6 +17,8 @@ export default function SummaryLayout() {
           unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
           rciApiPath="/tinfra/api/v2/summary/hq-rci-unb"
           rhiApiPath="/tinfra/api/v2/summary/hq-rhi-2"
+          tutelaApiPath="/tinfra/api/v2/summary/hq-tutela-achv"
+          ooklaApiPath="/tinfra/api/v2/summary/hq-ookla"
           className="lg:col-span-2"
         />
         <SummaryCard cardTitle={"RHI"} rhiApiPath="/tinfra/api/v2/summary/hq-rhi" className="lg:col-span-1" />

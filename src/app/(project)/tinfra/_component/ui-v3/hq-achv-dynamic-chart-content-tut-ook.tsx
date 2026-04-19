@@ -30,67 +30,6 @@ ChartJS.register(
   ChartAnnotation,
 );
 
-// // Add this custom plugin above your ChartJS.register(...)
-// const targetNeedlePlugin = {
-//   id: "targetNeedle",
-//   afterDraw(chart: any) {
-//     const { ctx, chartArea } = chart;
-//     const dataset = chart.data.datasets[0];
-//     const meta = chart.getDatasetMeta(0);
-//     if (!meta.data.length) return;
-
-//     const arc = meta.data[0]; // first arc (current value)
-//     const maxValue = dataset.data[0] + dataset.data[1]; // current + remaining
-//     const targetValue = dataset.data[2]
-//       ? chart.data.datasets[0]._targetValue
-//       : 1;
-
-//     // Center of the chart
-//     const centerX = (chartArea.left + chartArea.right) / 2;
-//     const centerY = chartArea.bottom; // bottom because rotation: -90, circumference: 180
-
-//     const outerRadius = arc.outerRadius;
-//     const innerRadius = arc.innerRadius;
-
-//     // Map target value to angle (-90deg = start, +90deg = end for half gauge)
-//     const targetRatio = targetValue / maxValue;
-//     const startAngle = -Math.PI; // -180deg
-//     const endAngle = 0; // 0deg
-//     const targetAngle = startAngle + targetRatio * (endAngle - startAngle);
-
-//     // Draw tick line
-//     const tickLength = 5;
-//     ctx.save();
-//     ctx.beginPath();
-//     ctx.moveTo(
-//       centerX + (innerRadius - tickLength) * Math.cos(targetAngle),
-//       centerY + (innerRadius - tickLength) * Math.sin(targetAngle),
-//     );
-//     ctx.lineTo(
-//       centerX + (outerRadius + tickLength) * Math.cos(targetAngle),
-//       centerY + (outerRadius + tickLength) * Math.sin(targetAngle),
-//     );
-//     ctx.strokeStyle = "#FF6F00"; // amber target color
-//     ctx.lineWidth = 2.5;
-//     ctx.setLineDash([4, 3]);
-//     ctx.stroke();
-//     ctx.restore();
-
-//     // Draw small label "Target X%"
-//     ctx.save();
-//     ctx.font = "bold 10px sans-serif";
-//     ctx.fillStyle = "#FF6F00";
-//     ctx.textAlign = "center";
-//     const labelX = centerX + (outerRadius + 22) * Math.cos(targetAngle);
-//     const labelY = centerY + (outerRadius + 22) * Math.sin(targetAngle);
-//     ctx.fillText(`T: ${targetValue}%`, labelX, labelY);
-//     ctx.restore();
-//   },
-// };
-
-// // Add to ChartJS.register(...)
-// ChartJS.register(targetNeedlePlugin);
-
 interface ChartDataItem {
   provider: string;
   value: number;
@@ -117,7 +56,7 @@ interface IProps {
   kpiColumnValue?: string;
 }
 
-export default function HqAchvDynamicChartContent2({
+export default function HqAchvDynamicChartContentTutOok({
   apiPath,
   chartMaxValue = 100,
   targetValue = 1,
@@ -234,12 +173,12 @@ export default function HqAchvDynamicChartContent2({
     const target = parseFloat((techData.ALL[0].target_achv ?? 0).toString());
     const maxValue = parseFloat((techData.ALL[0].max_value ?? 0).toString());
 
-    const isPassing = currentValue <= target;
+    const isPassing = currentValue >= target;
 
     // Outer ring — achievement with zone coloring
     const outerData = isPassing
-      ? [target, currentValue - target] // [target, currentValue - target, maxValue - currentValue]
-      : [target, currentValue - target]; // ok portion | over target | remaining
+      ? [currentValue, target - currentValue] // [target, currentValue - target, maxValue - currentValue]
+      : [currentValue, maxValue - currentValue]; // ok portion | over target | remaining
 
     const outerColors = isPassing
       ? ["#1E88E5", "#66BB6A", "#FFFFFF"] // blue | green | red
@@ -277,7 +216,7 @@ export default function HqAchvDynamicChartContent2({
     const currentValue = Math.abs(parseFloat((techData.ALL[0].value ?? 0).toString()));
 
     const target = parseFloat((techData.ALL[0].target_achv ?? 0).toString());
-    const isPassing = currentValue <= target;
+    const isPassing = currentValue >= target;
 
     return {
       responsive: true,
@@ -292,10 +231,21 @@ export default function HqAchvDynamicChartContent2({
         tooltip: {
           callbacks: {
             label: (context: any) => {
-              const labels = isPassing
-                ? ["Achievement", "Safe zone", "Danger zone", "Target", "Remaining"]
-                : ["Within target", "Over target", "Remaining", "Target", "Remaining"];
-              return `${labels[context.dataIndex] ?? context.label}: ${context.parsed.toFixed(2)}%`;
+              const { datasetIndex, dataIndex, parsed } = context;
+
+              if (datasetIndex === 0) {
+                // Outer ring — achievement
+                const labels = isPassing ? ["Win", "Lose"] : ["Win", "Lose"];
+                return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
+              }
+
+              if (datasetIndex === 1) {
+                // Inner ring — target
+                const labels = ["Target", "Remaining"];
+                return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
+              }
+
+              return "";
             },
           },
         },

@@ -11,6 +11,7 @@ import ProductivityChartContent from "./productivity-chart-content";
 import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
 import HqAchvDynamicChartContent2 from "./hq-achv-dynamic-chart-content-2";
 import HqAchvDynamicChartContent3 from "./hq-achv-dynamic-chart-content-3";
+import HqAchvDynamicChartContentTutOok from "./hq-achv-dynamic-chart-content-tut-ook";
 
 interface IProps {
   cardTitle: string;
@@ -67,7 +68,7 @@ export default function SummaryCardAchv({
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row flex-wrap gap-4">
           <HqAchvDynamicChartContent3
             apiPath={unbalanceApiPath}
             chartMaxValue={3}
@@ -77,7 +78,7 @@ export default function SummaryCardAchv({
           />
           <HqAchvDynamicChartContent3
             apiPath={rciApiPath}
-            chartMaxValue={2}
+            chartMaxValue={1.3}
             targetValue={1}
             annotationLabel="RCI"
             kpiColumnValue="pct_achv_rci"
@@ -88,6 +89,13 @@ export default function SummaryCardAchv({
             targetValue={95.25}
             annotationLabel="RHI"
             kpiColumnValue="percent_rhi_all"
+          />
+          <HqAchvDynamicChartContentTutOok
+            apiPath={tutelaApiPath}
+            chartMaxValue={16}
+            targetValue={11}
+            annotationLabel="Tutela"
+            kpiColumnValue="Win"
           />
         </div>
       </CardContent>

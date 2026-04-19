@@ -144,6 +144,7 @@ export default function HqAchvDynamicChartContent2({
         [
           `${apiPath}?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
+          `location=${valueLocation}`,
           `yearweek=${yearweek}`,
           `fieldToAggregate=${viewBy}`,
         ].join("&"),
@@ -163,7 +164,7 @@ export default function HqAchvDynamicChartContent2({
 
   const dataUnbalance = unbalanceRawData || [];
 
-  // console.log("debug:", { apiPath, dataUnbalance });
+  console.log("debug:", { apiPath, dataUnbalance });
 
   if (isLoading) {
     return (
