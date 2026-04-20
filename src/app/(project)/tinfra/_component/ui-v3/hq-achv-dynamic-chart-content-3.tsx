@@ -238,15 +238,15 @@ export default function HqAchvDynamicChartContent2({
 
     // Outer ring — achievement with zone coloring
     const outerData = isPassing
-      ? [target, currentValue - target] // [target, currentValue - target, maxValue - currentValue]
-      : [target, currentValue - target]; // ok portion | over target | remaining
+      ? [currentValue, target - currentValue] // [target, currentValue - target, maxValue - currentValue]
+      : [target, target - currentValue]; // ok portion | over target | remaining
 
     const outerColors = isPassing
       ? ["#1E88E5", "#66BB6A", "#FFFFFF"] // blue | green | red
       : ["#1E88E5", "#EF5350", "#FFFFFF"]; // blue | red | gray
 
     // Inner ring — target marker
-    const innerData = [target, maxValue - target];
+    const innerData = isPassing ? [target] : [target, maxValue - target];
     const innerColors = ["#FF8F00", "#FFFFFF"]; // amber for target | gray for remaining
 
     return {

@@ -1,7 +1,7 @@
 "use client";
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ErrorState, exportToExcel, NoDataState } from "./additional-component";
 import { useFilterStore } from "@/stores/filterStore";
 import { Header } from "./header";
@@ -13,6 +13,7 @@ import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { useDataManagement4G } from "../../_hooks/agg-use-data-management-4g";
 import { useDataFiltering4G } from "../../_hooks/agg-use-data-filtering-4g";
 import { useSummaryMetrics4G } from "../../_hooks/use-summary-metrics-4g";
+import { useComparisonCalculation } from "./use-comparison-data";
 import { formatDateForDisplay } from "../../_function/helper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import PageSiteInfo from "./site-info-4g";
@@ -76,9 +77,6 @@ export default function PageAggCustom4GDaily({
       .filter((a) => a.tech === "4G")
       .map((chart) => chart.metric_num),
   );
-  const [filteredComparisonData, setFilteredComparisonData] = useState<any[]>([]);
-
-  console.log({ filteredComparisonData });
 
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue =
@@ -133,7 +131,22 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
+  // console.log({ data });
+
   const dataManagement = useDataManagement4G({ data, aggregateBy });
+
+  // Call the comparison calculation hook unconditionally
+  const { comparisonData } = useComparisonCalculation(data?.rows || [], "4G");
+
+  // Calculate filteredComparisonData when selectedKPIs or data changes
+  const filteredComparisonData = useMemo(() => {
+    if (data?.rows) {
+      return comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
+    }
+    return [];
+  }, [selectedKPIs, data?.rows, comparisonData]);
+
+  console.log({ filteredComparisonData });
 
   const { filteredData } = useDataFiltering4G({
     data,
@@ -181,12 +194,15 @@ export default function PageAggCustom4GDaily({
               : ""
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0] || "", 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1] || "", 2)}`}
+        data={filteredData as unknown as RawKpiRow[]}
+        selectedKPIs={selectedKPIs}
+        filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
       />
-      <ExportReportButton
+      {/* <ExportReportButton
         data={filteredData as unknown as RawKpiRow[]}
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData}
-      />
+      /> */}
 
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -339,7 +355,6 @@ export default function PageAggCustom4GDaily({
                       isExpanded={isPerformanceSummaryExpanded}
                       selectedKPIs={selectedKPIs}
                       onSelectedKPIsChange={setSelectedKPIs}
-                      onFilteredComparisonDataChange={setFilteredComparisonData}
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
                   </TabsContent>

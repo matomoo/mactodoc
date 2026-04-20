@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     let query: any;
-    if (fieldToSearch === "kabupaten") {
+    if (fieldToSearch === "kabupaten" && searchNop !== "---") {
       // When searching for specific value, return matching records
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 

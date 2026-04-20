@@ -104,7 +104,7 @@ export function FilterBy_Date_DynamicField({ fieldToSearch }: { fieldToSearch: s
     queryKey: ["ref-query-dynamic", fieldToSearch],
     queryFn: async () => {
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${fieldToSearch}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=${fieldToSearch}&nop=---`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

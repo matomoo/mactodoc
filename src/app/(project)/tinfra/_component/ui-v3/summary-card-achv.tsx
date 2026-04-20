@@ -72,14 +72,14 @@ export default function SummaryCardAchv({
           <HqAchvDynamicChartContent3
             apiPath={unbalanceApiPath}
             chartMaxValue={3}
-            targetValue={2}
+            targetValue={2.16}
             annotationLabel="Unbalance"
             kpiColumnValue="pct_achv_unbalance_p1"
           />
           <HqAchvDynamicChartContent3
             apiPath={rciApiPath}
             chartMaxValue={1.3}
-            targetValue={1}
+            targetValue={1.39}
             annotationLabel="RCI"
             kpiColumnValue="pct_achv_rci"
           />

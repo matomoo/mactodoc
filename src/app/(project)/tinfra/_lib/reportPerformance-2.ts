@@ -14,6 +14,7 @@ import type PptxGenJS from "pptxgenjs";
 
 export interface RawKpiRow {
   BEGIN_TIME: string;
+  G4_NOP?: string;
   G4_AGGRBY: string;
   DL_PAYLOAD_GB: number;
   UL_PAYLOAD_GB: number;
@@ -336,6 +337,39 @@ const FONT = {
 
 // ─── KPI COMPUTATION ──────────────────────────────────────────────────────────
 
+export interface KpiGroup {
+  nop: string;
+  kpis: ComputedKpi[];
+}
+
+function computeKPIsByNop(data: RawKpiRow[]): KpiGroup[] {
+  // Group raw rows by G4_NOP
+  const grouped = new Map<string, RawKpiRow[]>();
+  for (const row of data) {
+    const nop = row.G4_NOP ?? row.G4_AGGRBY ?? "UNKNOWN";
+    if (!grouped.has(nop)) grouped.set(nop, []);
+    grouped.get(nop)?.push(row);
+  }
+
+  return Array.from(grouped.entries()).map(([nop, rows]) => ({
+    nop,
+    kpis: computeKPIs(rows),
+  }));
+}
+
+// ─── UPDATED: Multi-series color palette ──────────────────────────────────────
+
+const SERIES_COLORS = [
+  "0D9488", // teal
+  "F59E0B", // amber
+  "3B82F6", // blue
+  "EF4444", // red
+  "8B5CF6", // violet
+  "10B981", // emerald
+  "F97316", // orange
+  "EC4899", // pink
+];
+
 function computeKPIs(data: RawKpiRow[]): ComputedKpi[] {
   return data.map((row) => {
     const date = new Date(row.BEGIN_TIME).toLocaleDateString("en-GB", {
@@ -484,16 +518,16 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
     fontFace: FONT.title,
     margin: 0,
   });
-  slide.addText("Before vs After · Delta · Growth · Remark", {
-    x: 0.4,
-    y: 0.62,
-    w: 9.2,
-    h: 0.28,
-    fontSize: 10,
-    color: THEME.slate,
-    fontFace: FONT.body,
-    margin: 0,
-  });
+  // slide.addText("Before vs After · Delta · Growth · Remark", {
+  //   x: 0.4,
+  //   y: 0.62,
+  //   w: 9.2,
+  //   h: 0.28,
+  //   fontSize: 10,
+  //   color: THEME.slate,
+  //   fontFace: FONT.body,
+  //   margin: 0,
+  // });
 
   // ── Shared cell styles ─────────────────────────────────────────────────────
   const hStyle: PptxGenJS.TextPropsOptions = {
@@ -594,7 +628,7 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
   // ── Render table ───────────────────────────────────────────────────────────
   slide.addTable([headerRow, ...dataRows], {
     x: 0.35,
-    y: 0.98,
+    y: 0.62,
     w: 9.3,
     // Column widths (must sum to w):  Metric | Tech | Before | After | Delta | Growth | Remark
     colW: [3.1, 0.6, 1.1, 1.1, 1.1, 1.0, 1.2],
@@ -644,8 +678,15 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
  * addSlide_ChartModel1
  * Creates ONE slide per entry in selectedKpis.
  */
-function addSlide_ChartModel1(pres: PptxGenJS, kpis: ComputedKpi[], selectedKpis: string[]): void {
-  const labels = kpis.map((k) => k.date);
+// ─── UPDATED: addSlide_ChartModel1 — now multi-series ────────────────────────
+
+function addSlide_ChartModel1(
+  pres: PptxGenJS,
+  groups: KpiGroup[], // <-- was: kpis: ComputedKpi[]
+  selectedKpis: string[],
+): void {
+  // Use labels from the first group (all groups share the same dates)
+  const labels = groups[0].kpis.map((k) => k.date);
 
   for (const rawKey of selectedKpis) {
     const config = KPI_REGISTRY[rawKey as KpiKey];
@@ -653,13 +694,6 @@ function addSlide_ChartModel1(pres: PptxGenJS, kpis: ComputedKpi[], selectedKpis
       console.warn(`[reportPerformance] Unknown KPI key: "${rawKey}" – skipping.`);
       continue;
     }
-
-    const values: number[] = kpis.map((k) => {
-      const v = config.getValue(k);
-      return parseFloat(fmt(v ?? 0, config.decimals));
-    });
-
-    const seriesName = config.unit ? `${config.title} (${config.unit})` : config.title;
 
     const slide = pres.addSlide();
     slide.background = { color: THEME.offWhite };
@@ -676,32 +710,52 @@ function addSlide_ChartModel1(pres: PptxGenJS, kpis: ComputedKpi[], selectedKpis
       margin: 0,
     });
 
+    // Build one series object per NOP group
+    const seriesData = groups.map((group, idx) => ({
+      name: group.nop,
+      labels,
+      values: group.kpis.map((k) => {
+        const v = config.getValue(k);
+        return parseFloat(fmt(v ?? 0, config.decimals));
+      }),
+    }));
+
+    // Assign a distinct color per series
+    const chartColors = groups.map((_, idx) => SERIES_COLORS[idx % SERIES_COLORS.length]);
+
+    const seriesName = config.unit ? `${config.title} (${config.unit})` : config.title;
+
     const chartOpts: PptxGenJS.IChartOpts = {
       ...chartBase(0.4, 0.75, 9.2, 3.2),
-      chartColors: [config.color ?? THEME.teal],
+      chartColors,
       showTitle: true,
       title: seriesName,
       titleFontSize: 10,
       titleColor: THEME.dark,
+      // Show legend so users can distinguish series
+      showLegend: true,
+      legendPos: "b",
+      legendFontSize: 9,
     };
 
     if (config.chartType === "bar") {
       Object.assign(chartOpts, {
         barDir: "col",
+        barGrouping: "clustered", // side-by-side bars, one per NOP
         showValue: true,
-        dataLabelFontSize: 8,
+        dataLabelFontSize: 7,
         dataLabelColor: THEME.dark,
         dataLabelPosition: "outEnd",
       } satisfies Partial<PptxGenJS.IChartOpts>);
 
-      slide.addChart((pres as any).charts.BAR, [{ name: seriesName, labels, values }], chartOpts);
+      slide.addChart((pres as any).charts.BAR, seriesData, chartOpts);
     } else {
       Object.assign(chartOpts, {
         lineSize: 2,
         lineSmooth: true,
       } satisfies Partial<PptxGenJS.IChartOpts>);
 
-      slide.addChart((pres as any).charts.LINE, [{ name: seriesName, labels, values }], chartOpts);
+      slide.addChart((pres as any).charts.LINE, seriesData, chartOpts);
     }
 
     slide.addText("Remark: ", {
@@ -918,6 +972,8 @@ function addClosingSlide(pres: PptxGenJS, kpis: ComputedKpi[]): void {
  *   comparisonRows,
  * );
  */
+// ─── UPDATED: reportPerformance — wire everything together ───────────────────
+
 export async function reportPerformance(
   filteredData: RawKpiRow[],
   fileName?: string,
@@ -926,29 +982,21 @@ export async function reportPerformance(
 ): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();
-
   pres.layout = "LAYOUT_16x9";
-  pres.title = "LTE Network Performance Report";
-  pres.author = "Network Operations";
-  pres.subject = "KPI Report – Sulawesi Region";
 
-  const kpis = computeKPIs(filteredData);
-  const region = filteredData[0]?.G4_AGGRBY ?? "SULAWESI";
+  // NEW: group by NOP instead of flat array
+  const groups = computeKPIsByNop(filteredData);
+  const regionLabel = groups.map((g) => g.nop).join(" · ");
 
-  // 1 – Cover
-  addCoverSlide(pres, kpis, region);
+  // addCoverSlide(pres, groups, regionLabel);
 
-  // 2 – Comparison table (skip if no data supplied)
   if (filteredComparisonData && filteredComparisonData.length > 0) {
     addComparisonSlide(pres, filteredComparisonData);
   }
 
-  // 3…N – Per-KPI chart slides
-  const keysToRender: string[] = selectedKpis && selectedKpis.length > 0 ? selectedKpis : Object.keys(KPI_REGISTRY);
+  const keysToRender = selectedKpis?.length ? selectedKpis : Object.keys(KPI_REGISTRY);
+  addSlide_ChartModel1(pres, groups, keysToRender); // <-- groups instead of flat kpis
 
-  addSlide_ChartModel1(pres, kpis, keysToRender);
-
-  const name = fileName ?? `LTE_Report_${region}_${new Date().toISOString().slice(0, 10)}.pptx`;
-
+  const name = fileName ?? `LTE_Report_${regionLabel}_${new Date().toISOString().slice(0, 10)}.pptx`;
   await pres.writeFile({ fileName: name });
 }

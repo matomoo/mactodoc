@@ -1,16 +1,29 @@
 // components/header.tsx
 "use client";
 
-import { Download, Filter } from "lucide-react";
+// import { Download, Filter } from "lucide-react";
+import type { RawKpiRow } from "../../_lib/reportPerformance-2";
+import ExportReportButton from "../ui-v3/ExportReportButton";
 
 interface HeaderProps {
   onExportData: () => void;
   onToggleMobileFilters: () => void;
   title?: string;
   subtitle?: string;
+  data?: RawKpiRow[];
+  selectedKPIs?: string[];
+  filteredComparisonData?: RawKpiRow[];
 }
 
-export function Header({ onExportData, onToggleMobileFilters, title, subtitle }: HeaderProps) {
+export function Header({
+  onExportData,
+  onToggleMobileFilters,
+  title,
+  subtitle,
+  data,
+  selectedKPIs,
+  filteredComparisonData,
+}: HeaderProps) {
   return (
     <div className="sticky top-13 z-30 mt-4 rounded-lg border-b bg-white px-4 py-2 shadow-sm lg:px-6">
       <div className="flex items-center justify-between">
@@ -18,7 +31,12 @@ export function Header({ onExportData, onToggleMobileFilters, title, subtitle }:
           <h1 className="font-bold text-gray-900 text-xl">{title || "2G Network Performance"}</h1>
           <p className="text-gray-600 text-sm">{subtitle || "Real-time metrics and analysis dashboard"}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <ExportReportButton
+          data={data as unknown as RawKpiRow[]}
+          selectedKPIs={selectedKPIs || []}
+          filteredComparisonData={filteredComparisonData}
+        />
+        {/* <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onExportData}
@@ -34,7 +52,7 @@ export function Header({ onExportData, onToggleMobileFilters, title, subtitle }:
           >
             <Filter size={20} />
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@
 
 // biome-ignore assist/source/organizeImports: <none>
 import { useState } from "react";
-import { reportPerformance } from "../../_lib/reportPerformance";
+import { reportPerformance } from "../../_lib/reportPerformance-2";
 import type { RawKpiRow } from "../../_lib/reportPerformance";
 
 interface ExportReportButtonProps {
@@ -32,7 +32,7 @@ export default function ExportReportButton({
 }: ExportReportButtonProps) {
   const [loading, setLoading] = useState(false);
 
-  console.log({ filteredComparisonData });
+  // console.log({ data });
 
   async function handleExport(): Promise<void> {
     if (!data?.length) {
