@@ -20,8 +20,9 @@ import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqTutelaChart from "../ui-v2/hq-tutela-chart";
-import HqTutelaChartDetail from "../ui-v2/hq-tutela-chart-detail";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
+import ExportReportButton from "../ui-v3/ExportReportButton";
+import type { RawKpiRow } from "../../_lib/generateNetworkReport";
 
 interface AggCustomProps {
   area?: string;
@@ -96,19 +97,6 @@ export default function PageAggCustom4GDaily({
       filterValue !== "All",
   );
 
-  // Debug logging for troubleshooting
-  // console.log("Debug - Filter values:", {
-  //   dateRange2,
-  //   filterValue,
-  //   fieldToAggregate,
-  //   region,
-  //   kabupaten,
-  //   siteId,
-  //   shouldFetch,
-  //   userAgent: navigator.userAgent,
-  //   timestamp: new Date().toISOString(),
-  //   localStorage: localStorage.getItem("filter-storage"),
-  // });
   const { isPending, error, data, isError } = useQuery({
     queryKey: [
       "PageAggCustom4GDaily",
@@ -142,9 +130,6 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
-  // console.log("data", data);
-  // console.log("filterValue", filterValue);
-
   const dataManagement = useDataManagement4G({ data, aggregateBy });
 
   const { filteredData } = useDataFiltering4G({
@@ -162,13 +147,13 @@ export default function PageAggCustom4GDaily({
   });
 
   const handleExportAllData = () => {
-    if (!data?.rows || data.rows.length === 0) {
+    if (!filteredData || filteredData.length === 0) {
       alert("No data available to export.");
       return;
     }
 
     const filename = `4G_Data_NOP__${new Date().toISOString().split("T")[0]}`;
-    exportToExcel(data.rows, filename);
+    exportToExcel(filteredData, filename);
   };
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
@@ -177,6 +162,8 @@ export default function PageAggCustom4GDaily({
   if (!data?.rows || data.rows.length === 0 || filterValue === null) {
     return <NoDataState message="No data available for selected criteria." />;
   }
+
+  // console.log({ filteredData });
 
   return (
     <div className="min-h-screen">
@@ -192,6 +179,7 @@ export default function PageAggCustom4GDaily({
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0] || "", 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1] || "", 2)}`}
       />
+      <ExportReportButton data={filteredData as unknown as RawKpiRow[]} selectedKPIs={selectedKPIs} />
 
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">

@@ -154,6 +154,8 @@ const TableComparison2G4GDaily: React.FC<{
 
   const filteredComparisonData = comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
 
+  console.log({ filteredComparisonData });
+
   return (
     <div className="w-full">
       <div className="w-full px-0 sm:px-0 md:px-0">

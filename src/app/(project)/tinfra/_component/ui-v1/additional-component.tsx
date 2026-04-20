@@ -1,4 +1,4 @@
-import type { Agg4gModel } from "@/types/schema";
+import type { Data2G4GModel } from "@/types/schema";
 
 // Loading component
 export const LoadingState = () => (
@@ -46,7 +46,7 @@ export const ErrorState = ({ message }: { message: string }) => (
 );
 
 // Function to export data to Excel
-export const exportToExcel = (data: Agg4gModel[], filename: string) => {
+export const exportToExcel = (data: Data2G4GModel[], filename: string) => {
   // Import the library dynamically to avoid SSR issues
   import("xlsx")
     .then((XLSX) => {
@@ -56,7 +56,7 @@ export const exportToExcel = (data: Agg4gModel[], filename: string) => {
 
         // Add all properties from the item
         Object.keys(item).forEach((key) => {
-          const value = item[key as keyof Agg4gModel];
+          const value = item[key as keyof Data2G4GModel];
           // Format the key for better readability
           const formattedKey = key
             .split("_")
