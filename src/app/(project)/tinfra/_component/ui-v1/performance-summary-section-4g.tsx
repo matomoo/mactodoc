@@ -16,12 +16,14 @@ interface PerformanceSummarySectionProps {
   onToggle: () => void;
   selectedKPIs: string[];
   onSelectedKPIsChange: (selected: string[]) => void;
+  onFilteredComparisonDataChange?: (data: any[]) => void;
 }
 
 export function PerformanceSummarySection4G({
   filteredData,
   selectedKPIs,
   onSelectedKPIsChange,
+  onFilteredComparisonDataChange,
 }: PerformanceSummarySectionProps) {
   return (
     <div className="mb-6">
@@ -32,6 +34,7 @@ export function PerformanceSummarySection4G({
             selectedKPIs={selectedKPIs}
             onSelectedKPIsChange={onSelectedKPIsChange}
             tech="4G"
+            onFilteredComparisonDataChange={onFilteredComparisonDataChange}
           />
         </div>
       </div>

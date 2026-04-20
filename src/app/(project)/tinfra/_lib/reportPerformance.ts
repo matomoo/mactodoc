@@ -705,6 +705,7 @@ export async function reportPerformance(
   filteredData: RawKpiRow[],
   fileName?: string,
   selectedKpis?: string[],
+  filteredComparisonData?: any,
 ): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();

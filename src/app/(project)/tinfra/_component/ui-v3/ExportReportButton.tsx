@@ -20,6 +20,7 @@ interface ExportReportButtonProps {
   fileName?: string;
   className?: string;
   selectedKPIs: string[];
+  filteredComparisonData: any;
 }
 
 export default function ExportReportButton({
@@ -27,10 +28,11 @@ export default function ExportReportButton({
   fileName,
   className,
   selectedKPIs = ["Payload"],
+  filteredComparisonData,
 }: ExportReportButtonProps) {
   const [loading, setLoading] = useState(false);
 
-  console.log({ selectedKPIs });
+  console.log({ filteredComparisonData });
 
   async function handleExport(): Promise<void> {
     if (!data?.length) {
@@ -39,7 +41,7 @@ export default function ExportReportButton({
     }
     setLoading(true);
     try {
-      await reportPerformance(data, fileName, selectedKPIs);
+      await reportPerformance(data, fileName, selectedKPIs, filteredComparisonData);
     } catch (err) {
       console.error("Export failed:", err);
       alert("Failed to generate report. See console for details.");

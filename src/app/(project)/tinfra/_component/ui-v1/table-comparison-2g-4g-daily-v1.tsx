@@ -1,7 +1,7 @@
 // biome-ignore assist/source/organizeImports: <will fix later>
 import type { Data2G4GModel } from "@/types/schema";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { subDays, format, differenceInDays, addDays } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 
@@ -20,7 +20,8 @@ const TableComparison2G4GDaily: React.FC<{
   tech: string;
   selectedKPIs: string[];
   onSelectedKPIsChange: (selected: string[]) => void;
-}> = ({ data, tech, selectedKPIs, onSelectedKPIsChange }) => {
+  onFilteredComparisonDataChange?: (data: any[]) => void;
+}> = ({ data, tech, selectedKPIs, onSelectedKPIsChange, onFilteredComparisonDataChange }) => {
   const timezone = "Asia/Makassar";
 
   const dateStrings = data.map((item) => item.BEGIN_TIME);
@@ -155,6 +156,13 @@ const TableComparison2G4GDaily: React.FC<{
   const filteredComparisonData = comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
 
   console.log({ filteredComparisonData });
+
+  // Call the callback when filteredComparisonData changes
+  useEffect(() => {
+    if (onFilteredComparisonDataChange) {
+      onFilteredComparisonDataChange(filteredComparisonData);
+    }
+  }, [filteredComparisonData, onFilteredComparisonDataChange]);
 
   return (
     <div className="w-full">

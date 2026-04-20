@@ -1,7 +1,7 @@
 "use client";
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ErrorState, exportToExcel, NoDataState } from "./additional-component";
 import { useFilterStore } from "@/stores/filterStore";
 import { Header } from "./header";
@@ -76,6 +76,9 @@ export default function PageAggCustom4GDaily({
       .filter((a) => a.tech === "4G")
       .map((chart) => chart.metric_num),
   );
+  const [filteredComparisonData, setFilteredComparisonData] = useState<any[]>([]);
+
+  console.log({ filteredComparisonData });
 
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue =
@@ -179,7 +182,11 @@ export default function PageAggCustom4GDaily({
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0] || "", 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1] || "", 2)}`}
       />
-      <ExportReportButton data={filteredData as unknown as RawKpiRow[]} selectedKPIs={selectedKPIs} />
+      <ExportReportButton
+        data={filteredData as unknown as RawKpiRow[]}
+        selectedKPIs={selectedKPIs}
+        filteredComparisonData={filteredComparisonData}
+      />
 
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -332,6 +339,7 @@ export default function PageAggCustom4GDaily({
                       isExpanded={isPerformanceSummaryExpanded}
                       selectedKPIs={selectedKPIs}
                       onSelectedKPIsChange={setSelectedKPIs}
+                      onFilteredComparisonDataChange={setFilteredComparisonData}
                       onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
                     />
                   </TabsContent>
