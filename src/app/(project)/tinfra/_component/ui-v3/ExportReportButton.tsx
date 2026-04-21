@@ -12,7 +12,7 @@
 
 // biome-ignore assist/source/organizeImports: <none>
 import { useState } from "react";
-import { reportPerformance } from "../../_lib/reportPerformance-2";
+import { reportPerformance } from "../../_lib/reportPerformance-3";
 import type { RawKpiRow } from "../../_lib/reportPerformance";
 
 interface ExportReportButtonProps {

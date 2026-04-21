@@ -1,3 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
 npm run generate:presets
 git add src/lib/preferences/theme.ts
 npx lint-staged
