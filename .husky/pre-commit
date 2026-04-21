@@ -1,3 +1,5 @@
+#!/bin/sh
+export PATH="/Users/mato/.nvm/versions/node/v20.16.0/bin:$PATH"
 npm run generate:presets
 git add src/lib/preferences/theme.ts
 npx lint-staged
