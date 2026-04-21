@@ -292,10 +292,21 @@ export default function HqAchvDynamicChartContent2({
         tooltip: {
           callbacks: {
             label: (context: any) => {
-              const labels = isPassing
-                ? ["Achievement", "Safe zone", "Danger zone", "Target", "Remaining"]
-                : ["Within target", "Over target", "Remaining", "Target", "Remaining"];
-              return `${labels[context.dataIndex] ?? context.label}: ${context.parsed.toFixed(2)}%`;
+              const { datasetIndex, dataIndex, parsed } = context;
+
+              if (datasetIndex === 0) {
+                // Outer ring — achievement
+                const labels = isPassing ? ["Within target", "Safe zone"] : ["Within target", "Over target"];
+                return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
+              }
+
+              if (datasetIndex === 1) {
+                // Inner ring — target
+                const labels = ["Target"];
+                return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
+              }
+
+              return "";
             },
           },
         },

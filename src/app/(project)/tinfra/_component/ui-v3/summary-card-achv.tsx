@@ -36,6 +36,7 @@ interface IProps {
   targetValue?: number;
   annotationLabel?: string;
   kpiColumnValue?: string;
+  ceiApiPath?: string;
 }
 
 export default function SummaryCardAchv({
@@ -61,6 +62,7 @@ export default function SummaryCardAchv({
   targetValue,
   annotationLabel,
   kpiColumnValue,
+  ceiApiPath = "noUrl",
 }: IProps) {
   return (
     <Card className={className}>
@@ -89,6 +91,13 @@ export default function SummaryCardAchv({
             targetValue={95.25}
             annotationLabel="RHI"
             kpiColumnValue="percent_rhi_all"
+          />
+          <HqAchvDynamicChartContent2
+            apiPath={ceiApiPath}
+            chartMaxValue={100}
+            targetValue={89.29}
+            annotationLabel="CEI"
+            kpiColumnValue="good_cells_pct"
           />
           <HqAchvDynamicChartContentTutOok
             apiPath={tutelaApiPath}
