@@ -275,11 +275,11 @@ export default function OoklaChartContent({ ooklaApiPath, ooklaLevel }: IProps) 
   });
 
   return (
-    <div className="space-y-2">
+    <div className="flex shrink-0 flex-row gap-6 space-x-2 overflow-x-auto" style={{ minWidth: "300px" }}>
       {Object.entries(groupedData).map(([metric, techData]) => (
         <div key={metric} className="space-y-2">
           <h2 className="font-semibold text-gray-800 text-lg">{getMetricDisplayName(metric)}</h2>
-          <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+          <div className="flex gap-4">
             {Object.entries(techData as TechGroupedData).map(([tech, chartData]) => {
               const chartOptions = getChartOptions();
 
@@ -302,7 +302,7 @@ export default function OoklaChartContent({ ooklaApiPath, ooklaLevel }: IProps) 
               return (
                 <div key={tech} className="space-y-2">
                   <h3 className="font-medium text-gray-700 text-sm">Tech: {tech}</h3>
-                  <div className="h-[100px] w-full">
+                  <div className="h-[100px] w-[200px]">
                     <Bar data={chartDataForChart} options={chartOptions} />
                   </div>
                   <div>

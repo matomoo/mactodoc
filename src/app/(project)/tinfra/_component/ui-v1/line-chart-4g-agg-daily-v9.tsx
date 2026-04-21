@@ -15,13 +15,7 @@ import {
   type ChartConfiguration,
 } from "chart.js";
 import type { Data2G4GModel } from "@/types/schema";
-import { extractCellName } from "../../_function/helper";
-import {
-  chartJsColors,
-  chartJsColorsTransparent,
-  chartJsV1Settings,
-  hexToRGBA,
-} from "../contexts/chartjs/chartjs-settings";
+import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
 
 Chart.register(
@@ -56,7 +50,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   aggregation_by = "NOP",
   title = "%",
   showPayload = true,
-  isExtractCellName = false,
+  // isExtractCellName = false,
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
@@ -81,10 +75,6 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       const date = new Date(item.BEGIN_TIME).toLocaleDateString();
 
       const groupKey = String(item["4G_CELL_ID"] || "Unknown");
-
-      // const groupKey = isExtractCellName
-      //   ? extractCellName(String(item[aggregation_by] || "Unknown"))
-      //   : String(item[aggregation_by] || "Unknown");
 
       dates.add(date);
 

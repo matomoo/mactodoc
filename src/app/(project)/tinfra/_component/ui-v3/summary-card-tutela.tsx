@@ -65,7 +65,7 @@ export default function SummaryCard({
         <CardTitle>{cardTitle === "Hq-Achv" ? "Achievement" : cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        {cardTitle === "Tutela" ? (
+        {cardTitle === "ONX" ? (
           <TutelaChartContent tutelaApiPath={tutelaApiPath} tutelaLevel={tutelaLevel} tutelaLocation={tutelaLocation} />
         ) : cardTitle === "RHI" ? (
           <RhiChartContent rhiApiPath={rhiApiPath} rhiLevel={rhiLevel} rhiLocation={rhiLocation} />

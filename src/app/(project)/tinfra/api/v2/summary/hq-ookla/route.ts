@@ -119,6 +119,7 @@ export async function GET(request: Request) {
               FROM raw_ookla o
               WHERE o.yearweek IN (SELECT yearweek FROM week_scope)
                 AND o.region = ${searchByValueLocation.trim()}
+                AND o.tech != 'ALL'
               GROUP BY
                   o.yearweek, o.region, o.tech, o.operator
           ),

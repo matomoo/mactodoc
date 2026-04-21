@@ -94,8 +94,15 @@ export default function SummaryCardAchv({
             apiPath={tutelaApiPath}
             chartMaxValue={16}
             targetValue={11}
-            annotationLabel="Tutela"
+            annotationLabel="Onx"
             kpiColumnValue="Win"
+          />
+          <HqAchvDynamicChartContentTutOok
+            apiPath={ooklaApiPath}
+            chartMaxValue={10}
+            targetValue={5}
+            annotationLabel="Ookla"
+            kpiColumnValue="total_win"
           />
         </div>
       </CardContent>
