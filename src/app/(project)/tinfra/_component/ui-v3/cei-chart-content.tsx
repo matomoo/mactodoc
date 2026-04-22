@@ -23,7 +23,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Ch
 // Define KPI columns to chart
 const getKpiColumns = (): string[] => {
   return [
-    "pct_achv_rci",
+    "good_cells_pct",
     // "pct_achv_p1"
   ];
 };
@@ -61,12 +61,12 @@ interface ApiDataItem {
 }
 
 interface IProps {
-  rciApiPath: string;
-  rciLevel: string;
-  rciLocation: string;
+  ceiApiPath: string;
+  ceiLevel: string;
+  ceiLocation: string;
 }
 
-export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
+export default function CeiChartContent({ ceiApiPath, ceiLevel }: IProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan } = useSummaryStore();
 
   const valueLocation =
@@ -77,14 +77,14 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["rci-data", yearweek, rciApiPath, rciLevel, valueLocation],
+    queryKey: ["cei-data-achv", yearweek, ceiApiPath, ceiLevel, valueLocation],
     queryFn: async () => {
-      if (!rciApiPath || rciApiPath === "noUrl") {
+      if (!ceiApiPath || ceiApiPath === "noUrl") {
         return [];
       }
 
       const response = await fetch(
-        [`${rciApiPath}?level=${viewBy}`, `&valueLocation=${valueLocation}`, `&yearweek=${yearweek}`].join("&"),
+        [`${ceiApiPath}-achv?level=${viewBy}`, `valueLocation=${valueLocation}`, `yearweek=${yearweek}`].join("&"),
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -96,22 +96,22 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
 
       return dataArray as ApiDataItem[];
     },
-    enabled: !!(rciApiPath && rciApiPath !== "noUrl"),
+    enabled: !!(ceiApiPath && ceiApiPath !== "noUrl"),
   });
 
   const {
-    data: rciChartData,
+    data: ceiChartData,
     // isLoading:rciChartLoading,
     // error,
   } = useQuery({
-    queryKey: ["rci-data-chart", yearweek, rciApiPath, rciLevel, valueLocation],
+    queryKey: ["cei-data-chart", yearweek, ceiApiPath, ceiLevel, valueLocation],
     queryFn: async () => {
-      if (!rciApiPath || rciApiPath === "noUrl") {
+      if (!ceiApiPath || ceiApiPath === "noUrl") {
         return [];
       }
 
       const response = await fetch(
-        [`${rciApiPath}-chart?level=${viewBy}`, `&valueLocation=${valueLocation}`, `&yearweek=${yearweek}`].join("&"),
+        [`${ceiApiPath}-chart?level=${viewBy}`, `&valueLocation=${valueLocation}`, `&yearweek=${yearweek}`].join("&"),
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,13 +123,13 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
 
       return dataArray as ApiDataItem[];
     },
-    enabled: !!(rciApiPath && rciApiPath !== "noUrl"),
+    enabled: !!(ceiApiPath && ceiApiPath !== "noUrl"),
   });
 
   const data = rciData || [];
-  const rciChart = rciChartData || [];
+  const ceiChart = ceiChartData || [];
 
-  // console.log("debug:", { data, rciChart });
+  // console.log("debug:", { data, ceiChart });
 
   if (isLoading) {
     return (
@@ -193,31 +193,31 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
     {} as Record<string, TechGroupedData>,
   );
 
-  const currentWeekIndex = rciChart?.findIndex(
-    (item: any) => item.yearweek === yearweek || item.yearweek === String(yearweek),
+  const currentWeekIndex = ceiChart?.findIndex(
+    (item: any) => item.weeknum === yearweek || item.weeknum === String(yearweek),
   );
 
   const lineChartData = {
-    labels: rciChart?.map((item: any) => item.yearweek) || [],
+    labels: ceiChart?.map((item: any) => item.weeknum) || [],
     datasets: [
       {
         label: "CEI Percentage",
-        data: rciChart?.map((item: any) => parseFloat(item.pct_achv_rci)) || [],
+        data: ceiChart?.map((item: any) => parseFloat(item.good_cells_pct)) || [],
         borderColor: "rgb(75, 192, 192)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.3,
 
         // Per-point radius — current week gets bigger dot
-        pointRadius: rciChart?.map((_: any, i: number) => (i === currentWeekIndex ? 4 : 0)) || [],
+        pointRadius: ceiChart?.map((_: any, i: number) => (i === currentWeekIndex ? 4 : 0)) || [],
 
         // Per-point color — current week gets accent color
         pointBackgroundColor:
-          rciChart?.map((_: any, i: number) => (i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)")) ||
+          ceiChart?.map((_: any, i: number) => (i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)")) ||
           [],
 
         // Border around the current week dot
         pointBorderColor:
-          rciChart?.map((_: any, i: number) => (i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)")) ||
+          ceiChart?.map((_: any, i: number) => (i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)")) ||
           [],
 
         pointHoverRadius: 3,
@@ -227,25 +227,6 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
       },
     ],
   };
-
-  // Prepare data for line chart
-  // const lineChartData = {
-  //   labels: rciChart?.map((item: any) => item.yearweek) || [],
-  //   datasets: [
-  //     {
-  //       label: "RCI Percentage",
-  //       data: rciChart?.map((item: any) => parseFloat(item.pct_achv_rci)) || [],
-  //       borderColor: "rgb(75, 192, 192)",
-  //       backgroundColor: "rgba(75, 192, 192, 0.2)",
-  //       tension: 0.3,
-  //       pointRadius: 2,
-  //       pointHoverRadius: 3,
-  //       datalabels: {
-  //         display: false,
-  //       },
-  //     },
-  //   ],
-  // };
 
   const lineChartOptions = {
     responsive: true,
@@ -276,10 +257,10 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
       },
       y: {
         display: true,
-        beginAtZero: true,
+        beginAtZero: false,
         title: {
           display: false,
-          text: "RHI Percentage (%)",
+          text: "CEI Percentage (%)",
         },
         ticks: {
           display: true,
@@ -327,7 +308,7 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
           {/* Chart of percent_rhi_all, get data from rhiPercentageData */}
           {/* here column 2 and 3 */}
           <div className="col-span-2" style={{ width: "280px", height: "200px" }}>
-            {rciChart && rciChart.length > 0 ? (
+            {ceiChart && ceiChart.length > 0 ? (
               <Line data={lineChartData} options={lineChartOptions} />
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -337,62 +318,6 @@ export default function RciChartContent({ rciApiPath, rciLevel }: IProps) {
           </div>
         </div>
       ))}
-      {/* here is span 3 col */}
-      {data && (
-        <div className="col-span-3">
-          {/* generate table shadcn with data from rhiWowData, column region, mostly_kpi_fail_2g,mostly_kpi_fail_4g,mostly_kpi_fail_5g */}
-          <Table className="text-xs">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">Remark</TableHead>
-                <TableHead className="text-xs">Count</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow key={"green"}>
-                <TableCell className="py-1 text-xs">GREEN</TableCell>
-                {data.map((item: any) => (
-                  <TableCell key={`green-${item.provider}`} className="py-1 text-xs">
-                    {item.green_count}
-                  </TableCell>
-                ))}
-              </TableRow>
-              <TableRow key={"investment"}>
-                <TableCell className="py-1 text-xs">INVESTMENT</TableCell>
-                {data.map((item: any) => (
-                  <TableCell key={`investment-${item.provider}`} className="py-1 text-xs">
-                    {item.investment_count}
-                  </TableCell>
-                ))}
-              </TableRow>
-              <TableRow key={"operation"}>
-                <TableCell className="py-1 text-xs">OPERATION</TableCell>
-                {data.map((item: any) => (
-                  <TableCell key={`operation-${item.provider}`} className="py-1 text-xs">
-                    {item.operation_count}
-                  </TableCell>
-                ))}
-              </TableRow>
-              <TableRow key={"optimization"}>
-                <TableCell className="py-1 text-xs">OPTIM</TableCell>
-                {data.map((item: any) => (
-                  <TableCell key={`optim-${item.provider}`} className="py-1 text-xs">
-                    {item.optim_count}
-                  </TableCell>
-                ))}
-              </TableRow>
-              <TableRow key={"vendor"}>
-                <TableCell className="py-1 text-xs">Vendor</TableCell>
-                {data.map((item: any) => (
-                  <TableCell key={`vendor-${item.provider}`} className="py-1 text-xs">
-                    {item.vendor_count}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      )}
     </div>
   );
 }

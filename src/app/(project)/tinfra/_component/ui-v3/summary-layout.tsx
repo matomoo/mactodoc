@@ -29,6 +29,7 @@ export default function SummaryLayout() {
           unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
           className="lg:col-span-1"
         />
+        <SummaryCard cardTitle={"CEI"} ceiApiPath="/tinfra/api/v2/summary/hq-cei" className="lg:col-span-1" />
         <SummaryCard cardTitle={"ONX"} tutelaApiPath="/tinfra/api/v2/summary/hq-tutela" className="lg:col-span-3" />
         <SummaryCard cardTitle={"Ookla"} ooklaApiPath="/tinfra/api/v2/summary/hq-ookla" className="lg:col-span-3" />
       </div>

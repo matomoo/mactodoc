@@ -207,7 +207,10 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
     {} as Record<string, TechGroupedData>,
   );
 
-  // Prepare data for line chart
+  const currentWeekIndex = unbalanceChart?.findIndex(
+    (item: any) => item.yearweek === yearweek || item.yearweek === String(yearweek),
+  );
+
   const lineChartData = {
     labels: unbalanceChart?.map((item: any) => item.yearweek) || [],
     datasets: [
@@ -217,7 +220,22 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
         borderColor: "rgb(75, 192, 192)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.3,
-        pointRadius: 2,
+
+        // Per-point radius — current week gets bigger dot
+        pointRadius: unbalanceChart?.map((_: any, i: number) => (i === currentWeekIndex ? 4 : 0)) || [],
+
+        // Per-point color — current week gets accent color
+        pointBackgroundColor:
+          unbalanceChart?.map((_: any, i: number) =>
+            i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)",
+          ) || [],
+
+        // Border around the current week dot
+        pointBorderColor:
+          unbalanceChart?.map((_: any, i: number) =>
+            i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)",
+          ) || [],
+
         pointHoverRadius: 3,
         datalabels: {
           display: false,
@@ -225,6 +243,24 @@ export default function UnbalanceChartContent({ unbalanceApiPath, unbalanceLevel
       },
     ],
   };
+  // Prepare data for line chart
+  // const lineChartData = {
+  //   labels: unbalanceChart?.map((item: any) => item.yearweek) || [],
+  //   datasets: [
+  //     {
+  //       label: "Unbalance Percentage",
+  //       data: unbalanceChart?.map((item: any) => parseFloat(item.pct_achv_p1)) || [],
+  //       borderColor: "rgb(75, 192, 192)",
+  //       backgroundColor: "rgba(75, 192, 192, 0.2)",
+  //       tension: 0.3,
+  //       pointRadius: 2,
+  //       pointHoverRadius: 3,
+  //       datalabels: {
+  //         display: false,
+  //       },
+  //     },
+  //   ],
+  // };
 
   const lineChartOptions = {
     responsive: true,

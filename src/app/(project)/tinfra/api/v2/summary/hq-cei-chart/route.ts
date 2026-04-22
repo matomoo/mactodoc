@@ -64,75 +64,23 @@ export async function GET(request: Request) {
     // });
 
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
-          WITH params AS (
-              SELECT ${sql.raw(searchByYearWeek)} AS selected_week
-          ),
-
-          week_scope AS (
-              SELECT DISTINCT weeknum
-              FROM raw_cei
-              WHERE weeknum <= (SELECT selected_week FROM params)
-                AND region = 'SULAWESI'
-              ORDER BY weeknum DESC
-              LIMIT 2
-          ),
-
-          prev_week AS (
-              SELECT MIN(weeknum) AS weeknum FROM week_scope
-          ),
-
-          is_valid AS (
-              SELECT
-                  CASE
-                      WHEN COUNT(DISTINCT weeknum) >= 2
-                      AND MIN(weeknum) < (SELECT selected_week FROM params)
-                      THEN TRUE
-                      ELSE FALSE
-                  END AS valid
-              FROM week_scope
-          ),
-
-          base AS (
+          WITH base AS (
               SELECT
                   t1.weeknum,
-                  COUNT(CASE WHEN t1.remark_cell = 'Good_cell' THEN 1 END) AS good_cells_count,
-                  COUNT(t1.remark_cell)                                     AS all_cells_count,
+                  COUNT(CASE WHEN t1.remark_cell = 'Good_cell' THEN 1 END) AS "good_cells_count",
+                  COUNT(t1.remark_cell) AS "all_cells_count",
                   '89.29' AS target_kpi
               FROM raw_cei t1
               WHERE
-                  t1.region  = 'SULAWESI'
-                  AND t1.weeknum IN (SELECT weeknum FROM week_scope)
+                  t1.region    = 'SULAWESI'
               GROUP BY t1.weeknum
               ORDER BY t1.weeknum
-          ),
-
-          with_pct AS (
-              SELECT
-                  *,
-                  ROUND(good_cells_count::NUMERIC / NULLIF(all_cells_count, 0) * 100, 2) AS good_cells_pct
-              FROM base
-          ),
-
-          wow AS (
-              SELECT
-                  *,
-                  ROUND(LAG(good_cells_pct) OVER (ORDER BY weeknum)::NUMERIC, 2) AS prev_good_cells_pct,
-                  ROUND((good_cells_pct - LAG(good_cells_pct) OVER (ORDER BY weeknum))::NUMERIC, 2) AS wow_diff
-              FROM with_pct
           )
 
           SELECT
-              w.weeknum,
-              w.good_cells_count,
-              w.all_cells_count,
-              w.target_kpi,
-              w.good_cells_pct,
-              CASE WHEN (SELECT valid FROM is_valid) THEN (SELECT weeknum FROM prev_week) ELSE NULL END AS prev_weeknum,
-              CASE WHEN (SELECT valid FROM is_valid) THEN w.prev_good_cells_pct                ELSE NULL END AS prev_good_cells_pct,
-              CASE WHEN (SELECT valid FROM is_valid) THEN w.wow_diff                           ELSE NULL END AS wow_good_cells_pct
-
-          FROM wow w
-          WHERE w.weeknum = (SELECT selected_week FROM params);
+              b.*,
+              ROUND(b.good_cells_count::NUMERIC / NULLIF(b.all_cells_count,0) * 100,2) AS good_cells_pct
+          FROM base b;
         `);
 
     // console.log("Result:", result);

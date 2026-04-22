@@ -9,6 +9,7 @@ import RciChartContent from "./rci-chart-content";
 import UnbalanceChartContent from "./unbalance-chart-content";
 import ProductivityChartContent from "./productivity-chart-content";
 import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
+import CeiChartContent from "./cei-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -33,6 +34,7 @@ interface IProps {
   targetValue?: number;
   annotationLabel?: string;
   kpiColumnValue?: string;
+  ceiApiPath?: string;
 }
 
 export default function SummaryCard({
@@ -53,6 +55,7 @@ export default function SummaryCard({
   unbalanceLevel = "noLevel",
   unbalanceLocation = "noLocation",
   productivityApiPath = "noUrl",
+  ceiApiPath = "noUrl",
   className = "",
   chartMaxValue,
   targetValue,
@@ -93,6 +96,8 @@ export default function SummaryCard({
             annotationLabel={annotationLabel}
             kpiColumnValue={kpiColumnValue}
           />
+        ) : cardTitle === "CEI" ? (
+          <CeiChartContent ceiApiPath={ceiApiPath} ceiLevel="noLevel" ceiLocation="noLocation" />
         ) : (
           <div>TODO: On Progress</div>
         )}

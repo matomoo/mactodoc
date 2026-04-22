@@ -198,17 +198,35 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel }: RhiChartConten
     {} as Record<string, ChartDataItem[]>,
   );
 
-  // Prepare data for line chart
+  const currentWeekIndex = rhiPercentageData?.findIndex(
+    (item: any) => item.yearweek === yearweek || item.yearweek === String(yearweek),
+  );
+
   const lineChartData = {
     labels: rhiPercentageData?.map((item: any) => item.yearweek) || [],
     datasets: [
       {
-        label: "RHI Percentage",
+        label: "CEI Percentage",
         data: rhiPercentageData?.map((item: any) => parseFloat(item.percent_rhi_all)) || [],
         borderColor: "rgb(75, 192, 192)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.3,
-        pointRadius: 2,
+
+        // Per-point radius — current week gets bigger dot
+        pointRadius: rhiPercentageData?.map((_: any, i: number) => (i === currentWeekIndex ? 4 : 0)) || [],
+
+        // Per-point color — current week gets accent color
+        pointBackgroundColor:
+          rhiPercentageData?.map((_: any, i: number) =>
+            i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)",
+          ) || [],
+
+        // Border around the current week dot
+        pointBorderColor:
+          rhiPercentageData?.map((_: any, i: number) =>
+            i === currentWeekIndex ? "rgb(75, 192, 192)" : "rgb(75, 192, 192)",
+          ) || [],
+
         pointHoverRadius: 3,
         datalabels: {
           display: false,
@@ -216,6 +234,24 @@ export default function RhiChartContent({ rhiApiPath, rhiLevel }: RhiChartConten
       },
     ],
   };
+  // Prepare data for line chart
+  // const lineChartData = {
+  //   labels: rhiPercentageData?.map((item: any) => item.yearweek) || [],
+  //   datasets: [
+  //     {
+  //       label: "RHI Percentage",
+  //       data: rhiPercentageData?.map((item: any) => parseFloat(item.percent_rhi_all)) || [],
+  //       borderColor: "rgb(75, 192, 192)",
+  //       backgroundColor: "rgba(75, 192, 192, 0.2)",
+  //       tension: 0.3,
+  //       pointRadius: 2,
+  //       pointHoverRadius: 3,
+  //       datalabels: {
+  //         display: false,
+  //       },
+  //     },
+  //   ],
+  // };
 
   const lineChartOptions = {
     responsive: true,
