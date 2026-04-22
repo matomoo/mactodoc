@@ -36,16 +36,6 @@ export async function GET(request: Request) {
                 sort_order,
                 SUM(report_times) AS total_reports
             FROM "measTa4g" t1
-            INNER JOIN ref_cell_4g tref ON tref.siteid_cellid = CONCAT(
-                CASE 
-                    WHEN SUBSTRING(t1."eNodeB Name"::TEXT, 2, 1) IN ('_', '-') THEN 
-                        SUBSTRING(t1."eNodeB Name"::TEXT, 3, 6) 
-                    ELSE 
-                        SUBSTRING(t1."eNodeB Name"::TEXT, 1, 6) 
-                END,
-                '_',
-                t1."cellId"
-            )
             CROSS JOIN LATERAL (
                 VALUES 
                     ('TA Value 1 (0-78m)', 1, t1."Report Times of TA Value 1 (0-78m)"),
@@ -65,7 +55,7 @@ export async function GET(request: Request) {
                     ('TA Value 15 (> 10608m)', 15, t1."Report Times of TA Value 15 (> 10608m)")
             ) AS v(ta_range, sort_order, report_times)
             WHERE 
-                tref.siteid LIKE ${querySiteId}
+                t1."eNodeB Name" LIKE ${querySiteId}
                 AND t1."Begin Time" >= ${formattedTgl1} 
                 AND t1."Begin Time" <= ${formattedTgl2}
             GROUP BY 
