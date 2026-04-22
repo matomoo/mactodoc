@@ -22,8 +22,7 @@ import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqTutelaChart from "../ui-v2/hq-tutela-chart";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
-import ExportReportButton from "../ui-v3/ExportReportButton";
-import type { RawKpiRow } from "../../_lib/generateNetworkReport";
+import type { RawKpiRow } from "../../_lib/reportPerformance-3";
 
 interface AggCustomProps {
   area?: string;
@@ -146,7 +145,7 @@ export default function PageAggCustom4GDaily({
     return [];
   }, [selectedKPIs, data?.rows, comparisonData]);
 
-  console.log({ filteredComparisonData });
+  // console.log({ filteredComparisonData });
 
   const { filteredData } = useDataFiltering4G({
     data,

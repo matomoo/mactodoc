@@ -1,7 +1,7 @@
 "use client";
 // biome-ignore assist/source/organizeImports: <will fix later>
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ErrorState, exportToExcel, NoDataState } from "./additional-component";
 import { useFilterStore } from "@/stores/filterStore";
 import { Header } from "./header";
@@ -20,6 +20,8 @@ import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
+import type { RawKpiRow } from "../../_lib/reportPerformance-3";
+import { useComparisonCalculation } from "./use-comparison-data";
 
 interface AggCustomProps {
   area?: string;
@@ -95,6 +97,17 @@ export default function PageAggCustom4GDaily({
 
   const dataManagement = useDataManagement4G({ data, aggregateBy });
 
+  // Call the comparison calculation hook unconditionally
+  const { comparisonData } = useComparisonCalculation(data?.rows || [], "4G");
+
+  // Calculate filteredComparisonData when selectedKPIs or data changes
+  const filteredComparisonData = useMemo(() => {
+    if (data?.rows) {
+      return comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
+    }
+    return [];
+  }, [selectedKPIs, data?.rows, comparisonData]);
+
   const { filteredData } = useDataFiltering4G({
     data,
     filterBy,
@@ -128,6 +141,8 @@ export default function PageAggCustom4GDaily({
     return <NoDataState message="No data available for the selected criteria." />;
   }
 
+  console.log({ filteredData });
+
   return (
     <div className="min-h-screen">
       <Header
@@ -141,6 +156,9 @@ export default function PageAggCustom4GDaily({
               : ""
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
+        data={filteredData as unknown as RawKpiRow[]}
+        selectedKPIs={selectedKPIs}
+        filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
       />
 
       <div className="py-4 lg:py-6">

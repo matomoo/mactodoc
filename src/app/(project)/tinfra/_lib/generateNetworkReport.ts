@@ -16,6 +16,8 @@ import type PptxGenJS from "pptxgenjs";
 export interface RawKpiRow {
   BEGIN_TIME: string;
   G4_AGGRBY: string;
+  G4_SITEID: string;
+  G4_SITEID_CELLID: string;
   DL_PAYLOAD_GB: number;
   UL_PAYLOAD_GB: number;
   TOTAL_PAYLOAD_GB: number;

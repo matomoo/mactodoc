@@ -16,6 +16,8 @@ export interface RawKpiRow {
   BEGIN_TIME: string;
   G4_NOP?: string;
   G4_AGGRBY: string;
+  G4_SITEID?: string;
+  G4_SITEID_CELLID?: string;
   DL_PAYLOAD_GB: number;
   UL_PAYLOAD_GB: number;
   TOTAL_PAYLOAD_GB: number;
@@ -156,11 +158,6 @@ interface ComputedKpi {
   interfhoSR: number;
   csfbSR: number;
   srvccSR: number | null;
-}
-
-interface ClosingStat {
-  label: string;
-  value: string | number;
 }
 
 // ─── KPI REGISTRY ─────────────────────────────────────────────────────────────
@@ -372,18 +369,57 @@ export interface KpiGroup {
   kpis: ComputedKpi[];
 }
 
+// ─── HELPER: build a unified sorted date label array across all groups ────────
+
+function buildUnifiedLabels(groups: KpiGroup[]): string[] {
+  const dateSet = new Set<string>();
+  for (const g of groups) {
+    for (const k of g.kpis) {
+      dateSet.add(k.date);
+    }
+  }
+  // Sort chronologically — dates are "DD Mon" e.g. "15 Apr"
+  return Array.from(dateSet).sort((a, b) => {
+    return new Date(`${a} 2026`).getTime() - new Date(`${b} 2026`).getTime();
+  });
+}
+
+// ─── HELPER: align a group's kpis to a unified label array ───────────────────
+// Returns values array with 0 for any date the group has no data for.
+
+function alignValues(
+  group: KpiGroup,
+  labels: string[],
+  getValue: (k: ComputedKpi) => number | null,
+  decimals: number,
+): number[] {
+  // Build a quick lookup: date string → computed value
+  const map = new Map<string, number>();
+  for (const k of group.kpis) {
+    const v = getValue(k);
+    map.set(k.date, parseFloat(fmt(v ?? 0, decimals)));
+  }
+  // For each label, return the value or 0 if missing
+  return labels.map((label) => map.get(label) ?? 0);
+}
+
+// ─── UPDATED: computeKPIsByNop — detect cell-level grouping ──────────────────
+
 function computeKPIsByNop(data: RawKpiRow[]): KpiGroup[] {
-  // Group raw rows by G4_NOP
   const grouped = new Map<string, RawKpiRow[]>();
   for (const row of data) {
-    const nop = row.G4_NOP ?? row.G4_AGGRBY ?? "UNKNOWN";
+    const nop = row.G4_NOP ?? row.G4_AGGRBY ?? row.G4_SITEID_CELLID ?? "UNKNOWN";
     if (!grouped.has(nop)) grouped.set(nop, []);
     grouped.get(nop)?.push(row);
   }
 
+  // Detect if we're grouping by cell ID by checking the first row
+  const firstRow = data[0];
+  const isCellGranularity = !firstRow?.G4_NOP && !firstRow?.G4_AGGRBY && !!firstRow?.G4_SITEID_CELLID;
+
   return Array.from(grouped.entries()).map(([nop, rows]) => ({
     nop,
-    kpis: computeKPIs(rows),
+    kpis: computeKPIs(rows, isCellGranularity),
   }));
 }
 
@@ -400,7 +436,7 @@ const SERIES_COLORS = [
   "EC4899", // pink
 ];
 
-function computeKPIs(data: RawKpiRow[]): ComputedKpi[] {
+function computeKPIs(data: RawKpiRow[], useCellGranularity = false): ComputedKpi[] {
   return data.map((row) => {
     const date = new Date(row.BEGIN_TIME).toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -408,12 +444,14 @@ function computeKPIs(data: RawKpiRow[]): ComputedKpi[] {
     });
     return {
       date,
-      totalPayloadTB: row.TOTAL_PAYLOAD_TB,
+      totalPayloadTB: useCellGranularity ? row.TOTAL_PAYLOAD_GB : row.TOTAL_PAYLOAD_TB,
       dlPayloadGB: row.DL_PAYLOAD_GB / 1_000,
       ulPayloadGB: row.UL_PAYLOAD_GB / 1_000,
       voltErl: row.TRAFFIC_VOLTE_ERL,
-      voltKErl: row.TRAFFIC_VOLTE_ERL / 1_024,
-      rrcUsers: row.G4_SUM_MAX_NUMBER_RRC_CONNECTION_USER / 1_000_000,
+      voltKErl: useCellGranularity ? row.TRAFFIC_VOLTE_ERL : row.TRAFFIC_VOLTE_ERL / 1_024,
+      rrcUsers: useCellGranularity
+        ? row.G4_SUM_MAX_NUMBER_RRC_CONNECTION_USER
+        : row.G4_SUM_MAX_NUMBER_RRC_CONNECTION_USER / 1_000,
       availability: (row.AVAILABILITY_NUM / row.AVAILABILITY_DENUM) * 100,
       rrcSetupSR: (row.G4_RRC_SETUP_SR_NUM / row.G4_RRC_SETUP_SR_DENUM) * 100,
       erabSetupSR: (row.G4_ERAB_SETUP_SR_NUM / row.G4_ERAB_SETUP_SR_DENUM) * 100,
@@ -434,14 +472,6 @@ function computeKPIs(data: RawKpiRow[]): ComputedKpi[] {
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
-
-function last<T>(arr: T[]): T {
-  return arr[arr.length - 1];
-}
-
-function avg(arr: ComputedKpi[], key: keyof ComputedKpi): number {
-  return arr.reduce((sum, row) => sum + (row[key] as number), 0) / arr.length;
-}
 
 function fmt(v: number | null | undefined, dec = 2): string {
   if (v == null) return "N/A";
@@ -658,11 +688,13 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
  */
 // ─── UPDATED: addSlide_ChartModel1 — now multi-series ────────────────────────
 
+// ─── UPDATED: addSlide_ChartModel1 — use unified labels ─────────────────────
+
 function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis: string[]): void {
-  const labels = groups[0].kpis.map((k) => k.date);
+  // Build one shared label axis that covers ALL groups' dates
+  const labels = buildUnifiedLabels(groups);
   const chartColors = groups.map((_, idx) => SERIES_COLORS[idx % SERIES_COLORS.length]);
 
-  // ── Pair KPIs into chunks of 2 ──────────────────────────────────────────
   const pairs: string[][] = [];
   for (let i = 0; i < selectedKpis.length; i += 2) {
     pairs.push(selectedKpis.slice(i, i + 2));
@@ -679,17 +711,14 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
         return;
       }
 
-      // ── Layout: 2 columns, each ~4.55" wide with 0.1" gutter ──────────
       const GUTTER = 0.1;
-      const CHART_W = (9.2 - GUTTER) / 2; // ~4.55"
+      const CHART_W = (9.2 - GUTTER) / 2;
       const x = 0.4 + col * (CHART_W + GUTTER);
       const TITLE_H = 0.42;
       const CHART_Y = 0.15 + TITLE_H;
-      const CHART_H = 4.7; // fills remaining height
+      const CHART_H = 4.7;
 
-      // ── Slide title: only on left column (col === 0) ──────────────────
       if (col === 0) {
-        // Use both KPI titles joined, or just the first if only one in pair
         const slideTitle = pair.map((k) => KPI_REGISTRY[k as KpiKey]?.title ?? k).join("  ·  ");
         slide.addText(slideTitle, {
           x: 0.4,
@@ -704,14 +733,11 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
         });
       }
 
-      // ── Series data ───────────────────────────────────────────────────
+      // Use alignValues so every series maps to the same unified label axis
       const seriesData = groups.map((group) => ({
         name: group.nop,
         labels,
-        values: group.kpis.map((k) => {
-          const v = config.getValue(k);
-          return parseFloat(fmt(v ?? 0, config.decimals));
-        }),
+        values: alignValues(group, labels, config.getValue, config.decimals),
       }));
 
       const seriesName = config.unit ? `${config.title} (${config.unit})` : config.title;
@@ -732,19 +758,17 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
         Object.assign(chartOpts, {
           barDir: "col",
           barGrouping: "clustered",
-          showValue: groups.length === 1, // hide values if crowded with multiple series
+          showValue: groups.length === 1,
           dataLabelFontSize: 6,
           dataLabelColor: THEME.dark,
           dataLabelPosition: "outEnd",
         } satisfies Partial<PptxGenJS.IChartOpts>);
-
         slide.addChart((pres as any).charts.BAR, seriesData, chartOpts);
       } else {
         Object.assign(chartOpts, {
           lineSize: 2,
           lineSmooth: true,
         } satisfies Partial<PptxGenJS.IChartOpts>);
-
         slide.addChart((pres as any).charts.LINE, seriesData, chartOpts);
       }
     });
