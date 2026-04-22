@@ -30,67 +30,6 @@ ChartJS.register(
   ChartAnnotation,
 );
 
-// // Add this custom plugin above your ChartJS.register(...)
-// const targetNeedlePlugin = {
-//   id: "targetNeedle",
-//   afterDraw(chart: any) {
-//     const { ctx, chartArea } = chart;
-//     const dataset = chart.data.datasets[0];
-//     const meta = chart.getDatasetMeta(0);
-//     if (!meta.data.length) return;
-
-//     const arc = meta.data[0]; // first arc (current value)
-//     const maxValue = dataset.data[0] + dataset.data[1]; // current + remaining
-//     const targetValue = dataset.data[2]
-//       ? chart.data.datasets[0]._targetValue
-//       : 1;
-
-//     // Center of the chart
-//     const centerX = (chartArea.left + chartArea.right) / 2;
-//     const centerY = chartArea.bottom; // bottom because rotation: -90, circumference: 180
-
-//     const outerRadius = arc.outerRadius;
-//     const innerRadius = arc.innerRadius;
-
-//     // Map target value to angle (-90deg = start, +90deg = end for half gauge)
-//     const targetRatio = targetValue / maxValue;
-//     const startAngle = -Math.PI; // -180deg
-//     const endAngle = 0; // 0deg
-//     const targetAngle = startAngle + targetRatio * (endAngle - startAngle);
-
-//     // Draw tick line
-//     const tickLength = 5;
-//     ctx.save();
-//     ctx.beginPath();
-//     ctx.moveTo(
-//       centerX + (innerRadius - tickLength) * Math.cos(targetAngle),
-//       centerY + (innerRadius - tickLength) * Math.sin(targetAngle),
-//     );
-//     ctx.lineTo(
-//       centerX + (outerRadius + tickLength) * Math.cos(targetAngle),
-//       centerY + (outerRadius + tickLength) * Math.sin(targetAngle),
-//     );
-//     ctx.strokeStyle = "#FF6F00"; // amber target color
-//     ctx.lineWidth = 2.5;
-//     ctx.setLineDash([4, 3]);
-//     ctx.stroke();
-//     ctx.restore();
-
-//     // Draw small label "Target X%"
-//     ctx.save();
-//     ctx.font = "bold 10px sans-serif";
-//     ctx.fillStyle = "#FF6F00";
-//     ctx.textAlign = "center";
-//     const labelX = centerX + (outerRadius + 22) * Math.cos(targetAngle);
-//     const labelY = centerY + (outerRadius + 22) * Math.sin(targetAngle);
-//     ctx.fillText(`T: ${targetValue}%`, labelX, labelY);
-//     ctx.restore();
-//   },
-// };
-
-// // Add to ChartJS.register(...)
-// ChartJS.register(targetNeedlePlugin);
-
 interface ChartDataItem {
   provider: string;
   value: number;
@@ -164,7 +103,7 @@ export default function HqAchvDynamicChartContent2({
 
   const dataUnbalance = unbalanceRawData || [];
 
-  console.log("debug:", { apiPath, dataUnbalance });
+  // console.log("debug:", { apiPath, dataUnbalance });
 
   if (isLoading) {
     return (

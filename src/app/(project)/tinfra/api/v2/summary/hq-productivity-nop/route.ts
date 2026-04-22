@@ -106,6 +106,7 @@ export async function GET(request: Request) {
         mtd AS (
             SELECT
                 branch,
+                -- MTD This Year (current month)
                 SUM(CASE
                     WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params))
                     AND date <= (SELECT selected_date FROM params)
@@ -114,6 +115,8 @@ export async function GET(request: Request) {
                     WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params))
                     AND date <= (SELECT selected_date FROM params)
                     THEN payload END)               AS mtd_payload_this_year,
+
+                -- MTD Last Year (same month window 1 year ago)
                 SUM(CASE
                     WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params)) - INTERVAL '1 year'
                     AND date <= (SELECT selected_date FROM params) - INTERVAL '1 year'
@@ -121,7 +124,18 @@ export async function GET(request: Request) {
                 SUM(CASE
                     WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params)) - INTERVAL '1 year'
                     AND date <= (SELECT selected_date FROM params) - INTERVAL '1 year'
-                    THEN payload END)               AS mtd_payload_last_year
+                    THEN payload END)               AS mtd_payload_last_year,
+
+                -- MTD Previous Month Same Year (e.g. if selected = Apr 13, compare Mar 1–Mar 13)
+                SUM(CASE
+                    WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params)) - INTERVAL '1 month'
+                    AND date <= (SELECT selected_date FROM params) - INTERVAL '1 month'
+                    THEN traffic END)               AS mtd_traffic_prev_month,
+                SUM(CASE
+                    WHEN date >= DATE_TRUNC('month', (SELECT selected_date FROM params)) - INTERVAL '1 month'
+                    AND date <= (SELECT selected_date FROM params) - INTERVAL '1 month'
+                    THEN payload END)               AS mtd_payload_prev_month
+
             FROM daily
             GROUP BY branch
         ),
@@ -167,6 +181,13 @@ export async function GET(request: Request) {
             m.mtd_payload_last_year,
             ROUND((m.mtd_payload_this_year - m.mtd_payload_last_year)::NUMERIC, 4)                         AS mtd_payload_diff,
             ROUND((m.mtd_payload_this_year / NULLIF(m.mtd_payload_last_year, 0) * 100 - 100)::NUMERIC, 2)  AS mtd_payload_growth_pct,
+            -- MTD vs Previous Month (same year)
+            m.mtd_traffic_prev_month,
+            ROUND((m.mtd_traffic_this_year - m.mtd_traffic_prev_month)::NUMERIC, 4)                        AS mtd_traffic_prev_month_diff,
+            ROUND((m.mtd_traffic_this_year / NULLIF(m.mtd_traffic_prev_month, 0) * 100 - 100)::NUMERIC, 2) AS mtd_this_year_traffic_growth_pct,
+            m.mtd_payload_prev_month,
+            ROUND((m.mtd_payload_this_year - m.mtd_payload_prev_month)::NUMERIC, 4)                        AS mtd_payload_prev_month_diff,
+            ROUND((m.mtd_payload_this_year / NULLIF(m.mtd_payload_prev_month, 0) * 100 - 100)::NUMERIC, 2) AS mtd_this_year_payload_growth_pct,
             w.wow_traffic_current,
             w.wow_traffic_prior,
             ROUND((w.wow_traffic_current - w.wow_traffic_prior)::NUMERIC, 4)                               AS wow_traffic_diff,

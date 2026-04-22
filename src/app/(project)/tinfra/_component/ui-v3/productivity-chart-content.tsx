@@ -39,6 +39,7 @@ interface ChartDataItem {
   wow_diff: number | null;
   ytd_pct: number | null;
   mtd_pct: number | null;
+  mtd_this_year_pct: number | null;
   wow_pct: number | null;
   rank: number | null;
   tech: string | null;
@@ -154,7 +155,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   const data = productivityData || [];
   const dataNop = productivityNopData || [];
 
-  // console.log("debug:", { data, dataNop });
+  console.log("debug:", { data, dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoY = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
@@ -215,6 +216,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
 
           // Map YTD columns to their corresponding MTD columns
           const mtdColumn = kpiColumn.replace("yoy_", "mtd_");
+          const mtdThisYearColumn = kpiColumn.replace("yoy_", "mtd_this_year_");
 
           acc[kpiColumn][tech].push({
             provider: item.region || "Unknown", // Use region as provider name
@@ -225,6 +227,9 @@ export default function ProductivityChartContent({ productivityApiPath, producti
             ytd_pct: parseFloat(String(value)), // YTD is the main value
             mtd_pct: item[mtdColumn as keyof ApiDataItem]
               ? parseFloat(String(item[mtdColumn as keyof ApiDataItem]))
+              : null,
+            mtd_this_year_pct: item[mtdThisYearColumn as keyof ApiDataItem]
+              ? parseFloat(String(item[mtdThisYearColumn as keyof ApiDataItem]))
               : null,
             wow_pct: item[wowColumn as keyof ApiDataItem]
               ? parseFloat(String(item[wowColumn as keyof ApiDataItem]))
@@ -275,7 +280,16 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                       : "bg-red-100 text-red-800 hover:bg-red-200"
                   }
                 >
-                  MTD {parseFloat((techData.ALL[0].mtd_pct ?? 0).toString()).toFixed(2)} %
+                  MTD last year {parseFloat((techData.ALL[0].mtd_pct ?? 0).toString()).toFixed(2)} %
+                </Badge>
+                <Badge
+                  className={
+                    (techData.ALL[0].mtd_this_year_pct ?? 0) > 0
+                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      : "bg-red-100 text-red-800 hover:bg-red-200"
+                  }
+                >
+                  MTD this year {parseFloat((techData.ALL[0].mtd_this_year_pct ?? 0).toString()).toFixed(2)} %
                 </Badge>
                 <Badge
                   className={
