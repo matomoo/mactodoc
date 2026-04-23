@@ -167,7 +167,9 @@ interface KpiConfig {
   title: string;
   chartType: "line" | "bar";
   unit: string;
+  unitCell?: string; // override unit for cell/site granularity
   decimals: number;
+  decimalsCell?: number; // override decimals for cell/site granularity
   getValue: (k: ComputedKpi) => number | null;
   color?: string;
 }
@@ -177,7 +179,9 @@ export const KPI_REGISTRY: Record<KpiKey, KpiConfig> = {
     title: "Total Payload",
     chartType: "line",
     unit: "TB",
+    unitCell: "GB",
     decimals: 0,
+    decimalsCell: 2,
     getValue: (k) => k.totalPayloadTB,
     color: "0D9488",
   },
@@ -185,7 +189,9 @@ export const KPI_REGISTRY: Record<KpiKey, KpiConfig> = {
     title: "Downlink Payload",
     chartType: "line",
     unit: "TB",
+    unitCell: "GB",
     decimals: 2,
+    decimalsCell: 2,
     getValue: (k) => k.dlPayloadGB,
     color: "0369A1",
   },
@@ -193,7 +199,9 @@ export const KPI_REGISTRY: Record<KpiKey, KpiConfig> = {
     title: "Uplink Payload",
     chartType: "line",
     unit: "TB",
+    unitCell: "GB",
     decimals: 2,
+    decimalsCell: 2,
     getValue: (k) => k.ulPayloadGB,
     color: "F59E0B",
   },
@@ -343,6 +351,18 @@ export const KPI_REGISTRY: Record<KpiKey, KpiConfig> = {
   },
 };
 
+const CELL_LEVEL_GROUPBY = new Set(["G4_SITEID_CELLID", "G4_SITEID", "G4_AGGRBY2", "G4_AGGRBY"]);
+
+// ─── HELPER: resolve unit and decimals from config based on groupBy ───────────
+
+function resolveKpiConfig(config: KpiConfig, groupBy: string): { unit: string; decimals: number } {
+  const isCell = CELL_LEVEL_GROUPBY.has(groupBy);
+  return {
+    unit: isCell ? (config.unitCell ?? config.unit) : config.unit,
+    decimals: isCell ? (config.decimalsCell ?? config.decimals) : config.decimals,
+  };
+}
+
 // ─── THEME ────────────────────────────────────────────────────────────────────
 
 const THEME = {
@@ -414,8 +434,8 @@ function computeKPIsByNop(data: RawKpiRow[], groupBy: string): KpiGroup[] {
     grouped.get(nop)?.push(row);
   }
 
-  // Detect if we're grouping by cell ID by checking the first row
-  const isCellGranularity = groupBy === "G4_SITEID" || groupBy === "G4_SITEID_CELLID" || groupBy === "G4_AGGRBY2";
+  const isCellGranularity =
+    groupBy === "G4_SITEID" || groupBy === "G4_SITEID_CELLID" || groupBy === "G4_AGGRBY" || groupBy === "G4_AGGRBY2";
 
   return Array.from(grouped.entries()).map(([nop, rows]) => ({
     nop,
@@ -687,8 +707,12 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
  * Creates ONE slide per entry in selectedKpis.
  */
 
-function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis: string[]): void {
-  // Build one shared label axis that covers ALL groups' dates
+function addSlide_ChartModel1(
+  pres: PptxGenJS,
+  groups: KpiGroup[],
+  selectedKpis: string[],
+  groupBy: string, // ← add groupBy param
+): void {
   const labels = buildUnifiedLabels(groups);
   const chartColors = groups.map((_, idx) => SERIES_COLORS[idx % SERIES_COLORS.length]);
 
@@ -707,6 +731,9 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
         console.warn(`[reportPerformance] Unknown KPI key: "${rawKey}" – skipping.`);
         return;
       }
+
+      // ── Resolve unit + decimals based on groupBy ──────────────────────────
+      const { unit, decimals } = resolveKpiConfig(config, groupBy);
 
       const GUTTER = 0.1;
       const CHART_W = (9.2 - GUTTER) / 2;
@@ -730,14 +757,14 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
         });
       }
 
-      // Use alignValues so every series maps to the same unified label axis
       const seriesData = groups.map((group) => ({
         name: group.nop,
         labels,
-        values: alignValues(group, labels, config.getValue, config.decimals),
+        values: alignValues(group, labels, config.getValue, decimals),
       }));
 
-      const seriesName = config.unit ? `${config.title} (${config.unit})` : config.title;
+      // Chart title now shows correct unit e.g. "Total Payload (GB)" for cell level
+      const seriesName = unit ? `${config.title} (${unit})` : config.title;
 
       const chartOpts: PptxGenJS.IChartOpts = {
         ...chartBase(x, CHART_Y, CHART_W, CHART_H),
@@ -817,7 +844,6 @@ export async function reportPerformance({
   const pres = new PptxGenJS();
   pres.layout = "LAYOUT_16x9";
 
-  // NEW: group by NOP instead of flat array
   const groups = computeKPIsByNop(filteredData, groupBy);
   const regionLabel = groups.map((g) => g.nop).join(" · ");
 
@@ -828,7 +854,7 @@ export async function reportPerformance({
   }
 
   const keysToRender = selectedKpis?.length ? selectedKpis : Object.keys(KPI_REGISTRY);
-  addSlide_ChartModel1(pres, groups, keysToRender); // <-- groups instead of flat kpis
+  addSlide_ChartModel1(pres, groups, keysToRender, groupBy);
 
   const name = fileName ?? `LTE_Report_${regionLabel}_${new Date().toISOString().slice(0, 10)}.pptx`;
   await pres.writeFile({ fileName: name });

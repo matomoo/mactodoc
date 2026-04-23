@@ -13,7 +13,7 @@ interface HeaderProps {
   data?: RawKpiRow[];
   selectedKPIs?: string[];
   filteredComparisonData?: RawKpiRow[];
-  groupBy: string;
+  groupBy?: string;
 }
 
 export function Header({

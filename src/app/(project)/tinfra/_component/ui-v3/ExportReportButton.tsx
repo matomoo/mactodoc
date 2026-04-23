@@ -34,7 +34,7 @@ export default function ExportReportButton({
 }: ExportReportButtonProps) {
   const [loading, setLoading] = useState(false);
 
-  console.log({ data });
+  // console.log({ data });
 
   async function handleExport(): Promise<void> {
     if (!data?.length) {
