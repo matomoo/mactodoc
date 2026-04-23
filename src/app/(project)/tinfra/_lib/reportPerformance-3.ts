@@ -16,6 +16,7 @@ export interface RawKpiRow {
   BEGIN_TIME: string;
   G4_NOP?: string;
   G4_AGGRBY: string;
+  G4_AGGRBY2?: string;
   G4_SITEID?: string;
   G4_SITEID_CELLID?: string;
   DL_PAYLOAD_GB: number;
@@ -405,17 +406,16 @@ function alignValues(
 
 // ─── UPDATED: computeKPIsByNop — detect cell-level grouping ──────────────────
 
-function computeKPIsByNop(data: RawKpiRow[]): KpiGroup[] {
+function computeKPIsByNop(data: RawKpiRow[], groupBy: string): KpiGroup[] {
   const grouped = new Map<string, RawKpiRow[]>();
   for (const row of data) {
-    const nop = row.G4_NOP ?? row.G4_AGGRBY ?? row.G4_SITEID_CELLID ?? "UNKNOWN";
+    const nop = row.G4_NOP ?? row.G4_AGGRBY ?? row.G4_AGGRBY2 ?? row.G4_SITEID_CELLID ?? row.G4_SITEID ?? "UNKNOWN";
     if (!grouped.has(nop)) grouped.set(nop, []);
     grouped.get(nop)?.push(row);
   }
 
   // Detect if we're grouping by cell ID by checking the first row
-  const firstRow = data[0];
-  const isCellGranularity = !firstRow?.G4_NOP && !firstRow?.G4_AGGRBY && !!firstRow?.G4_SITEID_CELLID;
+  const isCellGranularity = groupBy === "G4_SITEID" || groupBy === "G4_SITEID_CELLID" || groupBy === "G4_AGGRBY2";
 
   return Array.from(grouped.entries()).map(([nop, rows]) => ({
     nop,
@@ -686,9 +686,6 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
  * addSlide_ChartModel1
  * Creates ONE slide per entry in selectedKpis.
  */
-// ─── UPDATED: addSlide_ChartModel1 — now multi-series ────────────────────────
-
-// ─── UPDATED: addSlide_ChartModel1 — use unified labels ─────────────────────
 
 function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis: string[]): void {
   // Build one shared label axis that covers ALL groups' dates
@@ -803,18 +800,25 @@ function addSlide_ChartModel1(pres: PptxGenJS, groups: KpiGroup[], selectedKpis:
  */
 // ─── UPDATED: reportPerformance — wire everything together ───────────────────
 
-export async function reportPerformance(
-  filteredData: RawKpiRow[],
-  fileName?: string,
-  selectedKpis?: string[],
-  filteredComparisonData?: ComparisonRow[],
-): Promise<void> {
+export async function reportPerformance({
+  filteredData,
+  fileName,
+  selectedKpis,
+  filteredComparisonData,
+  groupBy = "G4_NOP",
+}: {
+  filteredData: RawKpiRow[];
+  fileName?: string;
+  selectedKpis?: string[];
+  filteredComparisonData?: ComparisonRow[];
+  groupBy?: string;
+}): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();
   pres.layout = "LAYOUT_16x9";
 
   // NEW: group by NOP instead of flat array
-  const groups = computeKPIsByNop(filteredData);
+  const groups = computeKPIsByNop(filteredData, groupBy);
   const regionLabel = groups.map((g) => g.nop).join(" · ");
 
   // addCoverSlide(pres, groups, regionLabel);

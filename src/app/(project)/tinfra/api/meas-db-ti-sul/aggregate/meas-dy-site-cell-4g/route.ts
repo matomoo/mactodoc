@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   const multiSite = searchParams.get("siteId") || "---";
   const tgl_1 = searchParams.get("tgl_1");
   const tgl_2 = searchParams.get("tgl_2");
+  const aggregateBy = searchParams.get("aggregateBy");
 
   if (!tgl_1 || !tgl_2) {
     return NextResponse.json({ error: "Both tgl_1 and tgl_2 parameters are required" }, { status: 400 });
@@ -35,6 +36,8 @@ export async function GET(request: Request) {
 
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     let multiSiteCondition: any;
+    let multiSiteCondition_aggregateBy: any;
+    let multiSiteCondition_aggregateBy_grby: any;
     if (multiSite === "---" || multiSite === "All" || multiSiteValues.length === 0) {
       multiSiteCondition = sql``;
     } else if (multiSiteValues.length === 1) {
@@ -46,11 +49,26 @@ export async function GET(request: Request) {
       multiSiteCondition = sql.raw(`AND tref.siteid IN (${multiSiteList})`);
     }
 
+    if (aggregateBy === "G4_SITEID") {
+      // Use exact match for single cluster
+      multiSiteCondition_aggregateBy = sql`tref.siteid AS "G4_SITEID",`;
+    } else if (aggregateBy === "G4_SITEID_CELLID") {
+      // Use exact match for single cluster
+      multiSiteCondition_aggregateBy = sql`tref.siteid_cellid AS "G4_SITEID_CELLID",`;
+    }
+
+    if (aggregateBy === "G4_SITEID") {
+      // Use exact match for single cluster
+      multiSiteCondition_aggregateBy_grby = sql`t1."Begin Time", tref.siteid`;
+    } else if (aggregateBy === "G4_SITEID_CELLID") {
+      // Use exact match for single cluster
+      multiSiteCondition_aggregateBy_grby = sql`t1."Begin Time",tref.siteid_cellid`;
+    }
+
     const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           SELECT
             t1."Begin Time" AS "BEGIN_TIME",
-            tref.siteid AS "G4_SITEID",
-	          tref.siteid_cellid AS "G4_SITEID_CELLID",         
+            ${multiSiteCondition_aggregateBy}
             SUM(t1."DL Traffic Volume (MByte) AMQ") / 1024 AS "DL_PAYLOAD_GB",
             SUM(t1."UL Traffic Volume (MByte) AMQ") / 1024 AS "UL_PAYLOAD_GB",
             SUM(t1."4G Payload (MByte) AMQ") / 1024 AS "TOTAL_PAYLOAD_GB",
@@ -116,13 +134,9 @@ export async function GET(request: Request) {
             t1."Begin Time" >= ${formattedTgl1} :: TIMESTAMP
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
           GROUP BY
-            t1."Begin Time",
-            tref.siteid,
-            tref.siteid_cellid
+            ${multiSiteCondition_aggregateBy_grby}
           ORDER BY
-            t1."Begin Time",
-            tref.siteid,
-            tref.siteid_cellid
+            ${multiSiteCondition_aggregateBy_grby}
         `);
 
     return NextResponse.json(result);

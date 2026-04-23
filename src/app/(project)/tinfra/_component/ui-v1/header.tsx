@@ -13,6 +13,7 @@ interface HeaderProps {
   data?: RawKpiRow[];
   selectedKPIs?: string[];
   filteredComparisonData?: RawKpiRow[];
+  groupBy: string;
 }
 
 export function Header({
@@ -23,6 +24,7 @@ export function Header({
   data,
   selectedKPIs,
   filteredComparisonData,
+  groupBy = "noGrup",
 }: HeaderProps) {
   return (
     <div className="sticky top-13 z-30 mt-4 rounded-lg border-b bg-white px-4 py-2 shadow-sm lg:px-6">
@@ -35,6 +37,7 @@ export function Header({
           data={data as unknown as RawKpiRow[]}
           selectedKPIs={selectedKPIs || []}
           filteredComparisonData={filteredComparisonData}
+          groupBy={groupBy}
         />
         {/* <div className="flex items-center gap-3">
           <button

@@ -81,7 +81,7 @@ export default function PageAggCustom4GDaily({
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
       if (!response.ok) {
@@ -159,6 +159,7 @@ export default function PageAggCustom4GDaily({
         data={filteredData as unknown as RawKpiRow[]}
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
+        groupBy={aggregateBy}
       />
 
       <div className="py-4 lg:py-6">
