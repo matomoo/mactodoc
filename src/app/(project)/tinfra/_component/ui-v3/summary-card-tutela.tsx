@@ -10,6 +10,7 @@ import UnbalanceChartContent from "./unbalance-chart-content";
 import ProductivityChartContent from "./productivity-chart-content";
 import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
 import CeiChartContent from "./cei-chart-content";
+import RedcovChartContent from "./redcov-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -35,6 +36,7 @@ interface IProps {
   annotationLabel?: string;
   kpiColumnValue?: string;
   ceiApiPath?: string;
+  redcovApiPath?: string;
 }
 
 export default function SummaryCard({
@@ -56,6 +58,7 @@ export default function SummaryCard({
   unbalanceLocation = "noLocation",
   productivityApiPath = "noUrl",
   ceiApiPath = "noUrl",
+  redcovApiPath = "noUrl",
   className = "",
   chartMaxValue,
   targetValue,
@@ -98,6 +101,8 @@ export default function SummaryCard({
           />
         ) : cardTitle === "CEI" ? (
           <CeiChartContent ceiApiPath={ceiApiPath} ceiLevel="noLevel" ceiLocation="noLocation" />
+        ) : cardTitle === "Redcov" ? (
+          <RedcovChartContent redcovApiPath={redcovApiPath} redcovLevel="noLevel" redcovLocation="noLocation" />
         ) : (
           <div>TODO: On Progress</div>
         )}
