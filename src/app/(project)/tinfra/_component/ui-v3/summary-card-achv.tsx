@@ -12,6 +12,7 @@ import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
 import HqAchvDynamicChartContent2 from "./hq-achv-dynamic-chart-content-2";
 import HqAchvDynamicChartContent3 from "./hq-achv-dynamic-chart-content-3";
 import HqAchvDynamicChartContentTutOok from "./hq-achv-dynamic-chart-content-tut-ook";
+import HqAchvDynamicChartContentRedcov from "./hq-achv-dynamic-chart-content-redcov";
 
 interface IProps {
   cardTitle: string;
@@ -37,6 +38,7 @@ interface IProps {
   annotationLabel?: string;
   kpiColumnValue?: string;
   ceiApiPath?: string;
+  redcovApiPath?: string;
 }
 
 export default function SummaryCardAchv({
@@ -63,6 +65,7 @@ export default function SummaryCardAchv({
   annotationLabel,
   kpiColumnValue,
   ceiApiPath = "noUrl",
+  redcovApiPath = "noUrl",
 }: IProps) {
   return (
     <Card className={className}>
@@ -98,6 +101,13 @@ export default function SummaryCardAchv({
             targetValue={89.29}
             annotationLabel="CEI"
             kpiColumnValue="good_cells_pct"
+          />
+          <HqAchvDynamicChartContentRedcov
+            apiPath={redcovApiPath}
+            chartMaxValue={100}
+            targetValue={0.78}
+            annotationLabel="Redcov"
+            kpiColumnValue="red_optim_cells_pct"
           />
           <HqAchvDynamicChartContentTutOok
             apiPath={tutelaApiPath}

@@ -155,7 +155,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   const data = productivityData || [];
   const dataNop = productivityNopData || [];
 
-  console.log("debug:", { data, dataNop });
+  // console.log("debug:", { data, dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoY = [...(Array.isArray(dataNop) ? dataNop : [])].sort(

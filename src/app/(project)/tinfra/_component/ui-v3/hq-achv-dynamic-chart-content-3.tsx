@@ -246,7 +246,7 @@ export default function HqAchvDynamicChartContent2({
       : ["#1E88E5", "#EF5350", "#FFFFFF"]; // blue | red | gray
 
     // Inner ring — target marker
-    const innerData = isPassing ? [target] : [target, maxValue - target];
+    const innerData = isPassing ? [target, 0] : [target, maxValue - target];
     const innerColors = ["#FF8F00", "#FFFFFF"]; // amber for target | gray for remaining
 
     return {
@@ -302,7 +302,7 @@ export default function HqAchvDynamicChartContent2({
 
               if (datasetIndex === 1) {
                 // Inner ring — target
-                const labels = ["Target"];
+                const labels = ["Target", "-"];
                 return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
               }
 

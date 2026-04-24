@@ -20,6 +20,7 @@ export default function SummaryLayout() {
           tutelaApiPath="/tinfra/api/v2/summary/hq-tutela-achv"
           ooklaApiPath="/tinfra/api/v2/summary/hq-ookla-achv"
           ceiApiPath="/tinfra/api/v2/summary/hq-cei-achv"
+          redcovApiPath="/tinfra/api/v2/summary/hq-redcov-achv"
           className="lg:col-span-2"
         />
         <SummaryCard cardTitle={"RHI"} rhiApiPath="/tinfra/api/v2/summary/hq-rhi" className="lg:col-span-1" />

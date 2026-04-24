@@ -56,7 +56,7 @@ interface IProps {
   kpiColumnValue?: string;
 }
 
-export default function HqAchvDynamicChartContent2({
+export default function HqAchvDynamicChartContentRedcov({
   apiPath,
   chartMaxValue = 100,
   targetValue = 1,
@@ -83,7 +83,6 @@ export default function HqAchvDynamicChartContent2({
         [
           `${apiPath}?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
-          `location=${valueLocation}`,
           `yearweek=${yearweek}`,
           `fieldToAggregate=${viewBy}`,
         ].join("&"),
@@ -171,24 +170,23 @@ export default function HqAchvDynamicChartContent2({
   // Doughnut chart configuration
   const getDoughnutChartData = (techData: TechGroupedData) => {
     const currentValue = Math.abs(parseFloat((techData.ALL[0].value ?? 0).toString()));
-
     const target = parseFloat((techData.ALL[0].target_achv ?? 0).toString());
     const maxValue = parseFloat((techData.ALL[0].max_value ?? 0).toString());
 
-    const isPassing = currentValue >= target;
+    const isPassing = currentValue <= target;
 
     // Outer ring — achievement with zone coloring
     const outerData = isPassing
-      ? [target, currentValue - target] // current | safe gap
-      : [currentValue, target - currentValue]; // ok portion | over target
+      ? [currentValue, currentValue - target] // [target, currentValue - target, maxValue - currentValue]
+      : [target, target - currentValue]; // ok portion | over target | remaining
 
     const outerColors = isPassing
-      ? ["#1E88E5", "#66BB6A"] // blue | green
-      : ["#1E88E5", "#EF5350"]; // blue | red
+      ? ["#1E88E5", "#66BB6A", "#FFFFFF"] // blue | green | red
+      : ["#1E88E5", "#EF5350", "#FFFFFF"]; // blue | red | gray
 
     // Inner ring — target marker
-    const innerData = isPassing ? [target, currentValue - target] : [target, 0];
-    const innerColors = isPassing ? ["#FF8F00", "#FFFFFF"] : ["#FF8F00", "#FFFFFF"]; // amber for target | gray for remaining
+    const innerData = [target, 0];
+    const innerColors = ["#FF8F00", "#FFFFFF"]; // amber for target | gray for remaining
 
     return {
       datasets: [
@@ -216,8 +214,9 @@ export default function HqAchvDynamicChartContent2({
 
   const getDoughnutChartOptions = (techData: TechGroupedData) => {
     const currentValue = Math.abs(parseFloat((techData.ALL[0].value ?? 0).toString()));
+
     const target = parseFloat((techData.ALL[0].target_achv ?? 0).toString());
-    const isPassing = currentValue >= target;
+    const isPassing = currentValue <= target;
 
     return {
       responsive: true,
@@ -236,13 +235,13 @@ export default function HqAchvDynamicChartContent2({
 
               if (datasetIndex === 0) {
                 // Outer ring — achievement
-                const labels = isPassing ? ["Within target", "Safe zone"] : ["Within target", "Over target"];
+                const labels = isPassing ? ["Within target", "Safe"] : ["Within target", "Danger"];
                 return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
               }
 
               if (datasetIndex === 1) {
                 // Inner ring — target
-                const labels = ["Target", "-"];
+                const labels = ["Target", "Remaining"];
                 return `${labels[dataIndex]}: ${parsed.toFixed(2)}%`;
               }
 
