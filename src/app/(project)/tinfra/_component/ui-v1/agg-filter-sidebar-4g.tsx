@@ -174,7 +174,7 @@ export function FilterSidebar4G({
   filterLabel,
   isMobileFilterOpen,
   onMobileFilterClose,
-  // aggregateBy,
+  aggregateBy,
   fieldToAggregate,
 }: FilterSidebarProps) {
   const FilterPanelContent = () => (
@@ -198,12 +198,14 @@ export function FilterSidebar4G({
               {fieldToAggregate?.slice(fieldToAggregate.indexOf("_") + 1).toUpperCase() || "Cell"}
             </span>
           </ToggleGroupItem>
-          <ToggleGroupItem
-            value="sector"
-            className="data-[state=on]:border-blue-200 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700"
-          >
-            <span className="font-medium text-sm">Sector</span>
-          </ToggleGroupItem>
+          {aggregateBy === "G4_SITEID_CELLID" && (
+            <ToggleGroupItem
+              value="sector"
+              className="data-[state=on]:border-blue-200 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700"
+            >
+              <span className="font-medium text-sm">Sector</span>
+            </ToggleGroupItem>
+          )}
           {/* <ToggleGroupItem
             value="band"
             className="data-[state=on]:border-blue-200 data-[state=on]:bg-blue-50 data-[state=on]:text-blue-700"

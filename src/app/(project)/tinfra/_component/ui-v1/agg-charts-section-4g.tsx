@@ -39,6 +39,7 @@ export function ChartsSection4G({
   // State for view mode - shared across all charts
   const [viewMode, setViewMode] = useState<ViewMode>(showViewModeState as ViewMode);
 
+  // console.log({ filteredData });
   const getGridColumnsClass = () => {
     switch (chartLayout) {
       case 1:

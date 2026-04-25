@@ -52,7 +52,7 @@ export function useDataManagement4G({ data, aggregateBy, rawDataSector }: UseDat
       setAllSectors(uniqueSectors);
       setSelectedSectors(uniqueSectors);
 
-      console.log({ uniqueSectors });
+      // console.log({ uniqueSectors });
 
       const uniqueBands: string[] = Array.from(
         new Set(uniqueCells.map((cellName) => extractBandFromCellName4G(cellName))),

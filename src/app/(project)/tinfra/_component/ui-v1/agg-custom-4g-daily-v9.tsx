@@ -130,9 +130,39 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
+  const {
+    isPending: isPendingSector,
+    error: errorSector,
+    data: rawDataSector,
+    isError: isErrorSector,
+  } = useQuery({
+    queryKey: ["ref-get-sector", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryFn: async () => {
+      if (!shouldFetch) {
+        return { rows: [] };
+      }
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    },
+    enabled: shouldFetch,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
   // console.log({ data });
 
-  const dataManagement = useDataManagement4G({ data, aggregateBy });
+  const dataManagement = useDataManagement4G({
+    data,
+    aggregateBy,
+    rawDataSector,
+  });
 
   // Call the comparison calculation hook unconditionally
   const { comparisonData } = useComparisonCalculation(data?.rows || [], "4G");
@@ -154,6 +184,7 @@ export default function PageAggCustom4GDaily({
     selectedSectors: dataManagement.selectedSectors,
     selectedBands: dataManagement.selectedBands,
     aggregateBy,
+    rawDataSector,
   });
 
   const { summaryMetrics } = useSummaryMetrics4G({

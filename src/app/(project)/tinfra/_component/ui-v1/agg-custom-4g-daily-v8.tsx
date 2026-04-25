@@ -126,7 +126,7 @@ export default function PageAggCustom4GDaily({
     aggregateBy,
     rawDataSector,
   });
-  console.log({ rawDataSector, dataManagement });
+  // console.log({ rawDataSector, dataManagement });
 
   // Call the comparison calculation hook unconditionally
   const { comparisonData } = useComparisonCalculation(data?.rows || [], "4G");
@@ -146,9 +146,8 @@ export default function PageAggCustom4GDaily({
     selectedSectors: dataManagement.selectedSectors,
     selectedBands: dataManagement.selectedBands,
     aggregateBy,
+    rawDataSector,
   });
-
-  // console.log(filteredData);
 
   const { summaryMetrics } = useSummaryMetrics4G({
     filteredData,

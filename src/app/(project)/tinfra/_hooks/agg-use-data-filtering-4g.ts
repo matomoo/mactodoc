@@ -11,6 +11,7 @@ interface UseDataFilteringProps {
   selectedSectors: string[];
   selectedBands: string[];
   aggregateBy: string;
+  rawDataSector: { rows: Data2G4GModel[] } | undefined;
 }
 
 export function useDataFiltering4G({
@@ -20,7 +21,9 @@ export function useDataFiltering4G({
   selectedSectors,
   selectedBands,
   aggregateBy,
+  rawDataSector,
 }: UseDataFilteringProps) {
+  // console.log({ selectedSectors, aggregateBy });
   const filteredData = useMemo(() => {
     if (!data?.rows) return [];
 
@@ -36,18 +39,20 @@ export function useDataFiltering4G({
     }
 
     if (filterBy === "sector") {
-      if (!data || selectedSectors.length === 0) return [];
+      if (!data || !rawDataSector || selectedSectors.length === 0) return [];
 
+      // Filter rawDataSector rows where G4_SITEID_SECTOR is in selectedSectors
+      const sectorSiteCellIds = rawDataSector.rows
+        .filter((sectorItem: Data2G4GModel) => {
+          const sectorName = String(sectorItem.G4_SITEID_SECTOR ?? "Unknown");
+          return selectedSectors.includes(sectorName);
+        })
+        .map((sectorItem: Data2G4GModel) => String(sectorItem.G4_SITEID_CELLID ?? "Unknown"));
+
+      // Filter data where G4_SITEID_CELLID matches any from the selected sectors
       return data.rows.filter((item: Data2G4GModel) => {
-        const cellId = String(item["4G_CELL_ID"] ?? "Unknown");
-
-        // Use the SAME logic as in your useEffect for extracting sectors
-        const sector =
-          cellId.length === 3
-            ? cellId.slice(0, 2) // First two digits for 3-digit IDs
-            : cellId.slice(0, 1); // First digit for 2-digit IDs
-
-        return selectedSectors.includes(sector);
+        const g4SiteIdCellId = String(item.G4_SITEID_CELLID ?? "Unknown");
+        return sectorSiteCellIds.includes(g4SiteIdCellId);
       });
     }
 
@@ -64,7 +69,9 @@ export function useDataFiltering4G({
     }
 
     return [];
-  }, [data, filterBy, selectedCells, selectedSectors, selectedBands, aggregateBy]);
+  }, [data, filterBy, selectedCells, selectedSectors, selectedBands, aggregateBy, rawDataSector]);
+
+  // console.log({ selectedSectors });
 
   return { filteredData };
 }
