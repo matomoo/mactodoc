@@ -324,6 +324,8 @@ export interface Data2G4GModel {
   G4_NAMA_CLUSTER: string;
   G4_NOP: string;
   G4_BAND: string;
+  G4_SECTOR: string;
+  G4_SITEID_SECTOR: string;
   G4_RRC_SETUP_SR_NUM: number;
   G4_RRC_SETUP_SR_DENUM: number;
   G4_ERAB_SETUP_SR_NUM: number;

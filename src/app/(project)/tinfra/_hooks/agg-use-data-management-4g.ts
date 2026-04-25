@@ -7,34 +7,25 @@ import { extractBandFromCellName, extractBandFromCellName4G, extractCellName } f
 interface UseDataManagementProps {
   data: { rows: Data2G4GModel[] } | undefined;
   aggregateBy: string;
+  rawDataSector: { rows: Data2G4GModel[] } | undefined;
 }
 
-export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProps) {
+export function useDataManagement4G({ data, aggregateBy, rawDataSector }: UseDataManagementProps) {
   const [selectedCells, setSelectedCells] = useState<string[]>([]);
   const [allCells, setAllCells] = useState<string[]>([]);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [allSectors, setAllSectors] = useState<string[]>([]);
   const [selectedBands, setSelectedBands] = useState<string[]>([]);
   const [allBands, setAllBands] = useState<string[]>([]);
-  const [selectedNops, setSelectedNops] = useState<string[]>([]);
-  const [allNops, setAllNops] = useState<string[]>([]);
 
   // Search states
   const [cellSearch, setCellSearch] = useState("");
   const [sectorSearch, setSectorSearch] = useState("");
   const [bandSearch, setBandSearch] = useState("");
-  const [nopSearch, setNopSearch] = useState("");
 
   useEffect(() => {
     if (data?.rows && data.rows.length > 0) {
-      const uniqueNops: string[] = Array.from(
-        new Set(data.rows.map((item: Data2G4GModel) => String(item.G4_NOP ?? "Unknown"))),
-      ).sort() as string[];
-
-      // console.log(data.rows);
-      // console.log(aggregateBy);
-      // console.log(uniqueNops);
-
+      // for tab CELLS
       const uniqueCells: string[] = Array.from(
         new Set(
           data.rows.map((item: Data2G4GModel) =>
@@ -45,29 +36,23 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
         ),
       ).sort() as string[];
 
-      const uniqueCellIds: string[] = Array.from(
-        new Set(data.rows.map((item: any) => item["4G_CELL_ID"])),
-      ).sort() as string[];
+      // const uniqueCellIds: string[] = Array.from(
+      //   new Set(rawDataSector?.rows.map((item: Data2G4GModel) => item.G4_SITEID_SECTOR)),
+      // ).sort() as string[];
 
       setAllCells(uniqueCells);
       setSelectedCells(uniqueCells);
 
-      // console.log(uniqueCellIds);
+      // console.log({ uniqueCells, uniqueCellIds });
 
       const uniqueSectors: string[] = Array.from(
-        new Set(
-          uniqueCellIds.map((cellId) => {
-            const cellIdStr = String(cellId).trim();
-            if (cellIdStr.length === 3) {
-              return cellIdStr.slice(0, 2);
-            }
-            return cellIdStr.slice(0, 1);
-          }),
-        ),
+        new Set(rawDataSector?.rows.map((item: Data2G4GModel) => item.G4_SITEID_SECTOR)),
       ).sort() as string[];
 
       setAllSectors(uniqueSectors);
       setSelectedSectors(uniqueSectors);
+
+      console.log({ uniqueSectors });
 
       const uniqueBands: string[] = Array.from(
         new Set(uniqueCells.map((cellName) => extractBandFromCellName4G(cellName))),
@@ -83,7 +68,7 @@ export function useDataManagement4G({ data, aggregateBy }: UseDataManagementProp
       setAllBands([]);
       setSelectedBands([]);
     }
-  }, [data, aggregateBy]);
+  }, [data, aggregateBy, rawDataSector]);
 
   const filteredCells = useMemo(
     () => allCells.filter((cell) => cell.toLowerCase().includes(cellSearch.toLowerCase())),
