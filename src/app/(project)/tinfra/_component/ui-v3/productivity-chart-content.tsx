@@ -13,7 +13,6 @@ import {
   Legend as ChartLegend,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Bar, Line } from "react-chartjs-2";
 import { Badge } from "@/components/ui/badge";
 import { useSummaryStore } from "@/stores/summaryStore";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -119,11 +118,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
     enabled: !!(productivityApiPath && productivityApiPath !== "noUrl"),
   });
 
-  const {
-    data: productivityNopData,
-    isLoading: isLoadingProductivityNop,
-    error: errorProductivityNop,
-  } = useQuery({
+  const { data: productivityNopData } = useQuery({
     queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
@@ -246,7 +241,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   );
 
   return (
-    <div className="h-96 space-y-6 overflow-x-auto">
+    <div className="h-[150px] space-y-6 overflow-x-auto">
       {/* Original charts */}
       <div className="flex flex-row gap-4 space-y-4">
         {Object.entries(groupedData).map(([metric, techData]) => (
@@ -318,14 +313,14 @@ export default function ProductivityChartContent({ productivityApiPath, producti
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedByPayloadYoY.map((item, index) => (
-              <TableRow key={`payload-${index}`}>
+            {sortedByPayloadYoY.map((item, _index) => (
+              <TableRow key={`payload-${item.branch}`}>
                 <TableCell className="font-medium text-xs">{item.branch}</TableCell>
                 <TableCell
                   className={
                     parseFloat(item.yoy_payload_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.yoy_payload_growth_pct}%
@@ -333,8 +328,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                 <TableCell
                   className={
                     parseFloat(item.mtd_payload_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.mtd_payload_growth_pct}%
@@ -342,8 +337,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                 <TableCell
                   className={
                     parseFloat(item.wow_payload_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.wow_payload_growth_pct}%
@@ -368,14 +363,14 @@ export default function ProductivityChartContent({ productivityApiPath, producti
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedByTrafficYoy.map((item, index) => (
-              <TableRow key={`traffic-${index}`}>
+            {sortedByTrafficYoy.map((item, _index) => (
+              <TableRow key={`traffic-${item.branch}`}>
                 <TableCell className="font-medium text-xs">{item.branch}</TableCell>
                 <TableCell
                   className={
                     parseFloat(item.yoy_traffic_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.yoy_traffic_growth_pct}%
@@ -384,8 +379,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                 <TableCell
                   className={
                     parseFloat(item.mtd_traffic_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.mtd_traffic_growth_pct}%
@@ -393,8 +388,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                 <TableCell
                   className={
                     parseFloat(item.wow_traffic_growth_pct?.toString() || "0") >= 0
-                      ? "text-xs text-green-600"
-                      : "text-xs text-red-600"
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
                   }
                 >
                   {item.wow_traffic_growth_pct}%
