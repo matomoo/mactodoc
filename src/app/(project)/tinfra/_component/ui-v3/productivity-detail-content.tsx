@@ -3,6 +3,7 @@
 
 // biome-ignore assist/source/organizeImports: <none>
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,6 +22,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Ch
 interface ApiDataItem {
   selected_date: string;
   branch: string;
+  kotakab: string;
   mtd_traffic_this_year: number;
   mtd_traffic_last_year: number;
   mtd_traffic_diff: string;
@@ -51,6 +53,8 @@ interface IProps {
 
 export default function ProductivityDetailContent({ productivityApiPath, productivityLevel }: IProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [openBranch, setOpenBranch] = useState<string | null>(null);
 
   const valueLocation =
     viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
@@ -89,15 +93,23 @@ export default function ProductivityDetailContent({ productivityApiPath, product
     enabled: !!(productivityApiPath && productivityApiPath !== "noUrl"),
   });
 
-  // Fetch productivity data by NOP - kabupaten
+  // Fetch productivity data by NOP - kabupaten (conditional on selected branch)
   const {
     data: productivityNopKabupatenData,
     isLoading: productivityNopKabupatenLoading,
     error: productivityNopKabupatenError,
   } = useQuery({
-    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
+    queryKey: [
+      "productivity2-data-kabupaten",
+      yearweek,
+      productivityApiPath,
+      productivityLevel,
+      valueLocation,
+      dateRange2,
+      selectedBranch,
+    ],
     queryFn: async () => {
-      if (!productivityApiPath || productivityApiPath === "noUrl") {
+      if (!productivityApiPath || productivityApiPath === "noUrl" || !selectedBranch) {
         return [];
       }
 
@@ -106,7 +118,7 @@ export default function ProductivityDetailContent({ productivityApiPath, product
           `${productivityApiPath}-nop-kabupaten?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
           `yearweek=${yearweek}`,
-          `nop=${nop}`,
+          `nop=${selectedBranch}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
           `tgl_2=${dateRange2?.split("|")[1]}`,
         ].join("&"),
@@ -121,7 +133,7 @@ export default function ProductivityDetailContent({ productivityApiPath, product
 
       return dataArray as ApiDataItem[];
     },
-    enabled: !!(productivityApiPath && productivityApiPath !== "noUrl"),
+    enabled: !!(productivityApiPath && productivityApiPath !== "noUrl" && selectedBranch),
   });
 
   const dataNop = productivityNopData || [];
@@ -171,7 +183,19 @@ export default function ProductivityDetailContent({ productivityApiPath, product
         <h4 className="font-bold text-md">Payload</h4>
         <div className="space-y-2">
           {sortedByPayloadYoYNop.map((item, _index) => (
-            <Collapsible key={`payload-${item.branch}`} className="rounded-lg border bg-card">
+            <Collapsible
+              key={`payload-${item.branch}`}
+              className="rounded-lg border bg-card"
+              open={openBranch === item.branch}
+              onOpenChange={(open) => {
+                if (open) {
+                  setOpenBranch(item.branch);
+                  setSelectedBranch(item.branch);
+                } else {
+                  setOpenBranch(null);
+                }
+              }}
+            >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-3 text-left hover:bg-accent/50">
                 <div className="flex items-center justify-between flex-1">
                   <div className="font-medium text-sm">{item.branch}</div>
@@ -218,58 +242,66 @@ export default function ProductivityDetailContent({ productivityApiPath, product
               <CollapsibleContent className="border-t bg-muted/50 p-3">
                 <div className="space-y-2">
                   <h5 className="text-sm font-medium text-muted-foreground">Kabupaten Details</h5>
-                  {sortedByPayloadYoYNopKabupaten
-                    .filter((kabItem) => kabItem.branch === item.branch)
-                    .map((kabItem, kabIndex) => (
-                      <div
-                        key={`kab-${kabItem.branch}-${kabIndex}`}
-                        className="ml-4 rounded border bg-background p-2 text-sm"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">{kabItem.region || "Unknown Region"}</div>
-                          <div className="flex gap-3">
-                            <div className="text-right">
-                              <div className="text-xs text-muted-foreground">YTD</div>
-                              <div
-                                className={
-                                  parseFloat(kabItem.yoy_payload_growth_pct?.toString() || "0") >= 0
-                                    ? "text-green-600 text-xs font-medium"
-                                    : "text-red-600 text-xs font-medium"
-                                }
-                              >
-                                {kabItem.yoy_payload_growth_pct}%
+                  {selectedBranch === item.branch && productivityNopKabupatenLoading && (
+                    <p className="text-sm text-muted-foreground">Loading kabupaten data...</p>
+                  )}
+                  {selectedBranch === item.branch && !productivityNopKabupatenLoading && (
+                    <>
+                      {sortedByPayloadYoYNopKabupaten.map((kabItem, kabIndex) => (
+                        <div
+                          key={`kab-${kabItem.branch}-${kabIndex}`}
+                          className="ml-4 rounded border bg-background p-2 text-sm"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="font-medium">{kabItem.kotakab || "Unknown Region"}</div>
+                            <div className="flex gap-3">
+                              <div className="text-right">
+                                <div className="text-xs text-muted-foreground">YTD</div>
+                                <div
+                                  className={
+                                    parseFloat(kabItem.yoy_payload_growth_pct?.toString() || "0") >= 0
+                                      ? "text-green-600 text-xs font-medium"
+                                      : "text-red-600 text-xs font-medium"
+                                  }
+                                >
+                                  {kabItem.yoy_payload_growth_pct}%
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs text-muted-foreground">MTD</div>
-                              <div
-                                className={
-                                  parseFloat(kabItem.mtd_payload_growth_pct?.toString() || "0") >= 0
-                                    ? "text-green-600 text-xs font-medium"
-                                    : "text-red-600 text-xs font-medium"
-                                }
-                              >
-                                {kabItem.mtd_payload_growth_pct}%
+                              <div className="text-right">
+                                <div className="text-xs text-muted-foreground">MTD</div>
+                                <div
+                                  className={
+                                    parseFloat(kabItem.mtd_payload_growth_pct?.toString() || "0") >= 0
+                                      ? "text-green-600 text-xs font-medium"
+                                      : "text-red-600 text-xs font-medium"
+                                  }
+                                >
+                                  {kabItem.mtd_payload_growth_pct}%
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs text-muted-foreground">WoW</div>
-                              <div
-                                className={
-                                  parseFloat(kabItem.wow_payload_growth_pct?.toString() || "0") >= 0
-                                    ? "text-green-600 text-xs font-medium"
-                                    : "text-red-600 text-xs font-medium"
-                                }
-                              >
-                                {kabItem.wow_payload_growth_pct}%
+                              <div className="text-right">
+                                <div className="text-xs text-muted-foreground">WoW</div>
+                                <div
+                                  className={
+                                    parseFloat(kabItem.wow_payload_growth_pct?.toString() || "0") >= 0
+                                      ? "text-green-600 text-xs font-medium"
+                                      : "text-red-600 text-xs font-medium"
+                                  }
+                                >
+                                  {kabItem.wow_payload_growth_pct}%
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  {sortedByPayloadYoYNopKabupaten.filter((kabItem) => kabItem.branch === item.branch).length === 0 && (
-                    <p className="text-sm text-muted-foreground">No kabupaten data available</p>
+                      ))}
+                      {sortedByPayloadYoYNopKabupaten.length === 0 && (
+                        <p className="text-sm text-muted-foreground">No kabupaten data available</p>
+                      )}
+                    </>
+                  )}
+                  {selectedBranch !== item.branch && (
+                    <p className="text-sm text-muted-foreground">Click to load kabupaten data</p>
                   )}
                 </div>
               </CollapsibleContent>

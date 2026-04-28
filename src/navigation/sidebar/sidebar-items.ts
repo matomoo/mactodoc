@@ -40,6 +40,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/tinfra/displays/dashboard-v2/summary",
         icon: LayoutDashboard,
       },
+      {
+        title: "Productivity Detail",
+        url: "/tinfra/displays/dashboard-v2/productivity-detail",
+        icon: LayoutDashboard,
+      },
     ],
   },
   {
