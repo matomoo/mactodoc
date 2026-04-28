@@ -241,7 +241,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   );
 
   return (
-    <div className="h-[150px] space-y-6 overflow-x-auto">
+    <div className="h-full space-y-6 overflow-x-auto">
       {/* Original charts */}
       <div className="flex flex-row gap-4 space-y-4">
         {Object.entries(groupedData).map(([metric, techData]) => (

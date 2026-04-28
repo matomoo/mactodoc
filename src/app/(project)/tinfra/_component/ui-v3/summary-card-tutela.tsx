@@ -38,6 +38,7 @@ interface IProps {
   kpiColumnValue?: string;
   ceiApiPath?: string;
   redcovApiPath?: string;
+  productivityColumn?: string;
 }
 
 export default function SummaryCard({
@@ -65,11 +66,18 @@ export default function SummaryCard({
   targetValue,
   annotationLabel,
   kpiColumnValue,
+  productivityColumn,
 }: IProps) {
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{cardTitle === "Hq-Achv" ? "Achievement" : cardTitle}</CardTitle>
+        <CardTitle>
+          {cardTitle === "Productivity Detail - Payload"
+            ? "Payload"
+            : cardTitle === "Productivity Detail - Traffic"
+              ? "Traffic"
+              : cardTitle}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {cardTitle === "ONX" ? (
@@ -92,11 +100,21 @@ export default function SummaryCard({
             productivityLevel="noLevel"
             productivityLocation="noLocation"
           />
-        ) : cardTitle === "Productivity Detail" ? (
+        ) : cardTitle === "Productivity Detail - Payload" ? (
           <ProductivityDetailContent
             productivityApiPath={productivityApiPath}
             productivityLevel="noLevel"
             productivityLocation="noLocation"
+            productivityColumn={productivityColumn}
+            title="Payload"
+          />
+        ) : cardTitle === "Productivity Detail - Traffic" ? (
+          <ProductivityDetailContent
+            productivityApiPath={productivityApiPath}
+            productivityLevel="noLevel"
+            productivityLocation="noLocation"
+            productivityColumn={productivityColumn}
+            title="Traffic"
           />
         ) : cardTitle === "Hq-Achv" ? (
           <HqAchvDynamicChartContent

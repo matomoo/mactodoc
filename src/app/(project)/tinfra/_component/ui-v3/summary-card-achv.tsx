@@ -70,7 +70,7 @@ export default function SummaryCardAchv({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{cardTitle}</CardTitle>
+        <CardTitle>{cardTitle === "Hq-Achv" ? "Achievement" : cardTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-row flex-wrap gap-4">

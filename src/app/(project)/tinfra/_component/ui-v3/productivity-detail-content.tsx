@@ -49,9 +49,16 @@ interface IProps {
   productivityApiPath: string;
   productivityLevel: string;
   productivityLocation: string;
+  productivityColumn?: string;
+  title?: string;
 }
 
-export default function ProductivityDetailContent({ productivityApiPath, productivityLevel }: IProps) {
+export default function ProductivityDetailContent({
+  productivityApiPath,
+  productivityLevel,
+  productivityColumn,
+  title,
+}: IProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [openBranch, setOpenBranch] = useState<string | null>(null);
@@ -144,7 +151,8 @@ export default function ProductivityDetailContent({ productivityApiPath, product
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoYNop = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
     (a, b) =>
-      parseFloat(a.yoy_payload_growth_pct?.toString() || "0") - parseFloat(b.yoy_payload_growth_pct?.toString() || "0"),
+      parseFloat(a[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") -
+      parseFloat(b[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0"),
   );
 
   if (productivityNopLoading) {
@@ -157,7 +165,8 @@ export default function ProductivityDetailContent({ productivityApiPath, product
 
   const sortedByPayloadYoYNopKabupaten = [...(Array.isArray(dataNopKabupaten) ? dataNopKabupaten : [])].sort(
     (a, b) =>
-      parseFloat(a.yoy_payload_growth_pct?.toString() || "0") - parseFloat(b.yoy_payload_growth_pct?.toString() || "0"),
+      parseFloat(a[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") -
+      parseFloat(b[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0"),
   );
 
   if (productivityNopError) {
@@ -177,10 +186,9 @@ export default function ProductivityDetailContent({ productivityApiPath, product
   }
 
   return (
-    <div className="h-[150px] space-y-6 overflow-x-auto">
+    <div className="h-screen space-y-6 overflow-x-auto">
       {/* Payload List */}
       <div className="space-y-3">
-        <h4 className="font-bold text-md">Payload</h4>
         <div className="space-y-2">
           {sortedByPayloadYoYNop.map((item, _index) => (
             <Collapsible
@@ -204,36 +212,36 @@ export default function ProductivityDetailContent({ productivityApiPath, product
                       <div className="text-xs text-muted-foreground">YTD</div>
                       <div
                         className={
-                          parseFloat(item.yoy_payload_growth_pct?.toString() || "0") >= 0
+                          parseFloat(item[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") >= 0
                             ? "text-green-600 text-xs font-medium"
                             : "text-red-600 text-xs font-medium"
                         }
                       >
-                        {item.yoy_payload_growth_pct}%
+                        {item[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]}%
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">MTD</div>
                       <div
                         className={
-                          parseFloat(item.mtd_payload_growth_pct?.toString() || "0") >= 0
+                          parseFloat(item[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") >= 0
                             ? "text-green-600 text-xs font-medium"
                             : "text-red-600 text-xs font-medium"
                         }
                       >
-                        {item.mtd_payload_growth_pct}%
+                        {item[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]}%
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">WoW</div>
                       <div
                         className={
-                          parseFloat(item.wow_payload_growth_pct?.toString() || "0") >= 0
+                          parseFloat(item[`wow_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") >= 0
                             ? "text-green-600 text-xs font-medium"
                             : "text-red-600 text-xs font-medium"
                         }
                       >
-                        {item.wow_payload_growth_pct}%
+                        {item[`wow_${productivityColumn}_pct` as keyof ApiDataItem]}%
                       </div>
                     </div>
                   </div>
