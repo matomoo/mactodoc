@@ -73,6 +73,14 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     return title.toLowerCase().includes("traffic") || title.toLowerCase().includes("payload");
   }, [title]);
 
+  const isMaxUserChart = useMemo(() => {
+    return title.toLowerCase().includes("rrc user");
+  }, [title]);
+
+  const isThpChart = useMemo(() => {
+    return title.toLowerCase().includes("dl throughput") || title.toLowerCase().includes("ul throughput");
+  }, [title]);
+
   const _isViewModeAggregated = useMemo(() => viewMode === "aggregated", [viewMode]);
 
   // Separate data processing from gradient creation
@@ -128,7 +136,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
         if (denum === 0) return 0;
 
-        let value = isDenumBy1 ? num : isDropRatePercentage ? 100 - num / denum : num / denum;
+        let value = isDenumBy1 ? num : isDropRatePercentage ? num / denum : num / denum;
         if (isPercentage && !isDropRatePercentage) value *= 100;
         if (isAverage && groupData.count > 0) value /= groupData.count;
 
@@ -295,6 +303,22 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 const datasetLabel = context.dataset.label || "";
                 const value = context.parsed.y || 0;
 
+                if (isTrafficChart || isMaxUserChart) {
+                  return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
+                    notation: "standard",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 2,
+                  }).format(value)}`;
+                }
+
+                if (isThpChart) {
+                  return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
+                    notation: "standard",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 2,
+                  }).format(value)} Kbps`;
+                }
+
                 if (datasetLabel.includes("Payload")) {
                   return `${datasetLabel}: ${value.toFixed(2)} GB`;
                 }
@@ -331,6 +355,13 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               },
               callback: (value) => {
                 if (typeof value === "number") {
+                  if (isTrafficChart || isMaxUserChart || isThpChart) {
+                    return new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value);
+                  }
                   if (isPercentage && !isDropRatePercentage) {
                     return `${value.toFixed(2)}%`;
                   }
@@ -411,6 +442,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     isDropRatePercentage,
     viewMode,
     isSeCqi,
+    isMaxUserChart,
+    isThpChart,
   ]);
 
   if (!data?.length) {

@@ -342,7 +342,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_SERVICE_DROP_RATE_NUM || 0), 0);
       const totalDenum = filteredData.reduce((sum, item) => sum + (item.G4_SERVICE_DROP_RATE_DENUM || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? 100 - Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
+      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     id: "G4_SERVICE_DROP_RATE_NUM",
     metric_num: "G4_SERVICE_DROP_RATE_NUM",
@@ -374,7 +374,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   },
 
   {
-    title: "User DL Throughput BH (Mbps)",
+    title: "User DL Throughput BH (Kbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_DL_THP_NUM || 0), 0);
@@ -386,7 +386,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_USER_DL_THP_DENUM",
   },
   {
-    title: "User UL Throughput BH (Mbps)",
+    title: "User UL Throughput BH (Kbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_UL_THP_NUM || 0), 0);
