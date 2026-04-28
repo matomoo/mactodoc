@@ -12,6 +12,11 @@ export default function SummaryLayout() {
           productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
           className="lg:col-span-1"
         />
+        <SummaryCard
+          cardTitle={"Productivity Detail"}
+          productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
+          className="lg:col-span-2"
+        />
         <SummaryCardAchv
           cardTitle={"Hq-Achv"}
           unbalanceApiPath="/tinfra/api/v2/summary/hq-rci-unb"
