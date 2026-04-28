@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { useSummaryStore } from "@/stores/summaryStore";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, ChartLegend, ChartDataLabels);
 
@@ -169,15 +170,10 @@ export default function ProductivityDetailContent({ productivityApiPath, product
       <div className="space-y-3">
         <h4 className="font-bold text-md">Payload</h4>
         <div className="space-y-2">
-          {/* NOP Collapsible Section */}
-
-          <div className="mt-2 space-y-2">
-            {sortedByPayloadYoYNop.map((item, _index) => (
-              <div
-                key={`payload-${item.branch}`}
-                className="ml-4 rounded-lg border bg-card p-3 text-card-foreground shadow-sm"
-              >
-                <div className="flex items-center justify-between">
+          {sortedByPayloadYoYNop.map((item, _index) => (
+            <Collapsible key={`payload-${item.branch}`} className="rounded-lg border bg-card">
+              <CollapsibleTrigger className="flex w-full items-center justify-between p-3 text-left hover:bg-accent/50">
+                <div className="flex items-center justify-between flex-1">
                   <div className="font-medium text-sm">{item.branch}</div>
                   <div className="flex gap-4">
                     <div className="text-right">
@@ -218,9 +214,67 @@ export default function ProductivityDetailContent({ productivityApiPath, product
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="border-t bg-muted/50 p-3">
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-muted-foreground">Kabupaten Details</h5>
+                  {sortedByPayloadYoYNopKabupaten
+                    .filter((kabItem) => kabItem.branch === item.branch)
+                    .map((kabItem, kabIndex) => (
+                      <div
+                        key={`kab-${kabItem.branch}-${kabIndex}`}
+                        className="ml-4 rounded border bg-background p-2 text-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{kabItem.region || "Unknown Region"}</div>
+                          <div className="flex gap-3">
+                            <div className="text-right">
+                              <div className="text-xs text-muted-foreground">YTD</div>
+                              <div
+                                className={
+                                  parseFloat(kabItem.yoy_payload_growth_pct?.toString() || "0") >= 0
+                                    ? "text-green-600 text-xs font-medium"
+                                    : "text-red-600 text-xs font-medium"
+                                }
+                              >
+                                {kabItem.yoy_payload_growth_pct}%
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-muted-foreground">MTD</div>
+                              <div
+                                className={
+                                  parseFloat(kabItem.mtd_payload_growth_pct?.toString() || "0") >= 0
+                                    ? "text-green-600 text-xs font-medium"
+                                    : "text-red-600 text-xs font-medium"
+                                }
+                              >
+                                {kabItem.mtd_payload_growth_pct}%
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-muted-foreground">WoW</div>
+                              <div
+                                className={
+                                  parseFloat(kabItem.wow_payload_growth_pct?.toString() || "0") >= 0
+                                    ? "text-green-600 text-xs font-medium"
+                                    : "text-red-600 text-xs font-medium"
+                                }
+                              >
+                                {kabItem.wow_payload_growth_pct}%
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  {sortedByPayloadYoYNopKabupaten.filter((kabItem) => kabItem.branch === item.branch).length === 0 && (
+                    <p className="text-sm text-muted-foreground">No kabupaten data available</p>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
         </div>
       </div>
     </div>
