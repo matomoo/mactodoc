@@ -21,7 +21,7 @@ export default function Page() {
         <FilterBy_Date_DynamicField fieldToSearch="region" />
       </div>
       <PageAggCustom4GDaily
-        apiPath={"aggregate/meas-dy-dynamic-4g"}
+        apiPath={"aggregate/meas-dy-dynamic-4g-v2"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
         apiPathTutela={"aggregate/hq-tutela/aggr-by-region-kabupaten"}
         apiPathRhi={"aggregate/hq-rhi/by-region"}
