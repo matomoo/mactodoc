@@ -145,39 +145,37 @@ export function EnhancedFilterWithSearch({
   );
 }
 
-export function FilterSidebar4G({
-  // allCells,
+// ✅ Moved OUTSIDE FilterSidebar4G so React doesn't remount it on every render,
+//    which was causing the input to lose focus after every keystroke.
+function FilterPanelContent({
   filterBy,
-  selectedCells,
-  selectedSectors,
-  selectedBands,
-  filteredCells,
-  filteredSectors,
-  filteredBands,
-  cellSearch,
-  sectorSearch,
-  bandSearch,
+  fieldToAggregate,
+  aggregateBy,
   onFilterByChange,
-  onCellSearchChange,
-  onSectorSearchChange,
-  onBandSearchChange,
+  filterLabel,
+  filteredCells,
+  selectedCells,
   onCellSelection,
-  onSectorSelection,
-  onBandSelection,
   onSelectAllCells,
   onClearAllCells,
+  cellSearch,
+  onCellSearchChange,
+  filteredSectors,
+  selectedSectors,
+  onSectorSelection,
   onSelectAllSectors,
   onClearAllSectors,
+  sectorSearch,
+  onSectorSearchChange,
+  filteredBands,
+  selectedBands,
+  onBandSelection,
   onSelectAllBands,
   onClearAllBands,
-  // onExportData,
-  filterLabel,
-  isMobileFilterOpen,
-  onMobileFilterClose,
-  aggregateBy,
-  fieldToAggregate,
+  bandSearch,
+  onBandSearchChange,
 }: FilterSidebarProps) {
-  const FilterPanelContent = () => (
+  return (
     <>
       <div className="mb-4">
         <div className="mb-2 flex items-center gap-2">
@@ -265,22 +263,18 @@ export function FilterSidebar4G({
       {/* <div className="mt-4 border-t pt-4">{fnExportDataToExcel(onExportData)}</div> */}
     </>
   );
+}
+
+export function FilterSidebar4G(props: FilterSidebarProps) {
+  const { isMobileFilterOpen, onMobileFilterClose } = props;
 
   // Desktop sidebar
   return (
     <>
       <div className="hidden lg:col-span-3 lg:block">
         <div className="sticky top-32 space-y-4">
-          {/* <SummaryDashboard
-            allCells={allCells}
-            filterBy={filterBy}
-            selectedCells={selectedCells}
-            selectedSectors={selectedSectors}
-            selectedBands={selectedBands}
-          /> */}
-
           <div className="rounded-xl bg-white p-4 shadow-sm">
-            <FilterPanelContent />
+            <FilterPanelContent {...props} />
           </div>
         </div>
       </div>
@@ -309,69 +303,7 @@ export function FilterSidebar4G({
 
             {/* Mobile Filter Content */}
             <div className="space-y-4">
-              {/* <SummaryDashboard
-                allCells={allCells}
-                filterBy={filterBy}
-                selectedCells={selectedCells}
-                selectedSectors={selectedSectors}
-                selectedBands={selectedBands}
-              /> */}
-
-              <div>
-                <TwSmall text="Filter View By" />
-                <ToggleGroup
-                  type="single"
-                  value={filterBy}
-                  onValueChange={onFilterByChange}
-                  className="mt-2 flex *:data-[slot=toggle-group-item]:flex-1 *:data-[slot=toggle-group-item]:py-2"
-                >
-                  <ToggleGroupItem value="cell">Cell</ToggleGroupItem>
-                  <ToggleGroupItem value="sector">Sector</ToggleGroupItem>
-                  <ToggleGroupItem value="band">Band</ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-
-              {filterBy === "cell" && (
-                <EnhancedFilterWithSearch
-                  title={`Select ${filterLabel}`}
-                  items={filteredCells}
-                  selectedItems={selectedCells}
-                  onSelect={onCellSelection}
-                  onSelectAll={onSelectAllCells}
-                  onClear={onClearAllCells}
-                  searchValue={cellSearch}
-                  onSearchChange={onCellSearchChange}
-                  filterBy={filterBy}
-                />
-              )}
-
-              {filterBy === "sector" && (
-                <EnhancedFilterWithSearch
-                  title="Select Sector"
-                  items={filteredSectors}
-                  selectedItems={selectedSectors}
-                  onSelect={onSectorSelection}
-                  onSelectAll={onSelectAllSectors}
-                  onClear={onClearAllSectors}
-                  searchValue={sectorSearch}
-                  onSearchChange={onSectorSearchChange}
-                  filterBy={filterBy}
-                />
-              )}
-
-              {filterBy === "band" && (
-                <EnhancedFilterWithSearch
-                  title="Select Band"
-                  items={filteredBands}
-                  selectedItems={selectedBands}
-                  onSelect={onBandSelection}
-                  onSelectAll={onSelectAllBands}
-                  onClear={onClearAllBands}
-                  searchValue={bandSearch}
-                  onSearchChange={onBandSearchChange}
-                  filterBy={filterBy}
-                />
-              )}
+              <FilterPanelContent {...props} />
             </div>
           </div>
         </div>
