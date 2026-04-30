@@ -288,8 +288,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             },
           },
           tooltip: {
-            mode: isTrafficChart ? "nearest" : "index",
-            intersect: false,
+            mode: "point", //isTrafficChart ? "nearest" : "index",
+            intersect: true,
             backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
             titleFont: {
               size: chartJsV1Settings.tooltipTitleFontSize,
