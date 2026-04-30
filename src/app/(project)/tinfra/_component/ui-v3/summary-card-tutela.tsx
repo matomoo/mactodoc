@@ -12,6 +12,7 @@ import HqAchvDynamicChartContent from "./hq-achv-dynamic-chart-content";
 import CeiChartContent from "./cei-chart-content";
 import RedcovChartContent from "./redcov-chart-content";
 import ProductivityDetailContent from "./productivity-detail-content";
+import ProductivityDetailChartContent from "./productivity-detail-chart-content";
 
 interface IProps {
   cardTitle: string;
@@ -115,6 +116,14 @@ export default function SummaryCard({
             productivityLocation="noLocation"
             productivityColumn={productivityColumn}
             title="Traffic"
+          />
+        ) : cardTitle === "Productivity Detail Chart - Payload" ? (
+          <ProductivityDetailChartContent
+            productivityApiPath={productivityApiPath}
+            productivityLevel="noLevel"
+            productivityLocation="noLocation"
+            // productivityColumn={productivityColumn}
+            // title="Payload"
           />
         ) : cardTitle === "Hq-Achv" ? (
           <HqAchvDynamicChartContent

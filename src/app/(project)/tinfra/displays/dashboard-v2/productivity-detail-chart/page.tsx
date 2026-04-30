@@ -21,7 +21,7 @@ export default function Page() {
       <div className="sticky top-2 z-50 ml-4">
         <Filter_Summary />
       </div>
-      <SummaryLayout mode="breakdown" />
+      <SummaryLayout mode={"chart"} />
     </div>
   );
 }
