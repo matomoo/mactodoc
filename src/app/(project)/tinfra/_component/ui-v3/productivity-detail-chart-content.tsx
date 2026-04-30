@@ -130,8 +130,8 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
       return item?.total_payload ?? null;
     });
 
-    const color = chartJsColors[parseInt(year, 10) % chartJsColors.length];
-    const colorBg = chartJsColorsTransparent[parseInt(year, 10) % chartJsColors.length];
+    const color = chartJsColors[parseInt(year + 13, 10) % chartJsColors.length];
+    const colorBg = chartJsColorsTransparent[parseInt(year + 13, 10) % chartJsColors.length];
 
     return {
       type: "line" as const,
@@ -149,27 +149,30 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
     };
   });
 
-  const barDatasets = years.map((year) => {
-    const yearData = dataForChart.filter((item) => item.year === year);
-    const data = labels.map((label) => {
-      const item = yearData.find((d) => d.month_day === label);
-      return item?.ytd_percentage_vs_prev_year ?? null;
-    });
-    const color = chartJsColors[parseInt(year, 10) % chartJsColors.length];
-    const colorBg = chartJsColorsTransparent[parseInt(year, 10) % chartJsColors.length];
+  const barDatasets = years
+    .filter((year) => year === "2026")
+    .map((year) => {
+      const yearData = dataForChart.filter((item) => item.year === year);
+      const data = labels.map((label) => {
+        const item = yearData.find((d) => d.month_day === label);
+        return item?.ytd_percentage_vs_prev_year ?? null;
+      });
+      const color = chartJsColors[parseInt(year + 13, 10) % chartJsColors.length];
+      const colorBg = chartJsColorsTransparent[parseInt(year + 13, 10) % chartJsColors.length];
 
-    return {
-      type: "bar" as const,
-      label: `YTD % vs Prev Year ${year}`,
-      data,
-      backgroundColor: colorBg,
-      borderColor: color,
-      yAxisID: "y1",
-      datalabels: {
-        display: false,
-      },
-    };
-  });
+      return {
+        type: "bar" as const,
+        label: `YTD % vs Prev Year ${year}`,
+        data,
+        backgroundColor: colorBg,
+        borderColor: color,
+        yAxisID: "y1",
+        barPercentage: 1.3,
+        datalabels: {
+          display: false,
+        },
+      };
+    });
 
   const chartData = {
     labels,
@@ -196,25 +199,62 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
         },
       },
       tooltip: {
-        mode: "point" as const,
+        mode: "index" as const,
         callbacks: {
           label: (context: any) => {
             if (context.dataset.yAxisID === "y1") {
               return `${context.dataset.label}: ${context.raw}%`;
             }
-            return `${context.dataset.label}: ${context.raw?.toFixed(2)}`;
+            return `${context.dataset.label}: ${new Intl.NumberFormat("en-US", {
+              notation: "standard",
+              compactDisplay: "short",
+              maximumFractionDigits: 2,
+            }).format(context.raw)} GB`;
           },
         },
       },
     },
+    layout: {
+      padding: {
+        left: 0,
+        right: 0,
+      },
+    },
     scales: {
       x: {
+        grid: {
+          offset: false, // Remove offset grid
+          display: false,
+        },
         title: {
-          display: true,
+          display: false,
           text: "Month-Day",
+        },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
         },
       },
       y: {
+        ticks: {
+          font: {
+            // size: chartJsV1Settings.yAxisTickFontSize,
+          },
+          callback: (value: any) => {
+            if (typeof value === "number") {
+              return new Intl.NumberFormat("en-US", {
+                notation: "compact",
+                compactDisplay: "short",
+                maximumFractionDigits: 2,
+              }).format(value);
+            }
+            return value;
+          },
+        },
+        grid: {
+          offset: false, // Remove offset grid
+          display: false,
+        },
         type: "linear" as const,
         display: true,
         position: "left" as const,
