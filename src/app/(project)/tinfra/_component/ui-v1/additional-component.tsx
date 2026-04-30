@@ -57,8 +57,10 @@ export const exportToExcel = (data: Data2G4GModel[], filename: string) => {
         // Add all properties from the item
         Object.keys(item).forEach((key) => {
           const value = item[key as keyof Data2G4GModel];
+          // Remove G4 prefix from key
+          const cleanedKey = key.replace(/^G4_/, "");
           // Format the key for better readability
-          const formattedKey = key
+          const formattedKey = cleanedKey
             .split("_")
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(" ");

@@ -160,7 +160,7 @@ export default function PageAggCustom4GDaily({
       return;
     }
 
-    const filename = `4G_Data_NOP__${new Date().toISOString().split("T")[0]}`;
+    const filename = `4G_Data__${siteId}_${new Date().toISOString().split("T")[0]}`;
     exportToExcel(data.rows, filename);
   };
 
