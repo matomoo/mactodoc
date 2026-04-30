@@ -316,7 +316,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                     notation: "standard",
                     compactDisplay: "short",
                     maximumFractionDigits: 2,
-                  }).format(value)} Kbps`;
+                  }).format(value)} bps`;
                 }
 
                 if (datasetLabel.includes("Payload")) {
@@ -396,6 +396,28 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             ticks: {
               font: {
                 size: chartJsV1Settings.yAxisTickFontSize,
+              },
+              callback: (value) => {
+                if (typeof value === "number") {
+                  if (isTrafficChart || isMaxUserChart || isThpChart) {
+                    return new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value);
+                  }
+                  if (isPercentage && !isDropRatePercentage) {
+                    return `${value.toFixed(2)}%`;
+                  }
+                  if (isDropRatePercentage) {
+                    return `${value.toFixed(2)}%`;
+                  }
+                  if (isSeCqi) {
+                    return `${value.toFixed(2)}`;
+                  }
+                  return value.toFixed(0);
+                }
+                return value;
               },
             },
             position: "right",

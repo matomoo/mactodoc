@@ -13,7 +13,12 @@ import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { useDataManagement4G } from "../../_hooks/use-data-management-4g";
 import { useDataFiltering4G } from "../../_hooks/use-data-filtering-4g";
 import { useSummaryMetrics4G } from "../../_hooks/use-summary-metrics-4g";
-import { formatDateForDisplay } from "../../_function/helper";
+import {
+  extractCellName,
+  extractToSiteIdCellId,
+  extractToSiteIdSector,
+  formatDateForDisplay,
+} from "../../_function/helper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
@@ -70,6 +75,34 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
+  const {
+    isPending: isPendingSector,
+    error: errorSector,
+    data: rawDataSector,
+    isError: isErrorSector,
+  } = useQuery({
+    queryKey: ["ref-get-sector", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryFn: async () => {
+      if (!shouldFetch) {
+        return { rows: [] };
+      }
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    },
+    enabled: shouldFetch,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  // console.log({ rawDataSector });
+
   const dataManagement = useDataManagement4G({ data, aggregateBy });
   const { filteredData } = useDataFiltering4G({
     data,
@@ -102,6 +135,20 @@ export default function PageAggCustom4GDaily({
   if (!data?.rows || data.rows.length === 0) {
     return <NoDataState message="No data available for the selected criteria." />;
   }
+
+  // const newFilteredData = filteredData.map((item) => ({
+  //   ...item,
+  //   G4_SITEID_CELLID_2: extractToSiteIdSector(
+  //     item.CELL_NAME ?? "",
+  //     (item["4G_CELL_ID"] as unknown as number)?.toString() ?? "",
+  //   ),
+  // }));
+
+  // console.log({
+  //   filteredData,
+  //   newFilteredData,
+  //   sectorData: rawDataSector?.rows,
+  // });
 
   return (
     <div className="min-h-screen">

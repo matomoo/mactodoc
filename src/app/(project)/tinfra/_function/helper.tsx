@@ -59,6 +59,26 @@ export const extractCellName = (fullCellName: string): string => {
   return firstPart + lastPart;
 };
 
+export const extractToSiteIdCellId = (fullCellName: string, cellId: string): string => {
+  if (!fullCellName || fullCellName.length === 6) {
+    return `${fullCellName}_${cellId}`;
+  }
+
+  const firstPart = fullCellName.substring(2, 1) === "_" ? fullCellName.substring(2, 8) : fullCellName.substring(0, 6);
+  const lastPart = cellId;
+  return `${firstPart}_${lastPart}`;
+};
+
+export const extractToSiteIdSector = (fullCellName: string, cellId: string): string => {
+  if (!fullCellName || fullCellName.length === 6) {
+    return `${fullCellName}_${cellId}`;
+  }
+
+  const firstPart = fullCellName.substring(2, 1) === "_" ? fullCellName.substring(2, 8) : fullCellName.substring(0, 6);
+  const lastPart = cellId.length === 3 ? cellId.slice(0, 2) : cellId.slice(0, 1);
+  return `${firstPart}_${lastPart}`;
+};
+
 export const calculateSuccessRate100 = (before: number, after: number): number => {
   if (Number(after.toFixed(2)) === Number(before.toFixed(2))) {
     return 0;

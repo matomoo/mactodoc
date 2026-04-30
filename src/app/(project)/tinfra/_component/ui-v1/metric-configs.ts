@@ -374,7 +374,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   },
 
   {
-    title: "User DL Throughput BH (Kbps)",
+    title: "User DL Throughput BH (bps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_DL_THP_NUM || 0), 0);
@@ -386,7 +386,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G4_USER_DL_THP_DENUM",
   },
   {
-    title: "User UL Throughput BH (Kbps)",
+    title: "User UL Throughput BH (bps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_UL_THP_NUM || 0), 0);

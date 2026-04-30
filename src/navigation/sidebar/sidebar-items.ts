@@ -126,12 +126,12 @@ export const sidebarItems: NavGroup[] = [
             title: "Site Level Daily",
             url: "/tinfra/displays/dashboard/4g/site/daily",
           },
+          // {
+          //   title: "NOP Level Daily",
+          //   url: "/tinfra/displays/dashboard/4g/nop/daily",
+          // },
           {
-            title: "NOP Level Daily",
-            url: "/tinfra/displays/dashboard/4g/nop/daily",
-          },
-          {
-            title: "Custom Level Daily",
+            title: "Custom Cluster Daily",
             url: "/tinfra/displays/dashboard/4g/custom-cluster/daily",
           },
         ],
