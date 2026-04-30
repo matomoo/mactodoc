@@ -8,9 +8,9 @@ interface IProps {
 export default function SummaryLayout({ mode = "breakdown" }: IProps) {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-auto py-4">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1">
         {mode === "breakdown" && (
-          <div>
+          <div className="grid grid-cols-2 gap-4">
             <SummaryCard
               cardTitle={"Productivity Detail - Payload"}
               productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
@@ -26,11 +26,11 @@ export default function SummaryLayout({ mode = "breakdown" }: IProps) {
           </div>
         )}
         {mode === "chart" && (
-          <div>
+          <div className="col-span-2">
             <SummaryCard
               cardTitle={"Productivity Detail Chart - Payload"}
               productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
-              className="lg:col-span-1"
+              className="lg:col-span-2"
               productivityColumn="payload_growth"
             />
           </div>
