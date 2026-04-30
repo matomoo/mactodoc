@@ -104,6 +104,7 @@ export async function GET(request: Request) {
           WHERE
             t1."Begin Time" >= ${formattedTgl1} :: TIMESTAMP
             AND t1."Begin Time" <= ${formattedTgl2} :: TIMESTAMP
+            AND tref.remark IS NULL
           GROUP BY
             t1."Begin Time",
             tref.${sql.raw(fieldToAggregate)}

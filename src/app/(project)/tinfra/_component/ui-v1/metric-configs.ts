@@ -263,11 +263,11 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "DENUMBY1",
   },
   {
-    title: "Traffic VoLTE (KErl)",
+    title: "Traffic VoLTE (Erl)",
     tech: "4G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TRAFFIC_VOLTE_KERL || 0), 0),
-    id: "TRAFFIC_VOLTE_KERL",
-    metric_num: "TRAFFIC_VOLTE_KERL",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TRAFFIC_VOLTE_ERL || 0), 0),
+    id: "TRAFFIC_VOLTE_ERL",
+    metric_num: "TRAFFIC_VOLTE_ERL",
     metric_denum: "DENUMBY1",
   },
   {

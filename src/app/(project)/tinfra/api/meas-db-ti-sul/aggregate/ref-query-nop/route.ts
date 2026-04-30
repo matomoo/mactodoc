@@ -10,13 +10,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const nama_nop = searchParams.get("nama_nop");
 
-    let query = sql`SELECT DISTINCT nop FROM ref_cell_4g ORDER BY nop`;
+    let query = sql`SELECT DISTINCT nop FROM ref_cell_4g WHERE AND remark IS NULL ORDER BY nop`;
 
     // Add filters if provided
     if (nama_nop) {
       query = sql`
         SELECT DISTINCT nop FROM ref_cell_4g 
         WHERE nop = ${nama_nop}
+        AND remark IS NULL
       `;
     }
 

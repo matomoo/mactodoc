@@ -24,12 +24,14 @@ export async function GET(request: Request) {
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 
         WHERE ${sql.raw(fieldToSearch)} = ${searchByThis}
+        AND remark IS NULL
         ORDER BY ${sql.raw(fieldToSearch)}
       `;
     } else {
       // When no specific search, return all distinct values
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 
+        WHERE remark IS NULL
         ORDER BY ${sql.raw(fieldToSearch)}
       `;
     }
