@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fieldToAggregate = searchParams.get("fieldToAggregate") || "---";
   //   const searchByParams = searchParams.get(fieldToAggregate) || "---";
-  //   const searchByLevel = searchParams.get("level") || "---";
+  const searchByLevel = searchParams.get("level") || "---";
   const searchByYearWeek = searchParams.get("yearweek") || "---";
   const searchByValueLocation = searchParams.get("valueLocation") || "---";
   const searchByTgl2 = searchParams.get("tgl_2") || "---";
@@ -39,19 +39,19 @@ export async function GET(request: Request) {
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     let searchByCondition: any;
     let searchByCondition2: any;
-    if (searchByValueLocation === "---" || searchByValueLocation === "All" || searchValues.length === 0) {
-      searchByCondition = sql``;
-    } else if (searchValues.length === 1) {
-      searchByCondition = sql`${sql.raw(aggregateColumn)} = ${searchValues[0].trim()}`;
-    } else {
-      const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
-      searchByCondition = sql`${sql.raw(aggregateColumn)} IN (${sql.raw(multiSearchList)})`;
-    }
+    // if (searchByValueLocation === "---" || searchByValueLocation === "All" || searchValues.length === 0) {
+    //   searchByCondition = sql``;
+    // } else if (searchValues.length === 1) {
+    //   searchByCondition = sql`${sql.raw(aggregateColumn)} = ${searchValues[0].trim()}`;
+    // } else {
+    //   const multiSearchList = searchValues.map((c) => `'${c.trim()}'`).join(",");
+    //   searchByCondition = sql`${sql.raw(aggregateColumn)} IN (${sql.raw(multiSearchList)})`;
+    // }
 
-    if (searchByYearWeek === "All") {
+    if (searchByLevel === "region") {
       searchByCondition2 = sql``;
     } else {
-      searchByCondition2 = sql`AND weeknum = ${searchByYearWeek}`;
+      searchByCondition2 = sql`AND "Kota/Kabupaten" = ${searchByValueLocation}`;
     }
 
     // console.log("hq-rhi > debugging values:", {
@@ -74,6 +74,7 @@ export async function GET(request: Request) {
             FROM raw_productivity
             WHERE "Date" >= '2024-01-01'
                 AND "Date" <= ${searchByTgl2}
+                ${searchByCondition2}
             GROUP BY TO_CHAR("Date", 'MM-DD'), EXTRACT(YEAR FROM "Date")
             ),
             ytd_data AS (

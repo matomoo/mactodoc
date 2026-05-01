@@ -46,9 +46,14 @@ interface IProps {
   productivityApiPath: string;
   productivityLevel: string;
   productivityLocation: string;
+  title: string;
 }
 
-export default function ProductivityDetailChartContent({ productivityApiPath, productivityLevel }: IProps) {
+export default function ProductivityDetailChartContent({
+  productivityApiPath,
+  productivityLevel,
+  title = "NoTitle",
+}: IProps) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
 
   const valueLocation =
@@ -66,6 +71,7 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
       productivityLevel,
       valueLocation,
       dateRange2,
+      viewBy,
     ],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
@@ -76,6 +82,7 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
         [
           `${productivityApiPath}-detail-chart?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
+          `yearweek=${yearweek}`,
           `yearweek=${yearweek}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
           `tgl_2=${dateRange2?.split("|")[1]}`,
@@ -278,8 +285,13 @@ export default function ProductivityDetailChartContent({ productivityApiPath, pr
     },
   };
 
+  const newTitle = title === "Productivity Detail Chart - Payload" ? "PAYLOAD YTD" : "";
+
   return (
     <div className="h-full space-y-6 overflow-x-auto">
+      <div className="font-semibold text-lg">
+        {newTitle} - {viewBy?.toUpperCase() ?? ""} - {valueLocation}
+      </div>
       <Chart type="line" data={chartData} options={chartOptions} />
     </div>
   );

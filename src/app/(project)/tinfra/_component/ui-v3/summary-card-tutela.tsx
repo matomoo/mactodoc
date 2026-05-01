@@ -73,11 +73,13 @@ export default function SummaryCard({
     <Card className={className}>
       <CardHeader>
         <CardTitle>
-          {cardTitle === "Productivity Detail - Payload"
-            ? "Payload"
-            : cardTitle === "Productivity Detail - Traffic"
-              ? "Traffic"
-              : cardTitle}
+          {cardTitle === "Productivity Detail Chart - Payload"
+            ? null
+            : cardTitle === "Productivity Detail - Payload"
+              ? "Payload"
+              : cardTitle === "Productivity Detail - Traffic"
+                ? "Traffic"
+                : cardTitle}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -123,7 +125,7 @@ export default function SummaryCard({
             productivityLevel="noLevel"
             productivityLocation="noLocation"
             // productivityColumn={productivityColumn}
-            // title="Payload"
+            title={cardTitle}
           />
         ) : cardTitle === "Hq-Achv" ? (
           <HqAchvDynamicChartContent

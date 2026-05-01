@@ -52,7 +52,11 @@ interface WeekData {
   [key: string]: string | number;
 }
 
-export function Filter_Summary() {
+interface IProps {
+  mode?: "breakdown" | "chart";
+}
+
+export function Filter_Summary({ mode = "chart" }: IProps) {
   // API to fetch productivity latest date data
   const { data: dataProductivityLatestDate, isLoading: _isLoadingProductivityLatestDate } = useQuery({
     queryKey: ["ref-productivity-latest-date"],
@@ -399,68 +403,72 @@ export function Filter_Summary() {
         </div>
 
         {/* Select ViewBy */}
-        {/* <div className="flex flex-col gap-2">
-          <Select value={storeViewBy || ""} onValueChange={setViewBy}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Select View By" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="region">Region</SelectItem>
-              <SelectItem value="nop">NOP</SelectItem>
-              <SelectItem value="kabupaten">Kabupaten</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
+        {mode === "chart" && (
+          <div className="flex flex-col gap-2">
+            <Select value={storeViewBy || ""} onValueChange={setViewBy}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Select View By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="region">Region</SelectItem>
+                {/* <SelectItem value="nop">NOP</SelectItem> */}
+                <SelectItem value="kabupaten">Kabupaten</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Single-Select Dropdown Region */}
-        {/* <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingRegion}>
-              {storeRegion ? (
-                <span>{storeRegion}</span>
-              ) : (
-                <span className="text-muted-foreground">
-                  {isLoadingRegion ? "Loading Regions..." : "Select Region"}
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-28 p-0" align="start">
-            <Command>
-              <CommandList>
-                <CommandEmpty>No Regions found.</CommandEmpty>
-                <CommandGroup>
-                  {isLoadingRegion ? (
-                    <div className="flex items-center justify-center p-4">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span className="text-sm">Loading...</span>
-                    </div>
-                  ) : errorRegion ? (
-                    <div className="p-4 text-red-500 text-sm">Error loading Regions</div>
-                  ) : Array.isArray(rawRegion) && rawRegion.length > 0 ? (
-                    (rawRegion || []).map((select) => {
-                      return (
-                        <CommandItem
-                          key={select.nama_item}
-                          value={select.nama_item}
-                          onSelect={() => selectRegion(select.nama_item)}
-                          className="flex cursor-pointer"
-                        >
-                          <span className="flex-1">{select.nama_item}</span>
-                        </CommandItem>
-                      );
-                    })
-                  ) : (
-                    <div className="p-4 text-gray-500 text-sm">No Regions found</div>
-                  )}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover> */}
+        {mode === "chart" && (
+          <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingRegion}>
+                {storeRegion ? (
+                  <span>{storeRegion}</span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {isLoadingRegion ? "Loading Regions..." : "Select Region"}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-28 p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No Regions found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingRegion ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : errorRegion ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading Regions</div>
+                    ) : Array.isArray(rawRegion) && rawRegion.length > 0 ? (
+                      (rawRegion || []).map((select) => {
+                        return (
+                          <CommandItem
+                            key={select.nama_item}
+                            value={select.nama_item}
+                            onSelect={() => selectRegion(select.nama_item)}
+                            className="flex cursor-pointer"
+                          >
+                            <span className="flex-1">{select.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No Regions found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
 
         {/* Single-Select Dropdown NOP */}
-        {/* {(storeViewBy === "nop" || storeViewBy === "kabupaten") && (
+        {(storeViewBy === "nop" || storeViewBy === "kabupaten") && mode === "chart" && (
           <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-36 justify-start text-left" disabled={isLoadingNop}>
@@ -504,10 +512,10 @@ export function Filter_Summary() {
               </Command>
             </PopoverContent>
           </Popover>
-        )} */}
+        )}
 
         {/* Single-Select Dropdown Kabupaten */}
-        {/* {storeViewBy === "kabupaten" && (
+        {storeViewBy === "kabupaten" && mode === "chart" && (
           <Popover open={kabupatenPopoverOpen} onOpenChange={setKabupatenPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoadingKabupaten}>
@@ -553,7 +561,7 @@ export function Filter_Summary() {
               </Command>
             </PopoverContent>
           </Popover>
-        )} */}
+        )}
       </div>
     </div>
   );
