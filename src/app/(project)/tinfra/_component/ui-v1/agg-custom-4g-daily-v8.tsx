@@ -171,7 +171,18 @@ export default function PageAggCustom4GDaily({
     return <NoDataState message="No data available for the selected criteria." />;
   }
 
-  // console.log({ filteredData });
+  const newFilteredData = filteredData.map((item) => {
+    const sector = rawDataSector.rows.find(
+      (row: { G4_SITEID_CELLID: string }) => row.G4_SITEID_CELLID === item.G4_SITEID_CELLID,
+    );
+    return {
+      ...item,
+      sector: sector?.G4_SITEID_SECTOR || "",
+    };
+  });
+
+  // count siteId after split by comma
+  const siteIdLength = typeof siteId === "string" ? siteId.split(",").length : 1;
 
   return (
     <div className="min-h-screen">
@@ -195,46 +206,49 @@ export default function PageAggCustom4GDaily({
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Left sidebar - Filters */}
-          <FilterSidebar4G
-            // Summary data
-            allCells={dataManagement.allCells}
-            filterBy={filterBy}
-            selectedCells={dataManagement.selectedCells}
-            selectedSectors={dataManagement.selectedSectors}
-            selectedBands={dataManagement.selectedBands}
-            // Filter data
-            filteredCells={dataManagement.filteredCells}
-            filteredSectors={dataManagement.filteredSectors}
-            filteredBands={dataManagement.filteredBands}
-            // Search states
-            cellSearch={dataManagement.cellSearch}
-            sectorSearch={dataManagement.sectorSearch}
-            bandSearch={dataManagement.bandSearch}
-            // Handlers
-            onFilterByChange={setFilterBy}
-            onCellSearchChange={dataManagement.setCellSearch}
-            onSectorSearchChange={dataManagement.setSectorSearch}
-            onBandSearchChange={dataManagement.setBandSearch}
-            onCellSelection={dataManagement.handleCellSelection}
-            onSectorSelection={dataManagement.handleSectorSelection}
-            onBandSelection={dataManagement.handleBandsSelection}
-            onSelectAllCells={dataManagement.selectAllCells}
-            onClearAllCells={dataManagement.clearAllCells}
-            onSelectAllSectors={dataManagement.selectAllSectors}
-            onClearAllSectors={dataManagement.clearAllSectors}
-            onSelectAllBands={dataManagement.selectAllBands}
-            onClearAllBands={dataManagement.clearAllBands}
-            onExportData={handleExportAllData}
-            // Configuration
-            filterLabel={filterLabel}
-            // Mobile overlay props
-            isMobileFilterOpen={isMobileFilterOpen}
-            onMobileFilterClose={() => setIsMobileFilterOpen(false)}
-            aggregateBy={aggregateBy}
-          />
+
+          {siteIdLength !== 1 && (
+            <FilterSidebar4G
+              // Summary data
+              allCells={dataManagement.allCells}
+              filterBy={filterBy}
+              selectedCells={dataManagement.selectedCells}
+              selectedSectors={dataManagement.selectedSectors}
+              selectedBands={dataManagement.selectedBands}
+              // Filter data
+              filteredCells={dataManagement.filteredCells}
+              filteredSectors={dataManagement.filteredSectors}
+              filteredBands={dataManagement.filteredBands}
+              // Search states
+              cellSearch={dataManagement.cellSearch}
+              sectorSearch={dataManagement.sectorSearch}
+              bandSearch={dataManagement.bandSearch}
+              // Handlers
+              onFilterByChange={setFilterBy}
+              onCellSearchChange={dataManagement.setCellSearch}
+              onSectorSearchChange={dataManagement.setSectorSearch}
+              onBandSearchChange={dataManagement.setBandSearch}
+              onCellSelection={dataManagement.handleCellSelection}
+              onSectorSelection={dataManagement.handleSectorSelection}
+              onBandSelection={dataManagement.handleBandsSelection}
+              onSelectAllCells={dataManagement.selectAllCells}
+              onClearAllCells={dataManagement.clearAllCells}
+              onSelectAllSectors={dataManagement.selectAllSectors}
+              onClearAllSectors={dataManagement.clearAllSectors}
+              onSelectAllBands={dataManagement.selectAllBands}
+              onClearAllBands={dataManagement.clearAllBands}
+              onExportData={handleExportAllData}
+              // Configuration
+              filterLabel={filterLabel}
+              // Mobile overlay props
+              isMobileFilterOpen={isMobileFilterOpen}
+              onMobileFilterClose={() => setIsMobileFilterOpen(false)}
+              aggregateBy={aggregateBy}
+            />
+          )}
 
           {/* Main content */}
-          <div className={aggMode === "custom-cluster" ? "lg:col-span-12" : "lg:col-span-9"}>
+          <div className={aggMode === "custom-cluster" || siteIdLength === 1 ? "lg:col-span-12" : "lg:col-span-9"}>
             {/* Error/Empty States */}
             {filterBy === "cell" && dataManagement.selectedCells.length === 0 && (
               <NoDataState message={`Please select at least one ${filterLabel.toLowerCase()}`} />
@@ -314,7 +328,7 @@ export default function PageAggCustom4GDaily({
                   {/* Charts Tab Content */}
                   <TabsContent value="charts" className="mt-0">
                     <ChartsSection4G
-                      filteredData={filteredData}
+                      filteredData={newFilteredData}
                       chartLayout={chartLayout}
                       setChartLayout={setChartLayout}
                       aggregateBy={aggregateBy}
@@ -322,6 +336,7 @@ export default function PageAggCustom4GDaily({
                       onSelectedKPIsChange={setSelectedKPIs}
                       showViewModeState={showViewModeState}
                       aggMode={aggMode}
+                      siteIdLength={siteIdLength}
                     />
                   </TabsContent>
 

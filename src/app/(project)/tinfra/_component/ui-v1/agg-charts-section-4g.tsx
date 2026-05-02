@@ -21,6 +21,7 @@ interface ChartsSectionProps {
   onSelectedKPIsChange: (selected: string[]) => void;
   showViewModeState?: string;
   aggMode?: string;
+  siteIdLength?: number;
 }
 
 // Define the view mode type
@@ -33,6 +34,7 @@ export function ChartsSection4G({
   selectedKPIs,
   onSelectedKPIsChange,
   showViewModeState = "aggregated",
+  siteIdLength = 1,
   // aggMode = "custom-cluster",
 }: ChartsSectionProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -40,18 +42,6 @@ export function ChartsSection4G({
   const [viewMode, setViewMode] = useState<ViewMode>(showViewModeState as ViewMode);
 
   // console.log({ filteredData });
-  const getGridColumnsClass = () => {
-    switch (chartLayout) {
-      case 1:
-        return "grid-cols-1";
-      case 2:
-        return "md:grid-cols-2";
-      case 3:
-        return "md:grid-cols-2 lg:grid-cols-3";
-      default:
-        return "md:grid-cols-2";
-    }
-  };
 
   // Filter charts based on selected KPIs
   const visibleCharts = get2G4GMetricConfigs().filter(
@@ -63,6 +53,19 @@ export function ChartsSection4G({
       onSelectedKPIsChange(selectedKPIs.filter((id) => id !== metricNum));
     } else {
       onSelectedKPIsChange([...selectedKPIs, metricNum]);
+    }
+  };
+
+  const getGridColumnsClass = () => {
+    switch (chartLayout) {
+      case 1:
+        return "grid-cols-1";
+      case 2:
+        return "md:grid-cols-2";
+      case 3:
+        return "md:grid-cols-2 lg:grid-cols-3";
+      default:
+        return "md:grid-cols-2";
     }
   };
 
@@ -78,11 +81,33 @@ export function ChartsSection4G({
     onSelectedKPIsChange([]);
   };
 
+  // console.log({ filteredData });
+
+  // Group data by sector
+  const dataBySector = filteredData.reduce(
+    (acc, item) => {
+      const sector = item.sector as string;
+      if (!sector) return acc;
+
+      if (!acc[sector]) {
+        acc[sector] = [];
+      }
+      acc[sector].push(item);
+      return acc;
+    },
+    {} as Record<string, Data2G4GModel[]>,
+  );
+
+  const sectors = Object.keys(dataBySector);
+
   return (
-    <div>
+    <div className="w-full">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="font-semibold text-gray-900 text-lg">Detailed Metrics</h2>
+          <h2 className="font-semibold text-gray-900 text-lg">Detailed Metrics by Sector</h2>
+          <span className="text-sm text-gray-500">
+            ({sectors.length} sector{sectors.length > 1 ? "s" : ""})
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -178,26 +203,58 @@ export function ChartsSection4G({
       </div>
 
       {/* Section for charts */}
-      <div className={`grid ${getGridColumnsClass()} gap-4`}>
-        {visibleCharts.map((chart) => (
-          <div
-            key={chart.metric_num}
-            className={`rounded-xl border bg-white p-2 shadow-sm ${chartLayout === 1 ? "w-full" : ""}`}
-          >
-            <LineChart4GAggDaily
+      {siteIdLength !== 1 && (
+        <div className={`grid ${getGridColumnsClass()} gap-4`}>
+          {visibleCharts.map((chart) => (
+            <div
               key={chart.metric_num}
-              data={filteredData}
-              metric_num={chart.metric_num}
-              metric_denum={chart.metric_denum}
-              title={chart.title}
-              aggregation_by={aggregateBy}
-              isExtractCellName={!!aggregateBy.includes("CELL")}
-              viewMode={viewMode}
-              // onViewModeChange is no longer needed as it's handled in parent
-            />
-          </div>
-        ))}
-      </div>
+              className={`rounded-xl border bg-white p-2 shadow-sm ${chartLayout === 1 ? "w-full" : ""}`}
+            >
+              <LineChart4GAggDaily
+                key={chart.metric_num}
+                data={filteredData}
+                metric_num={chart.metric_num}
+                metric_denum={chart.metric_denum}
+                title={chart.title}
+                aggregation_by={aggregateBy}
+                isExtractCellName={!!aggregateBy.includes("CELL")}
+                viewMode={viewMode}
+                // onViewModeChange is no longer needed as it's handled in parent
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Section for charts grouped by sector - horizontal layout */}
+      {siteIdLength === 1 && (
+        <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-${Math.max(sectors.length, 3)}`}>
+          {sectors.map((sector) => (
+            <div key={sector} className="flex flex-col">
+              <div className="mb-3">
+                <h3 className="border-b pb-1 font-semibold text-gray-800 text-sm">Sector: {sector}</h3>
+              </div>
+              <div className="flex-1 space-y-4">
+                {visibleCharts.map((chart) => (
+                  <div key={`${sector}-${chart.metric_num}`} className="rounded-xl border bg-white p-2 shadow-sm">
+                    <LineChart4GAggDaily
+                      key={`${sector}-${chart.metric_num}`}
+                      data={dataBySector[sector]}
+                      metric_num={chart.metric_num}
+                      metric_denum={chart.metric_denum}
+                      title={`${chart.title} - ${sector}`}
+                      aggregation_by={aggregateBy}
+                      isExtractCellName={!!aggregateBy.includes("CELL")}
+                      viewMode={viewMode}
+                      // onViewModeChange is no longer needed as it's handled in parent
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Show message if no KPIs selected */}
       {visibleCharts.length === 0 && (
