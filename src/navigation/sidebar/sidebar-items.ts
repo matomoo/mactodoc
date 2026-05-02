@@ -122,42 +122,17 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 3,
-    label: "Dashboard",
+    label: "Custom Cluster",
     items: [
-      // {
-      //   title: "Profiles",
-      //   url: "/nura/app/profiles",
-      //   icon: Fingerprint,
-      // },
       {
-        title: "4G",
-        url: "#",
+        title: "Performance",
+        url: "/tinfra/displays/dashboard/4g/custom-cluster/daily",
         icon: Fingerprint,
-        subItems: [
-          {
-            title: "Site Level Daily",
-            url: "/tinfra/displays/dashboard/4g/site/daily",
-          },
-          // {
-          //   title: "NOP Level Daily",
-          //   url: "/tinfra/displays/dashboard/4g/nop/daily",
-          // },
-          {
-            title: "Custom Cluster Daily",
-            url: "/tinfra/displays/dashboard/4g/custom-cluster/daily",
-          },
-        ],
       },
       {
-        title: "Manage",
-        url: "#",
+        title: "Manage List",
+        url: "/tinfra/displays/dashboard/4g/custom-cluster/manage-list",
         icon: Fingerprint,
-        subItems: [
-          {
-            title: "Custom Cluster",
-            url: "/tinfra/displays/dashboard/4g/custom-cluster/manage-list",
-          },
-        ],
       },
     ],
   },

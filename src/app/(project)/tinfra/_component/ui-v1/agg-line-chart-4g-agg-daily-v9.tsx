@@ -49,6 +49,7 @@ interface LineChartProps {
   showAggregatedKPI?: boolean;
   isExtractCellName?: boolean;
   viewMode: ViewMode;
+  chartHeight?: string;
 }
 
 const LineChart4GAggDaily: React.FC<LineChartProps> = ({
@@ -63,6 +64,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   // isExtractCellName = false,
   // Only viewMode prop
   viewMode = "aggregated",
+  chartHeight = "h-80",
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
@@ -475,7 +477,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   return (
     <div className="flex h-full w-full flex-col">
       {/* Removed the ViewToggle component from here */}
-      <div className="h-80 rounded-lg bg-white p-2">
+      <div className={`h-full rounded-lg bg-white p-2`}>
         <div className="h-full">
           <canvas ref={chartRef} />
         </div>

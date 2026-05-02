@@ -27,7 +27,7 @@ interface ChartsSectionProps {
 // Define the view mode type
 export type ViewMode = "metrics" | "aggregated" | "both";
 
-export function ChartsSection4G({
+export function ChartsPerSectorSection4G({
   filteredData,
   chartLayout,
   aggregateBy,
@@ -104,7 +104,14 @@ export function ChartsSection4G({
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="font-semibold text-gray-900 text-lg">Detailed Metrics</h2>
+          <h2 className="font-semibold text-gray-900 text-lg">
+            Detailed Metrics {aggregateBy === "G4_SITEID_CELLID" ? "by Sector" : ""}
+          </h2>
+          {aggregateBy === "G4_SITEID_CELLID" && (
+            <span className="text-sm text-gray-500">
+              ({sectors.length} sector{sectors.length > 1 ? "s" : ""})
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -198,30 +205,39 @@ export function ChartsSection4G({
           </Sheet>
         </div>
       </div>
-
-      {/* Section for charts */}
-
-      <div className={`grid ${getGridColumnsClass()} gap-4`}>
-        {visibleCharts.map((chart) => (
-          <div
-            key={chart.metric_num}
-            className={`h-72 rounded-xl border bg-white p-2 shadow-sm ${chartLayout === 1 ? "w-full" : ""}`}
-          >
-            <LineChart4GAggDaily
-              key={chart.metric_num}
-              data={filteredData}
-              metric_num={chart.metric_num}
-              metric_denum={chart.metric_denum}
-              title={chart.title}
-              aggregation_by={aggregateBy}
-              isExtractCellName={!!aggregateBy.includes("CELL")}
-              viewMode={viewMode}
-              // onViewModeChange is no longer needed as it's handled in parent
-            />
-          </div>
-        ))}
+      {/* Section for charts grouped by sector - horizontal layout */}
+      <div className={sectors.length > 0 ? "overflow-x-auto" : ""}>
+        <div
+          className={`grid grid-cols-1 gap-6 lg:grid-cols-${Math.max(sectors.length, 0)}`}
+          style={sectors.length > 0 ? { width: `${sectors.length * 450}px` } : {}}
+        >
+          {sectors.map((sector) => (
+            <div key={sector} className="flex flex-col">
+              <div className="mb-3">
+                <h3 className="border-b pb-1 font-semibold text-gray-800 text-sm">Sector: {sector}</h3>
+              </div>
+              <div className="flex-1 space-y-4">
+                {visibleCharts.map((chart) => (
+                  <div key={`${sector}-${chart.metric_num}`} className="h-60 rounded-xl border bg-white p-2 shadow-sm">
+                    <LineChart4GAggDaily
+                      key={`${sector}-${chart.metric_num}`}
+                      data={dataBySector[sector]}
+                      metric_num={chart.metric_num}
+                      metric_denum={chart.metric_denum}
+                      title={`${chart.title}`}
+                      aggregation_by={aggregateBy}
+                      isExtractCellName={!!aggregateBy.includes("CELL")}
+                      viewMode={viewMode}
+                      chartHeight={"h-60"}
+                      // onViewModeChange is no longer needed as it's handled in parent
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-
       {/* Show message if no KPIs selected */}
       {visibleCharts.length === 0 && (
         <div className="flex min-h-50 items-center justify-center rounded-lg border-2 border-gray-300 border-dashed">
@@ -234,7 +250,6 @@ export function ChartsSection4G({
           </div>
         </div>
       )}
-
       {/* Mobile layout indicator */}
       <div className="mt-4 flex items-center justify-center sm:hidden">
         <div className="text-gray-500 text-xs">
