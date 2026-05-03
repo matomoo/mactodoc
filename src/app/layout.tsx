@@ -66,7 +66,12 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             <Toaster />
           </PreferencesStoreProvider>
         </AuthProvider>
-        <Script defer src="https://cloud.umami.is/script.js" data-website-id="0818d300-15f0-4ec9-adf4-f9edadc59f7a" />
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="0818d300-15f0-4ec9-adf4-f9edadc59f7a"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

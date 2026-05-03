@@ -41,7 +41,7 @@ export function ChartsSection4G({
   // State for view mode - shared across all charts
   const [viewMode, setViewMode] = useState<ViewMode>(showViewModeState as ViewMode);
 
-  // console.log({ filteredData });
+  console.log({ filteredData });
 
   // Filter charts based on selected KPIs
   const visibleCharts = get2G4GMetricConfigs().filter(

@@ -4,6 +4,7 @@ import { db_conn_v2 } from "../../../../_drizzle/db_ti_sul";
 import { sql } from "drizzle-orm";
 
 import { NextResponse } from "next/server";
+import { redisWithCache } from "@/app/(project)/tinfra/_lib/redis-with-cache";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -36,7 +37,11 @@ export async function GET(request: Request) {
       searchByCondition = sql`AND tref.${sql.raw(fieldToAggregate)} IN (${sql.raw(multiSearchList)})`;
     }
 
-    const result = await db_conn_v2.execute<Data2G4GModel>(sql`
+    const data = await redisWithCache(
+      `4g:${fieldToAggregate}:${searchByParams}:${tgl_1}:${tgl_2}`,
+      3600, // 1 hour
+      async () => {
+        const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           WITH t1_filtered AS (
             SELECT
               "Begin Time",
@@ -170,7 +175,11 @@ export async function GET(request: Request) {
             tref.region
         `);
 
-    return NextResponse.json(result);
+        return result.rows;
+      },
+    );
+
+    return NextResponse.json({ rows: data });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }

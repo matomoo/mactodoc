@@ -156,7 +156,7 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
-  // console.log({ data });
+  console.log({ data, filterValue });
 
   const dataManagement = useDataManagement4G({
     data,
@@ -202,6 +202,8 @@ export default function PageAggCustom4GDaily({
     exportToExcel(filteredData, filename);
   };
 
+  console.log({ filteredData });
+
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
@@ -209,7 +211,7 @@ export default function PageAggCustom4GDaily({
     return <NoDataState message="No data available for selected criteria." />;
   }
 
-  // console.log({ filteredData });
+  console.log({ filteredData });
 
   return (
     <div className="min-h-screen">
@@ -228,11 +230,6 @@ export default function PageAggCustom4GDaily({
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
       />
-      {/* <ExportReportButton
-        data={filteredData as unknown as RawKpiRow[]}
-        selectedKPIs={selectedKPIs}
-        filteredComparisonData={filteredComparisonData}
-      /> */}
 
       <div className="py-4 lg:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
