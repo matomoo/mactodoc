@@ -51,6 +51,7 @@ export function Filter_Summary() {
   const defaultFrom = subDays(latestDate, 6);
   const defaultTo = latestDate;
   const defaultRangeString = `${format(defaultFrom, "yyyy-MM-dd")}|${format(defaultTo, "yyyy-MM-dd")}`;
+  const defaultDateEndString = `${format(defaultTo, "yyyy-MM-dd")}`;
 
   // Use Zustand store
   const {
@@ -185,9 +186,9 @@ export function Filter_Summary() {
 
   useEffect(() => {
     if (productivityLatestDateList.length !== 0) {
-      setDateEnd(defaultRangeString);
+      setDateEnd(defaultDateEndString);
     }
-  }, [setDateEnd, defaultRangeString, productivityLatestDateList]);
+  }, [setDateEnd, defaultDateEndString, productivityLatestDateList]);
 
   // Select handlers for each dropdown type
   const selectRegion = (itemName: string) => {
