@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 
     const data = await redisWithCache(
       `4g:${fieldToAggregate}:${searchByParams}:${tgl_1}:${tgl_2}`,
-      3600, // 1 hour
+      3600 * 23, // 23 hours
       async () => {
         const result = await db_conn_v2.execute<Data2G4GModel>(sql`
           WITH t1_filtered AS (
