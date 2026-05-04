@@ -4,14 +4,32 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { format, subDays } from "date-fns";
+import { format, subDays, parseISO, isValid } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { useSummaryStore } from "@/stores/summaryStore";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { parseSingleDate } from "./filter-summary-single-select-v4";
+
+// Parse the single date parameter into a Date object
+export const parseSingleDate = (dateString: string | null): Date | undefined => {
+  if (!dateString) return undefined;
+
+  try {
+    const date = parseISO(dateString);
+
+    if (!isValid(date)) {
+      console.error("Invalid date parsed:", dateString);
+      return undefined;
+    }
+
+    return date;
+  } catch (e) {
+    console.error("Error parsing date:", e);
+    return undefined;
+  }
+};
 
 // Interface for Kabupaten data
 interface ReturnData {
@@ -26,7 +44,11 @@ interface WeekData {
   [key: string]: string | number;
 }
 
-export function Filter_Summary() {
+interface IProps {
+  mode?: "breakdown" | "chart";
+}
+
+export function Filter_Summary({ mode = "chart" }: IProps) {
   // API to fetch productivity latest date data
   const { data: dataProductivityLatestDate, isLoading: _isLoadingProductivityLatestDate } = useQuery({
     queryKey: ["ref-productivity-latest-date"],
@@ -48,21 +70,26 @@ export function Filter_Summary() {
   const latestDate = productivityLatestDateList[0]?.Date
     ? new Date(productivityLatestDateList[0].Date)
     : subDays(new Date(), 1);
-  const defaultFrom = subDays(latestDate, 6);
-  const defaultTo = latestDate;
-  const defaultRangeString = `${format(defaultFrom, "yyyy-MM-dd")}|${format(defaultTo, "yyyy-MM-dd")}`;
+  const defaultDate = latestDate;
+  const defaultDateString = format(defaultDate, "yyyy-MM-dd");
+
+  // console.log({ productivityLatestDateList, latestDate });
 
   // Use Zustand store
   const {
+    dateRange2: storeDateRange,
     yearweek: storeYearweek,
     nop: storeNop,
     region: storeRegion,
     kabupaten: storeKabupaten,
+    // kecamatan: storeKecamatan,
     viewBy: storeViewBy,
+    setDateRange2,
     setYearweek,
     setNop,
     setRegion,
     setKabupaten,
+    // setKecamatan,
     setViewBy,
     dateEnd,
     setDateEnd,
@@ -167,7 +194,7 @@ export function Filter_Summary() {
   });
 
   // API to fetch week range data
-  const { data: weekData, isLoading: weekLoading } = useQuery({
+  const { data: weekData } = useQuery({
     queryKey: ["week-range-data"],
     queryFn: async () => {
       const response = await fetch(`/tinfra/api/v2/summary/ref-year-week`);
@@ -185,9 +212,9 @@ export function Filter_Summary() {
 
   useEffect(() => {
     if (productivityLatestDateList.length !== 0) {
-      setDateEnd(defaultRangeString);
+      setDateEnd(defaultDateString);
     }
-  }, [setDateEnd, defaultRangeString, productivityLatestDateList]);
+  }, [setDateEnd, defaultDateString, productivityLatestDateList]);
 
   // Select handlers for each dropdown type
   const selectRegion = (itemName: string) => {
@@ -217,31 +244,6 @@ export function Filter_Summary() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-        {/* Week Range Select */}
-        <div className="flex flex-col gap-2">
-          <Select value={storeYearweek || ""} onValueChange={setYearweek}>
-            <SelectTrigger className="w-24">
-              <SelectValue placeholder="Select Week" />
-            </SelectTrigger>
-            <SelectContent>
-              {weekLoading ? (
-                <div className="flex items-center justify-center p-2">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <span className="text-sm">Loading weeks...</span>
-                </div>
-              ) : weekList?.length > 0 ? (
-                weekList.map((row: WeekData) => (
-                  <SelectItem key={row.year_week} value={row.year_week}>
-                    {row.year_week}
-                  </SelectItem>
-                ))
-              ) : (
-                <div className="p-2 text-gray-500 text-sm">No weeks available</div>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Date Picker */}
         <div className="flex flex-col gap-2">
           <Popover>
@@ -288,68 +290,72 @@ export function Filter_Summary() {
         </div>
 
         {/* Select ViewBy */}
-        <div className="flex flex-col gap-2">
-          <Select value={storeViewBy || ""} onValueChange={setViewBy}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Select View By" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="region">Region</SelectItem>
-              <SelectItem value="nop">NOP</SelectItem>
-              <SelectItem value="kabupaten">Kabupaten</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {mode === "chart" && (
+          <div className="flex flex-col gap-2">
+            <Select value={storeViewBy || ""} onValueChange={setViewBy}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Select View By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="region">Region</SelectItem>
+                {/* <SelectItem value="nop">NOP</SelectItem> */}
+                <SelectItem value="kabupaten">Kabupaten</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Single-Select Dropdown Region */}
-        <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingRegion}>
-              {storeRegion ? (
-                <span>{storeRegion}</span>
-              ) : (
-                <span className="text-muted-foreground">
-                  {isLoadingRegion ? "Loading Regions..." : "Select Region"}
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-28 p-0" align="start">
-            <Command>
-              <CommandList>
-                <CommandEmpty>No Regions found.</CommandEmpty>
-                <CommandGroup>
-                  {isLoadingRegion ? (
-                    <div className="flex items-center justify-center p-4">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span className="text-sm">Loading...</span>
-                    </div>
-                  ) : errorRegion ? (
-                    <div className="p-4 text-red-500 text-sm">Error loading Regions</div>
-                  ) : Array.isArray(rawRegion) && rawRegion.length > 0 ? (
-                    (rawRegion || []).map((select) => {
-                      return (
-                        <CommandItem
-                          key={select.nama_item}
-                          value={select.nama_item}
-                          onSelect={() => selectRegion(select.nama_item)}
-                          className="flex cursor-pointer"
-                        >
-                          <span className="flex-1">{select.nama_item}</span>
-                        </CommandItem>
-                      );
-                    })
-                  ) : (
-                    <div className="p-4 text-gray-500 text-sm">No Regions found</div>
-                  )}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        {mode === "chart" && (
+          <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingRegion}>
+                {storeRegion ? (
+                  <span>{storeRegion}</span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {isLoadingRegion ? "Loading Regions..." : "Select Region"}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-28 p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No Regions found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingRegion ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : errorRegion ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading Regions</div>
+                    ) : Array.isArray(rawRegion) && rawRegion.length > 0 ? (
+                      (rawRegion || []).map((select) => {
+                        return (
+                          <CommandItem
+                            key={select.nama_item}
+                            value={select.nama_item}
+                            onSelect={() => selectRegion(select.nama_item)}
+                            className="flex cursor-pointer"
+                          >
+                            <span className="flex-1">{select.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No Regions found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
 
         {/* Single-Select Dropdown NOP */}
-        {(storeViewBy === "nop" || storeViewBy === "kabupaten") && (
+        {(storeViewBy === "nop" || storeViewBy === "kabupaten") && mode === "chart" && (
           <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-36 justify-start text-left" disabled={isLoadingNop}>
@@ -396,7 +402,7 @@ export function Filter_Summary() {
         )}
 
         {/* Single-Select Dropdown Kabupaten */}
-        {storeViewBy === "kabupaten" && (
+        {storeViewBy === "kabupaten" && mode === "chart" && (
           <Popover open={kabupatenPopoverOpen} onOpenChange={setKabupatenPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-68 justify-start text-left" disabled={isLoadingKabupaten}>

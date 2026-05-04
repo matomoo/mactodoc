@@ -15,6 +15,7 @@ interface summaryState {
   weekRange: [number, number];
   yearweek: string | null;
   viewBy: string | null;
+  dateEnd: string | null;
 
   // Actions
   setDateRange2: (range: string | null) => void;
@@ -29,6 +30,7 @@ interface summaryState {
   setWeekRange: (range: [number, number]) => void;
   setYearweek: (yearweek: string | null) => void;
   setViewBy: (viewBy: string | null) => void;
+  setDateEnd: (dateEnd: string | null) => void;
 
   // Helper to get all params as object
   getParams: () => {
@@ -44,6 +46,7 @@ interface summaryState {
     weekRange: [number, number];
     yearweek: string | null;
     viewBy: string | null;
+    dateEnd: string | null;
   };
 }
 
@@ -63,12 +66,12 @@ export const useSummaryStore = create<summaryState>()(
       weekRange: [202601, 202652], // Default to full year 2026
       yearweek: null,
       viewBy: null,
+      dateEnd: null,
 
       // Actions
       setDateRange2: (range) => set({ dateRange2: range }),
       setFilter: (filter) => set({ filter: filter }),
       setClusterFilter: (clusterFilter) => set({ clusterFilter: clusterFilter }),
-
       setSiteId: (siteId) => set({ siteId: siteId }),
       setNop: (nop) => set({ nop: nop }),
       setRegion: (region) => set({ region: region }),
@@ -78,8 +81,8 @@ export const useSummaryStore = create<summaryState>()(
       setWeekRange: (range) => set({ weekRange: range }),
       setYearweek: (yearweek) => set({ yearweek: yearweek }),
       setViewBy: (viewBy) => set({ viewBy: viewBy }),
+      setDateEnd: (dateEnd) => set({ dateEnd: dateEnd }),
 
-      // Helper function
       getParams: () => {
         const state = get();
         return {
@@ -95,11 +98,12 @@ export const useSummaryStore = create<summaryState>()(
           weekRange: state.weekRange,
           yearweek: state.yearweek,
           viewBy: state.viewBy,
+          dateEnd: state.dateEnd,
         };
       },
     }),
     {
-      name: "summary-storage", // name of the item in localStorage
+      name: "summary-storage",
     },
   ),
 );

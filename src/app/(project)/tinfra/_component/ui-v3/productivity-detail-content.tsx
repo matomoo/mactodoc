@@ -59,7 +59,7 @@ export default function ProductivityDetailContent({
   productivityColumn,
   title,
 }: IProps) {
-  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
+  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateEnd } = useSummaryStore();
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [openBranch, setOpenBranch] = useState<string | null>(null);
 
@@ -72,7 +72,7 @@ export default function ProductivityDetailContent({
     isLoading: productivityNopLoading,
     error: productivityNopError,
   } = useQuery({
-    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
+    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateEnd],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
         return [];
@@ -83,8 +83,8 @@ export default function ProductivityDetailContent({
           `${productivityApiPath}-nop?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
           `yearweek=${yearweek}`,
-          `tgl_1=${dateRange2?.split("|")[0]}`,
-          `tgl_2=${dateRange2?.split("|")[1]}`,
+          `tgl_1=${dateEnd}`,
+          `tgl_2=${dateEnd}`,
         ].join("&"),
       );
       if (!response.ok) {
@@ -112,7 +112,7 @@ export default function ProductivityDetailContent({
       productivityApiPath,
       productivityLevel,
       valueLocation,
-      dateRange2,
+      dateEnd,
       selectedBranch,
     ],
     queryFn: async () => {
@@ -126,8 +126,8 @@ export default function ProductivityDetailContent({
           `valueLocation=${valueLocation}`,
           `yearweek=${yearweek}`,
           `nop=${selectedBranch}`,
-          `tgl_1=${dateRange2?.split("|")[0]}`,
-          `tgl_2=${dateRange2?.split("|")[1]}`,
+          `tgl_1=${dateEnd}`,
+          `tgl_2=${dateEnd}`,
         ].join("&"),
       );
       if (!response.ok) {

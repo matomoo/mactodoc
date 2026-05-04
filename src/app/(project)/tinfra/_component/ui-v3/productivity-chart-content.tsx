@@ -80,7 +80,7 @@ interface IProps {
 }
 
 export default function ProductivityChartContent({ productivityApiPath, productivityLevel }: IProps) {
-  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
+  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateEnd } = useSummaryStore();
 
   const valueLocation =
     viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
@@ -90,7 +90,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["productivity-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
+    queryKey: ["productivity-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateEnd],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
         return [];
@@ -101,8 +101,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
           `${productivityApiPath}?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
           `yearweek=${yearweek}`,
-          `tgl_1=${dateRange2?.split("|")[0]}`,
-          `tgl_2=${dateRange2?.split("|")[1]}`,
+          `tgl_1=${dateEnd}`,
+          `tgl_2=${dateEnd}`,
         ].join("&"),
       );
       if (!response.ok) {
@@ -119,7 +119,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   });
 
   const { data: productivityNopData } = useQuery({
-    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateRange2],
+    queryKey: ["productivity2-data", yearweek, productivityApiPath, productivityLevel, valueLocation, dateEnd],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
         return [];
@@ -130,8 +130,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
           `${productivityApiPath}-nop?level=${viewBy}`,
           `valueLocation=${valueLocation}`,
           `yearweek=${yearweek}`,
-          `tgl_1=${dateRange2?.split("|")[0]}`,
-          `tgl_2=${dateRange2?.split("|")[1]}`,
+          `tgl_1=${dateEnd}`,
+          `tgl_2=${dateEnd}`,
         ].join("&"),
       );
       if (!response.ok) {

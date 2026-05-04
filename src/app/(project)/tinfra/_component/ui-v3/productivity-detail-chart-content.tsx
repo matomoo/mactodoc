@@ -54,7 +54,7 @@ export default function ProductivityDetailChartContent({
   productivityLevel,
   title = "NoTitle",
 }: IProps) {
-  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2 } = useSummaryStore();
+  const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateRange2, dateEnd } = useSummaryStore();
 
   const valueLocation =
     viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
@@ -72,6 +72,7 @@ export default function ProductivityDetailChartContent({
       valueLocation,
       dateRange2,
       viewBy,
+      dateEnd,
     ],
     queryFn: async () => {
       if (!productivityApiPath || productivityApiPath === "noUrl") {
@@ -85,7 +86,7 @@ export default function ProductivityDetailChartContent({
           `yearweek=${yearweek}`,
           `yearweek=${yearweek}`,
           `tgl_1=${dateRange2?.split("|")[0]}`,
-          `tgl_2=${dateRange2?.split("|")[1]}`,
+          `tgl_2=${dateEnd}`,
         ].join("&"),
       );
       if (!response.ok) {
