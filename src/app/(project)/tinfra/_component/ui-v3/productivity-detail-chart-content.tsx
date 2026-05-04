@@ -146,6 +146,7 @@ export default function ProductivityDetailChartContent({
       data,
       borderColor: color,
       backgroundColor: colorBg,
+      borderWidth: 3.5,
       yAxisID: "y",
       tension: 0.3,
       pointRadius: 0,
@@ -168,13 +169,17 @@ export default function ProductivityDetailChartContent({
       const colorBg = chartJsColorsTransparent[parseInt(year + 13, 10) % chartJsColors.length];
 
       return {
-        type: "bar" as const,
+        type: "line" as const,
         label: `YTD % vs Prev Year ${year}`,
         data,
         backgroundColor: colorBg,
         borderColor: color,
         yAxisID: "y1",
-        barPercentage: 1.3,
+        // barPercentage: 1.3,
+        borderWidth: 2,
+        tension: 0.3,
+        pointRadius: 0,
+        fill: false,
         datalabels: {
           display: false,
         },
