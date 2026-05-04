@@ -127,7 +127,7 @@ export default function PageAggCustom4GDaily({
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: 5,
   });
 
   const {
@@ -153,10 +153,10 @@ export default function PageAggCustom4GDaily({
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: 5,
   });
 
-  console.log({ data, filterValue });
+  // console.log({ data, filterValue });
 
   const dataManagement = useDataManagement4G({
     data,
@@ -202,7 +202,7 @@ export default function PageAggCustom4GDaily({
     exportToExcel(filteredData, filename);
   };
 
-  console.log({ filteredData });
+  // console.log({ filteredData });
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
@@ -211,7 +211,7 @@ export default function PageAggCustom4GDaily({
     return <NoDataState message="No data available for selected criteria." />;
   }
 
-  console.log({ filteredData });
+  // console.log({ filteredData });
 
   return (
     <div className="min-h-screen">
