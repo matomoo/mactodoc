@@ -122,6 +122,17 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 3,
+    label: "Sprint",
+    items: [
+      {
+        title: "Redcov",
+        url: "/tinfra/displays/dashboard-sprint/redcov",
+        icon: Fingerprint,
+      },
+    ],
+  },
+  {
+    id: 4,
     label: "Custom Cluster",
     items: [
       {
