@@ -137,8 +137,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         const denum = isDenumBy1 ? 1 : groupData.denum;
 
         if (denum === 0) return 0;
-
-        let value = isDenumBy1 ? num : isDropRatePercentage ? num / denum : num > denum ? 1 : num / denum;
+        let value = isDenumBy1 ? num : isDropRatePercentage ? num / denum : num / denum;
+        if (metric_num === "AVAILABILITY_NUM" && metric_num && metric_denum && metric_num > metric_denum) {
+          value = 1;
+        }
         if (isPercentage && !isDropRatePercentage) value *= 100;
         if (isAverage && groupData.count > 0) value /= groupData.count;
 
