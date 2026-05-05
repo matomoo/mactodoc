@@ -68,6 +68,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const isAvailability = title.includes("Availability (%)");
 
   const isDropRatePercentage = title.toUpperCase().includes("DROP RATE");
   const isSeCqi = title.toUpperCase().includes("SE BH") || title.toUpperCase().includes("CQI BH");
@@ -88,8 +89,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   // Separate data processing from gradient creation
   const baseChartData = useMemo(() => {
     if (!data?.length) return { labels: [], datasets: [] };
-
     const isPercentage = title.includes("%");
+
     const isAverage = aggregation === "avg" || title.includes("AVG");
     const isDenumBy1 = metric_denum === "DENUMBY1";
 
@@ -138,10 +139,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
         if (denum === 0) return 0;
         let value = isDenumBy1 ? num : isDropRatePercentage ? num / denum : num / denum;
-        if (metric_num === "AVAILABILITY_NUM" && metric_num && metric_denum && metric_num > metric_denum) {
-          value = 1;
+        if (isAvailability) {
+          value = num > denum ? 100 : (num / denum) * 100;
         }
-        if (isPercentage && !isDropRatePercentage) value *= 100;
+        if (isPercentage && !isDropRatePercentage && !isAvailability) value *= 100;
         if (isAverage && groupData.count > 0) value /= groupData.count;
 
         const result = Number(value.toFixed(4));
@@ -170,7 +171,17 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
       isPercentage,
       isAverage,
     };
-  }, [data, metric_num, metric_denum, aggregation, title, isDropRatePercentage, isTrafficChart, aggregation_by]);
+  }, [
+    data,
+    metric_num,
+    metric_denum,
+    aggregation,
+    title,
+    isDropRatePercentage,
+    isTrafficChart,
+    aggregation_by,
+    isAvailability,
+  ]);
 
   useEffect(() => {
     if (!chartRef.current || !baseChartData.labels.length) return;
@@ -226,10 +237,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 : isDropRatePercentage
                   ? 100 - totalNum / totalDenum
                   : totalNum / totalDenum;
-              if (metric_num === "AVAILABILITY_NUM" && metric_num && metric_denum && metric_num > metric_denum) {
-                value = 1;
+              if (isAvailability) {
+                value = totalNum > totalDenum ? 100 : (totalNum / totalDenum) * 100;
               }
-              if (isPercentage && !isDropRatePercentage) value *= 100;
+              if (isPercentage && !isDropRatePercentage && !isAvailability) value *= 100;
               if (isAverage && totalCount > 0) value /= totalCount;
 
               return Number(value.toFixed(4));
@@ -473,8 +484,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     isSeCqi,
     isMaxUserChart,
     isThpChart,
-    metric_denum,
-    metric_num,
+    isAvailability,
   ]);
 
   if (!data?.length) {
