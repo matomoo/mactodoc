@@ -226,6 +226,9 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 : isDropRatePercentage
                   ? 100 - totalNum / totalDenum
                   : totalNum / totalDenum;
+              if (metric_num === "AVAILABILITY_NUM" && metric_num && metric_denum && metric_num > metric_denum) {
+                value = 1;
+              }
               if (isPercentage && !isDropRatePercentage) value *= 100;
               if (isAverage && totalCount > 0) value /= totalCount;
 
@@ -470,6 +473,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     isSeCqi,
     isMaxUserChart,
     isThpChart,
+    metric_denum,
+    metric_num,
   ]);
 
   if (!data?.length) {
