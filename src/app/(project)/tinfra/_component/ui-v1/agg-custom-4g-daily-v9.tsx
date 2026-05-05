@@ -176,7 +176,7 @@ export default function PageAggCustom4GDaily({
   });
 
   // retrieve data from api aggregate/meas-dy-dynamic-4g-v3
-  console.log({ data });
+  // console.log({ data });
 
   useEffect(() => {
     if (dateRange2 && filterValue && nop && kabupaten && clusterFilter && region) {
