@@ -9,3 +9,7 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Increase function timeout for heavy queries
+[functions]
+  included_files = ["**/*.js"]

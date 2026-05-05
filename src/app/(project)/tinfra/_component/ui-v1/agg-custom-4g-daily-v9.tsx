@@ -127,7 +127,7 @@ export default function PageAggCustom4GDaily({
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
-    retry: 5,
+    retry: 3,
   });
 
   const {
@@ -156,7 +156,7 @@ export default function PageAggCustom4GDaily({
     retry: 5,
   });
 
-  // console.log({ data, filterValue });
+  console.log({ data, filterValue });
 
   const dataManagement = useDataManagement4G({
     data,

@@ -294,7 +294,11 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.AVAILABILITY_NUM || 0), 0);
       const totalDenum = filteredData.reduce((sum, item) => sum + (item.AVAILABILITY_DENUM || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
     },
     id: "AVAILABILITY_NUM",
     metric_num: "AVAILABILITY_NUM",
