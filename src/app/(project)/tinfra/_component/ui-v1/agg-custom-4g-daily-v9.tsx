@@ -342,9 +342,13 @@ export default function PageAggCustom4GDaily({
                           TA
                         </TabsTrigger>
                       )}
-                      <TabsTrigger value="meas-plos-site-4g" className="px-6">
-                        Packet Loss
-                      </TabsTrigger>
+
+                      {(aggMode === "kabupaten" || aggMode === "site-cell") && (
+                        <TabsTrigger value="meas-plos-site-4g" className="px-6">
+                          Packet Loss
+                        </TabsTrigger>
+                      )}
+
                       {isShowHqTutela && (
                         <TabsTrigger value="hq-tutela" className="px-6">
                           TUTELA

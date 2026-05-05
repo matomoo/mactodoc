@@ -99,7 +99,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
       const siteData = data.rows.filter((row: any) => row.aggrby === siteId);
 
       // Group by date and organize by Avg Packet Loss Rate and FAIL Count
-      const dateGroups: Record<string, { packetLoss: number; failCount: number }> = {};
+      const dateGroups: Record<string, { packetLoss: number; failCount: number; delay: number; jitter: number }> = {};
       const allDates = new Set<string>();
 
       // biome-ignore lint/suspicious/noExplicitAny: <none>
@@ -107,11 +107,15 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
         const beginTime = row["Begin Time"] || "Unknown";
         const avgPacketLossRate = Number(row["Avg Packet Loss Rate"]) || 0;
         const failCount = Number(row["FAIL Count"]) || 0;
+        const avgDelay = Number(row["Avg Delay"]) || 0;
+        const avgJitter = Number(row["Avg Jitter"]) || 0;
 
         // Add to date group
         dateGroups[beginTime] = {
           packetLoss: avgPacketLossRate,
           failCount: failCount,
+          delay: avgDelay,
+          jitter: avgJitter,
         };
 
         // Track all dates
@@ -124,7 +128,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
       // Create datasets for dual-axis chart
       const datasets = [
         {
-          label: "Avg Packet Loss Rate",
+          label: "Avg Packet Loss Rate (%)",
           data: sortedDates.map((date) => dateGroups[date]?.packetLoss || 0),
           borderColor: "rgba(54, 162, 235, 1)",
           backgroundColor: "rgba(54, 162, 235, 0.1)",
@@ -141,6 +145,26 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
           borderWidth: 1,
           type: "bar" as const,
           yAxisID: "y1",
+        },
+        {
+          label: "Avg Delay (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.delay || 0),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y2",
+          tension: 0.1,
+        },
+        {
+          label: "Avg Jitter (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.jitter || 0),
+          backgroundColor: "rgba(153, 102, 255, 0.2)",
+          borderColor: "rgba(153, 102, 255, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y2",
+          tension: 0.1,
         },
       ];
 
@@ -219,10 +243,24 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
               },
               callbacks: {
                 label: (context) => {
-                  if (context.dataset.label === "Avg Packet Loss Rate") {
-                    return `${context.dataset.label}: ${context.parsed.y?.toFixed(2) ?? 0}%`;
+                  const value = context.parsed.y || 0;
+                  const datasetLabel = context.dataset.label;
+
+                  // Apply Intl formatting for Y2 axis datasets (Delay and Jitter)
+                  if (datasetLabel === "Avg Delay (ms)" || datasetLabel === "Avg Jitter (ms)") {
+                    return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
+                      notation: "standard",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value)}`;
                   }
-                  return `${context.dataset.label}: ${context.parsed.y}`;
+
+                  // Original formatting for other datasets
+                  if (datasetLabel === "Avg Packet Loss Rate (%)") {
+                    return `${datasetLabel}: ${value.toFixed(2)}%`;
+                  }
+
+                  return `${datasetLabel}: ${value}`;
                 },
               },
             },
@@ -230,7 +268,7 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
           scales: {
             x: {
               title: {
-                display: true,
+                display: false,
                 text: "Date",
                 font: {
                   size: chartJsV1Settings.xAxisTitleFontSize,
@@ -242,6 +280,8 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
                   size: chartJsV1Settings.xAxisTickFontSize,
                   family: chartJsV1Settings.xAxisTick,
                 },
+                maxRotation: 90,
+                minRotation: 90,
               },
             },
             y: {
@@ -293,6 +333,41 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
                 drawOnChartArea: false,
               },
             },
+            y2: {
+              type: "linear" as const,
+              display: true,
+              position: "right" as const,
+              beginAtZero: true,
+              offset: true,
+              title: {
+                display: true,
+                text: "Delay (ms) & Jitter (ms)",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                stepSize: 1,
+                callback: (value) => {
+                  if (typeof value === "number") {
+                    return new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value);
+                  }
+                },
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+            },
           },
         },
       };
@@ -326,8 +401,8 @@ export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomP
             <div key={siteId} className="mb-8 lg:col-span-12">
               {/* <div className="rounded-lg border bg-gray-50 p-4"> */}
               {/* <h3 className="mb-4 text-center font-semibold text-lg">
-                  Packet Loss - Site {siteId}
-                </h3> */}
+                Packet Loss - Site {siteId}
+              </h3> */}
               <div className="rounded-md border bg-white p-4">
                 <div className="h-96">
                   <canvas
