@@ -92,7 +92,7 @@ export default function ProductivityDetailTopnContent({
 
   const dataNop = productivityNopData || [];
 
-  console.log("debug:", { dataNop });
+  // console.log("debug:", { dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoYNop = [...(Array.isArray(dataNop) ? dataNop : [])].sort(

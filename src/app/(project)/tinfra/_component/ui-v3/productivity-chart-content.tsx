@@ -71,6 +71,8 @@ interface ApiDataItem {
   wow_traffic_growth_pct?: number;
   mtd_payload_growth_pct?: number;
   mtd_traffic_growth_pct?: number;
+  mtd_this_year_payload_growth_pct?: number;
+  mtd_this_year_traffic_growth_pct?: number;
 }
 
 interface IProps {
@@ -150,7 +152,7 @@ export default function ProductivityChartContent({ productivityApiPath, producti
   const data = productivityData || [];
   const dataNop = productivityNopData || [];
 
-  // console.log("debug:", { data, dataNop });
+  console.log("debug:", { data, dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoY = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
@@ -308,7 +310,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
             <TableRow>
               <TableHead>NOP</TableHead>
               <TableHead className="font-medium text-xs">Ytd Growth %</TableHead>
-              <TableHead className="font-medium text-xs">MTD Growth %</TableHead>
+              <TableHead className="font-medium text-xs">MTD Last Year Growth %</TableHead>
+              <TableHead className="font-medium text-xs">MTD This Year Growth %</TableHead>
               <TableHead className="font-medium text-xs">WoW Growth %</TableHead>
             </TableRow>
           </TableHeader>
@@ -336,6 +339,15 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                 </TableCell>
                 <TableCell
                   className={
+                    parseFloat(item.mtd_this_year_payload_growth_pct?.toString() || "0") >= 0
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
+                  }
+                >
+                  {item.mtd_this_year_payload_growth_pct}%
+                </TableCell>
+                <TableCell
+                  className={
                     parseFloat(item.wow_payload_growth_pct?.toString() || "0") >= 0
                       ? "text-green-600 text-xs"
                       : "text-red-600 text-xs"
@@ -357,8 +369,8 @@ export default function ProductivityChartContent({ productivityApiPath, producti
             <TableRow>
               <TableHead className="font-medium text-xs">Branch</TableHead>
               <TableHead className="font-medium text-xs">Ytd Growth %</TableHead>
-
-              <TableHead className="font-medium text-xs">MTD Growth %</TableHead>
+              <TableHead className="font-medium text-xs">MTD Last Year Growth %</TableHead>
+              <TableHead className="font-medium text-xs">MTD This Year Growth %</TableHead>
               <TableHead className="font-medium text-xs">WoW Growth %</TableHead>
             </TableRow>
           </TableHeader>
@@ -384,6 +396,15 @@ export default function ProductivityChartContent({ productivityApiPath, producti
                   }
                 >
                   {item.mtd_traffic_growth_pct}%
+                </TableCell>
+                <TableCell
+                  className={
+                    parseFloat(item.mtd_this_year_traffic_growth_pct?.toString() || "0") >= 0
+                      ? "text-green-600 text-xs"
+                      : "text-red-600 text-xs"
+                  }
+                >
+                  {item.mtd_this_year_traffic_growth_pct}%
                 </TableCell>
                 <TableCell
                   className={

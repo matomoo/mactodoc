@@ -146,7 +146,7 @@ export default function ProductivityDetailContent({
   const dataNop = productivityNopData || [];
   const dataNopKabupaten = productivityNopKabupatenData || [];
 
-  // console.log("debug:", { data, dataNop });
+  console.log("debug:", { dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoYNop = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
@@ -221,7 +221,7 @@ export default function ProductivityDetailContent({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground">MTD</div>
+                      <div className="text-xs text-muted-foreground">MTD Last Year</div>
                       <div
                         className={
                           parseFloat(item[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0") >= 0
@@ -230,6 +230,20 @@ export default function ProductivityDetailContent({
                         }
                       >
                         {item[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]}%
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">MTD This Year</div>
+                      <div
+                        className={
+                          parseFloat(
+                            item[`mtd_this_year_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0",
+                          ) >= 0
+                            ? "text-green-600 text-xs font-medium"
+                            : "text-red-600 text-xs font-medium"
+                        }
+                      >
+                        {item[`mtd_this_year_${productivityColumn}_pct` as keyof ApiDataItem]}%
                       </div>
                     </div>
                     <div className="text-right">
