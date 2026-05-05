@@ -1,13 +1,11 @@
 // app/tinfra/api/meas-db-ti-sul/aggregate/meas-dy-dynamic-4g-v3/route.ts
 
+// biome-ignore assist/source/organizeImports: <none>
 import type { NextRequest } from "next/server";
-
 import { Redis } from "@upstash/redis";
 import { sql } from "drizzle-orm";
+import { db_conn_v2 } from "../../../../_drizzle/db_ti_sul";
 
-import { db_conn_v2 } from "../../../../_drizzle/db_ti_sul"; // ✅ back to original pg driver
-
-// ✅ No edge runtime — use nodejs
 export const runtime = "nodejs";
 
 const redis = new Redis({
@@ -15,27 +13,36 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-const CACHE_TTL = 3600;
+function getTTL(tgl2: string): number {
+  const endDate = new Date(tgl2);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (endDate < today) {
+    return 23 * 3600; // 23 hours — historical data, safe ✅
+  }
+  return 15 * 60; // 15 minutes — today's data still updating ⚠️
+}
 
 function buildCacheKey(params: URLSearchParams): string {
   const tgl1 = params.get("tgl_1") ?? "";
   const tgl2 = params.get("tgl_2") ?? "";
   const region = params.get("region") ?? "";
-  // const nop = params.get("nop") ?? "";
-  // const kabupaten = params.get("kabupaten") ?? "";
-  // const kecamatan = params.get("kecamatan") ?? "";
-  // const siteId = params.get("siteId") ?? "";
-  // const clusterFilter = params.get("clusterFilter") ?? "";
   const field = params.get("fieldToAggregate") ?? "";
 
+  // Only include params that actually affect the SQL query
   return `meas-dy-4g:${field}:${region}:${tgl1}:${tgl2}`;
-  // return `meas-dy-4g:${field}:${region}:${nop}:${kabupaten}:${kecamatan}:${siteId}:${clusterFilter}:${tgl1}:${tgl2}`;
 }
 
 async function runQuery(params: URLSearchParams) {
   const tgl1 = params.get("tgl_1");
   const tgl2 = params.get("tgl_2");
   const region = params.get("region") ?? "SULAWESI";
+
+  // ✅ Guard against missing dates
+  if (!tgl1 || !tgl2) {
+    throw new Error("Missing required date parameters tgl_1 or tgl_2");
+  }
 
   return await db_conn_v2.transaction(async (tx) => {
     await tx.execute(sql`SET LOCAL work_mem = '64MB'`);
@@ -154,23 +161,30 @@ async function runQuery(params: URLSearchParams) {
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const cacheKey = buildCacheKey(params);
+  const tgl2 = params.get("tgl_2") ?? "";
 
-  // console.log({ params });
+  // ✅ Guard against missing dates early
+  if (!params.get("tgl_1") || !tgl2) {
+    return Response.json({ error: "Missing required parameters tgl_1 or tgl_2" }, { status: 400 });
+  }
+
+  const cacheKey = buildCacheKey(params);
+  const CACHE_TTL = getTTL(tgl2);
 
   try {
     // 1. ✅ Check cache first — always fast
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return Response.json({ rows: cached, source: "cache" });
+      return Response.json({
+        rows: cached,
+        source: "cache",
+        ttl: CACHE_TTL,
+      });
     }
 
     // 2. ✅ Cache miss — fire query in background, respond immediately
     runQuery(params)
-      .then((rows) =>
-        // ✅ store array directly, Upstash serializes it
-        redis.set(cacheKey, rows, { ex: CACHE_TTL }),
-      )
+      .then((rows) => redis.set(cacheKey, rows, { ex: CACHE_TTL }))
       .catch(console.error);
 
     // 3. ✅ Tell frontend to retry
