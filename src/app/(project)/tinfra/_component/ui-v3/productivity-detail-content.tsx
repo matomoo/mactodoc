@@ -43,6 +43,8 @@ interface ApiDataItem {
   wow_traffic_growth_pct?: number;
   mtd_payload_growth_pct?: number;
   mtd_traffic_growth_pct?: number;
+  mtd_this_year_traffic_growth_pct?: number;
+  mtd_this_year_payload_growth_pct?: number;
 }
 
 interface IProps {
@@ -146,7 +148,7 @@ export default function ProductivityDetailContent({
   const dataNop = productivityNopData || [];
   const dataNopKabupaten = productivityNopKabupatenData || [];
 
-  console.log("debug:", { dataNop });
+  // console.log("debug:", { dataNop });
 
   // Sort dataNop by Yoy payload growth (smallest to largest)
   const sortedByPayloadYoYNop = [...(Array.isArray(dataNop) ? dataNop : [])].sort(
@@ -281,36 +283,58 @@ export default function ProductivityDetailContent({
                                 <div className="text-xs text-muted-foreground">YTD</div>
                                 <div
                                   className={
-                                    parseFloat(kabItem.yoy_payload_growth_pct?.toString() || "0") >= 0
+                                    parseFloat(
+                                      kabItem[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0",
+                                    ) >= 0
                                       ? "text-green-600 text-xs font-medium"
                                       : "text-red-600 text-xs font-medium"
                                   }
                                 >
-                                  {kabItem.yoy_payload_growth_pct}%
+                                  {kabItem[`yoy_${productivityColumn}_pct` as keyof ApiDataItem]}%
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-xs text-muted-foreground">MTD</div>
+                                <div className="text-xs text-muted-foreground">MTD Last Year</div>
                                 <div
                                   className={
-                                    parseFloat(kabItem.mtd_payload_growth_pct?.toString() || "0") >= 0
+                                    parseFloat(
+                                      kabItem[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0",
+                                    ) >= 0
                                       ? "text-green-600 text-xs font-medium"
                                       : "text-red-600 text-xs font-medium"
                                   }
                                 >
-                                  {kabItem.mtd_payload_growth_pct}%
+                                  {kabItem[`mtd_${productivityColumn}_pct` as keyof ApiDataItem]}%
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs text-muted-foreground">MTD This Year</div>
+                                <div
+                                  className={
+                                    parseFloat(
+                                      kabItem[
+                                        `mtd_this_year_${productivityColumn}_pct` as keyof ApiDataItem
+                                      ]?.toString() || "0",
+                                    ) >= 0
+                                      ? "text-green-600 text-xs font-medium"
+                                      : "text-red-600 text-xs font-medium"
+                                  }
+                                >
+                                  {kabItem[`mtd_this_year_${productivityColumn}_pct` as keyof ApiDataItem]}%
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-xs text-muted-foreground">WoW</div>
                                 <div
                                   className={
-                                    parseFloat(kabItem.wow_payload_growth_pct?.toString() || "0") >= 0
+                                    parseFloat(
+                                      kabItem[`wow_${productivityColumn}_pct` as keyof ApiDataItem]?.toString() || "0",
+                                    ) >= 0
                                       ? "text-green-600 text-xs font-medium"
                                       : "text-red-600 text-xs font-medium"
                                   }
                                 >
-                                  {kabItem.wow_payload_growth_pct}%
+                                  {kabItem[`wow_${productivityColumn}_pct` as keyof ApiDataItem]}%
                                 </div>
                               </div>
                             </div>
