@@ -13,6 +13,7 @@ import CeiChartContent from "./cei-chart-content";
 import RedcovChartContent from "./redcov-chart-content";
 import ProductivityDetailContent from "./productivity-detail-content";
 import ProductivityDetailChartContent from "./productivity-detail-chart-content";
+import ProductivityDetailTopnContent from "./productivity-detail-topn-content";
 
 interface IProps {
   cardTitle: string;
@@ -121,6 +122,14 @@ export default function SummaryCard({
           />
         ) : cardTitle === "Productivity Detail Chart - Payload" ? (
           <ProductivityDetailChartContent
+            productivityApiPath={productivityApiPath}
+            productivityLevel="noLevel"
+            productivityLocation="noLocation"
+            // productivityColumn={productivityColumn}
+            title={cardTitle}
+          />
+        ) : cardTitle === "Productivity Detail - Top N" ? (
+          <ProductivityDetailTopnContent
             productivityApiPath={productivityApiPath}
             productivityLevel="noLevel"
             productivityLocation="noLocation"

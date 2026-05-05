@@ -3,7 +3,7 @@
 import SummaryCard from "./summary-card-tutela";
 
 interface IProps {
-  mode?: "breakdown" | "chart";
+  mode?: "breakdown" | "chart" | "topn";
 }
 export default function SummaryLayout({ mode = "breakdown" }: IProps) {
   return (
@@ -30,6 +30,16 @@ export default function SummaryLayout({ mode = "breakdown" }: IProps) {
             <SummaryCard
               cardTitle={"Productivity Detail Chart - Payload"}
               productivityApiPath="/tinfra/api/v2/summary/hq-productivity"
+              className="lg:col-span-2"
+              productivityColumn="payload_growth"
+            />
+          </div>
+        )}
+        {mode === "topn" && (
+          <div className="col-span-2">
+            <SummaryCard
+              cardTitle={"Productivity Detail - Top N"}
+              productivityApiPath="/tinfra/api/v2/summary/hq-productivity-detail-topn"
               className="lg:col-span-2"
               productivityColumn="payload_growth"
             />

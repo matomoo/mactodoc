@@ -55,6 +55,11 @@ export const sidebarItems: NavGroup[] = [
             url: "/tinfra/displays/dashboard-v2/productivity-detail-chart",
             icon: LayoutDashboard,
           },
+          {
+            title: "Top N",
+            url: "/tinfra/displays/dashboard-v2/productivity-detail-topn",
+            icon: LayoutDashboard,
+          },
         ],
       },
     ],
