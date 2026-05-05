@@ -21,14 +21,15 @@ function buildCacheKey(params: URLSearchParams): string {
   const tgl1 = params.get("tgl_1") ?? "";
   const tgl2 = params.get("tgl_2") ?? "";
   const region = params.get("region") ?? "";
-  const nop = params.get("nop") ?? "";
-  const kabupaten = params.get("kabupaten") ?? "";
-  const kecamatan = params.get("kecamatan") ?? "";
-  const siteId = params.get("siteId") ?? "";
-  const clusterFilter = params.get("clusterFilter") ?? "";
+  // const nop = params.get("nop") ?? "";
+  // const kabupaten = params.get("kabupaten") ?? "";
+  // const kecamatan = params.get("kecamatan") ?? "";
+  // const siteId = params.get("siteId") ?? "";
+  // const clusterFilter = params.get("clusterFilter") ?? "";
   const field = params.get("fieldToAggregate") ?? "";
 
-  return `meas-dy-4g:${field}:${region}:${nop}:${kabupaten}:${kecamatan}:${siteId}:${clusterFilter}:${tgl1}:${tgl2}`;
+  return `meas-dy-4g:${field}:${region}:${tgl1}:${tgl2}`;
+  // return `meas-dy-4g:${field}:${region}:${nop}:${kabupaten}:${kecamatan}:${siteId}:${clusterFilter}:${tgl1}:${tgl2}`;
 }
 
 async function runQuery(params: URLSearchParams) {
@@ -155,24 +156,27 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const cacheKey = buildCacheKey(params);
 
-  console.log({ params });
+  // console.log({ params });
 
   try {
     // 1. ✅ Check cache first — always fast
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return Response.json({ data: cached, source: "cache" });
+      return Response.json({ rows: cached, source: "cache" });
     }
 
     // 2. ✅ Cache miss — fire query in background, respond immediately
     runQuery(params)
-      .then((data) => redis.set(cacheKey, JSON.stringify(data), { ex: CACHE_TTL }))
+      .then((rows) =>
+        // ✅ store array directly, Upstash serializes it
+        redis.set(cacheKey, rows, { ex: CACHE_TTL }),
+      )
       .catch(console.error);
 
     // 3. ✅ Tell frontend to retry
     return Response.json(
       {
-        data: [],
+        rows: [],
         source: "loading",
         message: "Data is being prepared, please retry in 30 seconds",
       },

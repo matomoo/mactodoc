@@ -97,6 +97,8 @@ export default function PageAggCustom4GDaily({
       filterValue !== "All",
   );
 
+  const [isPolling, setIsPolling] = useState(false);
+
   const { isPending, error, data, isError } = useQuery({
     queryKey: [
       "PageAggCustom4GDaily",
@@ -119,15 +121,32 @@ export default function PageAggCustom4GDaily({
         `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
+      // ✅ Handle 202 — don't throw, return loading state
+      if (response.status === 202) {
+        setIsPolling(true);
+        return { rows: [], source: "loading" };
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const json = await response.json();
+
+      // ✅ Stop polling when real data arrives
+      if (json.source !== "loading") {
+        setIsPolling(false);
+      }
+
+      return json;
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
     retry: 3,
+
+    // ✅ Poll every 15 seconds when in loading state
+    refetchInterval: isPolling ? 15000 : false,
+    refetchIntervalInBackground: true,
   });
 
   const {
@@ -156,7 +175,14 @@ export default function PageAggCustom4GDaily({
     retry: 5,
   });
 
-  console.log({ data, filterValue });
+  // retrieve data from api aggregate/meas-dy-dynamic-4g-v3
+  console.log({ data });
+
+  useEffect(() => {
+    if (dateRange2 && filterValue && nop && kabupaten && clusterFilter && region) {
+      setIsPolling(false);
+    }
+  }, [dateRange2, filterValue, nop, kabupaten, clusterFilter, region]);
 
   const dataManagement = useDataManagement4G({
     data,
@@ -205,12 +231,24 @@ export default function PageAggCustom4GDaily({
   // console.log({ filteredData });
 
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
+
   if (isPending) return <EnhancedLoadingState />;
+
   if (isError) return <ErrorState message={error.message} />;
+
+  // ✅ Add this — show loading state when 202 / polling
+  if (data?.source === "loading") {
+    return (
+      <EnhancedLoadingState
+        message="Data is being prepared, please wait..."
+        subMessage="This may take up to 30 seconds for the first load"
+      />
+    );
+  }
+
   if (!data?.rows || data.rows.length === 0 || filterValue === null) {
     return <NoDataState message="No data available for selected criteria." />;
   }
-
   // console.log({ filteredData });
 
   return (

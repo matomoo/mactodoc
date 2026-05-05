@@ -1,7 +1,9 @@
 import { NoDataState } from "./additional-component";
 
-export const EnhancedLoadingState = () => (
+export const EnhancedLoadingState = ({ message = "", subMessage = "" }: { message?: string; subMessage?: string }) => (
   <div className="space-y-4">
+    {message && <div className="text-lg font-semibold">{message}</div>}
+    {subMessage && <div className="text-sm text-gray-600">{subMessage}</div>}
     <div className="rounded-lg bg-white p-4 shadow-sm">
       <div className="mb-4 h-6 w-32 animate-pulse rounded bg-gray-200" />
       <div className="space-y-2">
