@@ -1,36 +1,44 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { getSheetData } from "../../../_lib/googleSheets";
+import { ActivityDonutChart, ActivityLogChart, type ActivityLogPoint, PicBarChart } from "./_chart";
 
 export default async function Page() {
   const data = await getSheetData("1LrmNvW_drnU6tUVGxwr_wrAySjKj6wTenxGHc0XipGk", "1000919754");
 
-  const activityAll = data.filter((item: any) => item["Sprint-5"] === "S5");
+  const activityAll = data.filter((item: any) => item["Sprint"] === "Sprint 6");
   const activityDone = data.filter(
-    (item: any) => item["Sprint-5"] === "S5" && item["Status Activity"]?.toUpperCase() === "DONE",
+    (item: any) => item["Sprint"] === "Sprint 6" && item["DONE/NY"]?.toUpperCase() === "DONE",
   );
-  const activityLlr = data.filter(
-    (item: any) => item["Sprint-5"] === "S5" && item["Status Activity"]?.toUpperCase() === "LLR",
+  const activitySkip = data.filter(
+    (item: any) =>
+      item["Sprint"] === "Sprint 6" &&
+      (item["DONE/NY"]?.toUpperCase() === "SKIP" || item["DONE/NY"]?.toUpperCase() === "LLR"),
   );
   const activityNy = data.filter(
-    (item: any) => item["Sprint-5"] === "S5" && item["Status Activity"]?.toUpperCase() === "NY",
+    (item: any) => item["Sprint"] === "Sprint 6" && item["DONE/NY"]?.toUpperCase() === "NY",
+  );
+  const activityDoneSkip = data.filter(
+    (item: any) =>
+      item["Sprint"] === "Sprint 6" &&
+      (item["DONE/NY"]?.toUpperCase() === "DONE" || item["DONE/NY"]?.toUpperCase() === "SKIP"),
   );
 
   const total = activityAll.length;
   const done = activityDone.length;
-  const achievement = total > 0 ? Math.round((done / total) * 100) : 0;
+  const skip = activitySkip.length;
+  const achievement = total > 0 ? Math.round(((done + skip) / total) * 100) : 0;
 
   const picMap: Record<string, { total: number; done: number; llr: number; ny: number }> = {};
 
   activityAll.forEach((item: any) => {
-    const pic = item["NEW PIC"]?.trim() || "Unknown";
+    const pic = item["PIC"]?.trim() || "Unknown";
     if (!picMap[pic]) picMap[pic] = { total: 0, done: 0, llr: 0, ny: 0 };
     picMap[pic].total += 1;
-    const status = item["Status Activity"]?.toUpperCase();
+    const status = item["DONE/NY"]?.toUpperCase();
     if (status === "DONE") picMap[pic].done += 1;
-    else if (status === "LLR") picMap[pic].llr += 1;
+    else if (status === "LLR" || status === "SKIP") picMap[pic].llr += 1;
     else if (status === "NY") picMap[pic].ny += 1;
   });
 
@@ -41,6 +49,140 @@ export default async function Page() {
       achievement: s.total > 0 ? Math.round((s.done / s.total) * 100) : 0,
     }))
     .sort((a, b) => b.achievement - a.achievement);
+
+  // --- Activity log chart: DONE count grouped by Action Date ---
+  // Parse multiple date formats and bucket DONE items per date
+  const parseDateLabel = (raw: string): string | null => {
+    if (!raw?.trim()) return null;
+
+    let date: Date | null = null;
+    const trimmed = raw.trim();
+
+    // Try M/D/YYYY format (e.g., "5/5/2026", "4/30/2026")
+    if (trimmed.includes("/")) {
+      const parts = trimmed.split("/");
+      if (parts.length === 3) {
+        const [m, d, y] = parts.map(Number);
+        if (!Number.isNaN(m) && !Number.isNaN(d) && !Number.isNaN(y)) {
+          date = new Date(y, m - 1, d);
+        }
+      }
+    }
+
+    // Try D-MMM-YY or D MMM YY format (e.g., "4-May-26", "4 May 26")
+    if (!date && (trimmed.includes("-") || /\s/.test(trimmed))) {
+      const parts = trimmed.replace(/-/g, " ").split(/\s+/);
+      if (parts.length === 3) {
+        const [d, month, year] = parts;
+        const dayNum = parseInt(d);
+        const yearNum = parseInt(year);
+
+        // Handle 2-digit years (convert to current century)
+        const fullYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+
+        const monthMap: Record<string, number> = {
+          jan: 0,
+          feb: 1,
+          mar: 2,
+          apr: 3,
+          may: 4,
+          jun: 5,
+          jul: 6,
+          aug: 7,
+          sep: 8,
+          oct: 9,
+          nov: 10,
+          dec: 11,
+        };
+
+        const monthNum = monthMap[month.toLowerCase().substring(0, 3)];
+        if (!Number.isNaN(dayNum) && !Number.isNaN(yearNum) && monthNum !== undefined) {
+          date = new Date(fullYear, monthNum, dayNum);
+        }
+      }
+    }
+
+    if (!date || Number.isNaN(date.getTime())) return null;
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const dateCountMap: Record<string, number> = {};
+  const dateOrderMap: Record<string, Date> = {};
+
+  activityDoneSkip.forEach((item: any) => {
+    const raw: string = item["Action Date"] ?? "";
+    const label = parseDateLabel(raw);
+    if (!label) return;
+    dateCountMap[label] = (dateCountMap[label] ?? 0) + 1;
+    if (!dateOrderMap[label]) {
+      // Parse the date again to get the actual Date object for ordering
+      let date: Date | null = null;
+      const trimmed = raw.trim();
+
+      // Try M/D/YYYY format
+      if (trimmed.includes("/")) {
+        const parts = trimmed.split("/");
+        if (parts.length === 3) {
+          const [m, d, y] = parts.map(Number);
+          if (!Number.isNaN(m) && !Number.isNaN(d) && !Number.isNaN(y)) {
+            date = new Date(y, m - 1, d);
+          }
+        }
+      }
+
+      // Try D-MMM-YY or D MMM YY format
+      if (!date && (trimmed.includes("-") || /\s/.test(trimmed))) {
+        const parts = trimmed.replace(/-/g, " ").split(/\s+/);
+        if (parts.length === 3) {
+          const [d, month, year] = parts;
+          const dayNum = parseInt(d);
+          const yearNum = parseInt(year);
+
+          const fullYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+
+          const monthMap: Record<string, number> = {
+            jan: 0,
+            feb: 1,
+            mar: 2,
+            apr: 3,
+            may: 4,
+            jun: 5,
+            jul: 6,
+            aug: 7,
+            sep: 8,
+            oct: 9,
+            nov: 10,
+            dec: 11,
+          };
+
+          const monthNum = monthMap[month.toLowerCase().substring(0, 3)];
+          if (!Number.isNaN(dayNum) && !Number.isNaN(yearNum) && monthNum !== undefined) {
+            date = new Date(fullYear, monthNum, dayNum);
+          }
+        }
+      }
+
+      if (date) {
+        dateOrderMap[label] = date;
+      }
+    }
+  });
+
+  const activityLogPoints: ActivityLogPoint[] = Object.entries(dateCountMap)
+    .sort(([a], [b]) => dateOrderMap[a].getTime() - dateOrderMap[b].getTime())
+    .reduce<ActivityLogPoint[]>((acc, [date, count]) => {
+      const prev = acc.length > 0 ? acc[acc.length - 1].count : 0;
+      acc.push({ date, count: prev + count });
+      return acc;
+    }, []);
+
+  // Target = 80% of unique SITE IDs in Sprint 6
+  const uniqueSites = new Set(activityAll.map((item: any) => item["SITE ID"]?.trim()).filter(Boolean));
+  const activityLogTarget = Math.round(uniqueSites.size * 0.8);
 
   const stats = [
     {
@@ -61,7 +203,7 @@ export default async function Page() {
     },
     {
       label: "Low Level Review",
-      value: activityLlr.length,
+      value: activitySkip.length,
       badge: "LLR",
       badgeStyle: { backgroundColor: "#dbeafe", color: "#1e40af" },
       valueStyle: { color: "#2563eb" },
@@ -96,7 +238,7 @@ export default async function Page() {
             marginBottom: "4px",
           }}
         >
-          Sprint 5
+          Sprint 6
         </p>
         <h1 style={{ fontSize: "24px", fontWeight: 600, color: "#0f172a" }}>Activity Dashboard</h1>
       </div>
@@ -182,10 +324,10 @@ export default async function Page() {
             }}
           >
             <span style={{ fontSize: "12px", color: "#16a34a" }}>✓ {done} Done</span>
-            <span style={{ fontSize: "12px", color: "#2563eb" }}>◎ {activityLlr.length} LLR</span>
+            <span style={{ fontSize: "12px", color: "#2563eb" }}>◎ {activitySkip.length} LLR</span>
             <span style={{ fontSize: "12px", color: "#dc2626" }}>✕ {activityNy.length} NY</span>
             <span style={{ fontSize: "12px", color: "#94a3b8" }}>
-              — {total - done - activityLlr.length - activityNy.length} Other
+              — {total - done - activitySkip.length - activityNy.length} Other
             </span>
           </div>
         </CardContent>
@@ -246,7 +388,78 @@ export default async function Page() {
         ))}
       </div>
 
-      {/* Achievement by NEW PIC Table */}
+      {/* Activity Log Chart — DONE count by Action Date */}
+      <Card
+        style={{
+          backgroundColor: "#ffffff",
+          borderColor: "#e2e8f0",
+          marginBottom: "24px",
+        }}
+      >
+        <CardHeader style={{ paddingBottom: "8px" }}>
+          <CardTitle
+            style={{
+              fontSize: "12px",
+              fontWeight: 500,
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+          >
+            Activity Log — Done by Date
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Legend */}
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginBottom: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            {[
+              { label: "Done", color: "#22c55e", dashed: false },
+              {
+                label: `Target (80% of ${uniqueSites.size} sites = ${activityLogTarget})`,
+                color: "#f59e0b",
+                dashed: true,
+              },
+            ].map((item) => (
+              <span
+                key={item.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  color: "#64748b",
+                }}
+              >
+                <span
+                  style={{
+                    width: "20px",
+                    height: item.dashed ? "0px" : "10px",
+                    borderRadius: item.dashed ? "0" : "2px",
+                    backgroundColor: item.dashed ? "transparent" : item.color,
+                    borderTop: item.dashed ? `2px dashed ${item.color}` : "none",
+                    display: "inline-block",
+                    flexShrink: 0,
+                  }}
+                />
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ position: "relative", height: "260px" }}>
+            <ActivityLogChart points={activityLogPoints} target={activityLogTarget} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Achievement by PIC Table */}
       <Card style={{ backgroundColor: "#ffffff", borderColor: "#e2e8f0" }}>
         <CardHeader style={{ paddingBottom: "8px" }}>
           <CardTitle

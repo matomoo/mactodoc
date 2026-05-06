@@ -134,6 +134,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/tinfra/displays/dashboard-sprint/redcov",
         icon: Fingerprint,
       },
+      {
+        title: "Unbalance",
+        url: "/tinfra/displays/dashboard-sprint/unbalance",
+        icon: Fingerprint,
+      },
     ],
   },
   {
