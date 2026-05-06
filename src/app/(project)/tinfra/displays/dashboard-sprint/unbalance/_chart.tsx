@@ -202,6 +202,9 @@ export function ActivityLogChart({ points, target }: { points: ActivityLogPoint[
             borderRadius: 4,
             borderSkipped: false,
             order: 2,
+            datalabels: {
+              display: false,
+            },
           } as ChartDataset<"bar">,
           {
             type: "line",
@@ -215,6 +218,9 @@ export function ActivityLogChart({ points, target }: { points: ActivityLogPoint[
             fill: false,
             tension: 0,
             order: 1,
+            datalabels: {
+              display: false,
+            },
           } as ChartDataset<"bar" | "line">,
         ],
       },
@@ -248,7 +254,8 @@ export function ActivityLogChart({ points, target }: { points: ActivityLogPoint[
             ticks: {
               color: "#94a3b8",
               font: { size: 11 },
-              maxRotation: 45,
+              maxRotation: 90,
+              minRotation: 90,
               autoSkip: false,
             },
           },

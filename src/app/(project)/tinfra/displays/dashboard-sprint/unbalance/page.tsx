@@ -180,7 +180,7 @@ export default async function Page() {
       return acc;
     }, []);
 
-  // Target = 80% of unique SITE IDs in Sprint 6
+  // Target = 80% of unique SITE IDs in Sprint
   const uniqueSites = new Set(activityAll.map((item: any) => item["SITE ID"]?.trim()).filter(Boolean));
   const activityLogTarget = Math.round(uniqueSites.size * 0.8);
 
