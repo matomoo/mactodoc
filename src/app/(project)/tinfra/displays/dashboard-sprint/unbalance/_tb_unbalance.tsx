@@ -9,15 +9,27 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip as ChartTooltip,
   Legend as ChartLegend,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Line } from "react-chartjs-2";
 import { useSummaryStore } from "@/stores/summaryStore";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, ChartLegend, ChartDataLabels);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  ChartTooltip,
+  ChartLegend,
+  ChartDataLabels,
+);
 
 interface ApiDataItem {
   selected_date: string;
@@ -196,13 +208,17 @@ export default function UnbalanceViewByTable({
     );
   }
 
-  // Get unique dates and sort them to find the last 3 dates
-  const uniqueDates = [...new Set(dataUnbalance.map((item) => item.BEGIN_TIME))]
+  // Get unique dates and sort them for chart display
+  const uniqueDates = [...new Set(dataUnbalance.map((item) => item.BEGIN_TIME))].sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+  );
+
+  // Filter data to only include the last 3 dates for table
+  const lastThreeDates = [...new Set(dataUnbalance.map((item) => item.BEGIN_TIME))]
     .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
     .slice(0, 3);
 
-  // Filter data to only include the last 3 dates
-  const filteredData = dataUnbalance.filter((item) => uniqueDates.includes(item.BEGIN_TIME));
+  const filteredData = dataUnbalance.filter((item) => lastThreeDates.includes(item.BEGIN_TIME));
 
   // Process data to group by sector and calculate metrics
   const processedData = filteredData.reduce((acc: any, item) => {
@@ -249,8 +265,141 @@ export default function UnbalanceViewByTable({
 
   const tableData = Object.values(processedData);
 
+  // Prepare data for Chart.js
+  const chartData = {
+    labels: uniqueDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime()),
+    datasets: [
+      {
+        label: "LTE 900",
+        data: uniqueDates
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+          .map((date) => {
+            const dateData = dataUnbalance.filter((item) => item.BEGIN_TIME === date);
+            const bandData = dateData.find((item) => item.G4_BAND === "LTE 900");
+            if (bandData) {
+              const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
+              const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
+              return ((dlUtil + ulUtil) / 2).toFixed(2);
+            }
+            return null;
+          }),
+        borderColor: "rgb(75, 192, 192)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        tension: 0.1,
+      },
+      {
+        label: "LTE 1800",
+        data: uniqueDates
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+          .map((date) => {
+            const dateData = dataUnbalance.filter((item) => item.BEGIN_TIME === date);
+            const bandData = dateData.find((item) => item.G4_BAND === "LTE 1800");
+            if (bandData) {
+              const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
+              const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
+              return ((dlUtil + ulUtil) / 2).toFixed(2);
+            }
+            return null;
+          }),
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        tension: 0.1,
+      },
+      {
+        label: "LTE 2100",
+        data: uniqueDates
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+          .map((date) => {
+            const dateData = dataUnbalance.filter((item) => item.BEGIN_TIME === date);
+            const bandData = dateData.find((item) => item.G4_BAND === "LTE 2100");
+            if (bandData) {
+              const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
+              const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
+              return ((dlUtil + ulUtil) / 2).toFixed(2);
+            }
+            return null;
+          }),
+        borderColor: "rgb(54, 162, 235)",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        tension: 0.1,
+      },
+      {
+        label: "LTE 2300",
+        data: uniqueDates
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+          .map((date) => {
+            const dateData = dataUnbalance.filter((item) => item.BEGIN_TIME === date);
+            const bandData = dateData.find((item) => item.G4_BAND === "LTE 2300");
+            if (bandData) {
+              const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
+              const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
+              return ((dlUtil + ulUtil) / 2).toFixed(2);
+            }
+            return null;
+          }),
+        borderColor: "rgb(255, 205, 86)",
+        backgroundColor: "rgba(255, 205, 86, 0.2)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Utilization by Band Over Time",
+      },
+      datalabels: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: false,
+          text: "Date",
+        },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
+          callback: (_value: any, index: number) => {
+            const dateLabel = uniqueDates[index];
+            const date = new Date(dateLabel);
+            return date
+              .toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "2-digit",
+              })
+              .replace(" ", " ");
+          },
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Utilization (%)",
+        },
+        min: 0,
+        max: 100,
+      },
+    },
+  };
+
   return (
     <div className="h-screen space-y-6 overflow-x-auto">
+      <div className="bg-white p-4 rounded-lg shadow">
+        <div style={{ height: "400px" }}>
+          <Line data={chartData} options={chartOptions} />
+        </div>
+      </div>
+
       <div className="rounded-md border">
         <table className="min-w-full divide-y divide-gray-200 ">
           <thead className="bg-gray-50 sticky top-0">
