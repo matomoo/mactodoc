@@ -27,11 +27,12 @@ function getTTL(tgl2: string): number {
 function buildCacheKey(params: URLSearchParams): string {
   const tgl1 = params.get("tgl_1") ?? "";
   const tgl2 = params.get("tgl_2") ?? "";
-  const region = params.get("region") ?? "";
-  const field = params.get("fieldToAggregate") ?? "";
+  const sprintKpi = params.get("sprintKpi") ?? "";
+  const sprintName = params.get("sprintName") ?? "";
+  const sprintPic = params.get("sprintPic") ?? "";
 
   // Only include params that actually affect the SQL query
-  return `sprint-unbalance:${tgl1}:${tgl2}`;
+  return `sprint-unbalance:${sprintKpi}:${sprintName}:${sprintPic}:${tgl1}:${tgl2}`;
 }
 
 async function runQuery(params: URLSearchParams) {

@@ -46,6 +46,7 @@ interface ApiDataItem {
   mtd_this_year_traffic_growth_pct?: number;
   mtd_this_year_payload_growth_pct?: number;
 
+  BEGIN_TIME: string;
   G4_DL_PRB_UTILIZATION_NUM: number;
   G4_DL_PRB_UTILIZATION_DENUM: number;
   G4_UL_PRB_UTILIZATION_NUM: number;
@@ -160,7 +161,7 @@ export default function UnbalanceViewByTable({
 
   const dataUnbalance: ApiDataItem[] = unbalanceData?.rows || [];
 
-  //   console.log("debug:", { dataUnbalance });
+  console.log("debug:", { dataUnbalance });
 
   if (unbalanceLoading) {
     return (
@@ -195,16 +196,26 @@ export default function UnbalanceViewByTable({
     );
   }
 
+  // Get unique dates and sort them to find the last 3 dates
+  const uniqueDates = [...new Set(dataUnbalance.map((item) => item.BEGIN_TIME))]
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+    .slice(0, 3);
+
+  // Filter data to only include the last 3 dates
+  const filteredData = dataUnbalance.filter((item) => uniqueDates.includes(item.BEGIN_TIME));
+
   // Process data to group by sector and calculate metrics
-  const processedData = dataUnbalance.reduce((acc: any, item) => {
+  const processedData = filteredData.reduce((acc: any, item) => {
     const sector = item.G4_SECTOR;
     const band = item.G4_BAND;
+    const beginTime = item.BEGIN_TIME;
 
     if (!acc[sector]) {
       acc[sector] = {
         sector,
         bands: {},
         allUtils: [],
+        beginTimes: [],
       };
     }
 
@@ -224,6 +235,7 @@ export default function UnbalanceViewByTable({
     };
 
     acc[sector].allUtils.push(avgUtil);
+    acc[sector].beginTimes.push(beginTime);
 
     return acc;
   }, {});
@@ -240,8 +252,8 @@ export default function UnbalanceViewByTable({
   return (
     <div className="h-screen space-y-6 overflow-x-auto">
       <div className="rounded-md border">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 ">
+          <thead className="bg-gray-50 sticky top-0">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
