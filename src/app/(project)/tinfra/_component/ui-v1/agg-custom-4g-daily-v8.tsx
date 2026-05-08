@@ -361,7 +361,9 @@ export default function PageAggCustom4GDaily({
                   </TabsContent>
 
                   {/* Performance Summary Tab Content */}
-                  {aggregateBy === "G4_SITEID_CELLID" && (
+                  {(aggregateBy === "G4_SITEID_CELLID" ||
+                    aggregateBy === "G4_SITEID" ||
+                    aggregateBy === "G4_AGGRBY2") && (
                     <TabsContent value="summary" className="mt-0">
                       <PerformanceSummarySection4G
                         metrics={summaryMetrics}

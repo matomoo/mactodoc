@@ -77,6 +77,9 @@ export default function UnbalanceViewByTable({
 }: IProps & { data: any[] }) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateEnd } = useSummaryStore();
   const [isPolling, setIsPolling] = useState(false);
+  const [sprintName, setSprintName] = useState("Sprint 6");
+  const [sprintKpi, setSprintKpi] = useState("unbalance");
+  const [sprintPic, setSprintPic] = useState("all");
 
   const maxDateActivityDone = data
     .filter((item: any) => item.Sprint === "Sprint 6" && item["Action Date"])
@@ -88,7 +91,7 @@ export default function UnbalanceViewByTable({
     .map((item: any) => item.unitID)
     .filter((value: string, index: number, self: string[]) => self.indexOf(value) === index)
     .join(",");
-  console.log({ uniqueSector });
+  //   console.log({ uniqueSector });
 
   const tgl2 = maxDateActivityDone > 0 ? new Date(maxDateActivityDone).toISOString().split("T")[0] : null;
 
@@ -123,6 +126,9 @@ export default function UnbalanceViewByTable({
           `tgl_1=${tgl1}`,
           `tgl_2=${tgl2}`,
           `sector=${uniqueSector}`,
+          `sprintKpi=${sprintKpi}`,
+          `sprintName=${sprintName}`,
+          `sprintPic=${sprintPic}`,
         ].join("&"),
       );
 
