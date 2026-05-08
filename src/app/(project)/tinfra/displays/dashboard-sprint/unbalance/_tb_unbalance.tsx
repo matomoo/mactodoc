@@ -3,7 +3,9 @@
 
 // biome-ignore assist/source/organizeImports: <none>
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,32 +34,6 @@ ChartJS.register(
 );
 
 interface ApiDataItem {
-  selected_date: string;
-  branch: string;
-  kotakab: string;
-  mtd_traffic_this_year: number;
-  mtd_traffic_last_year: number;
-  mtd_traffic_diff: string;
-  mtd_payload_this_year: number;
-  mtd_payload_last_year: number;
-  mtd_payload_diff: string;
-  wow_traffic_current: number;
-  wow_traffic_prior: number;
-  wow_traffic_diff: string;
-  wow_payload_current: number;
-  wow_payload_prior: number;
-  wow_payload_diff: string;
-
-  region?: string;
-  yoy_payload_growth_pct?: number;
-  yoy_traffic_growth_pct?: number;
-  wow_payload_growth_pct?: number;
-  wow_traffic_growth_pct?: number;
-  mtd_payload_growth_pct?: number;
-  mtd_traffic_growth_pct?: number;
-  mtd_this_year_traffic_growth_pct?: number;
-  mtd_this_year_payload_growth_pct?: number;
-
   BEGIN_TIME: string;
   G4_DL_PRB_UTILIZATION_NUM: number;
   G4_DL_PRB_UTILIZATION_DENUM: number;
@@ -82,25 +58,27 @@ interface IProps {
   productivityLocation?: string;
   productivityColumn?: string;
   title?: string;
+  selectedSprint: string;
 }
 
 export default function UnbalanceViewByTable({
   unbalanceApiPath = "aggregate/unbalance-view-table",
   data,
+  selectedSprint,
 }: IProps & { data: any[] }) {
   const { yearweek, viewBy, nop, region, kabupaten, kecamatan, dateEnd } = useSummaryStore();
   const [isPolling, setIsPolling] = useState(false);
   const [sprintName, setSprintName] = useState("Sprint 6");
   const [sprintKpi, setSprintKpi] = useState("unbalance");
-  const [sprintPic, setSprintPic] = useState("all");
+  const [sprintPic] = useState("all");
 
   const maxDateActivityDone = data
-    .filter((item: any) => item.Sprint === "Sprint 6" && item["Action Date"])
+    .filter((item: any) => item.Sprint === selectedSprint && item["Action Date"])
     .map((item) => new Date(item["Action Date"]).getTime())
     .reduce((max, current) => Math.max(max, current), 0);
 
   const uniqueSector = data
-    .filter((item: any) => item.Sprint === "Sprint 6" && item["DONE/NY"].toUpperCase() === "DONE")
+    .filter((item: any) => item.Sprint === selectedSprint && item["DONE/NY"].toUpperCase() === "DONE")
     .map((item: any) => item.unitID)
     .filter((value: string, index: number, self: string[]) => self.indexOf(value) === index)
     .join(",");
@@ -113,6 +91,10 @@ export default function UnbalanceViewByTable({
   //     tgl2,
   //   });
 
+  useEffect(() => {
+    setSprintName(selectedSprint);
+  }, [selectedSprint]);
+
   const valueLocation =
     viewBy === "region" ? region : viewBy === "nop" ? nop : viewBy === "kabupaten" ? kabupaten : kecamatan;
 
@@ -122,7 +104,7 @@ export default function UnbalanceViewByTable({
     isLoading: unbalanceLoading,
     error: unbalanceError,
   } = useQuery<ApiResponse>({
-    queryKey: ["unbalance-data", yearweek, unbalanceApiPath, valueLocation, dateEnd],
+    queryKey: ["unbalance-data", yearweek, unbalanceApiPath, valueLocation, dateEnd, selectedSprint],
     queryFn: async () => {
       if (!unbalanceApiPath || unbalanceApiPath === "noUrl") {
         return { rows: [] };
@@ -140,7 +122,7 @@ export default function UnbalanceViewByTable({
           `tgl_2=${tgl2}`,
           `sector=${uniqueSector}`,
           `sprintKpi=${sprintKpi}`,
-          `sprintName=${sprintName}`,
+          `sprintName=${selectedSprint}`,
           `sprintPic=${sprintPic}`,
         ].join("&"),
       );
@@ -162,7 +144,7 @@ export default function UnbalanceViewByTable({
       // Handle API response format with rows property
       return result as ApiResponse;
     },
-    enabled: !!(unbalanceApiPath && unbalanceApiPath !== "noUrl"),
+    enabled: !!(unbalanceApiPath && unbalanceApiPath !== "noUrl" && sprintName !== "No Sprint"),
     refetchOnWindowFocus: false,
     retry: 3,
 
@@ -173,7 +155,7 @@ export default function UnbalanceViewByTable({
 
   const dataUnbalance: ApiDataItem[] = unbalanceData?.rows || [];
 
-  console.log("debug:", { dataUnbalance });
+  // console.log("debug:", { dataUnbalance });
 
   if (unbalanceLoading) {
     return (
@@ -232,13 +214,15 @@ export default function UnbalanceViewByTable({
         bands: {},
         allUtils: [],
         beginTimes: [],
+        minUtil: [],
+        maxUtil: [],
       };
     }
 
     // Calculate utilization
     const dlUtil = (item.G4_DL_PRB_UTILIZATION_NUM / item.G4_DL_PRB_UTILIZATION_DENUM) * 100;
     const ulUtil = (item.G4_DL_PRB_UTILIZATION_NUM / item.G4_DL_PRB_UTILIZATION_DENUM) * 100;
-    const avgUtil = (dlUtil + ulUtil) / 2;
+    const avgUtil = dlUtil;
 
     // Calculate throughput
     const dlThp = item.G4_USER_DL_THP_NUM / item.G4_USER_DL_THP_DENUM;
@@ -256,13 +240,6 @@ export default function UnbalanceViewByTable({
     return acc;
   }, {});
 
-  // Calculate min/max utilization for each sector
-  Object.values(processedData).forEach((sectorData: any) => {
-    const utils = sectorData.allUtils;
-    sectorData.minUtil = Math.min(...utils);
-    sectorData.maxUtil = Math.max(...utils);
-  });
-
   const tableData = Object.values(processedData);
 
   // Prepare data for Chart.js
@@ -279,7 +256,7 @@ export default function UnbalanceViewByTable({
             if (bandData) {
               const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
               const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
-              return ((dlUtil + ulUtil) / 2).toFixed(2);
+              return dlUtil.toFixed(2);
             }
             return null;
           }),
@@ -297,7 +274,7 @@ export default function UnbalanceViewByTable({
             if (bandData) {
               const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
               const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
-              return ((dlUtil + ulUtil) / 2).toFixed(2);
+              return dlUtil.toFixed(2);
             }
             return null;
           }),
@@ -315,7 +292,7 @@ export default function UnbalanceViewByTable({
             if (bandData) {
               const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
               const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
-              return ((dlUtil + ulUtil) / 2).toFixed(2);
+              return dlUtil.toFixed(2);
             }
             return null;
           }),
@@ -333,7 +310,7 @@ export default function UnbalanceViewByTable({
             if (bandData) {
               const dlUtil = (bandData.G4_DL_PRB_UTILIZATION_NUM / bandData.G4_DL_PRB_UTILIZATION_DENUM) * 100;
               const ulUtil = (bandData.G4_UL_PRB_UTILIZATION_NUM / bandData.G4_UL_PRB_UTILIZATION_DENUM) * 100;
-              return ((dlUtil + ulUtil) / 2).toFixed(2);
+              return dlUtil.toFixed(2);
             }
             return null;
           }),
@@ -353,7 +330,7 @@ export default function UnbalanceViewByTable({
       },
       title: {
         display: true,
-        text: "Utilization by Band Over Time",
+        text: "DL Utilization by Band Over Time",
       },
       datalabels: {
         display: false,
@@ -394,83 +371,107 @@ export default function UnbalanceViewByTable({
 
   return (
     <div className="h-screen space-y-6 overflow-x-auto">
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="rounded-lg bg-white p-4 shadow">
         <div style={{ height: "400px" }}>
           <Line data={chartData} options={chartOptions} />
         </div>
       </div>
 
       <div className="rounded-md border">
-        <table className="min-w-full divide-y divide-gray-200 ">
-          <thead className="bg-gray-50 sticky top-0">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <Table>
+          <TableHeader className="bg-gray-100">
+            <TableRow>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Sector
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Util L9
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Util L18
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Util L21
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Util L23
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 THP DL L9
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 THP DL L18
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 THP DL L21
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 THP DL L23
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Min Util
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Max Util
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {tableData.map((sectorData: any) => (
-              <tr key={sectorData.sector}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{sectorData.sector}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableRow key={sectorData.sector}>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {sectorData.sector}
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 900"]?.util?.toFixed(2) || "-"}%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 1800"]?.util?.toFixed(2) || "-"}%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 2100"]?.util?.toFixed(2) || "-"}%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 2300"]?.util?.toFixed(2) || "-"}%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 900"]?.thpDl?.toFixed(2) || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 1800"]?.thpDl?.toFixed(2) || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 2100"]?.thpDl?.toFixed(2) || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {sectorData.bands["LTE 2300"]?.thpDl?.toFixed(2) || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{sectorData.minUtil?.toFixed(2)}%</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{sectorData.maxUtil?.toFixed(2)}%</td>
-              </tr>
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {Math.min(
+                    ...[
+                      sectorData.bands["LTE 900"]?.util,
+                      sectorData.bands["LTE 1800"]?.util,
+                      sectorData.bands["LTE 2100"]?.util,
+                      sectorData.bands["LTE 2300"]?.util,
+                    ].filter((util) => util !== null && util !== undefined),
+                  ).toFixed(2)}
+                  %
+                </TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {Math.max(
+                    ...[
+                      sectorData.bands["LTE 900"]?.util,
+                      sectorData.bands["LTE 1800"]?.util,
+                      sectorData.bands["LTE 2100"]?.util,
+                      sectorData.bands["LTE 2300"]?.util,
+                    ].filter((util) => util !== null && util !== undefined),
+                  ).toFixed(2)}
+                  %
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
