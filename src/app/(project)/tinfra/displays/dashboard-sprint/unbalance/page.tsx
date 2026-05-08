@@ -42,9 +42,10 @@ export default function Page() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="space-y-2">
-        <label htmlFor="sprint-select" className="text-sm font-medium">
+    <div className="container mx-auto">
+      <div className="text-2xl font-bold">Sprint Unbalance</div>
+      <div className="my-4">
+        <label htmlFor="sprint-select" className="font-medium text-sm">
           Select Sprint
         </label>
         <Select value={selectedSprint} onValueChange={setSelectedSprint}>
@@ -76,8 +77,7 @@ export default function Page() {
           </TabsList>
 
           <TabsContent value="summary" className="space-y-6">
-            {/* <Summary /> */}
-            summary here
+            <Summary data={data} selectedSprint={selectedSprint} />
           </TabsContent>
 
           <TabsContent value="unbalance" className="space-y-6">

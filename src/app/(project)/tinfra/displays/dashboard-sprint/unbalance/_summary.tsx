@@ -1,32 +1,38 @@
+"use client";
+
 /** biome-ignore-all lint/suspicious/noExplicitAny: <none> */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { getSheetData } from "../../../_lib/googleSheets";
+interface IProps {
+  data: any;
+  selectedSprint: string;
+}
+
 import { ActivityLogChart, type ActivityLogPoint } from "./_chart";
 
-export default async function Summary() {
-  const data = await getSheetData("1LrmNvW_drnU6tUVGxwr_wrAySjKj6wTenxGHc0XipGk", "1000919754");
-
-  const activityAll = data.filter((item: any) => item.Sprint === "Sprint 6");
+export default function Summary({ data, selectedSprint }: IProps) {
+  const activityAll = data.filter((item: any) => item.Sprint === selectedSprint);
   const activityDone = data.filter(
-    (item: any) => item.Sprint === "Sprint 6" && item["DONE/NY"]?.toUpperCase() === "DONE",
+    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "DONE",
   );
   const activitySkip = data.filter(
     (item: any) =>
-      item.Sprint === "Sprint 6" &&
+      item.Sprint === selectedSprint &&
       (item["DONE/NY"]?.toUpperCase() === "SKIP" || item["DONE/NY"]?.toUpperCase() === "LLR"),
   );
-  const activityNy = data.filter((item: any) => item.Sprint === "Sprint 6" && item["DONE/NY"]?.toUpperCase() === "NY");
+  const activityNy = data.filter(
+    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "NY",
+  );
   const activityDoneSkip = data.filter(
     (item: any) =>
-      item.Sprint === "Sprint 6" &&
+      item.Sprint === selectedSprint &&
       (item["DONE/NY"]?.toUpperCase() === "DONE" ||
         item["DONE/NY"]?.toUpperCase() === "SKIP" ||
         item["DONE/NY"]?.toUpperCase() === "LLR"),
   );
   const activityDone_GetSiteId = data.filter(
-    (item: any) => item.Sprint === "Sprint 6" && item["DONE/NY"]?.toUpperCase() === "DONE",
+    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "DONE",
   );
 
   const total = activityAll.length;
@@ -242,7 +248,7 @@ export default async function Summary() {
             marginBottom: "4px",
           }}
         >
-          Sprint 6
+          {selectedSprint}
         </p>
         <h1 style={{ fontSize: "24px", fontWeight: 600, color: "#0f172a" }}>Activity Dashboard</h1>
       </div>
