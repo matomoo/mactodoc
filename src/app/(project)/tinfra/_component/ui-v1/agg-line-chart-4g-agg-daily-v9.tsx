@@ -357,7 +357,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
         },
         scales: {
           y: {
-            beginAtZero: isTrafficChart,
+            beginAtZero: false, //isTrafficChart,
             stacked: false,
             title: {
               text: String(aggregation_by),
@@ -401,7 +401,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
             display: true,
           },
           y1: {
-            beginAtZero: isTrafficChart,
+            beginAtZero: false, //isTrafficChart,
             title: {
               display: showAggregatedKPI && viewMode !== "metrics",
               text: isTrafficChart ? `Total - ${title}` : `Agg - ${title}`,
