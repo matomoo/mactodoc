@@ -45,8 +45,8 @@ export async function GET(request: Request) {
                 t1."Begin Time",
                 tref.siteid,
                 AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 AS "Avg Packet Loss Rate",
-                AVG ( t1."Total Transmission Delay In TWAMP(ms) 1630557082958" ) AS "Avg Delay",
-                AVG ( t1."Total Transmission Jitter In TWAMP(ms) 1630557083034" ) AS "Avg Jitter",
+                AVG ( t1."Average Delay of TWAMP Detecting Link(ms) 1630557082931" ) AS "Avg Delay",
+                AVG ( t1."Average Jitter of TWAMP Detecting Link(ms) 1630557083091" ) AS "Avg Jitter",
               CASE
                   WHEN AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 > 0.1 THEN
                   'FAIL' ELSE 'PASS' 
