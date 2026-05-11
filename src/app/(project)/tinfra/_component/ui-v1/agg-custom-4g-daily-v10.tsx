@@ -63,6 +63,7 @@ export default function PageAggCustom4GDaily({
       .filter((a) => a.tech === "4G")
       .map((chart) => chart.metric_num),
   );
+  const [isPolling, setIsPolling] = useState(false);
 
   // Get the appropriate filter value based on fieldToAggregate
   const filterValue =
@@ -106,15 +107,31 @@ export default function PageAggCustom4GDaily({
         `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&fieldToAggregate2=${fieldToAggregate2}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
+      if (response.status === 202) {
+        setIsPolling(true);
+        return { rows: [], source: "loading" };
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const json = await response.json();
+
+      // ✅ Stop polling when real data arrives
+      if (json.source !== "loading") {
+        setIsPolling(false);
+      }
+
+      return json;
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: 3,
+
+    // ✅ Poll every 15 seconds when in loading state
+    refetchInterval: isPolling ? 15000 : false,
+    refetchIntervalInBackground: true,
   });
 
   const {
@@ -180,6 +197,14 @@ export default function PageAggCustom4GDaily({
   if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
+  if (data?.source === "loading") {
+    return (
+      <EnhancedLoadingState
+        message="Data is being prepared, please wait..."
+        subMessage="This may take up to 30 seconds for the first load"
+      />
+    );
+  }
   if (!data?.rows || data.rows.length === 0 || filterValue === null) {
     return <NoDataState message="No data available for selected criteria." />;
   }
