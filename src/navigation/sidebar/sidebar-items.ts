@@ -73,41 +73,41 @@ export const sidebarItems: NavGroup[] = [
         url: "/tinfra/displays/dashboard/aggregate/4g/region",
         icon: Fingerprint,
       },
-      {
-        title: "Region - NOP",
-        url: "/tinfra/displays/dashboard/aggregate/4g/region-nop",
-        icon: Fingerprint,
-      },
+      // {
+      //   title: "Region - NOP",
+      //   url: "/tinfra/displays/dashboard/aggregate/4g/region-nop",
+      //   icon: Fingerprint,
+      // },
       {
         title: "NOP",
         url: "/tinfra/displays/dashboard/aggregate/4g/nop",
         icon: Fingerprint,
       },
-      {
-        title: "NOP - Kabupaten",
-        url: "/tinfra/displays/dashboard/aggregate/4g/nop-kabupaten",
-        icon: Fingerprint,
-      },
+      // {
+      //   title: "NOP - Kabupaten",
+      //   url: "/tinfra/displays/dashboard/aggregate/4g/nop-kabupaten",
+      //   icon: Fingerprint,
+      // },
       {
         title: "Kabupaten",
         url: "/tinfra/displays/dashboard/aggregate/4g/kabupaten",
         icon: Fingerprint,
       },
-      {
-        title: "Kabupaten - Kecamatan",
-        url: "/tinfra/displays/dashboard/aggregate/4g/kabupaten-kecamatan",
-        icon: Fingerprint,
-      },
+      // {
+      //   title: "Kabupaten - Kecamatan",
+      //   url: "/tinfra/displays/dashboard/aggregate/4g/kabupaten-kecamatan",
+      //   icon: Fingerprint,
+      // },
       {
         title: "Kecamatan",
         url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan",
         icon: Fingerprint,
       },
-      {
-        title: "Kecamatan - Site",
-        url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan-site",
-        icon: Fingerprint,
-      },
+      // {
+      //   title: "Kecamatan - Site",
+      //   url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan-site",
+      //   icon: Fingerprint,
+      // },
       {
         title: "Site",
         url: "/tinfra/displays/dashboard/aggregate/4g/site",

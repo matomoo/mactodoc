@@ -1,0 +1,644 @@
+"use client";
+// biome-ignore assist/source/organizeImports: <will fix later>
+import { useQuery } from "@tanstack/react-query";
+import { useRef, useEffect, useMemo, useState } from "react";
+import {
+  Chart,
+  type ChartConfiguration,
+  CategoryScale,
+  LinearScale,
+  BarController,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { ErrorState, NoDataState } from "./additional-component";
+import { useFilterStore } from "@/stores/filterStore";
+import { EnhancedLoadingState } from "./enhanced-loading-state";
+import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
+
+Chart.register(CategoryScale, LinearScale, BarController, BarElement, Title, Tooltip, Legend);
+
+interface MeasPlos4GData {
+  rows: {
+    "Begin Time": string;
+    siteid: string;
+    nop: string;
+    "FAIL Count": number;
+    "Avg Packet Loss Rate": number;
+  }[];
+}
+
+interface AggCustomProps {
+  area?: string;
+  apiPath: string;
+  aggregateBy?: string;
+  filterLabel?: string;
+  columnNumber?: number;
+  fieldToAggregate: string;
+}
+
+export default function MeasPlosSite4G({ apiPath, fieldToAggregate }: AggCustomProps) {
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, kecamatan, region } = useFilterStore();
+  // Get the appropriate filter value based on fieldToAggregate
+  const filterValue = fieldToAggregate === "kabupaten" ? kabupaten : siteId;
+
+  const shouldFetch = Boolean(
+    dateRange2?.includes("|") &&
+      filterValue &&
+      filterValue.trim().length > 0 &&
+      filterValue !== "---" &&
+      filterValue !== "All",
+  );
+  const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
+  const chartRefsDelayJitter = useRef<{
+    [key: string]: HTMLCanvasElement | null;
+  }>({});
+  const chartInstances = useRef<{ [key: string]: Chart | null }>({});
+  const [allSites, setAllSites] = useState<string[]>([]);
+
+  const { isPending, error, data, isError } = useQuery<MeasPlos4GData>({
+    queryKey: ["meas-plos-site-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, region],
+    queryFn: async () => {
+      if (!shouldFetch) {
+        return { rows: [] };
+      }
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    },
+    enabled: shouldFetch,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  // console.log(apiPath);
+  // console.log(data);
+
+  useEffect(() => {
+    if (data?.rows) {
+      const uniqueSites: string[] = Array.from(
+        // biome-ignore lint/suspicious/noExplicitAny: <none>
+        new Set(data.rows.map((row: any) => row.aggrby)),
+      ).sort() as string[];
+      setAllSites(uniqueSites);
+    }
+  }, [data]);
+
+  // Process chart data for each site - moved before conditional returns
+  const getChartDataForSite = useMemo(() => {
+    return (siteId: string) => {
+      if (!data?.rows || data.rows.length === 0) {
+        return { labels: [], datasets: [] };
+      }
+
+      // Filter data by site ID
+      // biome-ignore lint/suspicious/noExplicitAny: <none>
+      const siteData = data.rows.filter((row: any) => row.aggrby === siteId);
+
+      // Group by date and organize by Avg Packet Loss Rate and FAIL Count
+      const dateGroups: Record<string, { packetLoss: number; failCount: number; delay: number; jitter: number }> = {};
+      const allDates = new Set<string>();
+
+      // biome-ignore lint/suspicious/noExplicitAny: <none>
+      siteData.forEach((row: any) => {
+        const beginTime = row["Begin Time"] || "Unknown";
+        const avgPacketLossRate = Number(row["Avg Packet Loss Rate"]) || 0;
+        const failCount = Number(row["FAIL Count"]) || 0;
+        const avgDelay = Number(row["Avg Delay"]) || 0;
+        const avgJitter = Number(row["Avg Jitter"]) || 0;
+
+        // Add to date group
+        dateGroups[beginTime] = {
+          packetLoss: avgPacketLossRate,
+          failCount: failCount,
+          delay: avgDelay,
+          jitter: avgJitter,
+        };
+
+        // Track all dates
+        allDates.add(beginTime);
+      });
+
+      // Sort dates
+      const sortedDates = Array.from(allDates).sort();
+
+      // Create datasets for dual-axis chart
+      const datasets = [
+        {
+          label: "Avg Packet Loss Rate (%)",
+          data: sortedDates.map((date) => dateGroups[date]?.packetLoss || 0),
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+        },
+        {
+          label: "FAIL Count",
+          data: sortedDates.map((date) => dateGroups[date]?.failCount || 0),
+          backgroundColor: "rgba(255, 99, 132, 0.6)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          borderWidth: 1,
+          type: "bar" as const,
+          yAxisID: "y1",
+        },
+      ];
+
+      const datasetsDelayJitter = [
+        {
+          label: "Avg Delay (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.delay || 0),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+        },
+        {
+          label: "Avg Jitter (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.jitter || 0),
+          backgroundColor: "rgba(153, 102, 255, 0.2)",
+          borderColor: "rgba(153, 102, 255, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+        },
+      ];
+
+      return {
+        labels: sortedDates.map((date) => {
+          // Format date to display only date part
+          const dateObj = new Date(date);
+          return dateObj.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+        }),
+        datasets,
+      };
+    };
+  }, [data]);
+
+  const getChartDatasetDelayJitter = useMemo(() => {
+    return (siteId: string) => {
+      if (!data?.rows || data.rows.length === 0) {
+        return { labels: [], datasets: [] };
+      }
+
+      // Filter data by site ID
+      // biome-ignore lint/suspicious/noExplicitAny: <none>
+      const siteData = data.rows.filter((row: any) => row.aggrby === siteId);
+
+      // Group by date and organize by Avg Packet Loss Rate and FAIL Count
+      const dateGroups: Record<string, { packetLoss: number; failCount: number; delay: number; jitter: number }> = {};
+      const allDates = new Set<string>();
+
+      // biome-ignore lint/suspicious/noExplicitAny: <none>
+      siteData.forEach((row: any) => {
+        const beginTime = row["Begin Time"] || "Unknown";
+        const avgPacketLossRate = Number(row["Avg Packet Loss Rate"]) || 0;
+        const failCount = Number(row["FAIL Count"]) || 0;
+        const avgDelay = Number(row["Avg Delay"]) || 0;
+        const avgJitter = Number(row["Avg Jitter"]) || 0;
+
+        // Add to date group
+        dateGroups[beginTime] = {
+          packetLoss: avgPacketLossRate,
+          failCount: failCount,
+          delay: avgDelay,
+          jitter: avgJitter,
+        };
+
+        // Track all dates
+        allDates.add(beginTime);
+      });
+
+      // Sort dates
+      const sortedDates = Array.from(allDates).sort();
+
+      // Create datasets for dual-axis chart
+      const datasets = [
+        {
+          label: "Avg Delay (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.delay || 0),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+        },
+        {
+          label: "Avg Jitter (ms)",
+          data: sortedDates.map((date) => dateGroups[date]?.jitter || 0),
+          backgroundColor: "rgba(153, 102, 255, 0.2)",
+          borderColor: "rgba(153, 102, 255, 1)",
+          borderWidth: 2,
+          type: "line" as const,
+          yAxisID: "y",
+          tension: 0.1,
+        },
+      ];
+
+      return {
+        labels: sortedDates.map((date) => {
+          // Format date to display only date part
+          const dateObj = new Date(date);
+          return dateObj.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+        }),
+        datasets,
+      };
+    };
+  }, [data]);
+
+  useEffect(() => {
+    Object.keys(chartInstances.current).forEach((key) => {
+      if (chartInstances.current[key]) {
+        chartInstances.current[key]?.destroy();
+        chartInstances.current[key] = null;
+      }
+    });
+
+    allSites.forEach((siteId: string) => {
+      // Get chart data for this site
+      const siteChartData = getChartDataForSite(siteId);
+      if (!siteChartData.labels.length) return;
+
+      const chartKey = `${siteId}-ploss`;
+      const chartRef = chartRefs.current[chartKey];
+      if (!chartRef) return;
+
+      const ctx = chartRef.getContext("2d");
+      if (!ctx) return;
+
+      const config: ChartConfiguration<"bar" | "line"> = {
+        type: "bar",
+        // biome-ignore lint/suspicious/noExplicitAny: <none>
+        data: siteChartData as any,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: {
+              display: false,
+            },
+            legend: {
+              position: "top" as const,
+              labels: {
+                usePointStyle: true,
+                font: {
+                  size: chartJsV1Settings.legendFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.legendFontWeight,
+                },
+              },
+            },
+            title: {
+              display: true,
+              text: `Packet Loss Rate - ${fieldToAggregate === undefined ? "" : fieldToAggregate.toUpperCase()} ${siteId}`,
+              font: {
+                size: chartJsV1Settings.titleFontSize,
+                weight: chartJsV1Settings.titleFontWeight,
+              },
+            },
+            tooltip: {
+              backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+              titleFont: {
+                size: chartJsV1Settings.tooltipTitleFontSize,
+              },
+              bodyFont: {
+                size: chartJsV1Settings.tooltipBodyFontSize,
+              },
+              callbacks: {
+                label: (context) => {
+                  const value = context.parsed.y || 0;
+                  const datasetLabel = context.dataset.label;
+
+                  // Apply Intl formatting for Y2 axis datasets (Delay and Jitter)
+                  if (datasetLabel === "Avg Delay (ms)" || datasetLabel === "Avg Jitter (ms)") {
+                    return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
+                      notation: "standard",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value)}`;
+                  }
+
+                  // Original formatting for other datasets
+                  if (datasetLabel === "Avg Packet Loss Rate (%)") {
+                    return `${datasetLabel}: ${value.toFixed(2)}%`;
+                  }
+
+                  return `${datasetLabel}: ${value}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: false,
+                text: "Date",
+                font: {
+                  size: chartJsV1Settings.xAxisTitleFontSize,
+                  family: chartJsV1Settings.xAxisTitle,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.xAxisTickFontSize,
+                  family: chartJsV1Settings.xAxisTick,
+                },
+                maxRotation: 90,
+                minRotation: 90,
+              },
+            },
+            y: {
+              type: "linear" as const,
+              display: true,
+              position: "left" as const,
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Packet Loss Rate (%)",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                callback: (value) => {
+                  return `${value}%`;
+                },
+              },
+            },
+            y1: {
+              type: "linear" as const,
+              display: true,
+              position: "right" as const,
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "FAIL Count",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                stepSize: 1,
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+            },
+            y2: {
+              type: "linear" as const,
+              display: false,
+              position: "right" as const,
+              beginAtZero: true,
+              offset: true,
+              title: {
+                display: true,
+                text: "Delay (ms) & Jitter (ms)",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                stepSize: 1,
+                callback: (value) => {
+                  if (typeof value === "number") {
+                    return new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value);
+                  }
+                },
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+            },
+          },
+        },
+      };
+
+      chartInstances.current[chartKey] = new Chart(ctx, config);
+    });
+
+    return () => {
+      Object.keys(chartInstances.current).forEach((key) => {
+        if (chartInstances.current[key]) {
+          chartInstances.current[key]?.destroy();
+          chartInstances.current[key] = null;
+        }
+      });
+    };
+  }, [allSites, getChartDataForSite, fieldToAggregate]);
+
+  useEffect(() => {
+    // Clean up existing delay/jitter chart instances
+    Object.keys(chartInstances.current).forEach((key) => {
+      if (key.endsWith("-delay-jitter") && chartInstances.current[key]) {
+        chartInstances.current[key]?.destroy();
+        chartInstances.current[key] = null;
+      }
+    });
+
+    allSites.forEach((siteId: string) => {
+      // Get delay/jitter chart data for this site
+      const delayJitterChartData = getChartDatasetDelayJitter(siteId);
+      if (!delayJitterChartData.labels.length) return;
+
+      const chartKey = `${siteId}-delay-jitter`;
+      const chartRef = chartRefsDelayJitter.current[chartKey];
+      if (!chartRef) return;
+
+      const ctx = chartRef.getContext("2d");
+      if (!ctx) return;
+
+      const config: ChartConfiguration<"line"> = {
+        type: "line",
+        data: delayJitterChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: {
+              display: false,
+            },
+            legend: {
+              position: "top" as const,
+              labels: {
+                usePointStyle: true,
+                font: {
+                  size: chartJsV1Settings.legendFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.legendFontWeight,
+                },
+              },
+            },
+            title: {
+              display: true,
+              text: `Delay & Jitter - ${fieldToAggregate === undefined ? "" : fieldToAggregate.toUpperCase()} ${siteId}`,
+              font: {
+                size: chartJsV1Settings.titleFontSize,
+                weight: chartJsV1Settings.titleFontWeight,
+              },
+            },
+            tooltip: {
+              backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+              titleFont: {
+                size: chartJsV1Settings.tooltipTitleFontSize,
+              },
+              bodyFont: {
+                size: chartJsV1Settings.tooltipBodyFontSize,
+              },
+              callbacks: {
+                label: (context) => {
+                  const value = context.parsed.y || 0;
+                  const datasetLabel = context.dataset.label;
+                  return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
+                    notation: "standard",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 2,
+                  }).format(value)}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: false,
+                text: "Date",
+                font: {
+                  size: chartJsV1Settings.xAxisTitleFontSize,
+                  family: chartJsV1Settings.xAxisTitle,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.xAxisTickFontSize,
+                  family: chartJsV1Settings.xAxisTick,
+                },
+                maxRotation: 90,
+                minRotation: 90,
+              },
+            },
+            y: {
+              type: "linear" as const,
+              display: true,
+              position: "left" as const,
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Delay & Jitter (ms)",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.yAxisTitle,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                  family: chartJsV1Settings.yAxisTick,
+                },
+                callback: (value) => {
+                  if (typeof value === "number") {
+                    return new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 2,
+                    }).format(value);
+                  }
+                },
+              },
+            },
+          },
+        },
+      };
+
+      chartInstances.current[chartKey] = new Chart(ctx, config);
+    });
+
+    return () => {
+      Object.keys(chartInstances.current).forEach((key) => {
+        if (key.endsWith("-delay-jitter") && chartInstances.current[key]) {
+          chartInstances.current[key]?.destroy();
+          chartInstances.current[key] = null;
+        }
+      });
+    };
+  }, [allSites, getChartDatasetDelayJitter, fieldToAggregate]);
+
+  if (isPending) return <EnhancedLoadingState />;
+  if (isError) return <ErrorState message={error.message} />;
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
+  if (!data?.rows || data.rows.length === 0) {
+    return <NoDataState message="No data available for the selected criteria." />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          {allSites.map((siteId: string) => (
+            <div key={siteId} className="mb-8 lg:col-span-12">
+              <div className="grid grid-cols-2 rounded-md border bg-white p-4">
+                <div className="h-96">
+                  {/* dislplay chart ploss only */}
+                  <canvas
+                    ref={(el) => {
+                      chartRefs.current[`${siteId}-ploss`] = el;
+                    }}
+                  />
+                </div>
+                <div className="h-96">
+                  {/* dislplay chart delay and jitter only */}
+                  <canvas
+                    ref={(el) => {
+                      chartRefsDelayJitter.current[`${siteId}-delay-jitter`] = el;
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

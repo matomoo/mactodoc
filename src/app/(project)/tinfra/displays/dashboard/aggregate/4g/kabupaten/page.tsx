@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterBy_Date_DynamicField } from "@/app/(project)/tinfra/_component/filter-site/filter-by-date-dynamic-field";
-import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v9";
+import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v4/agg-custom-4g-daily-v9";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function Page() {
@@ -21,7 +21,7 @@ export default function Page() {
         <FilterBy_Date_DynamicField fieldToSearch="kabupaten" />
       </div>
       <PageAggCustom4GDaily
-        apiPath={"aggregate/meas-dy-kabupaten-4g"}
+        apiPath={"v2/mv-meas-dynamic-4g"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
         apiPathTutela={"aggregate/hq-tutela/aggr-by-region-kabupaten"}
         apiPathRhi={"aggregate/hq-rhi/by-region"}
