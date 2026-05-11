@@ -43,6 +43,8 @@ export async function GET(request: Request) {
                 tref.siteid,
                 tref.${sql.raw(fieldToAggregate)},
                 AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 AS "Avg Packet Loss Rate",
+                AVG ( t1."Average Delay of TWAMP Detecting Link(ms) 1630557082931" ) AS "Avg Delay",
+                AVG ( t1."Average Jitter of TWAMP Detecting Link(ms) 1630557083091" ) AS "Avg Jitter",
               CASE
                   WHEN AVG ( t1."Packet Loss Rate of TWAMP Detecting Link 1630557083064" ) * 100 > 0.1 THEN
                   'FAIL' ELSE 'PASS' 
@@ -68,7 +70,9 @@ export async function GET(request: Request) {
                 "Begin Time",
                 ${sql.raw(fieldToAggregate)} AS "aggrby",
                 SUM ( CASE WHEN "Remark" = 'FAIL' THEN 1 ELSE 0 END ) AS "FAIL Count",
-                AVG ( "Avg Packet Loss Rate" ) AS "Avg Packet Loss Rate"
+                AVG ( "Avg Packet Loss Rate" ) AS "Avg Packet Loss Rate",
+                AVG ( "Avg Delay" ) AS "Avg Delay",
+                AVG ( "Avg Jitter" ) AS "Avg Jitter"
               FROM
                 site_metrics 
               GROUP BY
