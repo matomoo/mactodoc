@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 						SUM(t2."spectrum efficiency denum") AS "G4_SE_DENUM",
 						SUM(t2."Num Average CQI_Rev") AS "G4_AVG_CQI_NUM",
 						SUM(t2."Denum Average CQI_Rev") AS "G4_AVG_CQI_DENUM",
-						SUM(t1."Average NI of Carrier(dBm)") AS "G4_AVG_NI_CARRIER_DBM",
+						AVG(t1."Average NI of Carrier(dBm)") AS "G4_AVG_NI_CARRIER_DBM",
 						SUM(t1."Num CSFB SR AMQ") AS "G4_CSFB_SETUP_SR_NUM",
 						SUM(t1."Denum CSFB SR AMQ") AS "G4_CSFB_SETUP_SR_DENUM",
             SUM(t1."Num IFHO SR AMQ") AS "G4_IFHO_SR_NUM",
@@ -110,6 +110,7 @@ export async function GET(request: Request) {
 						SUM(t1."SRVCC_LTE-GSM_HOSR_VoLTE_Denum AMQ") AS "G4_SRVCC_E2G_SR_DENUM",
 						SUM(t1."SRVCC_LTE-UMTS_HOSR_VoLTE_Num AMQ") AS "G4_SRVCC_E2W_SR_NUM",
 						SUM(t1."SRVCC_LTE-UMTS_HOSR_VoLTE_Denum AMQ") AS "G4_SRVCC_E2W_SR_DENUM",
+            AVG(t1."Average NI of Carrier(dBm)") AS "G4_NI_CARRIER_DBM",
             '1' AS "DENUMBY1"
           FROM
             "measDy4g" t1

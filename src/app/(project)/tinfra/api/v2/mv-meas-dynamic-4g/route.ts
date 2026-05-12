@@ -94,7 +94,7 @@ async function runQuery(params: URLSearchParams) {
         SUM ( t1."spectrum efficiency denum" ) AS "G4_SE_DENUM",
         SUM ( t1."Num Average CQI_Rev" ) AS "G4_AVG_CQI_NUM",
         SUM ( t1."Denum Average CQI_Rev" ) AS "G4_AVG_CQI_DENUM",
-        SUM ( t1."Average NI of Carrier(dBm)" ) AS "G4_AVG_NI_CARRIER_DBM",
+        AVG ( t1."Average NI of Carrier(dBm)" ) AS "G4_AVG_NI_CARRIER_DBM",
         SUM ( t1."Num CSFB SR AMQ" ) AS "G4_CSFB_SETUP_SR_NUM",
         SUM ( t1."Denum CSFB SR AMQ" ) AS "G4_CSFB_SETUP_SR_DENUM",
         SUM ( t1."Num IFHO SR AMQ" ) AS "G4_IFHO_SR_NUM",

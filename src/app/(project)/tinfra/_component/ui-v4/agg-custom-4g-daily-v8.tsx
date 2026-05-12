@@ -20,9 +20,9 @@ import MeasTa4G from "./meas-ta-4g-v2";
 import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
 import type { RawKpiRow } from "../../_lib/reportPerformance-3";
-import { useComparisonCalculation } from "../ui-v4/use-comparison-data";
+import { useComparisonCalculation } from "./use-comparison-data";
 import { ChartsPerSectorSection4G } from "./agg-charts-per-sector-section-4g";
-import { ChartsSection4G } from "../ui-v4/agg-charts-section-4g";
+import { ChartsSection4G } from "./agg-charts-section-4g";
 
 interface AggCustomProps {
   area?: string;

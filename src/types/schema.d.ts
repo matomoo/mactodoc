@@ -348,6 +348,7 @@ export interface Data2G4GModel {
   G4_INTER_FHO_SR_DENUM: number;
   G4_SRVCC_E2G_SR_NUM: number;
   G4_SRVCC_E2G_SR_DENUM: number;
+  G4_AVG_NI_CARRIER_DBM: number;
 
   [key: string]: unknown;
 }

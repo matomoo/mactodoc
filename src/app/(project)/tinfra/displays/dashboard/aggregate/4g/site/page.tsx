@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterBy_Date_Multi_SiteId } from "@/app/(project)/tinfra/_component/filter-site/filter-by-date-multi-siteid";
-import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v1/agg-custom-4g-daily-v8";
+import PageAggCustom4GDaily from "@/app/(project)/tinfra/_component/ui-v4/agg-custom-4g-daily-v8";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 // import GenerateButtonForPPT from "@/app/(project)/tinfra/_component/ui-v1/export-ppt";
 
