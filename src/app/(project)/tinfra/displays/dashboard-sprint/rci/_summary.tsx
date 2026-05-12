@@ -8,30 +8,42 @@ interface IProps {
   selectedSprint: string;
 }
 
-import { ActivityLogChart, type ActivityLogPoint } from "./_chart";
+import { ActivityLogChart, type ActivityLogPoint } from "../unbalance/_chart";
 
 export default function Summary({ data, selectedSprint }: IProps) {
-  const activityAll = data.filter((item: any) => item.Sprint === selectedSprint);
+  const defColumn = {
+    colSprint: "CW1 Sprint-5",
+    colActionDone: "Status Action (DONE/NY/SKIP MOVE TO LLR)",
+    colPic: "PIC",
+    colActionDate: "Action Date",
+    colUnique: "site sec",
+  };
+
+  const activityAll = data.filter((item: any) => item[defColumn.colSprint] === selectedSprint);
   const activityDone = data.filter(
-    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "DONE",
+    (item: any) =>
+      item[defColumn.colSprint] === selectedSprint && item[defColumn.colActionDone]?.toUpperCase() === "DONE",
   );
   const activitySkip = data.filter(
     (item: any) =>
-      item.Sprint === selectedSprint &&
-      (item["DONE/NY"]?.toUpperCase() === "SKIP" || item["DONE/NY"]?.toUpperCase() === "LLR"),
+      item[defColumn.colSprint] === selectedSprint &&
+      (item[defColumn.colActionDone]?.toUpperCase() === "SKIP" ||
+        item[defColumn.colActionDone]?.toUpperCase() === "LLR"),
   );
   const activityNy = data.filter(
-    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "NY",
+    (item: any) =>
+      item[defColumn.colSprint] === selectedSprint && item[defColumn.colActionDone]?.toUpperCase() === "NY",
   );
   const activityDoneSkip = data.filter(
     (item: any) =>
-      item.Sprint === selectedSprint &&
-      (item["DONE/NY"]?.toUpperCase() === "DONE" ||
-        item["DONE/NY"]?.toUpperCase() === "SKIP" ||
-        item["DONE/NY"]?.toUpperCase() === "LLR"),
+      item[defColumn.colSprint] === selectedSprint &&
+      (item[defColumn.colActionDone]?.toUpperCase() === "DONE" ||
+        item[defColumn.colActionDone]?.toUpperCase() === "SKIP" ||
+        item[defColumn.colActionDone]?.toUpperCase() === "LLR"),
   );
   const activityDone_GetSiteId = data.filter(
-    (item: any) => item.Sprint === selectedSprint && item["DONE/NY"]?.toUpperCase() === "DONE",
+    (item: any) =>
+      item[defColumn.colSprint] === selectedSprint && item[defColumn.colActionDone]?.toUpperCase() === "DONE",
   );
 
   const total = activityAll.length;
@@ -42,10 +54,10 @@ export default function Summary({ data, selectedSprint }: IProps) {
   const picMap: Record<string, { total: number; done: number; llr: number; ny: number }> = {};
 
   activityAll.forEach((item: any) => {
-    const pic = item["PIC"]?.trim() || "Unknown";
+    const pic = item[defColumn.colPic]?.trim() || "Unknown";
     if (!picMap[pic]) picMap[pic] = { total: 0, done: 0, llr: 0, ny: 0 };
     picMap[pic].total += 1;
-    const status = item["DONE/NY"]?.toUpperCase();
+    const status = item[defColumn.colActionDone]?.toUpperCase();
     if (status === "DONE") picMap[pic].done += 1;
     else if (status === "LLR" || status === "SKIP") picMap[pic].llr += 1;
     else if (status === "NY") picMap[pic].ny += 1;
@@ -123,7 +135,7 @@ export default function Summary({ data, selectedSprint }: IProps) {
   const dateOrderMap: Record<string, Date> = {};
 
   activityDoneSkip.forEach((item: any) => {
-    const raw: string = item["Action Date"] ?? "";
+    const raw: string = item[defColumn.colActionDate] ?? "";
     const label = parseDateLabel(raw);
     if (!label) return;
     dateCountMap[label] = (dateCountMap[label] ?? 0) + 1;
@@ -190,7 +202,7 @@ export default function Summary({ data, selectedSprint }: IProps) {
     }, []);
 
   // Target = 80% of unique SITE IDs in Sprint
-  const uniqueSites = new Set(activityAll.map((item: any) => item["unitID"]?.trim()).filter(Boolean));
+  const uniqueSites = new Set(activityAll.map((item: any) => item[defColumn.colUnique]?.trim()).filter(Boolean));
   const activityLogTarget = Math.round(uniqueSites.size * 0.8);
 
   const stats = [

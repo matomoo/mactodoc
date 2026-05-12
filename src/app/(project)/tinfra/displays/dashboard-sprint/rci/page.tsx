@@ -1,10 +1,9 @@
 "use client";
-/** biome-ignore-all lint/suspicious/noExplicitAny: <none> */
 
 // biome-ignore assist/source/organizeImports: <none>
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Summary from "./_summary";
-import UnbalanceViewByTable from "./_tb_unbalance";
+// import UnbalanceViewByTable from "./_tb_unbalance";
 import { getSheetData } from "../../../_lib/googleSheets";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,7 +16,7 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const sheetData = await getSheetData("1LrmNvW_drnU6tUVGxwr_wrAySjKj6wTenxGHc0XipGk", "1000919754");
+        const sheetData = await getSheetData("1nWl6OVzvw2tMKyWIY-CEXFPh5F0h1FzWSRQ83vaWyXA", "647403552");
         setData(sheetData);
       } catch (error) {
         console.error("Error fetching sheet data:", error);
@@ -29,7 +28,9 @@ export default function Page() {
     fetchData();
   }, []);
 
-  const uniqueSprint = [...new Set(data.map((item: any) => item.Sprint))].filter(Boolean);
+  const uniqueSprint = [...new Set(data.map((item) => item["CW1 Sprint-5"]).filter((item) => item !== "-"))].filter(
+    Boolean,
+  );
 
   if (loading) {
     return (
@@ -43,7 +44,7 @@ export default function Page() {
 
   return (
     <div className="container mx-auto">
-      <div className="text-2xl font-bold">Sprint Unbalance</div>
+      <div className="font-bold text-2xl">Sprint RCI</div>
       <div className="my-4">
         <label htmlFor="sprint-select" className="font-medium text-sm">
           Select Sprint
@@ -81,11 +82,12 @@ export default function Page() {
           </TabsContent>
 
           <TabsContent value="unbalance" className="space-y-6">
-            <UnbalanceViewByTable
+            <div className="text-center text-gray-500">On progress</div>
+            {/* <UnbalanceViewByTable
               unbalanceApiPath="/tinfra/api/v2/sprint/unbalance-view-table"
               data={data}
               selectedSprint={selectedSprint}
-            />
+            /> */}
           </TabsContent>
         </Tabs>
       )}
