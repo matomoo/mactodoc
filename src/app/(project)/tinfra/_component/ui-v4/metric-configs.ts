@@ -428,7 +428,10 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   {
     title: "Average NI Carrier (dBm)",
     tech: "4G",
-    calculate: (filteredData) => filteredData.reduce((avg, item) => avg + (item.G4_AVG_NI_CARRIER_DBM || 0), 0),
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G4_AVG_NI_CARRIER_DBM || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
     id: "G4_AVG_NI_CARRIER_DBM",
     metric_num: "G4_AVG_NI_CARRIER_DBM",
     metric_denum: "DENUMBY1",

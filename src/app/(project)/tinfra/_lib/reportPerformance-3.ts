@@ -129,6 +129,7 @@ export type KpiKey =
   | "G4_USER_UL_THP_NUM"
   | "G4_SE_NUM"
   | "G4_AVG_CQI_NUM"
+  | "G4_AVG_NI_CARRIER_DBM"
   | "G4_IFHO_SR_NUM"
   | "G4_INTER_FHO_SR_NUM"
   | "G4_CSFB_SETUP_SR_NUM"
@@ -155,6 +156,7 @@ interface ComputedKpi {
   ulThroughput: number;
   seBh: number;
   avgCQI: number;
+  avgNiCarrier: number;
   ifhoSR: number;
   interfhoSR: number;
   csfbSR: number;
@@ -315,6 +317,14 @@ export const KPI_REGISTRY: Record<KpiKey, KpiConfig> = {
     unit: "",
     decimals: 2,
     getValue: (k) => k.avgCQI,
+    color: "F59E0B",
+  },
+  G4_AVG_NI_CARRIER_DBM: {
+    title: "Average NI Carrier (dBm)",
+    chartType: "line",
+    unit: "dBm",
+    decimals: 2,
+    getValue: (k) => k.avgNiCarrier,
     color: "F59E0B",
   },
   G4_IFHO_SR_NUM: {
@@ -483,6 +493,7 @@ function computeKPIs(data: RawKpiRow[], useCellGranularity = false): ComputedKpi
       ulThroughput: row.G4_USER_UL_THP_NUM / row.G4_USER_UL_THP_DENUM / 1_000,
       seBh: row.G4_SE_NUM / row.G4_SE_DENUM,
       avgCQI: row.G4_AVG_CQI_NUM / row.G4_AVG_CQI_DENUM,
+      avgNiCarrier: row.G4_AVG_NI_CARRIER_DBM,
       ifhoSR: (row.G4_IFHO_SR_NUM / row.G4_IFHO_SR_DENUM) * 100,
       interfhoSR: (row.G4_INTER_FHO_SR_NUM / row.G4_INTER_FHO_SR_DENUM) * 100,
       csfbSR: (row.G4_CSFB_SETUP_SR_NUM / row.G4_CSFB_SETUP_SR_DENUM) * 100,
