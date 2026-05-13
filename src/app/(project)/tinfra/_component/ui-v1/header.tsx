@@ -39,7 +39,7 @@ export function Header({
           <ExportReportButton
             data={data as unknown as RawKpiRow[]}
             selectedKPIs={selectedKPIs || []}
-            filteredComparisonData={filteredComparisonData}
+            filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
             groupBy={groupBy}
           />
           {groupBy === "G4_SITEID_CELLID" && (
