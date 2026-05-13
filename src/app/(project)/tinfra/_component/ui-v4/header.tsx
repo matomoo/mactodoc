@@ -4,7 +4,7 @@
 import { Download, Filter } from "lucide-react";
 
 // import { Download, Filter } from "lucide-react";
-import type { RawKpiPlos4G, RawKpiRow } from "../../_lib/reportPerformance-3";
+import type { PlosRow, RawKpiPlos4G, RawKpiRow } from "../../_lib/reportPerformance-3";
 import ExportReportButton from "../ui-v3/ExportReportButton";
 
 interface HeaderProps {
@@ -40,7 +40,7 @@ export function Header({
         <div className="flex flex-row gap-4">
           <ExportReportButton
             data={data as unknown as RawKpiRow[]}
-            dataPlos={dataPlos as unknown as RawKpiPlos4G[]}
+            dataPlos={dataPlos as unknown as PlosRow[]}
             selectedKPIs={selectedKPIs || []}
             filteredComparisonData={filteredComparisonData || []}
             groupBy={groupBy}

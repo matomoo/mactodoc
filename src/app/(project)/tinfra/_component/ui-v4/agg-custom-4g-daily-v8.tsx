@@ -209,7 +209,7 @@ export default function PageAggCustom4GDaily({
   // count siteId after split by comma
   const siteIdLength = typeof siteId === "string" ? siteId.split(",").length : 1;
 
-  console.log({ newFilteredData });
+  // console.log({ newFilteredData, dataPlos });
 
   return (
     <div className="min-h-screen">
