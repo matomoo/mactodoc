@@ -13,15 +13,16 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { useState } from "react";
 import { reportPerformance } from "../../_lib/reportPerformance-3";
-import type { RawKpiRow } from "../../_lib/reportPerformance";
+import type { RawKpiPlos4G, RawKpiRow, ComparisonRow } from "../../_lib/reportPerformance-3";
 
 interface ExportReportButtonProps {
   data: RawKpiRow[];
   fileName?: string;
   className?: string;
   selectedKPIs: string[];
-  filteredComparisonData: any;
+  filteredComparisonData: RawKpiRow[];
   groupBy: string;
+  dataPlos?: RawKpiPlos4G[];
 }
 
 export default function ExportReportButton({
@@ -31,6 +32,7 @@ export default function ExportReportButton({
   selectedKPIs = ["Payload"],
   filteredComparisonData,
   groupBy = "noGrup",
+  dataPlos,
 }: ExportReportButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -47,8 +49,9 @@ export default function ExportReportButton({
         filteredData: data,
         fileName,
         selectedKpis: selectedKPIs,
-        filteredComparisonData,
+        filteredComparisonData: filteredComparisonData as unknown as ComparisonRow[],
         groupBy,
+        dataPlos,
       });
     } catch (err) {
       console.error("Export failed:", err);

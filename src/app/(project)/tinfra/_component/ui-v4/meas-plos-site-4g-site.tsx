@@ -20,13 +20,15 @@ import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 
 Chart.register(CategoryScale, LinearScale, BarController, BarElement, Title, Tooltip, Legend);
 
-interface MeasPlos4GData {
+export interface MeasPlos4GData {
   rows: {
     "Begin Time": string;
     siteid: string;
     nop: string;
     "FAIL Count": number;
     "Avg Packet Loss Rate": number;
+    "Avg Delay": number;
+    "Avg Jitter": number;
   }[];
 }
 

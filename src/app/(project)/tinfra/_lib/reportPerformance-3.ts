@@ -63,6 +63,18 @@ export interface RawKpiRow {
   DENUMBY1: string;
 }
 
+export interface RawKpiPlos4G {
+  rows: {
+    "Begin Time": string;
+    siteid: string;
+    nop: string;
+    "FAIL Count": number;
+    "Avg Packet Loss Rate": number;
+    "Avg Delay": number;
+    "Avg Jitter": number;
+  }[];
+}
+
 // ─── COMPARISON DATA TYPE ─────────────────────────────────────────────────────
 
 export interface ComparisonRow {
@@ -844,12 +856,14 @@ export async function reportPerformance({
   selectedKpis,
   filteredComparisonData,
   groupBy = "G4_NOP",
+  dataPlos,
 }: {
   filteredData: RawKpiRow[];
   fileName?: string;
   selectedKpis?: string[];
   filteredComparisonData?: ComparisonRow[];
   groupBy?: string;
+  dataPlos?: RawKpiPlos4G[];
 }): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();

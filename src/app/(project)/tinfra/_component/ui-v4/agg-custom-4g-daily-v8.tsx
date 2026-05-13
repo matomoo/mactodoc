@@ -17,9 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import PageSiteInfo from "./site-info-4g";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G from "./meas-ta-4g-v2";
-import MeasPlosSite4G from "./meas-plos-site-4g-site";
+import MeasPlosSite4G, { type MeasPlos4GData } from "./meas-plos-site-4g-site";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
-import type { RawKpiRow } from "../../_lib/reportPerformance-3";
+import type { RawKpiPlos4G, RawKpiRow } from "../../_lib/reportPerformance-3";
 import { useComparisonCalculation } from "./use-comparison-data";
 import { ChartsPerSectorSection4G } from "./agg-charts-per-sector-section-4g";
 import { ChartsSection4G } from "./agg-charts-section-4g";
@@ -122,6 +122,30 @@ export default function PageAggCustom4GDaily({
     retry: 1,
   });
 
+  const {
+    isPending: isPendingPlos,
+    error: errorPlos,
+    data: dataPlos,
+    isError: isErrorPlos,
+  } = useQuery<MeasPlos4GData>({
+    queryKey: ["meas-plos-site-4g", apiPathPloss, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryFn: async () => {
+      if (!shouldFetch) {
+        return { rows: [] };
+      }
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/${apiPathPloss}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    },
+    enabled: shouldFetch,
+    refetchOnWindowFocus: false,
+    retry: 3,
+  });
+
   const dataManagement = useDataManagement4G({
     data,
     aggregateBy,
@@ -201,6 +225,7 @@ export default function PageAggCustom4GDaily({
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
         data={filteredData as unknown as RawKpiRow[]}
+        dataPlos={dataPlos?.rows as unknown as RawKpiPlos4G[]}
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
         groupBy={aggregateBy}
