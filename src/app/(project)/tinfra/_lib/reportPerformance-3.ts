@@ -69,6 +69,7 @@ export interface PlosRow {
   "Begin Time": string;
   siteid: string;
   nop: string;
+  aggrby: string;
   "FAIL Count": number;
   "Avg Packet Loss Rate": number;
   "Avg Delay": number;
@@ -826,12 +827,10 @@ function addSlide_ChartModel1(
   }
 }
 
-function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[], siteId: string): void {
-  // ── 1. Aggregate rows across all NOP entries ──────────────────────────────
-  //    We build per-NOP series so the charts support multi-site comparisons.
-
+function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
+  // ── 1. Extract all rows and group by aggrby ──────────────────────────────
   interface PlosGroup {
-    nop: string;
+    aggrby: string;
     /** sorted unique date labels ("15 Apr", …) */
     byDate: Map<
       string,
@@ -844,15 +843,29 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[], siteId: string)
     >;
   }
 
-  const groups: PlosGroup[] = dataPlos.map((entry) => {
+  // Extract all rows from all dataPlos entries
+  const allRows: PlosRow[] = [];
+  for (const entry of dataPlos) {
+    if (entry.rows && Array.isArray(entry.rows)) {
+      allRows.push(...entry.rows);
+    }
+  }
+
+  // Group by aggrby
+  const groupedByAggrby = new Map<string, PlosRow[]>();
+  for (const row of allRows) {
+    const aggrby = row.aggrby ?? "Unknown";
+    if (!groupedByAggrby.has(aggrby)) {
+      groupedByAggrby.set(aggrby, []);
+    }
+    groupedByAggrby.get(aggrby)?.push(row);
+  }
+
+  // Build PlosGroup for each aggrby
+  const groups: PlosGroup[] = Array.from(groupedByAggrby.entries()).map(([aggrby, rows]) => {
     const byDate = new Map<string, { failCount: number; packetLoss: number; avgDelay: number; avgJitter: number }>();
 
-    if (!entry.rows || !Array.isArray(entry.rows)) {
-      console.warn("Invalid entry.rows in dataPlos:", entry);
-      return { nop: "Unknown", byDate };
-    }
-
-    for (const r of entry.rows) {
+    for (const r of rows) {
       const label = new Date(r["Begin Time"]).toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
@@ -867,15 +880,13 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[], siteId: string)
       });
     }
 
-    // Determine the NOP label from the first row (all rows share the same nop)
-    const nop = siteId ?? "Unknown";
-    return { nop, byDate };
+    return { aggrby, byDate };
   });
 
   // ── 2. Build unified sorted date labels ───────────────────────────────────
   const dateSet = new Set<string>();
   for (const g of groups) {
-    for (const d of g.byDate.keys()) {
+    for (const d of Array.from(g.byDate.keys())) {
       dateSet.add(d);
     }
   }
@@ -894,54 +905,37 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[], siteId: string)
     });
   }
 
-  // ── 4. Build slide ────────────────────────────────────────────────────────
-  const slide = pres.addSlide();
-  slide.background = { color: THEME.offWhite };
+  // ── 4. Create separate slide for each aggrby ───────────────────────────────
+  for (const group of groups) {
+    const slide = pres.addSlide();
+    slide.background = { color: THEME.offWhite };
 
-  slide.addText("Packet Loss & Quality", {
-    x: 0.4,
-    y: 0.1,
-    w: 9.2,
-    h: 0.42,
-    fontSize: 16,
-    bold: true,
-    color: THEME.dark,
-    fontFace: FONT.title,
-    margin: 0,
-  });
+    slide.addText(`Packet Loss & Quality - ${group.aggrby}`, {
+      x: 0.4,
+      y: 0.1,
+      w: 9.2,
+      h: 0.42,
+      fontSize: 16,
+      bold: true,
+      color: THEME.dark,
+      fontFace: FONT.title,
+      margin: 0,
+    });
 
-  // Series palette (mirrors SERIES_COLORS)
-  const palette = ["0D9488", "F59E0B", "3B82F6", "EF4444", "8B5CF6", "10B981"];
-  const failCountColor = "DC2626"; // red for fail count bars
+    const CHART_Y = 0.6;
+    const CHART_H = 4.8;
+    const CHART_W = 4.55;
+    const GUTTER = 0.3;
 
-  const CHART_Y = 0.6;
-  const CHART_H = 4.8;
-  const CHART_W = 4.55;
-  const GUTTER = 0.3;
-
-  // ── LEFT chart: Combo BAR (Fail Count) + LINE (Packet Loss Rate) ──────────
-  //
-  // PptxGenJS combo chart API:
-  //   addChart( [{ type, data, options }, { type, data, options }], comboOpts )
-  //
-  // Primary axis  (left  Y) → LINE  = Avg Packet Loss Rate (%)
-  // Secondary axis (right Y) → BAR  = FAIL Count
-  //
-  // Each group becomes one LINE series + one BAR series.
-
-  // ── Build combo series (for...of avoids forEach-return lint error) ─────────
-  const leftComboData: PptxGenJS.IChartMulti[] = [];
-
-  for (let idx = 0; idx < groups.length; idx++) {
-    const g = groups[idx];
-    const color = palette[idx % palette.length];
+    // ── LEFT chart: Combo BAR (Fail Count) + LINE (Packet Loss Rate) ──────────
+    const leftComboData: PptxGenJS.IChartMulti[] = [];
 
     // LINE series: Packet Loss Rate (left / primary Y-axis)
     leftComboData.push({
       type: (pres as any).charts.LINE,
-      data: [{ name: `PL Rate - ${g.nop}`, labels, values: extractSeries(g, "packetLoss", 4) }],
+      data: [{ name: `PL Rate - ${group.aggrby}`, labels, values: extractSeries(group, "packetLoss", 4) }],
       options: {
-        chartColors: [color],
+        chartColors: ["0D9488"],
         lineSize: 2,
         lineSmooth: true,
         lineDataSymbol: "none",
@@ -953,107 +947,99 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[], siteId: string)
     // BAR series: Fail Count (right / secondary Y-axis)
     leftComboData.push({
       type: (pres as any).charts.BAR,
-      data: [{ name: `Fail Cnt - ${g.nop}`, labels, values: extractSeries(g, "failCount", 0) }],
+      data: [{ name: `Fail Cnt - ${group.aggrby}`, labels, values: extractSeries(group, "failCount", 0) }],
       options: {
-        chartColors: [failCountColor],
+        chartColors: ["DC2626"],
         barDir: "col",
         barGrouping: "clustered",
         secondaryValAxis: true,
         secondaryCatAxis: true,
       } as PptxGenJS.IChartOpts,
     });
-  }
 
-  // Combo charts: first arg is IChartMulti[], layout opts go inside each entry's options.
-  // Position/size must be set on the FIRST entry's options (pptxgenjs uses it for placement).
-  const comboLayoutOpts: PptxGenJS.IChartOpts = {
-    x: 0.4,
-    y: CHART_Y,
-    w: CHART_W,
-    h: CHART_H,
-    chartArea: { fill: { color: THEME.white }, roundedCorners: true },
+    // Combo charts: first arg is IChartMulti[], layout opts go inside each entry's options.
+    // Position/size must be set on the FIRST entry's options (pptxgenjs uses it for placement).
+    const comboLayoutOpts: PptxGenJS.IChartOpts = {
+      x: 0.4,
+      y: CHART_Y,
+      w: CHART_W,
+      h: CHART_H,
+      chartArea: { fill: { color: THEME.white }, roundedCorners: true },
 
-    // Primary (left) axis – Packet Loss Rate
-    valAxisTitle: "Packet Loss Rate (%)",
-    valAxisTitleFontSize: 8,
-    valAxisTitleColor: THEME.slate,
-    valAxisLabelColor: THEME.slate,
-    valAxisLabelFontSize: 7,
+      // Primary (left) axis – Packet Loss Rate
+      valAxisTitle: "Packet Loss Rate (%)",
+      valAxisTitleFontSize: 8,
+      valAxisTitleColor: THEME.slate,
+      valAxisLabelColor: THEME.slate,
+      valAxisLabelFontSize: 7,
 
-    // Note: Secondary axis properties not supported in this version of pptxgenjs
+      // Note: Secondary axis properties not supported in this version of pptxgenjs
 
-    catAxisLabelColor: THEME.slate,
-    catAxisLabelFontSize: 7,
-    valGridLine: { style: "none" },
-    catGridLine: { style: "none" },
-    showTitle: true,
-    title: "Packet Loss Rate (%) vs Fail Count",
-    titleFontSize: 9,
-    titleColor: THEME.dark,
-    showLegend: true,
-    legendPos: "b",
-    legendFontSize: 7,
-    lineDataSymbol: "none",
-  };
+      catAxisLabelColor: THEME.slate,
+      catAxisLabelFontSize: 7,
+      valGridLine: { style: "none" },
+      catGridLine: { style: "none" },
+      showTitle: true,
+      title: "Packet Loss Rate (%) vs Fail Count",
+      titleFontSize: 9,
+      titleColor: THEME.dark,
+      showLegend: true,
+      legendPos: "b",
+      legendFontSize: 7,
+      lineDataSymbol: "none",
+    };
 
-  // addChart overload for combo: (IChartMulti[], IChartOpts)
-  (slide as any).addChart(leftComboData, comboLayoutOpts);
+    // addChart overload for combo: (IChartMulti[], IChartOpts)
+    (slide as any).addChart(leftComboData, comboLayoutOpts);
 
-  // ── RIGHT chart: LINE — Avg Delay + Avg Jitter ────────────────────────────
-  // IChartData is not exported from the PptxGenJS namespace; use the inline shape.
-  const delayJitterData: Array<{ name: string; labels: string[]; values: number[] }> = [];
-  const delayJitterColors: string[] = [];
-
-  for (let idx = 0; idx < groups.length; idx++) {
-    const g = groups[idx];
+    // ── RIGHT chart: LINE — Avg Delay + Avg Jitter ────────────────────────────
+    const delayJitterData: Array<{ name: string; labels: string[]; values: number[] }> = [];
 
     // Delay series
     delayJitterData.push({
-      name: `Delay - ${g.nop}`,
+      name: `Delay - ${group.aggrby}`,
       labels,
-      values: extractSeries(g, "avgDelay", 2),
+      values: extractSeries(group, "avgDelay", 2),
     });
-    delayJitterColors.push(palette[idx % palette.length]);
 
-    // Jitter series (offset color for contrast)
+    // Jitter series
     delayJitterData.push({
-      name: `Jitter - ${g.nop}`,
+      name: `Jitter - ${group.aggrby}`,
       labels,
-      values: extractSeries(g, "avgJitter", 2),
+      values: extractSeries(group, "avgJitter", 2),
     });
-    delayJitterColors.push(palette[(idx + 3) % palette.length]);
+
+    slide.addChart((pres as any).charts.LINE, delayJitterData, {
+      x: 0.4 + CHART_W + GUTTER,
+      y: CHART_Y,
+      w: CHART_W,
+      h: CHART_H,
+      chartArea: { fill: { color: THEME.white }, roundedCorners: true },
+
+      chartColors: ["F59E0B", "3B82F6"],
+      lineSize: 2,
+      lineSmooth: true,
+      lineDataSymbol: "none",
+
+      valAxisTitle: "ms",
+      valAxisTitleFontSize: 8,
+      valAxisTitleColor: THEME.slate,
+      valAxisLabelColor: THEME.slate,
+      valAxisLabelFontSize: 7,
+      catAxisLabelColor: THEME.slate,
+      catAxisLabelFontSize: 7,
+      valGridLine: { style: "none" },
+      catGridLine: { style: "none" },
+
+      showTitle: true,
+      title: "Avg Delay & Avg Jitter (ms)",
+      titleFontSize: 9,
+      titleColor: THEME.dark,
+      showLegend: true,
+      legendPos: "b",
+      legendFontSize: 7,
+    } satisfies PptxGenJS.IChartOpts);
   }
-
-  slide.addChart((pres as any).charts.LINE, delayJitterData, {
-    x: 0.4 + CHART_W + GUTTER,
-    y: CHART_Y,
-    w: CHART_W,
-    h: CHART_H,
-    chartArea: { fill: { color: THEME.white }, roundedCorners: true },
-
-    chartColors: delayJitterColors,
-    lineSize: 2,
-    lineSmooth: true,
-    lineDataSymbol: "none",
-
-    valAxisTitle: "ms",
-    valAxisTitleFontSize: 8,
-    valAxisTitleColor: THEME.slate,
-    valAxisLabelColor: THEME.slate,
-    valAxisLabelFontSize: 7,
-    catAxisLabelColor: THEME.slate,
-    catAxisLabelFontSize: 7,
-    valGridLine: { style: "none" },
-    catGridLine: { style: "none" },
-
-    showTitle: true,
-    title: "Avg Delay & Avg Jitter (ms)",
-    titleFontSize: 9,
-    titleColor: THEME.dark,
-    showLegend: true,
-    legendPos: "b",
-    legendFontSize: 7,
-  } satisfies PptxGenJS.IChartOpts);
 }
 
 // ─── MAIN EXPORT FUNCTION ─────────────────────────────────────────────────────
@@ -1106,9 +1092,10 @@ export async function reportPerformance({
   const groups = computeKPIsByNop(filteredData, groupBy);
   const regionLabel = groups.map((g) => g.nop).join(" · ");
 
-  console.log("regionLabel", regionLabel.slice(0, 6));
+  const getUniqueNOPs = (data: Array<{ nop: string }>): string[] =>
+    [...new Set(data.map((item) => item.nop.split("_")[0]))].sort();
 
-  // addCoverSlide(pres, groups, regionLabel);
+  const uniqueNOPs = getUniqueNOPs(groups);
 
   if (filteredComparisonData && filteredComparisonData.length > 0) {
     addComparisonSlide(pres, filteredComparisonData);
@@ -1118,12 +1105,11 @@ export async function reportPerformance({
   addSlide_ChartModel1(pres, groups, keysToRender, groupBy);
 
   if (dataPlos && dataPlos.length > 0) {
-    const siteId = groupBy === "G4_SITEID_CELLID" ? regionLabel.slice(0, 6) : regionLabel;
-    addPlosSlide(pres, dataPlos, siteId);
+    addPlosSlide(pres, dataPlos);
   }
 
   const name =
     fileName ??
-    `LTE_Report_${groupBy === "G4_SITEID_CELLID" ? regionLabel.slice(0, 6) : regionLabel}_${new Date().toISOString().slice(0, 10)}.pptx`;
+    `LTE_Report_${groupBy === "G4_SITEID_CELLID" ? uniqueNOPs.join("-") : regionLabel}_${new Date().toISOString().slice(0, 10)}.pptx`;
   await pres.writeFile({ fileName: name });
 }
