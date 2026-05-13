@@ -21,7 +21,7 @@ import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 
 Chart.register(CategoryScale, LinearScale, BarController, BarElement, Title, Tooltip, Legend);
 
-interface MeasTa4GData {
+export interface MeasTa4GData {
   rows: {
     siteid_cellid: string;
     sector: string;
@@ -67,7 +67,7 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
     retry: 1,
   });
 
-  console.log(data);
+  // console.log(data);
 
   useEffect(() => {
     if (data?.rows) {

@@ -4,7 +4,7 @@
 import { Download, Filter } from "lucide-react";
 
 // import { Download, Filter } from "lucide-react";
-import type { PlosRow, RawKpiPlos4G, RawKpiRow } from "../../_lib/reportPerformance-3";
+import type { MeasTa4GRow, PlosRow, RawKpiPlos4G, RawKpiRow, RawMeasTa4G } from "../../_lib/reportPerformance-3";
 import ExportReportButton from "../ui-v3/ExportReportButton";
 
 interface HeaderProps {
@@ -14,6 +14,7 @@ interface HeaderProps {
   subtitle?: string;
   data?: RawKpiRow[];
   dataPlos?: RawKpiPlos4G[];
+  dataMeasTa?: RawMeasTa4G[];
   selectedKPIs?: string[];
   filteredComparisonData?: RawKpiRow[];
   groupBy?: string;
@@ -26,6 +27,7 @@ export function Header({
   subtitle,
   data,
   dataPlos,
+  dataMeasTa,
   selectedKPIs,
   filteredComparisonData,
   groupBy = "noGrup",
@@ -41,6 +43,7 @@ export function Header({
           <ExportReportButton
             data={data as unknown as RawKpiRow[]}
             dataPlos={dataPlos as unknown as PlosRow[]}
+            dataMeasTa={dataMeasTa as unknown as MeasTa4GRow[]}
             selectedKPIs={selectedKPIs || []}
             filteredComparisonData={filteredComparisonData || []}
             groupBy={groupBy}

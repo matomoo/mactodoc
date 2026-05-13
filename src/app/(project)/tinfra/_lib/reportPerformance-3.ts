@@ -80,6 +80,18 @@ export interface RawKpiPlos4G {
   rows: PlosRow[];
 }
 
+export interface MeasTa4GRow {
+  siteid_cellid: string;
+  sector: string;
+  ta_range: string;
+  sort_order: number;
+  total_reports: number;
+}
+
+export interface RawMeasTa4G {
+  rows: MeasTa4GRow[];
+}
+
 // ─── COMPARISON DATA TYPE ─────────────────────────────────────────────────────
 
 export interface ComparisonRow {
@@ -1077,6 +1089,7 @@ export async function reportPerformance({
   filteredComparisonData,
   groupBy = "G4_AGGRBY",
   dataPlos,
+  dataMeasTa,
 }: {
   filteredData: RawKpiRow[];
   fileName?: string;
@@ -1084,6 +1097,7 @@ export async function reportPerformance({
   filteredComparisonData?: ComparisonRow[];
   groupBy?: string;
   dataPlos?: RawKpiPlos4G[];
+  dataMeasTa?: RawMeasTa4G[];
 }): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();
@@ -1107,6 +1121,8 @@ export async function reportPerformance({
   if (dataPlos && dataPlos.length > 0) {
     addPlosSlide(pres, dataPlos);
   }
+
+  console.log(dataMeasTa);
 
   const name =
     fileName ??
