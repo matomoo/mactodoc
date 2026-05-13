@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { reportPerformance } from "../../_lib/reportPerformance-3";
 import type { RawKpiRow, ComparisonRow, PlosRow, MeasTa4GRow } from "../../_lib/reportPerformance-3";
+import { Button } from "@/components/ui/button";
 
 interface ExportReportButtonProps {
   data: RawKpiRow[];
@@ -65,14 +66,13 @@ export default function ExportReportButton({
   }
 
   return (
-    <button
+    <Button
       onClick={handleExport}
       type="button"
       disabled={loading}
-      className={
-        className ??
-        `inline-flex items-center gap-2 rounded-md bg-teal-600 px-4 py-2 font-semibold text-sm text-white shadow-sm transition-colors hover:bg-teal-700 disabled:opacity-50`
-      }
+      variant="default"
+      size="default"
+      className={className}
     >
       {loading ? (
         <>
@@ -96,6 +96,6 @@ export default function ExportReportButton({
           Export to PowerPoint
         </>
       )}
-    </button>
+    </Button>
   );
 }

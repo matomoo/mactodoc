@@ -81,7 +81,9 @@ export interface RawKpiPlos4G {
 }
 
 export interface MeasTa4GRow {
+  siteid: string;
   siteid_cellid: string;
+  cellId: number;
   sector: string;
   ta_range: string;
   sort_order: number;
@@ -1054,6 +1056,178 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
   }
 }
 
+function addMeasTaSlide(pres: PptxGenJS, dataMeasTa: RawMeasTa4G[]): void {
+  // ── 1. Extract all rows and group by siteid then sector ─────────────────────
+  interface MeasTaGroup {
+    siteid: string;
+    sector: string;
+    /** Map: cellId -> Map: ta_range -> total_reports */
+    byCellAndTa: Map<number, Map<string, number>>;
+  }
+
+  // Extract all rows from all dataMeasTa entries
+  const allRows: MeasTa4GRow[] = [];
+  for (const entry of dataMeasTa) {
+    if (entry.rows && Array.isArray(entry.rows)) {
+      allRows.push(...entry.rows);
+    }
+  }
+
+  // Group by siteid then sector
+  const groupedBySiteSector = new Map<string, MeasTaGroup>();
+  for (const row of allRows) {
+    const key = `${row.siteid}_${row.sector}`;
+    if (!groupedBySiteSector.has(key)) {
+      groupedBySiteSector.set(key, {
+        siteid: row.siteid,
+        sector: row.sector,
+        byCellAndTa: new Map(),
+      });
+    }
+    const group = groupedBySiteSector.get(key);
+    if (!group) continue;
+
+    // Initialize cell map if not exists
+    if (!group.byCellAndTa.has(row.cellId)) {
+      group.byCellAndTa.set(row.cellId, new Map());
+    }
+    const cellMap = group.byCellAndTa.get(row.cellId);
+    if (!cellMap) continue;
+
+    // Accumulate total_reports for each ta_range
+    const prev = cellMap.get(row.ta_range) ?? 0;
+    cellMap.set(row.ta_range, prev + row.total_reports);
+  }
+
+  // Convert to array and sort by siteid then sector
+  const groups: MeasTaGroup[] = Array.from(groupedBySiteSector.values()).sort((a, b) => {
+    if (a.siteid !== b.siteid) return a.siteid.localeCompare(b.siteid);
+    return a.sector.localeCompare(b.sector);
+  });
+
+  // ── 2. Build unified sorted ta_range labels ─────────────────────────────────
+  const taRangeSet = new Set<string>();
+  for (const g of groups) {
+    for (const cellMap of g.byCellAndTa.values()) {
+      for (const taRange of cellMap.keys()) {
+        taRangeSet.add(taRange);
+      }
+    }
+  }
+  const labels = Array.from(taRangeSet).sort((a, b) => {
+    // Extract sort_order from ta_range string for sorting
+    const getOrder = (str: string) => {
+      const match = str.match(/TA Value (\d+)/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+    return getOrder(a) - getOrder(b);
+  });
+
+  // ── 3. Helper: extract aligned value array for a cell ───────────────────────
+  function extractCellSeries(cellMap: Map<string, number>, dec: number): number[] {
+    return labels.map((lbl) => {
+      const v = cellMap.get(lbl) ?? 0;
+      return parseFloat(v.toFixed(dec));
+    });
+  }
+
+  // ── 4. Create slides with 4 sections each (2x2 grid) ───────────────────────
+  const SECTIONS_PER_SLIDE = 4;
+  for (let i = 0; i < groups.length; i += SECTIONS_PER_SLIDE) {
+    const slideGroups = groups.slice(i, i + SECTIONS_PER_SLIDE);
+    const slide = pres.addSlide();
+    slide.background = { color: THEME.offWhite };
+
+    // Slide title
+    slide.addText("TA Distribution by Site & Sector", {
+      x: 0.4,
+      y: 0.1,
+      w: 9.2,
+      h: 0.42,
+      fontSize: 16,
+      bold: true,
+      color: THEME.dark,
+      fontFace: FONT.title,
+      margin: 0,
+    });
+
+    // 2x2 grid layout
+    const GRID_COLS = 2;
+    const GRID_ROWS = 2;
+    const GUTTER = 0.15;
+    const CHART_W = (9.2 - GUTTER * (GRID_COLS - 1)) / GRID_COLS;
+    const CHART_H = (4.8 - GUTTER * (GRID_ROWS - 1)) / GRID_ROWS;
+    const START_X = 0.4;
+    const START_Y = 0.6;
+
+    slideGroups.forEach((group, idx) => {
+      const col = idx % GRID_COLS;
+      const row = Math.floor(idx / GRID_COLS);
+      const x = START_X + col * (CHART_W + GUTTER);
+      const y = START_Y + row * (CHART_H + GUTTER);
+
+      // Section title
+      slide.addText(`${group.siteid} - Sector ${group.sector}`, {
+        x,
+        y,
+        w: CHART_W,
+        h: 0.25,
+        fontSize: 10,
+        bold: true,
+        color: THEME.dark,
+        fontFace: FONT.title,
+        margin: 0,
+      });
+
+      // Build series data for each cell in this site-sector group
+      const seriesData: Array<{ name: string; labels: string[]; values: number[] }> = [];
+      const cellIds = Array.from(group.byCellAndTa.keys()).sort((a, b) => a - b);
+
+      cellIds.forEach((cellId) => {
+        const cellMap = group.byCellAndTa.get(cellId);
+        if (!cellMap) return;
+        seriesData.push({
+          name: `Cell ${cellId}`,
+          labels,
+          values: extractCellSeries(cellMap, 0),
+        });
+      });
+
+      // Chart colors for different cells
+      const chartColors = cellIds.map((_, idx) => SERIES_COLORS[idx % SERIES_COLORS.length]);
+
+      // Add bar chart
+      slide.addChart((pres as any).charts.BAR, seriesData, {
+        x,
+        y: y + 0.3,
+        w: CHART_W,
+        h: CHART_H - 0.3,
+        chartArea: { fill: { color: THEME.white }, roundedCorners: true },
+        chartColors,
+        catAxisLabelColor: THEME.slate,
+        catAxisLabelFontSize: 6,
+        catAxisLabelRotate: -45,
+        valAxisLabelColor: THEME.slate,
+        valAxisLabelFontSize: 6,
+        valGridLine: { style: "none" },
+        catGridLine: { style: "none" },
+        showLegend: true,
+        legendPos: "b",
+        legendFontSize: 6,
+        barDir: "col",
+        barGrouping: "clustered",
+        showValue: cellIds.length === 1,
+        dataLabelFontSize: 5,
+        dataLabelColor: THEME.dark,
+        dataLabelPosition: "outEnd",
+        valAxisTitle: "Reports",
+        valAxisTitleFontSize: 7,
+        valAxisTitleColor: THEME.slate,
+      } satisfies PptxGenJS.IChartOpts);
+    });
+  }
+}
+
 // ─── MAIN EXPORT FUNCTION ─────────────────────────────────────────────────────
 
 /**
@@ -1122,7 +1296,9 @@ export async function reportPerformance({
     addPlosSlide(pres, dataPlos);
   }
 
-  console.log(dataMeasTa);
+  if (dataMeasTa && dataMeasTa.length > 0) {
+    addMeasTaSlide(pres, dataMeasTa);
+  }
 
   const name =
     fileName ??

@@ -177,7 +177,7 @@ export default function PageAggCustom4GDaily({
     aggregateBy,
     rawDataSector,
   });
-  console.log({ dataMeasTa });
+  // console.log({ dataMeasTa });
 
   // Call the comparison calculation hook unconditionally
   const { comparisonData } = useComparisonCalculation(data?.rows || [], "4G");
