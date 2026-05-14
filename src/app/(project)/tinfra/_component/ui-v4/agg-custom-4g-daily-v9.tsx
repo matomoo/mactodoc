@@ -23,6 +23,7 @@ import MeasPlosSite4G from "./meas-plos-site-4g-site";
 import HqTutelaChart from "../ui-v2/hq-tutela-chart";
 import HqRhiChart from "../ui-v2/hq-rhi-chart";
 import type { RawKpiRow } from "../../_lib/reportPerformance-3";
+import { Loader2 } from "lucide-react";
 
 interface AggCustomProps {
   area?: string;
@@ -43,6 +44,27 @@ interface AggCustomProps {
   tutelaProvider?: string;
   rhiLevel?: string;
   rhiProvider?: string;
+}
+
+function QueryLoadingState({ startedAt }: { startedAt?: number }) {
+  const [elapsed, setElapsed] = useState(0);
+  // ✅ Fallback: if startedAt missing, count from when component mounts
+  const effectiveStart = useMemo(() => startedAt ?? Date.now(), [startedAt]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - effectiveStart) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [effectiveStart]);
+
+  return (
+    <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
+      <Loader2 className="h-8 w-8 animate-spin" />
+      <p className="text-sm">Aggregating data... {elapsed}s</p>
+      <p className="text-xs">Large date ranges may take up to 60s</p>
+    </div>
+  );
 }
 
 export default function PageAggCustom4GDaily({
@@ -97,6 +119,8 @@ export default function PageAggCustom4GDaily({
       filterValue !== "All",
   );
 
+  const POLL_INTERVALS = [3000, 5000, 8000, 15000, 30000]; // ms
+  const [pollCount, setPollCount] = useState(0);
   const [isPolling, setIsPolling] = useState(false);
 
   const { isPending, error, data, isError } = useQuery({
@@ -114,38 +138,36 @@ export default function PageAggCustom4GDaily({
       fieldToAggregate,
     ],
     queryFn: async () => {
-      if (!shouldFetch) {
-        return { rows: [] };
-      }
+      if (!shouldFetch) return { rows: [] };
+
       const response = await fetch(
         `/tinfra/api/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
       );
 
-      // ✅ Handle 202 — don't throw, return loading state
       if (response.status === 202) {
         setIsPolling(true);
+        setPollCount((c) => c + 1); // advance backoff
         return { rows: [], source: "loading" };
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const json = await response.json();
 
-      // ✅ Stop polling when real data arrives
       if (json.source !== "loading") {
         setIsPolling(false);
+        setPollCount(0); // reset for next query
       }
 
       return json;
     },
     enabled: shouldFetch,
     refetchOnWindowFocus: false,
-    retry: 3,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
 
-    // ✅ Poll every 15 seconds when in loading state
-    refetchInterval: isPolling ? 15000 : false,
+    // ✅ Poll aggressively at first, slow down if taking long
+    refetchInterval: isPolling ? POLL_INTERVALS[Math.min(pollCount, POLL_INTERVALS.length - 1)] : false,
     refetchIntervalInBackground: true,
   });
 
@@ -237,13 +259,17 @@ export default function PageAggCustom4GDaily({
   if (isError) return <ErrorState message={error.message} />;
 
   // ✅ Add this — show loading state when 202 / polling
+  // if (data?.source === "loading") {
+  //   return (
+  //     <EnhancedLoadingState
+  //       message="Data is being prepared, please wait..."
+  //       subMessage="This may take up to 30 seconds for the first load"
+  //     />
+  //   );
+  // }
+
   if (data?.source === "loading") {
-    return (
-      <EnhancedLoadingState
-        message="Data is being prepared, please wait..."
-        subMessage="This may take up to 30 seconds for the first load"
-      />
-    );
+    return <QueryLoadingState startedAt={data?.startedAt} />;
   }
 
   if (!data?.rows || data.rows.length === 0 || filterValue === null) {

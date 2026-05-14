@@ -21,7 +21,7 @@ export default function Page() {
         <FilterBy_Date_DynamicField fieldToSearch="kecamatan" />
       </div>
       <PageAggCustom4GDaily
-        apiPath={"v2/mv-meas-dynamic-4g"}
+        apiPath={"v2/cache-meas-4g"}
         apiPathPloss={"aggregate/plos-dy-kabupaten-4g"}
         aggregateBy="G4_AGGRBY"
         filterLabel=""
