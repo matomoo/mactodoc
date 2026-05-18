@@ -1,5 +1,3 @@
-// app/tinfra/api/meas-db-ti-sul/aggregate/meas-dy-dynamic-4g-v3/route.ts
-
 // biome-ignore assist/source/organizeImports: <none>
 import type { NextRequest } from "next/server";
 import { Redis } from "@upstash/redis";
