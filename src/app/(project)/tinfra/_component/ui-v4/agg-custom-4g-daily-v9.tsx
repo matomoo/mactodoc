@@ -46,9 +46,29 @@ interface AggCustomProps {
   rhiProvider?: string;
 }
 
+function TimeoutBanner() {
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 mb-4">
+      <div className="flex items-center gap-2 text-yellow-800">
+        <span className="text-lg">⚠️</span>
+        <div>
+          <p className="text-sm font-medium">Server timeout — Netlify cut the connection</p>
+          <p className="text-xs text-yellow-600">The query may have completed. Refreshing will load from cache.</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="ml-4 rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600 transition-colors"
+      >
+        Refresh Page
+      </button>
+    </div>
+  );
+}
+
 function QueryLoadingState({ startedAt }: { startedAt?: number }) {
   const [elapsed, setElapsed] = useState(0);
-  // ✅ Fallback: if startedAt missing, count from when component mounts
   const effectiveStart = useMemo(() => startedAt ?? Date.now(), [startedAt]);
 
   useEffect(() => {
@@ -57,6 +77,16 @@ function QueryLoadingState({ startedAt }: { startedAt?: number }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [effectiveStart]);
+
+  // ✅ Escape hatch — stop infinite polling after 90s
+  if (elapsed > 90) {
+    return (
+      <div className="min-h-screen p-4">
+        <TimeoutBanner />
+        <NoDataState message="Taking too long. Try refreshing — first load may already be cached." />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
@@ -256,8 +286,17 @@ export default function PageAggCustom4GDaily({
 
   if (isPending) return <EnhancedLoadingState />;
 
-  if (isError) return <ErrorState message={error.message} />;
-
+  if (isError) {
+    if (error.message === "502") {
+      return (
+        <div className="min-h-screen p-4">
+          <TimeoutBanner />
+          <NoDataState message="Query timed out. The data may be ready — try refreshing." />
+        </div>
+      );
+    }
+    return <ErrorState message={error.message} />;
+  }
   // ✅ Add this — show loading state when 202 / polling
   // if (data?.source === "loading") {
   //   return (
