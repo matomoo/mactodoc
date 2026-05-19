@@ -155,7 +155,7 @@ const TableComparison2G4GDaily: React.FC<{
 
   const filteredComparisonData = comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
 
-  console.log({ filteredComparisonData });
+  // console.log({ filteredComparisonData });
 
   // Call the callback when filteredComparisonData changes
   useEffect(() => {
@@ -201,8 +201,20 @@ const TableComparison2G4GDaily: React.FC<{
                   {filteredComparisonData.map((row, _index) => (
                     <tr key={row.metric} className="hover:bg-gray-50">
                       <td className="border border-gray-200 p-3 font-medium">{row.metric}</td>
-                      <td className="border border-gray-200 p-3 text-right">{row.before.toFixed(2)}</td>
-                      <td className="border border-gray-200 p-3 text-right">{row.after.toFixed(2)}</td>
+                      <td className="border border-gray-200 p-3 text-right">
+                        {`${new Intl.NumberFormat("en-US", {
+                          notation: "compact",
+                          compactDisplay: "short",
+                          maximumFractionDigits: 2,
+                        }).format(row.before)}`}
+                      </td>
+                      <td className="border border-gray-200 p-3 text-right">
+                        {`${new Intl.NumberFormat("en-US", {
+                          notation: "compact",
+                          compactDisplay: "short",
+                          maximumFractionDigits: 2,
+                        }).format(row.after)}`}
+                      </td>
                       <td
                         className={`border border-gray-200 p-3 text-right ${
                           row.growth > 2 && row.delta > 0
@@ -212,7 +224,11 @@ const TableComparison2G4GDaily: React.FC<{
                               : "text-yellow-600"
                         }`}
                       >
-                        {row.delta.toFixed(2)}
+                        {`${new Intl.NumberFormat("en-US", {
+                          notation: "compact",
+                          compactDisplay: "short",
+                          maximumFractionDigits: 2,
+                        }).format(row.delta)}`}
                       </td>
                       <td
                         className={`border border-gray-200 p-3 text-right ${

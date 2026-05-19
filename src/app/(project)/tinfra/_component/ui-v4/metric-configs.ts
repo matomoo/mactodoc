@@ -500,7 +500,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     tech: "5G",
     calculate: (filteredData) => {
       const sum = filteredData.reduce((total, item) => total + (item.G5_AVAILABILITY_SR || 0), 0);
-      return filteredData.length > 0 ? sum / filteredData.length : 0;
+      return filteredData.length > 0 ? (sum / filteredData.length) * 100 : 0;
     },
     id: "G5_AVAILABILITY_SR",
     metric_num: "G5_AVAILABILITY_SR",
