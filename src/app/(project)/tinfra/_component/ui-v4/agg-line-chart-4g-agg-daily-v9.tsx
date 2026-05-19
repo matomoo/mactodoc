@@ -77,6 +77,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     return title.toLowerCase().includes("traffic") || title.toLowerCase().includes("payload");
   }, [title]);
 
+  const isNotPercentile = useMemo(() => {
+    return title.includes("PRB Usage UL") || title.includes("PRB Usage DL");
+  }, [title]);
+
   const isMaxUserChart = useMemo(() => {
     return title.toLowerCase().includes("rrc user");
   }, [title]);
@@ -237,6 +241,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               if (isAvailability) {
                 value = totalNum > totalDenum ? 100 : (totalNum / totalDenum) * 100;
               }
+
               if (isPercentage && !isDropRatePercentage && !isAvailability) value *= 100;
               if (isAverage && totalCount > 0) value /= totalCount;
 
@@ -318,7 +323,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                 const datasetLabel = context.dataset.label || "";
                 const value = context.parsed.y || 0;
 
-                if (isTrafficChart || isMaxUserChart) {
+                if (isTrafficChart || isMaxUserChart || isNotPercentile) {
                   return `${datasetLabel}: ${new Intl.NumberFormat("en-US", {
                     notation: "standard",
                     compactDisplay: "short",
@@ -370,7 +375,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
               },
               callback: (value) => {
                 if (typeof value === "number") {
-                  if (isTrafficChart || isMaxUserChart || isThpChart) {
+                  if (isTrafficChart || isMaxUserChart || isThpChart || isNotPercentile) {
                     return new Intl.NumberFormat("en-US", {
                       notation: "compact",
                       compactDisplay: "short",
@@ -482,6 +487,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
     isMaxUserChart,
     isThpChart,
     isAvailability,
+    isNotPercentile,
   ]);
 
   if (!data?.length) {

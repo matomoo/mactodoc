@@ -523,7 +523,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G5_SN_SETUP_SR_DENUM",
   },
   {
-    title: "NR_Retainability(%)",
+    title: "NR Retainability (%)",
     tech: "5G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_RETAINABILITY_NUM || 0), 0);
@@ -532,7 +532,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     },
     id: "G5_RETAINABILITY_NUM",
     metric_num: "G5_RETAINABILITY_NUM",
-    metric_denum: "G5_RETAINABILITY_NUM",
+    metric_denum: "G5_RETAINABILITY_DENUM",
   },
   {
     title: "Intra Handover Success Rate (%)",
@@ -681,7 +681,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "G5_PRB_UTIL_UL_DENUM",
   },
   {
-    title: "Avg CQI 64 QAM (%)",
+    title: "Avg CQI 64 QAM",
     tech: "5G",
     calculate: (filteredData) => {
       const sum = filteredData.reduce((total, item) => total + (item.G5_AVG_CQI_64_QAM || 0), 0);
@@ -692,7 +692,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "DENUMBY1",
   },
   {
-    title: "Avg CQI 256 QAM (%)",
+    title: "Avg CQI 256 QAM",
     tech: "5G",
     calculate: (filteredData) => {
       const sum = filteredData.reduce((total, item) => total + (item.G5_AVG_CQI_256_QAM || 0), 0);
@@ -703,7 +703,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "DENUMBY1",
   },
   {
-    title: "PRB Usage DL (%)",
+    title: "PRB Usage DL",
     tech: "5G",
     calculate: (filteredData) => {
       const sum = filteredData.reduce((total, item) => total + (item.G5_PRB_USAGE_DL || 0), 0);
@@ -714,7 +714,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_denum: "DENUMBY1",
   },
   {
-    title: "PRB Usage UL (%)",
+    title: "PRB Usage UL",
     tech: "5G",
     calculate: (filteredData) => {
       const sum = filteredData.reduce((total, item) => total + (item.G5_PRB_USAGE_UL || 0), 0);
