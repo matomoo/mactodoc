@@ -162,4 +162,15 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+  {
+    id: 5,
+    label: "5G",
+    items: [
+      {
+        title: "Site Cell",
+        url: "/tinfra/displays/dashboard/aggregate/5g/site-cell",
+        icon: Fingerprint,
+      },
+    ],
+  },
 ];

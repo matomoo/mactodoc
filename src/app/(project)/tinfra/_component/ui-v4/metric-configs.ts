@@ -253,6 +253,7 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_num: "NUM_PDTCH_CONGESTION",
     metric_denum: "DENUM_PDTCH_CONGESTION",
   },
+
   //// metric 4G
   {
     title: "Total Payload (GB)",
@@ -483,6 +484,245 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     id: "G4_SRVCC_E2G_SR_NUM",
     metric_num: "G4_SRVCC_E2G_SR_NUM",
     metric_denum: "G4_SRVCC_E2G_SR_DENUM",
+  },
+  //
+  //// metric 5G
+  {
+    title: "Total Payload (GB)",
+    tech: "5G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G5_PAYLOAD_GB || 0), 0),
+    id: "G5_PAYLOAD_GB",
+    metric_num: "G5_PAYLOAD_GB",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Availability (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_AVAILABILITY_SR || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_AVAILABILITY_SR",
+    metric_num: "G5_AVAILABILITY_SR",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "SN Setup Success Rate(%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_SN_SETUP_SR_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_SN_SETUP_SR_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_SN_SETUP_SR_NUM",
+    metric_num: "G5_SN_SETUP_SR_NUM",
+    metric_denum: "G5_SN_SETUP_SR_DENUM",
+  },
+  {
+    title: "NR_Retainability(%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_RETAINABILITY_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_RETAINABILITY_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0 ? 0 : Number((totalNum / totalDenum).toFixed(2));
+    },
+    id: "G5_RETAINABILITY_NUM",
+    metric_num: "G5_RETAINABILITY_NUM",
+    metric_denum: "G5_RETAINABILITY_NUM",
+  },
+  {
+    title: "Intra Handover Success Rate (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_INTRA_HO_SR_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_INTRA_HO_SR_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_INTRA_HO_SR_NUM",
+    metric_num: "G5_INTRA_HO_SR_NUM",
+    metric_denum: "G5_INTRA_HO_SR_DENUM",
+  },
+  {
+    title: "Inter Handover Success Rate (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_INTER_HO_SR_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_INTER_HO_SR_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_INTER_HO_SR_NUM",
+    metric_num: "G5_INTER_HO_SR_NUM",
+    metric_denum: "G5_INTER_HO_SR_DENUM",
+  },
+  {
+    title: "User Throughput DL (Mbps)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_USER_THP_MBPS || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_USER_THP_MBPS",
+    metric_num: "G5_USER_THP_MBPS",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Average CQI",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_AVG_CQI || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_AVG_CQI",
+    metric_num: "G5_AVG_CQI",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Uplink Interference (dBm)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_UL_INTERFERENCE_DBM || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_UL_INTERFERENCE_DBM",
+    metric_num: "G5_UL_INTERFERENCE_DBM",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Spectrum Eff",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_SE_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_SE_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_SE_NUM",
+    metric_num: "G5_SE_NUM",
+    metric_denum: "G5_SE_DENUM",
+  },
+  {
+    title: "RRC User Number",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_RRC_USER_NUMBER || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_RRC_USER_NUMBER",
+    metric_num: "G5_RRC_USER_NUMBER",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Active User Number",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_ACTIVE_USER_NUMBER || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_ACTIVE_USER_NUMBER",
+    metric_num: "G5_ACTIVE_USER_NUMBER",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Max RRC User Number",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_MAX_RRC_USER_NUMBER || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_MAX_RRC_USER_NUMBER",
+    metric_num: "G5_MAX_RRC_USER_NUMBER",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "PRB DL Utilization (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_PRB_UTIL_DL_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_PRB_UTIL_DL_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_PRB_UTIL_DL_NUM",
+    metric_num: "G5_PRB_UTIL_DL_NUM",
+    metric_denum: "G5_PRB_UTIL_DL_DENUM",
+  },
+  {
+    title: "PRB UL Utilization (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G5_PRB_UTIL_UL_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G5_PRB_UTIL_UL_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) < 0
+        ? 0
+        : totalNum > totalDenum
+          ? 100.0
+          : Number(((totalNum / totalDenum) * 100).toFixed(2));
+    },
+    id: "G5_PRB_UTIL_UL_NUM",
+    metric_num: "G5_PRB_UTIL_UL_NUM",
+    metric_denum: "G5_PRB_UTIL_UL_DENUM",
+  },
+  {
+    title: "Avg CQI 64 QAM (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_AVG_CQI_64_QAM || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_AVG_CQI_64_QAM",
+    metric_num: "G5_AVG_CQI_64_QAM",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Avg CQI 256 QAM (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_AVG_CQI_256_QAM || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_AVG_CQI_256_QAM",
+    metric_num: "G5_AVG_CQI_256_QAM",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "PRB Usage DL (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_PRB_USAGE_DL || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_PRB_USAGE_DL",
+    metric_num: "G5_PRB_USAGE_DL",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "PRB Usage UL (%)",
+    tech: "5G",
+    calculate: (filteredData) => {
+      const sum = filteredData.reduce((total, item) => total + (item.G5_PRB_USAGE_UL || 0), 0);
+      return filteredData.length > 0 ? sum / filteredData.length : 0;
+    },
+    id: "G5_PRB_USAGE_UL",
+    metric_num: "G5_PRB_USAGE_UL",
+    metric_denum: "DENUMBY1",
   },
 ];
 

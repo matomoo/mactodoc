@@ -350,5 +350,34 @@ export interface Data2G4GModel {
   G4_SRVCC_E2G_SR_DENUM: number;
   G4_AVG_NI_CARRIER_DBM: number;
 
+  G5_BEGIN_TIME: string;
+  G5_SITEID_CELLID: string;
+  G5_PAYLOAD_GB: number;
+  G5_SN_SETUP_SR_NUM: number;
+  G5_SN_SETUP_SR_DENUM: number;
+  G5_AVAILABILITY_SR: number;
+  G5_RETAINABILITY_NUM: number;
+  G5_RETAINABILITY_DENUM: number;
+  G5_INTRA_HO_SR_NUM: number;
+  G5_INTRA_HO_SR_DENUM: number;
+  G5_USER_THP_MBPS: number;
+  G5_AVG_CQI: number;
+  G5_UL_INTERFERENCE_DBM: number;
+  G5_SE_NUM: number;
+  G5_SE_DENUM: number;
+  G5_RRC_USER_NUMBER: number;
+  G5_ACTIVE_USER_NUMBER: number;
+  G5_MAX_RRC_USER_NUMBER: number;
+  G5_INTER_HO_SR_NUM: number;
+  G5_INTER_HO_SR_DENUM: number;
+  G5_PRB_UTIL_DL_NUM: number;
+  G5_PRB_UTIL_DL_DENUM: number;
+  G5_PRB_UTIL_UL_NUM: number;
+  G5_PRB_UTIL_UL_DENUM: number;
+  G5_AVG_CQI_64_QAM: number;
+  G5_AVG_CQI_256_QAM: number;
+  G5_PRB_USAGE_DL: number;
+  G5_PRB_USAGE_UL: number;
+
   [key: string]: unknown;
 }

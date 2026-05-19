@@ -70,7 +70,8 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
   const chartInstance = useRef<Chart | null>(null);
   const isAvailability = title.includes("Availability (%)");
 
-  const isDropRatePercentage = title.toUpperCase().includes("DROP RATE");
+  const isDropRatePercentage =
+    title.toUpperCase().includes("DROP RATE") || title.toUpperCase().includes("RETAINABILITY");
   const isSeCqi = title.toUpperCase().includes("SE BH") || title.toUpperCase().includes("CQI BH");
   const isTrafficChart = useMemo(() => {
     return title.toLowerCase().includes("traffic") || title.toLowerCase().includes("payload");
@@ -232,11 +233,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 
               if (totalDenum === 0) return 0;
 
-              let value = isDenumBy1
-                ? totalNum
-                : isDropRatePercentage
-                  ? 100 - totalNum / totalDenum
-                  : totalNum / totalDenum;
+              let value = isDenumBy1 ? totalNum : isDropRatePercentage ? totalNum / totalDenum : totalNum / totalDenum;
               if (isAvailability) {
                 value = totalNum > totalDenum ? 100 : (totalNum / totalDenum) * 100;
               }
