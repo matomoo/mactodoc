@@ -18,6 +18,7 @@ interface HeaderProps {
   selectedKPIs?: string[];
   filteredComparisonData?: RawKpiRow[];
   groupBy?: string;
+  showExportPpt?: boolean;
 }
 
 export function Header({
@@ -31,6 +32,7 @@ export function Header({
   selectedKPIs,
   filteredComparisonData,
   groupBy = "noGrup",
+  showExportPpt = true,
 }: HeaderProps) {
   return (
     <div className="sticky top-13 z-30 mt-4 rounded-lg border-b bg-white px-4 py-2 shadow-sm lg:px-6">
@@ -40,14 +42,16 @@ export function Header({
           <p className="text-gray-600 text-sm">{subtitle || "Real-time metrics and analysis dashboard"}</p>
         </div>
         <div className="flex flex-row gap-4">
-          <ExportReportButton
-            data={data as unknown as RawKpiRow[]}
-            dataPlos={dataPlos as unknown as PlosRow[]}
-            dataMeasTa={dataMeasTa as unknown as MeasTa4GRow[]}
-            selectedKPIs={selectedKPIs || []}
-            filteredComparisonData={filteredComparisonData || []}
-            groupBy={groupBy}
-          />
+          {showExportPpt && (
+            <ExportReportButton
+              data={data as unknown as RawKpiRow[]}
+              dataPlos={dataPlos as unknown as PlosRow[]}
+              dataMeasTa={dataMeasTa as unknown as MeasTa4GRow[]}
+              selectedKPIs={selectedKPIs || []}
+              filteredComparisonData={filteredComparisonData || []}
+              groupBy={groupBy}
+            />
+          )}
           {groupBy === "G4_SITEID_CELLID" && (
             <div className="flex items-center gap-3">
               <button

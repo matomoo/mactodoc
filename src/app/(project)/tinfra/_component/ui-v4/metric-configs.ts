@@ -724,6 +724,24 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
     metric_num: "G5_PRB_USAGE_UL",
     metric_denum: "DENUMBY1",
   },
+
+  //// metric productivity all
+  {
+    title: "Total Payload (GB)",
+    tech: "All",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TOTAL_PAYLOAD_GB || 0), 0),
+    id: "TOTAL_PAYLOAD_GB",
+    metric_num: "TOTAL_PAYLOAD_GB",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Total Traffic (Erl)",
+    tech: "All",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TOTAL_TRAFFIC_ERL || 0), 0),
+    id: "TOTAL_TRAFFIC_ERL",
+    metric_num: "TOTAL_TRAFFIC_ERL",
+    metric_denum: "DENUMBY1",
+  },
 ];
 
 // Generic filter function that can be shared

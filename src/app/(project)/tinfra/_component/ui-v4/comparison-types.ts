@@ -10,7 +10,7 @@ export interface MetricConfig {
 export interface UnifiedMetricConfig {
   id: string; // Unique identifier (matches metric_num)
   title: string; // Chart title
-  tech: "5G" | "4G" | "2G"; // Technology type
+  tech: "5G" | "4G" | "2G" | "All"; // Technology type
   metric_num: string; // Numerator field
   metric_denum?: string; // Denominator field (optional)
   calculate?: (data: Data2G4GModel[]) => number; // Optional custom calculation
@@ -29,7 +29,7 @@ export const METRIC_CONFIGS: UnifiedMetricConfig[] = [
 ];
 
 export interface ComparisonResult {
-  tech: "2G" | "4G" | "5G";
+  tech: "2G" | "4G" | "5G" | "All";
   metric: string;
   metric_num: string;
   before: number;

@@ -25,7 +25,7 @@ export default function Page() {
       <PageAggCustomProductivityAll
         apiPath={"v3/v1-productivity-all"}
         apiPathPloss={"aggregate/plos-dy-site-4g"}
-        aggregateBy="G4_SITEID"
+        aggregateBy="SITEID"
         filterLabel=""
         showViewModeState="metrics"
         aggMode="site"

@@ -14,9 +14,11 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
+import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface ChartDataItem {
+export interface ChartDataItem {
   BEGIN_TIME: string;
   SITEID: string;
   TOTAL_PAYLOAD_GB: number;
@@ -24,9 +26,11 @@ interface ChartDataItem {
   Tech: string;
 }
 
-interface ProductivityAllChartsProps {
+export interface ProductivityAllChartsProps {
   data: ChartDataItem[];
   legendBy?: string;
+  payloadTitle?: string;
+  trafficTitle?: string;
 }
 
 const colors = [
@@ -40,7 +44,12 @@ const colors = [
   "rgba(249, 115, 22, 1)", // orange
 ];
 
-export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityAllChartsProps) {
+export function ProductivityAllCharts({
+  data,
+  legendBy = "Tech",
+  payloadTitle = "Total Payload (GB)",
+  trafficTitle = "Total Traffic (Erlang)",
+}: ProductivityAllChartsProps) {
   const uniqueDates = useMemo(() => [...new Set(data.map((d) => d.BEGIN_TIME.split(" ")[0]))].sort(), [data]);
   const uniqueLegends = useMemo(
     () => [...new Set(data.map((d) => d[legendBy as keyof ChartDataItem]))].sort(),
@@ -110,8 +119,8 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
       backgroundColor: color.replace("1)", "0.1)"),
       fill: true,
       tension: 0.3,
-      pointRadius: 3,
-      pointHoverRadius: 5,
+      pointRadius: 0,
+      pointHoverRadius: 3,
     });
 
     if (isAllMode) {
@@ -184,20 +193,28 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
       maintainAspectRatio: false,
       plugins: {
         datalabels: { display: false },
-
         legend: {
           position: "top" as const,
           labels: {
             usePointStyle: true,
-            padding: 15,
             font: {
-              size: 11,
+              size: chartJsV1Settings.legendFontSize,
+              family: chartJsV1Settings.legendFontFamily,
+              weight: chartJsV1Settings.legendFontWeight,
             },
           },
         },
         tooltip: {
-          mode: "index" as const,
-          intersect: false,
+          mode: "point" as const,
+          intersect: true,
+          backgroundColor: chartJsV1Settings.tooltipBackgroundColor,
+          titleFont: {
+            size: chartJsV1Settings.tooltipTitleFontSize,
+          },
+          bodyFont: {
+            size: chartJsV1Settings.tooltipBodyFontSize,
+          },
+          padding: 12,
         },
       },
       scales: {
@@ -208,6 +225,9 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
           ticks: {
             maxRotation: 90,
             minRotation: 90,
+            font: {
+              size: chartJsV1Settings.xAxisTickFontSize,
+            },
           },
         },
         y: {
@@ -217,10 +237,20 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
           grid: {
             color: "rgba(0, 0, 0, 0.05)",
           },
+          ticks: {
+            font: {
+              size: chartJsV1Settings.yAxisTickFontSize,
+            },
+          },
           ...(isTechMode && {
             title: {
               display: true,
               text: "2G & 5G",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
             },
           }),
         },
@@ -235,6 +265,16 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
             title: {
               display: true,
               text: "4G",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
+            },
+            ticks: {
+              font: {
+                size: chartJsV1Settings.yAxisTickFontSize,
+              },
             },
           },
         }),
@@ -246,6 +286,42 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
       },
     }),
     [isTechMode],
+  );
+
+  const payloadOptions = useMemo(
+    () => ({
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          display: true,
+          text: payloadTitle,
+          font: {
+            size: chartJsV1Settings.titleFontSize,
+            weight: chartJsV1Settings.titleFontWeight,
+          },
+        },
+      },
+    }),
+    [commonOptions, payloadTitle],
+  );
+
+  const trafficOptions = useMemo(
+    () => ({
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        title: {
+          display: true,
+          text: trafficTitle,
+          font: {
+            size: chartJsV1Settings.titleFontSize,
+            weight: chartJsV1Settings.titleFontWeight,
+          },
+        },
+      },
+    }),
+    [commonOptions, trafficTitle],
   );
 
   const payloadChartData = {
@@ -266,17 +342,15 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Payload Chart */}
       <div className="rounded-lg border bg-white p-4 shadow-sm">
-        <h3 className="mb-4 text-center text-lg font-semibold text-gray-700">Total Payload (GB)</h3>
         <div className="h-72">
-          <Line data={payloadChartData} options={commonOptions} />
+          <Line data={payloadChartData} options={payloadOptions} />
         </div>
       </div>
 
       {/* Traffic Chart */}
       <div className="rounded-lg border bg-white p-4 shadow-sm">
-        <h3 className="mb-4 text-center text-lg font-semibold text-gray-700">Total Traffic (Erlang)</h3>
         <div className="h-72">
-          <Line data={trafficChartData} options={commonOptions} />
+          <Line data={trafficChartData} options={trafficOptions} />
         </div>
       </div>
     </div>
