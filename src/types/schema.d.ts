@@ -209,6 +209,7 @@ export interface Data2G4GModel {
   KABUPATEN: string;
   BTS_NAME: string;
   BAND: string;
+  SITEID: string;
   SDCCH_TRAFFIC_ERL: number;
   TCH_TRAFFIC_ERL: number;
   EDGE_PAYLOAD_MB: number;
@@ -259,6 +260,7 @@ export interface Data2G4GModel {
 
   CELL_NAME: string;
   REMARK_POWER: string;
+  TOTAL_TRAFFIC_ERL: number;
   TOTAL_PAYLOAD_GB: number;
   TOTAL_PAYLOAD_TB: number;
   AVG_MAX_NUMBER_RRC_CONNECTION_USER: number;

@@ -103,11 +103,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan",
         icon: Fingerprint,
       },
-      // {
-      //   title: "Kecamatan - Site",
-      //   url: "/tinfra/displays/dashboard/aggregate/4g/kecamatan-site",
-      //   icon: Fingerprint,
-      // },
+      {
+        title: "Productivity All",
+        url: "/tinfra/displays/dashboard-v2/productivity-all-siteid",
+        icon: Fingerprint,
+      },
       {
         title: "Site",
         url: "/tinfra/displays/dashboard/aggregate/4g/site",
