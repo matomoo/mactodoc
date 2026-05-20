@@ -33,7 +33,7 @@ export function PerformanceSummarySectionProductivityAll({
           <TableComparisonProductivityAll
             data={filteredData}
             selectedKPIs={selectedKPIs}
-            onSelectedKPIsChange={onSelectedKPIsChange}
+            // onSelectedKPIsChange={onSelectedKPIsChange}
             tech="All"
             onFilteredComparisonDataChange={onFilteredComparisonDataChange}
           />

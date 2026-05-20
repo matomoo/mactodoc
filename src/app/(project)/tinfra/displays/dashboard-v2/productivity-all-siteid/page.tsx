@@ -24,19 +24,19 @@ export default function Page() {
       </div>
       <PageAggCustomProductivityAll
         apiPath={"v3/v1-productivity-all"}
-        apiPathPloss={"aggregate/plos-dy-site-4g"}
+        // apiPathPloss={"aggregate/plos-dy-site-4g"}
         aggregateBy="SITEID"
         filterLabel=""
-        showViewModeState="metrics"
+        // showViewModeState="metrics"
         aggMode="site"
-        isShowTa={false}
-        isShowHqRhi={true}
-        apiPathRhi={"aggregate/hq-rhi/by-region"}
+        // isShowTa={false}
+        // isShowHqRhi={true}
+        // apiPathRhi={"aggregate/hq-rhi/by-region"}
         fieldToAggregate="siteid"
-        tutelaLevel="Kabupaten"
-        tutelaProvider="Telkomsel"
-        rhiLevel="Kabupaten"
-        rhiProvider="Telkomsel"
+        // tutelaLevel="Kabupaten"
+        // tutelaProvider="Telkomsel"
+        // rhiLevel="Kabupaten"
+        // rhiProvider="Telkomsel"
       />
     </div>
   );

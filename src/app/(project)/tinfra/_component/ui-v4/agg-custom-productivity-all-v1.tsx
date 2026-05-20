@@ -88,7 +88,6 @@ export default function PageAggCustomProductivityAll({
 
   const dataManagement = useDataManagementProductivityAll({
     data,
-    aggregateBy,
     rawDataSector: { rows: [] },
   });
 
