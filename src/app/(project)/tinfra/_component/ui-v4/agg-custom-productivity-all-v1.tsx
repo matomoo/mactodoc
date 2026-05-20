@@ -321,6 +321,7 @@ export default function PageAggCustomProductivityAll({
                       showViewModeState={showViewModeState}
                       aggMode={aggMode}
                     /> */}
+                    <ProductivityAllCharts data={data.rows} legendBy="All" />
                     <ProductivityAllCharts data={data.rows} legendBy="SITEID" />
                     <ProductivityAllCharts data={data.rows} legendBy="Tech" />
                   </TabsContent>

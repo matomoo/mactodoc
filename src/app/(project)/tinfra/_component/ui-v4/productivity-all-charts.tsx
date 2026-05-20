@@ -101,109 +101,152 @@ export function ProductivityAllCharts({ data, legendBy = "Tech" }: ProductivityA
       stack: string;
     }[] = [];
 
-    uniqueLegends.forEach((legendValue, index) => {
-      const legendKey = legendBy as keyof ChartDataItem;
-      const legendData = data.filter((d) => d[legendKey] === legendValue);
-      const is4G = String(legendValue).toLowerCase() === "4g";
-      const color = colors[index % colors.length];
+    const isAllMode = legendBy.toLowerCase() === "all";
 
-      const commonProps = {
-        label: String(legendValue),
-        borderColor: color,
-        backgroundColor: color.replace("1)", "0.1)"),
-        fill: true,
-        tension: 0.3,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        datalabels: { display: false },
-      };
+    // Prepare common props factory
+    const buildCommonProps = (label: string, color: string) => ({
+      label,
+      borderColor: color,
+      backgroundColor: color.replace("1)", "0.1)"),
+      fill: true,
+      tension: 0.3,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    });
+
+    if (isAllMode) {
+      // Single dataset: sum all values per date, detect tech from first row
+      const firstRowTech = data[0]?.Tech?.toLowerCase() ?? "2g";
+      const is4G = firstRowTech === "4g";
+      const color = colors[0];
 
       payload.push({
-        ...commonProps,
+        ...buildCommonProps("Total", color),
         data: uniqueDates.map((date) => {
-          const dayData = legendData.find((d) => d.BEGIN_TIME.split(" ")[0] === date);
-          return dayData ? dayData.TOTAL_PAYLOAD_GB : null;
+          const dayData = data.filter((d) => d.BEGIN_TIME.split(" ")[0] === date);
+          const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_PAYLOAD_GB ?? 0), 0);
+          return sum || null;
         }),
-        yAxisID: is4G ? "y1" : "y",
-        stack: is4G ? "stack-4g" : "stack-2g",
+        yAxisID: "y",
+        stack: "stack-2g",
       });
 
       traffic.push({
-        ...commonProps,
+        ...buildCommonProps("Total", color),
         data: uniqueDates.map((date) => {
-          const dayData = legendData.find((d) => d.BEGIN_TIME.split(" ")[0] === date);
-          return dayData ? dayData.TOTAL_TRAFFIC_ERL : null;
+          const dayData = data.filter((d) => d.BEGIN_TIME.split(" ")[0] === date);
+          const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_TRAFFIC_ERL ?? 0), 0);
+          return sum || null;
         }),
-        yAxisID: is4G ? "y1" : "y",
-        stack: is4G ? "stack-4g" : "stack-2g",
+        yAxisID: "y",
+        stack: "stack-2g",
       });
-    });
+    } else {
+      // Per grouping (SITEID or Tech) dataset: sum values by date + group
+      uniqueLegends.forEach((legendValue, index) => {
+        const legendKey = legendBy as keyof ChartDataItem;
+        const legendData = data.filter((d) => d[legendKey] === legendValue);
+        const is4G = String(legendValue).toLowerCase() === "4g";
+        const color = colors[index % colors.length];
+
+        payload.push({
+          ...buildCommonProps(String(legendValue), color),
+          data: uniqueDates.map((date) => {
+            const dayData = legendData.filter((d) => d.BEGIN_TIME.split(" ")[0] === date);
+            const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_PAYLOAD_GB ?? 0), 0);
+            return sum || null;
+          }),
+          yAxisID: is4G ? "y1" : "y",
+          stack: is4G ? "stack-4g" : "stack-2g",
+        });
+
+        traffic.push({
+          ...buildCommonProps(String(legendValue), color),
+          data: uniqueDates.map((date) => {
+            const dayData = legendData.filter((d) => d.BEGIN_TIME.split(" ")[0] === date);
+            const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_TRAFFIC_ERL ?? 0), 0);
+            return sum || null;
+          }),
+          yAxisID: is4G ? "y1" : "y",
+          stack: is4G ? "stack-4g" : "stack-2g",
+        });
+      });
+    }
 
     return { payloadDatasets: payload, trafficDatasets: traffic };
   }, [uniqueLegends, uniqueDates, data, legendBy]);
 
-  const commonOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      datalabels: { display: false },
+  const isTechMode = legendBy.toLowerCase() === "tech";
 
-      legend: {
-        position: "top" as const,
-        labels: {
-          usePointStyle: true,
-          padding: 15,
-          font: {
-            size: 11,
+  const commonOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        datalabels: { display: false },
+
+        legend: {
+          position: "top" as const,
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            font: {
+              size: 11,
+            },
           },
         },
+        tooltip: {
+          mode: "index" as const,
+          intersect: false,
+        },
       },
-      tooltip: {
-        mode: "index" as const,
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            maxRotation: 90,
+            minRotation: 90,
+          },
+        },
+        y: {
+          stacked: false,
+          beginAtZero: false,
+          position: "left" as const,
+          grid: {
+            color: "rgba(0, 0, 0, 0.05)",
+          },
+          ...(isTechMode && {
+            title: {
+              display: true,
+              text: "2G & 5G",
+            },
+          }),
+        },
+        ...(isTechMode && {
+          y1: {
+            stacked: false,
+            beginAtZero: false,
+            position: "right" as const,
+            grid: {
+              drawOnChartArea: false,
+            },
+            title: {
+              display: true,
+              text: "4G",
+            },
+          },
+        }),
+      },
+      interaction: {
+        mode: "nearest" as const,
+        axis: "x" as const,
         intersect: false,
       },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45,
-        },
-      },
-      y: {
-        stacked: false,
-        beginAtZero: false,
-        position: "left" as const,
-        grid: {
-          color: "rgba(0, 0, 0, 0.05)",
-        },
-        title: {
-          display: true,
-          text: "2G",
-        },
-      },
-      y1: {
-        stacked: false,
-        beginAtZero: false,
-        position: "right" as const,
-        grid: {
-          drawOnChartArea: false,
-        },
-        title: {
-          display: true,
-          text: "4G",
-        },
-      },
-    },
-    interaction: {
-      mode: "nearest" as const,
-      axis: "x" as const,
-      intersect: false,
-    },
-  };
+    }),
+    [isTechMode],
+  );
 
   const payloadChartData = {
     labels: uniqueDates,
