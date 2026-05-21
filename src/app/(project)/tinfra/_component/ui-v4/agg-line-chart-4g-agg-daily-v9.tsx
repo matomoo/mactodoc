@@ -68,7 +68,10 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
-  const isAvailability = title.includes("Availability (%)");
+  const isAvailability =
+    title.includes("Availability (%)") ||
+    title.includes("SD to TCH Success Rate (%)") ||
+    title.includes("TCH Availability (%)");
 
   const isDropRatePercentage =
     title.toUpperCase().includes("DROP RATE") || title.toUpperCase().includes("RETAINABILITY");

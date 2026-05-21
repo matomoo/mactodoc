@@ -9,249 +9,295 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   {
     title: "TCH Traffic (Erl)",
     tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TCH_TRAFFIC_ERL || 0), 0),
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_TCH_TRAFFIC_ERL || 0), 0),
     growthType: "successRate100",
-    id: "TCH_TRAFFIC_ERL",
-    metric_num: "TCH_TRAFFIC_ERL",
+    id: "G2_TCH_TRAFFIC_ERL",
+    metric_num: "G2_TCH_TRAFFIC_ERL",
+    metric_denum: "DENUMBY1",
   },
   {
     title: "SDCCH Traffic (Erl)",
     tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.SDCCH_TRAFFIC_ERL || 0), 0),
-    id: "SDCCH_TRAFFIC_ERL",
-    metric_num: "SDCCH_TRAFFIC_ERL",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_SD_TRAFFIC_ERL || 0), 0),
+    id: "G2_SD_TRAFFIC_ERL",
+    metric_num: "G2_SD_TRAFFIC_ERL",
+    metric_denum: "DENUMBY1",
   },
   {
-    title: "Total Payload (MB)",
+    title: "Total Payload (GB)",
     tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.TOTAL_PAYLOAD_MB || 0), 0),
-    id: "TOTAL_PAYLOAD_MB",
-    metric_num: "TOTAL_PAYLOAD_MB",
-  },
-  {
-    title: "Payload EDGE (MB)",
-    tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.EDGE_PAYLOAD_MB || 0), 0),
-    id: "EDGE_PAYLOAD_MB",
-    metric_num: "EDGE_PAYLOAD_MB",
-  },
-  {
-    title: "Payload GPRS (MB)",
-    tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.GPRS_PAYLOAD_MB || 0), 0),
-    id: "GPRS_PAYLOAD_MB",
-    metric_num: "GPRS_PAYLOAD_MB",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_PAYLOAD_GB || 0), 0),
+    id: "G2_PAYLOAD_GB",
+    metric_num: "G2_PAYLOAD_GB",
+    metric_denum: "DENUMBY1",
   },
   {
     title: "SDSR (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_SDSR || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_SDSR || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_SDSR_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_SDSR_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     growthType: "successRate100",
-    id: "NUM_SDSR",
-    metric_num: "NUM_SDSR",
-    metric_denum: "DENUM_SDSR",
+    id: "G2_SDSR_NUM",
+    metric_num: "G2_SDSR_NUM",
+    metric_denum: "G2_SDSR_DENUM",
   },
   {
     title: "SDCCH Block (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_SD_BLOCK || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_SD_BLOCK || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_SDBLOCK_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_SDBLOCK_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     growthType: "successRate0",
-    id: "NUM_SD_BLOCK",
-    metric_num: "NUM_SD_BLOCK",
-    metric_denum: "DENUM_SD_BLOCK",
+    id: "G2_SDBLOCK_NUM",
+    metric_num: "G2_SDBLOCK_NUM",
+    metric_denum: "G2_SDBLOCK_DENUM",
   },
   {
     title: "TCH Block (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TCH_BLOCK || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TCH_BLOCK || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_BLOCK_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_BLOCK_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     growthType: "successRate0",
-    id: "NUM_TCH_BLOCK",
-    metric_num: "NUM_TCH_BLOCK",
-    metric_denum: "DENUM_TCH_BLOCK",
-  },
-
-  {
-    title: "SDCCH Drop Rate (%)",
-    tech: "2G",
-    calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_SDCCH_DROP || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_SDCCH_DROP || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
-    },
-    growthType: "successRate0",
-    id: "NUM_SDCCH_DROP",
-    metric_num: "NUM_SDCCH_DROP",
+    id: "G2_TCH_BLOCK_NUM",
+    metric_num: "G2_TCH_BLOCK_NUM",
+    metric_denum: "G2_TCH_BLOCK_DENUM",
   },
   {
     title: "TBF DL Establish (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TBF_DL_EST || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TBF_DL_EST || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_DL_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_DL_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? 100 - Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
     growthType: "successRate100",
-    id: "NUM_TBF_DL_EST",
-    metric_num: "NUM_TBF_DL_EST",
-    metric_denum: "DENUM_TBF_DL_EST",
+    id: "G2_TBF_DL_NUM",
+    metric_num: "G2_TBF_DL_NUM",
+    metric_denum: "G2_TBF_DL_DENUM",
   },
   {
     title: "TBF UL Establish (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TBF_UL_EST || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TBF_UL_EST || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_UL_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_UL_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? 100 - Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_TBF_UL_EST",
-    metric_num: "NUM_TBF_UL_EST",
-    metric_denum: "DENUM_TBF_UL_EST",
+    id: "G2_TBF_UL_NUM",
+    metric_num: "G2_TBF_UL_NUM",
+    metric_denum: "G2_TBF_UL_DENUM",
   },
   {
     title: "TCH Drop (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TCH_DROP || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TCH_DROP || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_DROP_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_DROP_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_TCH_DROP",
-    metric_num: "NUM_TCH_DROP",
-    metric_denum: "DENUM_TCH_DROP",
+    id: "G2_TCH_DROP_NUM",
+    metric_num: "G2_TCH_DROP_NUM",
+    metric_denum: "G2_TCH_DROP_DENUM",
   },
   {
     title: "TBF Completion SR (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TBF_COMP || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TBF_COMP || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_COMP_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TBF_COMP_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_TBF_COMP",
-    metric_num: "NUM_TBF_COMP",
-    metric_denum: "DENUM_TBF_COMP",
+    id: "G2_TBF_COMP_NUM",
+    metric_num: "G2_TBF_COMP_NUM",
+    metric_denum: "G2_TBF_COMP_DENUM",
   },
   {
     title: "EDGE DL Throughput (Kbps)",
     tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.EDGE_THP_KB || 0), 0),
-    id: "EDGE_THP_KB",
-    metric_num: "EDGE_THP_KB",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_EDGE_DL_THP_KBPS || 0), 0),
+    id: "G2_EDGE_DL_THP_KBPS",
+    metric_num: "G2_EDGE_DL_THP_KBPS",
+    metric_denum: "DENUMBY1",
   },
   {
     title: "GPRS DL Throughput (kbps)",
     tech: "2G",
-    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.GPRS_THP_KB || 0), 0),
-    id: "GPRS_THP_KB",
-    metric_num: "GPRS_THP_KB",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_GPRS_DL_THP_KBPS || 0), 0),
+    id: "G2_GPRS_DL_THP_KBPS",
+    metric_num: "G2_GPRS_DL_THP_KBPS",
+    metric_denum: "DENUMBY1",
   },
   {
     title: "HOSR (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_HOSR || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_HOSR || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_HOSR_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_HOSR_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_HOSR",
-    metric_num: "NUM_HOSR",
-    metric_denum: "DENUM_HOSR",
+    id: "G2_HOSR_NUM",
+    metric_num: "G2_HOSR_NUM",
+    metric_denum: "G2_HOSR_DENUM",
   },
   {
     title: "TCH Availability (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_TCH_AVAIL || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_TCH_AVAIL || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_AVAILABILITY_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_TCH_AVAILABILITY_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_TCH_AVAIL",
-    metric_num: "NUM_TCH_AVAIL",
-    metric_denum: "DENUM_TCH_AVAIL",
-  },
-  {
-    title: "SDCCH Availability (%)",
-    tech: "2G",
-    calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_SDCCH_AVAIL || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_SDCCH_AVAIL || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
-    },
-    id: "NUM_SDCCH_AVAIL",
-    metric_num: "NUM_SDCCH_AVAIL",
-    metric_denum: "DENUM_SDCCH_AVAIL",
+    id: "G2_TCH_AVAILABILITY_NUM",
+    metric_num: "G2_TCH_AVAILABILITY_NUM",
+    metric_denum: "G2_TCH_AVAILABILITY_DENUM",
   },
   {
     title: "DL_RX_Qual_0_5",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_DL_QUAL_05 || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_DL_QUAL_05 || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_DL_QUAL_05_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_DL_QUAL_05_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_DL_QUAL_05",
-    metric_num: "NUM_DL_QUAL_05",
-    metric_denum: "DENUM_DL_QUAL_05",
+    id: "G2_DL_QUAL_05_NUM",
+    metric_num: "G2_DL_QUAL_05_NUM",
+    metric_denum: "G2_DL_QUAL_05_DENUM",
   },
   {
     title: "UL_RX_Qual_0_5",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_UL_QUAL_05 || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_UL_QUAL_05 || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_UL_QUAL_05_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_UL_QUAL_05_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_UL_QUAL_05",
-    metric_num: "NUM_UL_QUAL_05",
-    metric_denum: "DENUM_UL_QUAL_05",
+    id: "G2_UL_QUAL_05_NUM",
+    metric_num: "G2_UL_QUAL_05_NUM",
+    metric_denum: "G2_UL_QUAL_05_DENUM",
   },
   {
-    title: "IB Band 1-3",
+    title: "Number of TRX",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_TRX || 0), 0),
+    id: "G2_NUMBER_TRX",
+    metric_num: "G2_NUMBER_TRX",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of TCH",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_TCH || 0), 0),
+    id: "G2_NUMBER_TCH",
+    metric_num: "G2_NUMBER_TCH",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of SDCCH",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_SDCCH || 0), 0),
+    id: "G2_NUMBER_SDCCH",
+    metric_num: "G2_NUMBER_SDCCH",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of Static PDTCH",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_STATIC_PDTCH || 0), 0),
+    id: "G2_NUMBER_STATIC_PDTCH",
+    metric_num: "G2_NUMBER_STATIC_PDTCH",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of Dynamic PDTCH",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_DYNAMIC_PDTCH || 0), 0),
+    id: "G2_NUMBER_DYNAMIC_PDTCH",
+    metric_num: "G2_NUMBER_DYNAMIC_PDTCH",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "ICM Interference (%)",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_IB_BAND_1_3 || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_IB_BAND_1_3 || 0), 0);
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_ICM_INTERFERENCE_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_ICM_INTERFERENCE_DENUM || 0), 0);
       return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
     },
-    id: "NUM_IB_BAND_1_3",
-    metric_num: "NUM_IB_BAND_1_3",
-    metric_denum: "DENUM_IB_BAND_1_3",
+    id: "G2_ICM_INTERFERENCE_NUM",
+    metric_num: "G2_ICM_INTERFERENCE_NUM",
+    metric_denum: "G2_ICM_INTERFERENCE_DENUM",
   },
   {
-    title: "IB Band 4-5",
+    title: "TCH HR Traffic (Erl)",
     tech: "2G",
-    calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_IB_BAND_4_5 || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_IB_BAND_4_5 || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? 100 - Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
-    },
-    id: "NUM_IB_BAND_4_5",
-    metric_num: "NUM_IB_BAND_4_5",
-    metric_denum: "DENUM_IB_BAND_4_5",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_TCH_HR_TRAFFIC_ERL || 0), 0),
+    id: "G2_TCH_HR_TRAFFIC_ERL",
+    metric_num: "G2_TCH_HR_TRAFFIC_ERL",
+    metric_denum: "DENUMBY1",
   },
   {
-    title: "PDTCH Congestion (%)",
+    title: "TCH FR Traffic (Erl)",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_TCH_FR_TRAFFIC_ERL || 0), 0),
+    id: "G2_TCH_FR_TRAFFIC_ERL",
+    metric_num: "G2_TCH_FR_TRAFFIC_ERL",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of Fast Return to UTRAN",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_FASTRETURN_UTRAN || 0), 0),
+    id: "G2_NUMBER_FASTRETURN_UTRAN",
+    metric_num: "G2_NUMBER_FASTRETURN_UTRAN",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "Number of Fast Return to LTE",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_NUMBER_FASTRETURN_LTE || 0), 0),
+    id: "G2_NUMBER_FASTRETURN_LTE",
+    metric_num: "G2_NUMBER_FASTRETURN_LTE",
+    metric_denum: "DENUMBY1",
+  },
+  {
+    title: "DL EMI",
     tech: "2G",
     calculate: (filteredData) => {
-      const totalNum = filteredData.reduce((sum, item) => sum + (item.NUM_PDTCH_CONGESTION || 0), 0);
-      const totalDenum = filteredData.reduce((sum, item) => sum + (item.DENUM_PDTCH_CONGESTION || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number(((totalNum / totalDenum) * 100).toFixed(2)) : 0;
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_DL_EMI_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_DL_EMI_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum).toFixed(2)) : 0;
     },
-    id: "NUM_PDTCH_CONGESTION",
-    metric_num: "NUM_PDTCH_CONGESTION",
-    metric_denum: "DENUM_PDTCH_CONGESTION",
+    id: "G2_DL_EMI_NUM",
+    metric_num: "G2_DL_EMI_NUM",
+    metric_denum: "G2_DL_EMI_DENUM",
+  },
+  {
+    title: "UL EMI",
+    tech: "2G",
+    calculate: (filteredData) => {
+      const totalNum = filteredData.reduce((sum, item) => sum + (item.G2_UL_EMI_NUM || 0), 0);
+      const totalDenum = filteredData.reduce((sum, item) => sum + (item.G2_UL_EMI_DENUM || 0), 0);
+      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum).toFixed(2)) : 0;
+    },
+    id: "G2_UL_EMI_NUM",
+    metric_num: "G2_UL_EMI_NUM",
+    metric_denum: "G2_UL_EMI_DENUM",
+  },
+  {
+    title: "SD to TCH Success Rate (%)",
+    tech: "2G",
+    calculate: (filteredData) => filteredData.reduce((sum, item) => sum + (item.G2_SD_TO_TCH_SR || 0), 0),
+    id: "G2_SD_TO_TCH_SR",
+    metric_num: "G2_SD_TO_TCH_SR",
+    metric_denum: "DENUMBY1",
   },
 
   //// metric 4G

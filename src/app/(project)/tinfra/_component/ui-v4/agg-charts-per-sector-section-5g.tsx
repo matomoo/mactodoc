@@ -35,7 +35,7 @@ export function ChartsPerSectorSection5G({
   selectedKPIs,
   onSelectedKPIsChange,
   showViewModeState = "aggregated",
-  siteIdLength = 1,
+  // siteIdLength = 1,
   tech = "5G",
   // aggMode = "custom-cluster",
 }: ChartsSectionProps) {
@@ -58,23 +58,10 @@ export function ChartsPerSectorSection5G({
     }
   };
 
-  const getGridColumnsClass = () => {
-    switch (chartLayout) {
-      case 1:
-        return "grid-cols-1";
-      case 2:
-        return "md:grid-cols-2";
-      case 3:
-        return "md:grid-cols-2 lg:grid-cols-3";
-      default:
-        return "md:grid-cols-2";
-    }
-  };
-
   const selectAll = () => {
     onSelectedKPIsChange(
       get2G4GMetricConfigs()
-        .filter((a) => a.tech === "4G")
+        .filter((a) => a.tech === tech)
         .map((config) => config.metric_num),
     );
   };
@@ -83,7 +70,7 @@ export function ChartsPerSectorSection5G({
     onSelectedKPIsChange([]);
   };
 
-  console.log({ aggregateBy, filteredData });
+  // console.log({ aggregateBy, filteredData });
 
   // Group data by sector
   const dataBySector = filteredData.reduce(
@@ -110,7 +97,7 @@ export function ChartsPerSectorSection5G({
             Detailed Metrics {aggregateBy === "G4_SITEID_CELLID" ? "by Sector" : ""}
           </h2>
           {aggregateBy === "G4_SITEID_CELLID" && (
-            <span className="text-sm text-gray-500">
+            <span className="text-gray-500 text-sm">
               ({sectors.length} sector{sectors.length > 1 ? "s" : ""})
             </span>
           )}

@@ -173,4 +173,15 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+  {
+    id: 6,
+    label: "2G",
+    items: [
+      {
+        title: "Site Cell",
+        url: "/tinfra/displays/dashboard/aggregate/2g/site-cell",
+        icon: Fingerprint,
+      },
+    ],
+  },
 ];

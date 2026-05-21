@@ -7,7 +7,6 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Header } from "./header";
 import { MobileFloatingButtons } from "./mobile-floating-buttons";
 import FilterSidebar4G from "./agg-filter-sidebar-4g";
-import PerformanceSummarySection4G from "./performance-summary-section-4g";
 import { EnhancedLoadingState } from "./enhanced-loading-state";
 import { useDataManagement4G } from "../../_hooks/agg-use-data-management-4g";
 import { useDataFiltering4G } from "../../_hooks/agg-use-data-filtering-4g";
@@ -18,7 +17,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { get2G4GMetricConfigs } from "./metric-configs";
 import MeasTa4G, { type MeasTa4GData } from "./meas-ta-4g-v2";
 import MeasPlosSite4G, { type MeasPlos4GData } from "./meas-plos-site-4g-site";
-import HqRhiChart from "../ui-v2/hq-rhi-chart";
 import type { RawKpiPlos4G, RawKpiRow, RawMeasTa4G } from "../../_lib/reportPerformance-3";
 import { useComparisonCalculation } from "./use-comparison-data";
 import { ChartsPerSectorSection5G } from "./agg-charts-per-sector-section-5g";
@@ -55,12 +53,7 @@ export default function PageAggCustom5GDaily({
   columnNumber = 2,
   showViewModeState = "aggregated",
   aggMode = "custom-cluster",
-  isShowTa = true,
-  isShowHqRhi = false,
-  apiPathRhi = "aggregate/hq-rhi/by-region",
   fieldToAggregate = "Column to aggregate",
-  rhiLevel = "site",
-  rhiProvider = "Telkomsel",
   tech = "5G",
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
@@ -69,17 +62,20 @@ export default function PageAggCustom5GDaily({
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
   const [chartLayout, setChartLayout] = useState<number>(columnNumber);
   const [activeTab, setActiveTab] = useState<string>("charts");
-  const [selectedKPIs, setSelectedKPIs] = useState<string[]>(
-    // Default to all KPIs selected
-    get2G4GMetricConfigs()
+  const allMetricNums = useMemo(() => {
+    return get2G4GMetricConfigs()
       .filter((a) => a.tech === tech)
-      .map((chart) => chart.metric_num),
-  );
+      .map((chart) => chart.metric_num);
+  }, [tech]);
 
-  const shouldFetch = !!dateRange2 && dateRange2.includes("|");
+  const [selectedKPIs, setSelectedKPIs] = useState<string[]>(allMetricNums);
+
+  // console.log({ selectedKPIs });
+
+  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && siteId !== null && siteId.length !== 0;
 
   const { isPending, error, data, isError } = useQuery({
-    queryKey: ["PageAggCustom5GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryKey: ["PageAggCustom5GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter, tech],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
@@ -101,12 +97,7 @@ export default function PageAggCustom5GDaily({
 
   // console.log({ data });
 
-  const {
-    isPending: isPendingSector,
-    error: errorSector,
-    data: rawDataSector,
-    isError: isErrorSector,
-  } = useQuery({
+  const { data: rawDataSector } = useQuery({
     queryKey: ["ref-get-sector", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
     queryFn: async () => {
       if (!shouldFetch) {
@@ -127,12 +118,7 @@ export default function PageAggCustom5GDaily({
     retry: 3,
   });
 
-  const {
-    isPending: isPendingPlos,
-    error: errorPlos,
-    data: dataPlos,
-    isError: isErrorPlos,
-  } = useQuery<MeasPlos4GData>({
+  const { data: dataPlos } = useQuery<MeasPlos4GData>({
     queryKey: ["meas-plos-site-4g", apiPathPloss, dateRange2, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
@@ -151,12 +137,7 @@ export default function PageAggCustom5GDaily({
     retry: 3,
   });
 
-  const {
-    isPending: isPendingMeasTa,
-    error: errorMeasTa,
-    data: dataMeasTa,
-    isError: isErrorMeasTa,
-  } = useQuery<MeasTa4GData>({
+  const { data: dataMeasTa } = useQuery<MeasTa4GData>({
     queryKey: ["meas-ta-4g", apiPathMeasTa, dateRange2, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
@@ -180,14 +161,9 @@ export default function PageAggCustom5GDaily({
     aggregateBy,
     rawDataSector,
   });
-  // console.log({ dataMeasTa });
 
-  // Call the comparison calculation hook unconditionally
   const { comparisonData } = useComparisonCalculation(data?.rows || [], tech);
 
-  // console.log({ comparisonData });
-
-  // Calculate filteredComparisonData when selectedKPIs or data changes
   const filteredComparisonData = useMemo(() => {
     if (data?.rows) {
       return comparisonData.filter((row) => selectedKPIs.includes(row.metric_num));
@@ -216,19 +192,19 @@ export default function PageAggCustom5GDaily({
       return;
     }
 
-    const filename = `5G_Data__${siteId}_${new Date().toISOString().split("T")[0]}`;
+    const filename = `${tech}_Data__${siteId}_${new Date().toISOString().split("T")[0]}`;
     exportToExcel(data.rows, filename);
   };
 
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
-  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (!data?.rows || data.rows.length === 0) {
     return <NoDataState message="No data available for the selected criteria." />;
   }
 
   const newFilteredData =
-    tech === "5G"
+    tech === "5G" || tech === "2G"
       ? filteredData
       : filteredData.map((item) => {
           const sector = rawDataSector.rows.find(

@@ -35,7 +35,7 @@ export function ChartsSection5G({
   selectedKPIs,
   onSelectedKPIsChange,
   showViewModeState = "aggregated",
-  siteIdLength = 1,
+  // siteIdLength = 1,
   tech = "5G",
   // aggMode = "custom-cluster",
 }: ChartsSectionProps) {
@@ -43,7 +43,7 @@ export function ChartsSection5G({
   // State for view mode - shared across all charts
   const [viewMode, setViewMode] = useState<ViewMode>(showViewModeState as ViewMode);
 
-  // console.log({ filteredData });
+  // console.log({ selectedKPIs });
 
   // Filter charts based on selected KPIs
   const visibleCharts = get2G4GMetricConfigs().filter(
@@ -74,7 +74,7 @@ export function ChartsSection5G({
   const selectAll = () => {
     onSelectedKPIsChange(
       get2G4GMetricConfigs()
-        .filter((a) => a.tech === "4G")
+        .filter((a) => a.tech === tech)
         .map((config) => config.metric_num),
     );
   };
@@ -82,25 +82,6 @@ export function ChartsSection5G({
   const deselectAll = () => {
     onSelectedKPIsChange([]);
   };
-
-  // console.log({ aggregateBy, filteredData });
-
-  // Group data by sector
-  const dataBySector = filteredData.reduce(
-    (acc, item) => {
-      const sector = item.sector as string;
-      if (!sector) return acc;
-
-      if (!acc[sector]) {
-        acc[sector] = [];
-      }
-      acc[sector].push(item);
-      return acc;
-    },
-    {} as Record<string, Data2G4GModel[]>,
-  );
-
-  const sectors = Object.keys(dataBySector);
 
   return (
     <div>
@@ -154,7 +135,7 @@ export function ChartsSection5G({
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <Settings2 className="h-4 w-4" />
-                Customize KPIs ({selectedKPIs.length}/{get2G4GMetricConfigs().filter((a) => a.tech === "4G").length})
+                Customize KPIs ({selectedKPIs.length}/{get2G4GMetricConfigs().filter((a) => a.tech === tech).length})
               </Button>
             </SheetTrigger>
 
@@ -174,7 +155,7 @@ export function ChartsSection5G({
 
               <div className="space-y-2 pb-4">
                 {get2G4GMetricConfigs()
-                  .filter((a) => a.tech === "4G")
+                  .filter((a) => a.tech === tech)
                   .map((config) => (
                     <label
                       key={config.metric_num}
