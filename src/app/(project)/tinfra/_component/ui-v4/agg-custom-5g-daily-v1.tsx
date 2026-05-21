@@ -404,6 +404,7 @@ export default function PageAggCustom5GDaily({
                         selectedKPIs={selectedKPIs}
                         onSelectedKPIsChange={setSelectedKPIs}
                         onToggle={() => setIsPerformanceSummaryExpanded(!isPerformanceSummaryExpanded)}
+                        tech={tech}
                       />
                     </TabsContent>
                   }

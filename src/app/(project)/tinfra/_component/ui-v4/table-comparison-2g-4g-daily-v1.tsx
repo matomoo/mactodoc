@@ -81,30 +81,6 @@ const TableComparison2G4GDaily: React.FC<{
       return toZonedTime(new Date(dateString), timezone);
     };
 
-    const visibleCharts = get2G4GMetricConfigs().filter(
-      (chart) => chart.tech === "4G" && selectedKPIs.includes(chart.metric_num),
-    );
-
-    const toggleKPI = (metricNum: string) => {
-      if (selectedKPIs.includes(metricNum)) {
-        onSelectedKPIsChange(selectedKPIs.filter((id) => id !== metricNum));
-      } else {
-        onSelectedKPIsChange([...selectedKPIs, metricNum]);
-      }
-    };
-
-    const selectAll = () => {
-      onSelectedKPIsChange(
-        get2G4GMetricConfigs()
-          .filter((a) => a.tech === "4G")
-          .map((config) => config.metric_num),
-      );
-    };
-
-    const deselectAll = () => {
-      onSelectedKPIsChange([]);
-    };
-
     return (
       <div className="date-range-group">
         <h3 className="font-semibold">{title}</h3>
