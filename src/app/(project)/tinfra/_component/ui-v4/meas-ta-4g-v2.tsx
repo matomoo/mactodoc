@@ -47,6 +47,14 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
   const chartRefs = useRef<{ [key: string]: HTMLCanvasElement | null }>({});
   const chartInstances = useRef<{ [key: string]: Chart | null }>({});
   const [allSites, setAllSites] = useState<string[]>([]);
+  const [availableSites, setAvailableSites] = useState<string[]>([]);
+
+  // Derive allSites from availableSites - initially all selected
+  useEffect(() => {
+    if (availableSites.length > 0 && allSites.length === 0) {
+      setAllSites([...availableSites]);
+    }
+  }, [availableSites, allSites.length]);
 
   const { isPending, error, data, isError } = useQuery<MeasTa4GData>({
     queryKey: ["meas-ta-4g", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch],
@@ -75,7 +83,8 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
         // biome-ignore lint/suspicious/noExplicitAny: <none>
         new Set(data.rows.map((row: any) => row.siteid)),
       ).sort() as string[];
-      setAllSites(uniqueSites);
+      setAvailableSites(uniqueSites);
+      setAllSites(uniqueSites); // Select all by default when new data arrives
     }
   }, [data]);
 
@@ -308,6 +317,44 @@ export default function MeasTa4G({ apiPath }: AggCustomProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="w-full max-w-full overflow-hidden overflow-x-hidden rounded-xl border bg-white p-4 shadow-sm lg:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <div className="lg:col-span-12">
+            <div className="rounded-lg border bg-white p-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={allSites.length === availableSites.length && availableSites.length > 0}
+                    onChange={(e) => setAllSites(e.target.checked ? [...availableSites] : [])}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="font-medium text-sm">Select All Sites</span>
+                </label>
+                <div className="h-6 w-px bg-gray-300" />
+                <div className="flex flex-wrap gap-2">
+                  {availableSites.map((siteId: string) => (
+                    <label
+                      key={siteId}
+                      className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={allSites.includes(siteId)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAllSites((prev) => [...prev, siteId].sort());
+                          } else {
+                            setAllSites((prev) => prev.filter((s) => s !== siteId));
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="font-medium text-xs">{siteId}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
           {/* Chart Section */}
           {allSites.map((siteId: string) => (
             <div key={siteId} className="mb-8 lg:col-span-12">
