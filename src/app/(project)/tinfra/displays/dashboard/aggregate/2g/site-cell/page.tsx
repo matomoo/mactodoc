@@ -29,6 +29,7 @@ export default function Page() {
         isShowTa={false}
         fieldToAggregate="siteid_cellid"
         tech="2G"
+        showExportPpt={false}
       />
     </div>
   );

@@ -339,7 +339,7 @@ const LineChart4GAggDaily: React.FC<LineChartProps> = ({
                     notation: "standard",
                     compactDisplay: "short",
                     maximumFractionDigits: 2,
-                  }).format(value)} bps`;
+                  }).format(value)} Mbps`;
                 }
 
                 if (datasetLabel.includes("Payload")) {

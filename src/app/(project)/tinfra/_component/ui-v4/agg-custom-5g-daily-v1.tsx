@@ -42,6 +42,7 @@ interface AggCustomProps {
   rhiLevel?: string;
   rhiProvider?: string;
   tech?: string;
+  showExportPpt?: boolean;
 }
 
 export default function PageAggCustom5GDaily({
@@ -55,6 +56,7 @@ export default function PageAggCustom5GDaily({
   aggMode = "custom-cluster",
   fieldToAggregate = "Column to aggregate",
   tech = "5G",
+  showExportPpt = false,
 }: AggCustomProps) {
   const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -240,6 +242,7 @@ export default function PageAggCustom5GDaily({
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}
         groupBy={aggregateBy}
+        showExportPpt={showExportPpt}
       />
 
       <div className="py-4 lg:py-6">

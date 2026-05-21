@@ -425,24 +425,24 @@ export const get2G4GMetricConfigs = (): UnifiedMetricConfig[] => [
   },
 
   {
-    title: "User DL Throughput BH (bps)",
+    title: "User DL Throughput BH (Mbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_DL_THP_NUM || 0), 0);
       const totalDenum = filteredData.reduce((sum, item) => sum + (item.G4_USER_DL_THP_DENUM || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum / 1000).toFixed(2)) : 0;
+      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum).toFixed(2)) : 0;
     },
     id: "G4_USER_DL_THP_NUM",
     metric_num: "G4_USER_DL_THP_NUM",
     metric_denum: "G4_USER_DL_THP_DENUM",
   },
   {
-    title: "User UL Throughput BH (bps)",
+    title: "User UL Throughput BH (Mbps)",
     tech: "4G",
     calculate: (filteredData) => {
       const totalNum = filteredData.reduce((sum, item) => sum + (item.G4_USER_UL_THP_NUM || 0), 0);
       const totalDenum = filteredData.reduce((sum, item) => sum + (item.G4_USER_UL_THP_DENUM || 0), 0);
-      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum / 1000).toFixed(2)) : 0;
+      return Number(totalDenum.toFixed(2)) > 0 ? Number((totalNum / totalDenum).toFixed(2)) : 0;
     },
     id: "G4_USER_UL_THP_NUM",
     metric_num: "G4_USER_UL_THP_NUM",
