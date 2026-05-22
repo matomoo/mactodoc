@@ -62,7 +62,7 @@ export default function PageAggCustom4GDaily({
   rhiLevel = "site",
   rhiProvider = "Telkomsel",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter, viewBy } = useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -75,7 +75,8 @@ export default function PageAggCustom4GDaily({
       .map((chart) => chart.metric_num),
   );
 
-  const shouldFetch = !!dateRange2 && dateRange2.includes("|");
+  const isKabupatenSelected = !!kabupaten && kabupaten !== "---";
+  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && isKabupatenSelected; // Only fetch when kabupaten is selected;
 
   const { isPending, error, data, isError } = useQuery({
     queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
@@ -215,9 +216,9 @@ export default function PageAggCustom4GDaily({
     exportToExcel(data.rows, filename);
   };
 
+  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (isPending) return <EnhancedLoadingState />;
   if (isError) return <ErrorState message={error.message} />;
-  if (!shouldFetch) return <NoDataState message="Please select a date range to view data" />;
   if (!data?.rows || data.rows.length === 0) {
     return <NoDataState message="No data available for the selected criteria." />;
   }
@@ -245,9 +246,11 @@ export default function PageAggCustom4GDaily({
         title={`4G ${
           aggMode === "custom-cluster"
             ? ` - ${Array.isArray(clusterFilter) ? clusterFilter.join(", ").toUpperCase() : clusterFilter || ""} - `
-            : aggMode === "site"
+            : viewBy === "site" && aggMode === "site"
               ? ` - ${Array.isArray(siteId) ? siteId.join(", ").toUpperCase() : siteId || ""} - `
-              : ""
+              : viewBy === "kabupaten"
+                ? ` - ${nop} - ${kabupaten} - All Sites - `
+                : ""
         } Level Daily`}
         subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
         data={filteredData as unknown as RawKpiRow[]}
