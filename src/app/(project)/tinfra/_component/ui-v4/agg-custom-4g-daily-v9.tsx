@@ -116,7 +116,8 @@ export default function PageAggCustom4GDaily({
   rhiLevel = "site",
   rhiProvider = "Telkomsel",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region } = useFilterStore();
+  const { filter, siteId, nop, kabupaten, kecamatan, batch, clusterFilter, region, dateStart, dateEnd } =
+    useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -142,7 +143,8 @@ export default function PageAggCustom4GDaily({
             : siteId;
 
   const shouldFetch = Boolean(
-    dateRange2?.includes("|") &&
+    dateStart &&
+      dateEnd &&
       filterValue && // Now uses the correct filter
       filterValue.trim().length > 0 &&
       filterValue !== "---" &&
@@ -157,7 +159,8 @@ export default function PageAggCustom4GDaily({
     queryKey: [
       "PageAggCustom4GDaily",
       apiPath,
-      dateRange2,
+      dateStart,
+      dateEnd,
       filter,
       filterValue,
       nop,
@@ -171,7 +174,7 @@ export default function PageAggCustom4GDaily({
       if (!shouldFetch) return { rows: [] };
 
       const response = await fetch(
-        `/tinfra/api/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/${apiPath}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&kecamatan=${kecamatan}&region=${region}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
 
       if (response.status === 202) {
@@ -207,13 +210,13 @@ export default function PageAggCustom4GDaily({
     data: rawDataSector,
     isError: isErrorSector,
   } = useQuery({
-    queryKey: ["ref-get-sector", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryKey: ["ref-get-sector", apiPath, dateStart, dateEnd, filter, siteId, nop, kabupaten, batch, clusterFilter],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
 
       if (!response.ok) {
@@ -231,10 +234,10 @@ export default function PageAggCustom4GDaily({
   // console.log({ data });
 
   useEffect(() => {
-    if (dateRange2 && filterValue && nop && kabupaten && clusterFilter && region) {
+    if (dateStart && dateEnd && filterValue && nop && kabupaten && clusterFilter && region) {
       setIsPolling(false);
     }
-  }, [dateRange2, filterValue, nop, kabupaten, clusterFilter, region]);
+  }, [dateStart, dateEnd, filterValue, nop, kabupaten, clusterFilter, region]);
 
   const dataManagement = useDataManagement4G({
     data,
@@ -328,7 +331,7 @@ export default function PageAggCustom4GDaily({
               ? ` - ${Array.isArray(siteId) ? siteId.join(", ").toUpperCase() : siteId || ""} - `
               : ""
         } Level Daily`}
-        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0] || "", 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1] || "", 2)}`}
+        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateStart || "", 2)} - ${formatDateForDisplay(dateEnd || "", 2)}`}
         data={filteredData as unknown as RawKpiRow[]}
         selectedKPIs={selectedKPIs}
         filteredComparisonData={filteredComparisonData as unknown as RawKpiRow[]}

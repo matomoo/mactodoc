@@ -1,5 +1,9 @@
+import { format, subDays } from "date-fns";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
+const defaultDateStart = format(subDays(new Date(), 8), "yyyy-MM-dd");
+const defaultDateEnd = format(subDays(new Date(), 1), "yyyy-MM-dd");
 
 interface filterState {
   // State
@@ -14,6 +18,9 @@ interface filterState {
   batch: string | null;
   weekRange: [number, number];
   yearweek: string | null;
+  viewBy: string | null;
+  dateStart: string | null;
+  dateEnd: string | null;
 
   // Actions
   setDateRange2: (range: string | null) => void;
@@ -27,6 +34,9 @@ interface filterState {
   setBatch: (batch: string | null) => void;
   setWeekRange: (range: [number, number]) => void;
   setYearweek: (yearweek: string | null) => void;
+  setViewBy: (viewBy: string | null) => void;
+  setDateEnd: (dateEnd: string | null) => void;
+  setDateStart: (dateStart: string | null) => void;
 
   // Helper to get all params as object
   getParams: () => {
@@ -41,6 +51,9 @@ interface filterState {
     batch: string | null;
     weekRange: [number, number];
     yearweek: string | null;
+    viewBy: string | null;
+    dateEnd: string | null;
+    dateStart: string | null;
   };
 }
 
@@ -59,7 +72,9 @@ export const useFilterStore = create<filterState>()(
       batch: null,
       weekRange: [202601, 202652], // Default to full year 2026
       yearweek: null,
-
+      viewBy: "kabupaten",
+      dateEnd: defaultDateEnd,
+      dateStart: defaultDateStart,
       // Actions
       setDateRange2: (range) => set({ dateRange2: range }),
       setFilter: (filter) => set({ filter: filter }),
@@ -72,6 +87,9 @@ export const useFilterStore = create<filterState>()(
       setBatch: (batch) => set({ batch: batch }),
       setWeekRange: (range) => set({ weekRange: range }),
       setYearweek: (yearweek) => set({ yearweek: yearweek }),
+      setViewBy: (viewBy) => set({ viewBy: viewBy }),
+      setDateEnd: (dateEnd) => set({ dateEnd: dateEnd }),
+      setDateStart: (dateStart) => set({ dateStart: dateStart }),
       // Helper function
       getParams: () => {
         const state = get();
@@ -87,6 +105,9 @@ export const useFilterStore = create<filterState>()(
           batch: state.batch,
           weekRange: state.weekRange,
           yearweek: state.yearweek,
+          viewBy: state.viewBy,
+          dateEnd: state.dateEnd,
+          dateStart: state.dateStart,
         };
       },
     }),
