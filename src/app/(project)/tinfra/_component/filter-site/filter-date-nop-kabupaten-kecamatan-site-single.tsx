@@ -159,21 +159,13 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
   });
 
   const { data: rawSites, isLoading: isLoadingSites } = useQuery<ReturnData[]>({
-    queryKey: [
-      "ref-query-dynamic-site",
-      storeNop,
-      storeKabupaten,
-      fieldToSearch1,
-      fieldToSearch2,
-      storeFilteredData,
-      "site",
-    ],
+    queryKey: ["ref-query-dynamic-site", storeNop, storeKabupaten, fieldToSearch1, fieldToSearch2, "site"],
     queryFn: async () => {
       // Use storeNop as the filter for sites
       const nopFilter = storeNop;
 
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic-site?fieldToSearch1=siteid&fieldToSearch2=kabupaten&kabupaten=${storeKabupaten}&nop=${nopFilter}&storeFilteredData=${storeFilteredData}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic-site?fieldToSearch1=siteid&fieldToSearch2=kabupaten&kabupaten=${storeKabupaten}&nop=${nopFilter}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -297,6 +289,12 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
         const combined = [...prev, ...siteIds];
         return Array.from(new Set(combined));
       });
+      // Immediately sync to tempDataFilter for UI display
+      setTempDataFilter((prev) => {
+        const current = prev || [];
+        const newCombined = [...current, ...siteIds];
+        return Array.from(new Set(newCombined));
+      });
       setSiteIdInput(""); // Clear input after processing
     }
   };
@@ -347,6 +345,12 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
         setSiteIdBadges((prev) => {
           const combined = [...prev, ...newIds];
           return Array.from(new Set(combined));
+        });
+        // Immediately sync to tempDataFilter for UI display
+        setTempDataFilter((prev) => {
+          const current = prev || [];
+          const newCombined = [...current, ...newIds];
+          return Array.from(new Set(newCombined));
         });
         setSiteIdInput("");
       }

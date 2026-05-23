@@ -76,7 +76,8 @@ export default function PageAggCustom4GDaily({
   );
 
   const isKabupatenSelected = !!kabupaten && kabupaten !== "---";
-  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && isKabupatenSelected; // Only fetch when kabupaten is selected;
+  const isSiteView = viewBy === "site";
+  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && (isSiteView ? !!siteId : isKabupatenSelected);
 
   const { isPending, error, data, isError } = useQuery({
     queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
