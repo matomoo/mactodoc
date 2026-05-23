@@ -8,11 +8,12 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const searchByThis = searchParams.get("searchByThis");
+    // const searchByThis = searchParams.get("searchByThis");
     const fieldToSearch1 = searchParams.get("fieldToSearch1");
     const fieldToSearch2 = searchParams.get("fieldToSearch2");
     const searchNop = searchParams.get("nop");
     const searchKabupaten = searchParams.get("kabupaten");
+    // const search_storeFilteredData = searchParams.get("storeFilteredData");
 
     // Validate fieldToSearch to prevent SQL injection
     const allowedFields = ["kabupaten", "kecamatan", "nop", "siteid", "region"];
@@ -24,8 +25,7 @@ export async function GET(request: Request) {
 
     // biome-ignore lint/suspicious/noExplicitAny: <none>
     let query: any;
-    if (fieldToSearch1 === "siteid" && searchNop !== "---" && searchKabupaten !== "---") {
-      // When searching for specific value, return matching records
+    if (fieldToSearch1 === "siteid" && fieldToSearch2 === "kabupaten" && searchKabupaten !== "---") {
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch1)} FROM ref_cell_4g 
         WHERE ${sql.raw(fieldToSearch2)} = ${searchKabupaten}

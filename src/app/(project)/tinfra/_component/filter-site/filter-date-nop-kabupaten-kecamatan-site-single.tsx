@@ -14,6 +14,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Parse the single date parameter into a Date object
 export const parseSingleDate = (dateString: string | null): Date | undefined => {
@@ -39,12 +40,6 @@ interface ReturnData {
   nama_item: string;
   total_sites?: number;
   site_ids?: string[];
-}
-
-// Interface for week data
-interface WeekData {
-  year_week: string;
-  [key: string]: string | number;
 }
 
 interface IProps {
@@ -82,13 +77,17 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
           ? storeKecamatan
           : fieldToSearch1 === "nop"
             ? storeNop
-            : siteId;
+            : fieldToSearch1 === "siteid"
+              ? siteId
+              : "--";
 
   const [tempDataFilter, setTempDataFilter] = useState<string[] | null>(
     storeFilteredData ? storeFilteredData.split(",") : null,
   );
+  const [siteIdInput, setSiteIdInput] = useState("");
+  const [tempSiteIdBadges, setTempSiteIdBadges] = useState<string[]>([]);
+  const [siteIdBadges, setSiteIdBadges] = useState<string[]>([]);
 
-  // Button is disabled when no date or no kabupaten selected
   const isButtonDisabled = !dateStart || !dateEnd || tempDataFilter === null || tempDataFilter.length === 0;
 
   // Track popover open states
@@ -159,18 +158,22 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const {
-    data: rawSites,
-    isLoading: isLoadingSites,
-    error: isErrorSites,
-  } = useQuery<ReturnData[]>({
-    queryKey: ["ref-query-dynamic-site", storeNop, storeKabupaten, fieldToSearch1, fieldToSearch2, "site"],
+  const { data: rawSites, isLoading: isLoadingSites } = useQuery<ReturnData[]>({
+    queryKey: [
+      "ref-query-dynamic-site",
+      storeNop,
+      storeKabupaten,
+      fieldToSearch1,
+      fieldToSearch2,
+      storeFilteredData,
+      "site",
+    ],
     queryFn: async () => {
       // Use storeNop as the filter for sites
       const nopFilter = storeNop;
 
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic-site?fieldToSearch1=siteid&fieldToSearch2=kabupaten&kabupaten=${storeKabupaten}&nop=${nopFilter}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic-site?fieldToSearch1=siteid&fieldToSearch2=kabupaten&kabupaten=${storeKabupaten}&nop=${nopFilter}&storeFilteredData=${storeFilteredData}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -194,14 +197,18 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
   });
 
   // Select handlers for each dropdown type
-  const selectRegion = (itemName: string) => {
-    setRegion(itemName);
-    setRegionPopoverOpen(false); // Close popover after selection
-  };
 
   const selectNop = (itemName: string) => {
     setNop(itemName);
     setNopPopoverOpen(false); // Close popover after selection
+    setKabupaten(null);
+    setTempDataFilter(null);
+    setSiteId(null);
+  };
+
+  const selectViewBy = (viewBy: string) => {
+    setViewBy(viewBy);
+    // Clear all filters when viewBy changes
     setKabupaten(null);
     setTempDataFilter(null);
     setSiteId(null);
@@ -220,32 +227,34 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
       const allSiteIds = rawSites.map((site) => site.nama_item);
       setTempDataFilter(allSiteIds);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawSites, storeViewBy, storeKabupaten]);
 
   // Handler for filter change (temporary state) - handles both NOP and Site selection
   const handleFilterChange = (values: string[] | null) => {
     setTempDataFilter(values);
-  };
-
-  const clearFilters = () => {
-    handleFilterChange(null);
-    if (fieldToSearch1 === "region") {
-      setRegion(null);
-    } else if (fieldToSearch1 === "kabupaten") {
-      setKabupaten(null);
-    } else if (fieldToSearch1 === "kecamatan") {
-      setKecamatan(null);
-    } else if (fieldToSearch1 === "nop") {
-      setNop(null);
-    }
-    // Also clear siteId when in site view
+    // Sync siteIdBadges when in site view
     if (storeViewBy === "site") {
+      setSiteIdBadges(values || []);
+    } else {
       setSiteId(null);
     }
   };
 
   const handleProcessFilters = () => {
+    // When in site view, always use siteIdBadges directly
+    if (storeViewBy === "site") {
+      if (siteIdBadges.length > 0) {
+        const siteIdString = siteIdBadges.join(",");
+        setSiteId(siteIdString);
+        setTempDataFilter(siteIdBadges);
+      } else {
+        setSiteId(null);
+        setTempDataFilter(null);
+      }
+      return;
+    }
+
+    // Non-site view logic
     if (tempDataFilter && tempDataFilter.length > 0) {
       if (fieldToSearch1 === "kabupaten") {
         setKabupaten(tempDataFilter.join(","));
@@ -258,11 +267,7 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
       } else if (fieldToSearch1 === "siteid") {
         setSiteId(tempDataFilter.join(","));
       } else {
-        setNop(tempDataFilter.join(","));
-      }
-      // Set siteId when in site view
-      if (storeViewBy === "site") {
-        setSiteId(tempDataFilter.join(","));
+        //
       }
     } else {
       if (fieldToSearch1 === "kabupaten") {
@@ -274,36 +279,81 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
       } else if (fieldToSearch1 === "siteid") {
         setSiteId(null);
       } else {
-        setNop(null);
-      }
-      // Clear siteId when in site view
-      if (storeViewBy === "site") {
-        setSiteId(null);
+        //
       }
     }
   };
 
-  // Toggle Kabupaten selection (temporary state)
-  const toggleNop = (nopName: string) => {
-    // Handle case where tempDataFilter might be a string (old data) or array
-    let currentNops: string[] = [];
+  const processSiteIds = (input: string) => {
+    // Split by common delimiters: new lines, tabs, commas, spaces
+    const siteIds = input
+      .split(/[\n\t, ]+/)
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0); // Remove empty strings
 
-    if (Array.isArray(tempDataFilter)) {
-      currentNops = tempDataFilter;
-    } else if (tempDataFilter && typeof tempDataFilter === "string") {
-      // Convert old string format to array
-      currentNops = [tempDataFilter];
+    if (siteIds.length > 0) {
+      setSiteIdBadges((prev) => {
+        // Combine existing with new, remove duplicates
+        const combined = [...prev, ...siteIds];
+        return Array.from(new Set(combined));
+      });
+      setSiteIdInput(""); // Clear input after processing
     }
+  };
 
-    if (currentNops.includes(nopName)) {
-      // Remove Kabupaten if already selected
-      const newNops = currentNops.filter((n) => n !== nopName);
-      handleFilterChange(newNops.length > 0 ? newNops : null);
+  useEffect(() => {
+    if (siteIdBadges.length > 0) {
+      const siteIdString = siteIdBadges.join(",");
+      setSiteId(siteIdString);
+      setTempDataFilter(siteIdBadges);
     } else {
-      // Add Kabupaten if not selected
-      handleFilterChange([...currentNops, nopName]);
+      setSiteId(null);
+      setTempDataFilter(null);
+    }
+  }, [siteIdBadges, setSiteId]);
+
+  // Function to handle input changes and process pasted content (temporary state)
+  const handleSiteIdInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSiteIdInput(value);
+
+    // If there are line breaks or tabs (typical from Excel), process them
+    if (value.includes("\n") || value.includes("\t") || value.includes(",")) {
+      processSiteIds(value);
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddSiteId();
+    }
+  };
+
+  // Handle input blur
+  const handleInputBlur = () => {
+    handleAddSiteId();
+  };
+
+  // Function to handle manual addition (Enter key or blur) (temporary state)
+  const handleAddSiteId = () => {
+    if (siteIdInput.trim()) {
+      const newIds = siteIdInput
+        .trim()
+        .split(/[\n\t, ]+/)
+        .map((id) => id.trim())
+        .filter((id) => id.length > 0);
+      if (newIds.length > 0) {
+        setSiteIdBadges((prev) => {
+          const combined = [...prev, ...newIds];
+          return Array.from(new Set(combined));
+        });
+        setSiteIdInput("");
+      }
+    }
+  };
+
+  console.log({ tempDataFilter });
 
   return (
     <div className="flex flex-col gap-4">
@@ -378,7 +428,7 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
 
         {/* Select ViewBy */}
         <div className="flex flex-col gap-2">
-          <Select value={storeViewBy || ""} onValueChange={setViewBy}>
+          <Select value={storeViewBy || ""} onValueChange={selectViewBy}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Select View By" />
             </SelectTrigger>
@@ -487,6 +537,22 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
               </Command>
             </PopoverContent>
           </Popover>
+        )}
+
+        {storeViewBy === "site" && (
+          <div className="flex flex-col gap-2">
+            <div className="space-y-2">
+              <Input
+                type="search"
+                placeholder="Paste multiple Site IDs"
+                value={siteIdInput}
+                onChange={handleSiteIdInputChange}
+                onKeyDown={handleKeyDown}
+                onBlur={handleInputBlur}
+                className="w-70"
+              />
+            </div>
+          </div>
         )}
 
         {/* Process Button */}
