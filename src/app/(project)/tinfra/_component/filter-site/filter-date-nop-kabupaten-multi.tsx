@@ -40,12 +40,6 @@ interface ReturnData {
   site_ids?: string[];
 }
 
-// Interface for week data
-interface WeekData {
-  year_week: string;
-  [key: string]: string | number;
-}
-
 interface IProps {
   mode?: "breakdown" | "chart";
   fieldToSearch: string;
@@ -64,10 +58,9 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     setRegion,
     setKabupaten,
     setKecamatan,
-    setViewBy,
     dateEnd,
-    setDateEnd,
     dateStart,
+    setDateEnd,
     setDateStart,
   } = useFilterStore();
 
@@ -84,8 +77,12 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     storeFilteredData ? storeFilteredData.split(",") : null,
   );
 
-  // Button is disabled when no date or no kabupaten selected
-  const isButtonDisabled = !dateStart || !dateEnd || tempDataFilter === null || tempDataFilter.length === 0;
+  // Temporary state for dates (updated to store only when Process Filters is clicked)
+  const [tempDateStart, setTempDateStart] = useState<string | null>(dateStart ?? null);
+  const [tempDateEnd, setTempDateEnd] = useState<string | null>(dateEnd ?? null);
+
+  // Button is disabled when no date or no filter selected
+  const isButtonDisabled = !tempDateStart || !tempDateEnd || tempDataFilter === null || tempDataFilter.length === 0;
 
   // Track popover open states
   const [regionPopoverOpen, setRegionPopoverOpen] = useState(false);
@@ -204,7 +201,8 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
 
   // Select handlers for each dropdown type
   const selectRegion = (itemName: string) => {
-    setRegion(itemName);
+    // Update temp state only - store will be updated when Process Filters is clicked
+    setTempDataFilter([itemName]);
     setRegionPopoverOpen(false); // Close popover after selection
   };
 
@@ -212,11 +210,6 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     setNop(itemName);
     setNopPopoverOpen(false); // Close popover after selection
     setKabupaten(null);
-  };
-
-  const selectKabupaten = (itemName: string) => {
-    setKabupaten(itemName);
-    setKabupatenPopoverOpen(false); // Close popover after selection
   };
 
   // Set default week to last available week
@@ -234,18 +227,15 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
 
   const clearKabupatens = () => {
     handleNopFilterChange(null);
-    if (fieldToSearch === "region") {
-      setRegion(null);
-    } else if (fieldToSearch === "kabupaten") {
-      setKabupaten(null);
-    } else if (fieldToSearch === "kecamatan") {
-      setKecamatan(null);
-    } else {
-      setNop(null);
-    }
+    // Note: store values are only cleared when Process Filters is clicked
   };
 
   const handleProcessFilters = () => {
+    // Update dates to store
+    setDateStart(tempDateStart);
+    setDateEnd(tempDateEnd);
+
+    // Update filter to store
     if (tempDataFilter && tempDataFilter.length > 0) {
       if (fieldToSearch === "kabupaten") {
         setKabupaten(tempDataFilter.join(","));
@@ -302,11 +292,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
-                className={cn("w-[160px] justify-start text-left font-normal", !dateEnd && "text-muted-foreground")}
+                className={cn("w-[160px] justify-start text-left font-normal", !tempDateEnd && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {(() => {
-                  const parsedDate = parseSingleDate(dateStart);
+                  const parsedDate = parseSingleDate(tempDateStart);
                   return parsedDate ? format(parsedDate, "LLL dd, y") : <span>Pick a date</span>;
                 })()}
               </Button>
@@ -314,17 +304,17 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={parseSingleDate(dateStart)}
+                selected={parseSingleDate(tempDateStart)}
                 onSelect={(date) => {
                   if (date) {
                     const dateString = format(date, "yyyy-MM-dd");
-                    setDateStart(dateString);
+                    setTempDateStart(dateString);
                   } else {
                     console.log("No date selected, setting to null");
-                    setDateStart(null);
+                    setTempDateStart(null);
                   }
                 }}
-                defaultMonth={parseSingleDate(dateStart) || new Date()}
+                defaultMonth={parseSingleDate(tempDateStart) || new Date()}
                 numberOfMonths={1}
               />
             </PopoverContent>
@@ -335,11 +325,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
-                className={cn("w-[160px] justify-start text-left font-normal", !dateEnd && "text-muted-foreground")}
+                className={cn("w-[160px] justify-start text-left font-normal", !tempDateEnd && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {(() => {
-                  const parsedDate = parseSingleDate(dateEnd);
+                  const parsedDate = parseSingleDate(tempDateEnd);
                   return parsedDate ? format(parsedDate, "LLL dd, y") : <span>Pick a date</span>;
                 })()}
               </Button>
@@ -347,17 +337,17 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={parseSingleDate(dateEnd)}
+                selected={parseSingleDate(tempDateEnd)}
                 onSelect={(date) => {
                   if (date) {
                     const dateString = format(date, "yyyy-MM-dd");
-                    setDateEnd(dateString);
+                    setTempDateEnd(dateString);
                   } else {
                     console.log("No date selected, setting to null");
-                    setDateEnd(null);
+                    setTempDateEnd(null);
                   }
                 }}
-                defaultMonth={parseSingleDate(dateEnd) || new Date()}
+                defaultMonth={parseSingleDate(tempDateEnd) || new Date()}
                 numberOfMonths={1}
               />
             </PopoverContent>
@@ -380,15 +370,14 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </div>
         )} */}
         {/* Single-Select Dropdown Region */}
-        {/* {mode === "chart" && (
+        {fieldToSearch === "region" && (
           <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-28 justify-start text-left"
-                disabled={isLoadingRegion}>
+              <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingRegion}>
                 {storeRegion ? (
                   <span>{storeRegion}</span>
+                ) : tempDataFilter && tempDataFilter.length > 0 ? (
+                  <span>{tempDataFilter[0]}</span>
                 ) : (
                   <span className="text-muted-foreground">
                     {isLoadingRegion ? "Loading Regions..." : "Select Region"}
@@ -407,9 +396,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                         <span className="text-sm">Loading...</span>
                       </div>
                     ) : errorRegion ? (
-                      <div className="p-4 text-red-500 text-sm">
-                        Error loading Regions
-                      </div>
+                      <div className="p-4 text-red-500 text-sm">Error loading Regions</div>
                     ) : Array.isArray(rawRegion) && rawRegion.length > 0 ? (
                       (rawRegion || []).map((select) => {
                         return (
@@ -417,24 +404,23 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                             key={select.nama_item}
                             value={select.nama_item}
                             onSelect={() => selectRegion(select.nama_item)}
-                            className="flex cursor-pointer">
+                            className="flex cursor-pointer"
+                          >
                             <span className="flex-1">{select.nama_item}</span>
                           </CommandItem>
                         );
                       })
                     ) : (
-                      <div className="p-4 text-gray-500 text-sm">
-                        No Regions found
-                      </div>
+                      <div className="p-4 text-gray-500 text-sm">No Regions found</div>
                     )}
                   </CommandGroup>
                 </CommandList>
               </Command>
             </PopoverContent>
           </Popover>
-        )} */}
+        )}
         {/* Single-Select Dropdown NOP */}
-        {(storeViewBy === "nop" || storeViewBy === "kabupaten") && (
+        {fieldToSearch === "kabupaten" && (storeViewBy === "nop" || storeViewBy === "kabupaten") && (
           <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-30 justify-start text-left" disabled={isLoadingNop}>
@@ -480,7 +466,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </Popover>
         )}
         {/* Single-Select Dropdown Kabupaten */}
-        {storeViewBy === "kabupaten" && (
+        {fieldToSearch === "kabupaten" && storeViewBy === "kabupaten" && (
           <Popover>
             <PopoverTrigger asChild>
               <div
@@ -533,13 +519,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                               : "NOPs"
                         }...`
                       : `Select ${
-                          fieldToSearch === "region"
+                          fieldToSearch === "kabupaten"
                             ? "Regions"
-                            : fieldToSearch === "kabupaten"
-                              ? "Kabupatens"
-                              : fieldToSearch === "kecamatan"
-                                ? "Kecamatans"
-                                : "NOPs"
+                            : fieldToSearch === "kecamatan"
+                              ? "Kecamatans"
+                              : "NOPs"
                         }`}
                   </span>
                 )}
@@ -549,25 +533,17 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
               <Command>
                 <CommandInput
                   placeholder={`Search ${
-                    fieldToSearch === "region"
-                      ? "Regions"
-                      : fieldToSearch === "kabupaten"
-                        ? "Kabupatens"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatans"
-                          : "NOPs"
+                    fieldToSearch === "kabupaten" ? "Regions" : fieldToSearch === "kecamatan" ? "Kecamatans" : "NOPs"
                   }...`}
                 />
                 <CommandList>
                   <CommandEmpty>
                     No{" "}
-                    {fieldToSearch === "region"
-                      ? "Regions"
-                      : fieldToSearch === "kabupaten"
-                        ? "Kabupatens"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatans"
-                          : "NOPs"}{" "}
+                    {fieldToSearch === "kabupaten"
+                      ? "Kabupatens"
+                      : fieldToSearch === "kecamatan"
+                        ? "Kecamatans"
+                        : "NOPs"}{" "}
                     found.
                   </CommandEmpty>
                   <CommandGroup>
@@ -579,13 +555,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                     ) : isErrorKabupaten ? (
                       <div className="p-4 text-red-500 text-sm">
                         Error loading{" "}
-                        {fieldToSearch === "region"
+                        {fieldToSearch === "kabupaten"
                           ? "Regions"
-                          : fieldToSearch === "kabupaten"
-                            ? "Kabupatens"
-                            : fieldToSearch === "kecamatan"
-                              ? "Kecamatans"
-                              : "NOPs"}
+                          : fieldToSearch === "kecamatan"
+                            ? "Kecamatans"
+                            : "NOPs"}
                       </div>
                     ) : Array.isArray(rawKabupaten) && rawKabupaten.length > 0 ? (
                       (rawKabupaten || []).map((item) => {
@@ -611,13 +585,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                     ) : (
                       <div className="p-4 text-gray-500 text-sm">
                         No{" "}
-                        {fieldToSearch === "region"
-                          ? "Regions"
-                          : fieldToSearch === "kabupaten"
-                            ? "Kabupatens"
-                            : fieldToSearch === "kecamatan"
-                              ? "Kecamatans"
-                              : "NOPs"}{" "}
+                        {fieldToSearch === "kabupaten"
+                          ? "Kabupatens"
+                          : fieldToSearch === "kecamatan"
+                            ? "Kecamatans"
+                            : "NOPs"}{" "}
                         found
                       </div>
                     )}
@@ -628,13 +600,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                 <div className="flex items-center justify-between border-t p-2">
                   <span className="text-muted-foreground text-xs">
                     {tempDataFilter.length}{" "}
-                    {fieldToSearch === "region"
-                      ? "Region"
-                      : fieldToSearch === "kabupaten"
-                        ? "Kabupaten"
-                        : fieldToSearch === "kecamatan"
-                          ? "Kecamatan"
-                          : "NOP"}
+                    {fieldToSearch === "kabupaten" ? "Kabupaten" : fieldToSearch === "kecamatan" ? "Kecamatan" : "NOP"}
                     {tempDataFilter.length > 1 ? "s" : ""} selected
                   </span>
                   <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearKabupatens}>
@@ -712,11 +678,11 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
         </div>
 
         {/* Active Filters Summary */}
-        {storeFilteredData && (
+        {(storeFilteredData || (tempDataFilter && tempDataFilter.length > 0)) && (
           <div className="flex items-center gap-2 text-gray-500 text-sm">
             <span>Active filters: </span>
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
-              {storeFilteredData.toUpperCase()}
+              {(storeFilteredData || (tempDataFilter?.join(",") ?? "")).toUpperCase()}
             </span>
             <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearKabupatens}>
               Clear all

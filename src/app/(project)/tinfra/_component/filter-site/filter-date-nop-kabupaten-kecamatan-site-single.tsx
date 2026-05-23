@@ -88,7 +88,11 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
   const [tempSiteIdBadges, setTempSiteIdBadges] = useState<string[]>([]);
   const [siteIdBadges, setSiteIdBadges] = useState<string[]>([]);
 
-  const isButtonDisabled = !dateStart || !dateEnd || tempDataFilter === null || tempDataFilter.length === 0;
+  // Temporary state for dates (only synced to store on Process Filters)
+  const [tempDateStart, setTempDateStart] = useState<string | null>(dateStart);
+  const [tempDateEnd, setTempDateEnd] = useState<string | null>(dateEnd);
+
+  const isButtonDisabled = !tempDateStart || !tempDateEnd || tempDataFilter === null || tempDataFilter.length === 0;
 
   // Track popover open states
   const [regionPopoverOpen, setRegionPopoverOpen] = useState(false);
@@ -234,6 +238,10 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
   };
 
   const handleProcessFilters = () => {
+    // Update store with temporary date values
+    setDateStart(tempDateStart);
+    setDateEnd(tempDateEnd);
+
     // When in site view, always use siteIdBadges directly
     if (storeViewBy === "site") {
       if (siteIdBadges.length > 0) {
@@ -358,11 +366,11 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
-                className={cn("w-[160px] justify-start text-left font-normal", !dateEnd && "text-muted-foreground")}
+                className={cn("w-[160px] justify-start text-left font-normal", !tempDateEnd && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {(() => {
-                  const parsedDate = parseSingleDate(dateStart);
+                  const parsedDate = parseSingleDate(tempDateStart);
                   return parsedDate ? format(parsedDate, "LLL dd, y") : <span>Pick a date</span>;
                 })()}
               </Button>
@@ -370,17 +378,17 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={parseSingleDate(dateStart)}
+                selected={parseSingleDate(tempDateStart)}
                 onSelect={(date) => {
                   if (date) {
                     const dateString = format(date, "yyyy-MM-dd");
-                    setDateStart(dateString);
+                    setTempDateStart(dateString);
                   } else {
                     console.log("No date selected, setting to null");
-                    setDateStart(null);
+                    setTempDateStart(null);
                   }
                 }}
-                defaultMonth={parseSingleDate(dateStart) || new Date()}
+                defaultMonth={parseSingleDate(tempDateStart) || new Date()}
                 numberOfMonths={1}
               />
             </PopoverContent>
@@ -391,11 +399,11 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
-                className={cn("w-[160px] justify-start text-left font-normal", !dateEnd && "text-muted-foreground")}
+                className={cn("w-[160px] justify-start text-left font-normal", !tempDateEnd && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {(() => {
-                  const parsedDate = parseSingleDate(dateEnd);
+                  const parsedDate = parseSingleDate(tempDateEnd);
                   return parsedDate ? format(parsedDate, "LLL dd, y") : <span>Pick a date</span>;
                 })()}
               </Button>
@@ -403,17 +411,17 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={parseSingleDate(dateEnd)}
+                selected={parseSingleDate(tempDateEnd)}
                 onSelect={(date) => {
                   if (date) {
                     const dateString = format(date, "yyyy-MM-dd");
-                    setDateEnd(dateString);
+                    setTempDateEnd(dateString);
                   } else {
                     console.log("No date selected, setting to null");
-                    setDateEnd(null);
+                    setTempDateEnd(null);
                   }
                 }}
-                defaultMonth={parseSingleDate(dateEnd) || new Date()}
+                defaultMonth={parseSingleDate(tempDateEnd) || new Date()}
                 numberOfMonths={1}
               />
             </PopoverContent>

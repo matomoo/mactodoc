@@ -29,8 +29,8 @@ export default function Page() {
         filterLabel=""
         showViewModeState="metrics"
         aggMode="site"
-        isShowTa={false}
-        isShowHqRhi={true}
+        isShowTa={true}
+        isShowHqRhi={false}
         apiPathRhi={"aggregate/hq-rhi/by-region"}
         fieldToAggregate="site_id"
         tutelaLevel="Kabupaten"
