@@ -62,7 +62,8 @@ export default function PageAggCustom4GDaily({
   rhiLevel = "site",
   rhiProvider = "Telkomsel",
 }: AggCustomProps) {
-  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter, viewBy } = useFilterStore();
+  const { dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter, viewBy, dateStart, dateEnd } =
+    useFilterStore();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filterBy, setFilterBy] = useState<string>("cell");
   const [isPerformanceSummaryExpanded, setIsPerformanceSummaryExpanded] = useState<boolean>(false);
@@ -77,16 +78,27 @@ export default function PageAggCustom4GDaily({
 
   const isKabupatenSelected = !!kabupaten && kabupaten !== "---";
   const isSiteView = viewBy === "site";
-  const shouldFetch = !!dateRange2 && dateRange2.includes("|") && (isSiteView ? !!siteId : isKabupatenSelected);
+  const shouldFetch = !!dateStart && !!dateEnd && (isSiteView ? !!siteId : isKabupatenSelected);
 
   const { isPending, error, data, isError } = useQuery({
-    queryKey: ["PageAggCustom4GDaily", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryKey: [
+      "PageAggCustom4GDaily",
+      apiPath,
+      dateStart,
+      dateEnd,
+      filter,
+      siteId,
+      nop,
+      kabupaten,
+      batch,
+      clusterFilter,
+    ],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPath}?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPath}?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
 
       if (!response.ok) {
@@ -106,13 +118,13 @@ export default function PageAggCustom4GDaily({
     data: rawDataSector,
     isError: isErrorSector,
   } = useQuery({
-    queryKey: ["ref-get-sector", apiPath, dateRange2, filter, siteId, nop, kabupaten, batch, clusterFilter],
+    queryKey: ["ref-get-sector", apiPath, dateStart, dateEnd, filter, siteId, nop, kabupaten, batch, clusterFilter],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-get-sector?aggregateBy=${aggregateBy}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&clusterFilter=${Array.isArray(clusterFilter) ? clusterFilter.join(",") : clusterFilter || ""}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
 
       if (!response.ok) {
@@ -132,13 +144,13 @@ export default function PageAggCustom4GDaily({
     data: dataPlos,
     isError: isErrorPlos,
   } = useQuery<MeasPlos4GData>({
-    queryKey: ["meas-plos-site-4g", apiPathPloss, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryKey: ["meas-plos-site-4g", apiPathPloss, dateStart, dateEnd, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPathPloss}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPathPloss}?fieldToAggregate=${fieldToAggregate}&batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -156,13 +168,13 @@ export default function PageAggCustom4GDaily({
     data: dataMeasTa,
     isError: isErrorMeasTa,
   } = useQuery<MeasTa4GData>({
-    queryKey: ["meas-ta-4g", apiPathMeasTa, dateRange2, filter, siteId, nop, kabupaten, batch],
+    queryKey: ["meas-ta-4g", apiPathMeasTa, dateStart, dateEnd, filter, siteId, nop, kabupaten, batch],
     queryFn: async () => {
       if (!shouldFetch) {
         return { rows: [] };
       }
       const response = await fetch(
-        `/tinfra/api/meas-db-ti-sul/${apiPathMeasTa}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateRange2?.split("|")[0]}&tgl_2=${dateRange2?.split("|")[1]}`,
+        `/tinfra/api/meas-db-ti-sul/${apiPathMeasTa}?batch=${batch}&siteId=${siteId}&nop=${nop}&kabupaten=${kabupaten}&tgl_1=${dateStart}&tgl_2=${dateEnd}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -253,7 +265,7 @@ export default function PageAggCustom4GDaily({
                 ? ` - ${nop} - ${kabupaten} - All Sites - `
                 : ""
         } Level Daily`}
-        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateRange2?.split("|")[0], 2)} - ${formatDateForDisplay(dateRange2?.split("|")[1], 2)}`}
+        subtitle={` ${aggMode === "nop" ? `Performance ${nop?.toUpperCase()} | ` : ""} Data ${formatDateForDisplay(dateStart, 2)} - ${formatDateForDisplay(dateEnd, 2)}`}
         data={filteredData as unknown as RawKpiRow[]}
         dataPlos={dataPlos?.rows as unknown as RawKpiPlos4G[]}
         dataMeasTa={dataMeasTa?.rows as unknown as RawMeasTa4G[]}
