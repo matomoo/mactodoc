@@ -259,7 +259,7 @@ export default function PageAggCustom4GDaily({
         title={`4G ${
           aggMode === "custom-cluster"
             ? ` - ${Array.isArray(clusterFilter) ? clusterFilter.join(", ").toUpperCase() : clusterFilter || ""} - `
-            : viewBy === "site" && aggMode === "site"
+            : viewBy === "site" && (aggMode === "site" || aggMode === "sector" || aggMode === "site-cell")
               ? ` - ${Array.isArray(siteId) ? siteId.join(", ").toUpperCase() : siteId || ""} - `
               : viewBy === "kabupaten"
                 ? ` - ${nop} - ${kabupaten} - All Sites - `
