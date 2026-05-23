@@ -202,7 +202,8 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
   // Select handlers for each dropdown type
   const selectRegion = (itemName: string) => {
     // Update temp state only - store will be updated when Process Filters is clicked
-    setTempDataFilter([itemName]);
+    setRegion(itemName);
+    setTempDataFilter(null);
     setRegionPopoverOpen(false); // Close popover after selection
   };
 
@@ -210,6 +211,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     setNop(itemName);
     setNopPopoverOpen(false); // Close popover after selection
     setKabupaten(null);
+    setTempDataFilter(null);
   };
 
   // Set default week to last available week
@@ -225,9 +227,21 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     setTempDataFilter(nops);
   };
 
-  const clearKabupatens = () => {
+  const clearTempFilter = () => {
+    // Clear temp state
     handleNopFilterChange(null);
-    // Note: store values are only cleared when Process Filters is clicked
+    setTempDataFilter(null);
+
+    // Clear store state
+    if (fieldToSearch === "region") {
+      setRegion(null);
+    } else if (fieldToSearch === "kabupaten") {
+      setKabupaten(null);
+    } else if (fieldToSearch === "kecamatan") {
+      setKecamatan(null);
+    } else {
+      setNop(null);
+    }
   };
 
   const handleProcessFilters = () => {
@@ -246,17 +260,19 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
       } else if (fieldToSearch === "nop") {
         setNop(tempDataFilter.join(","));
       } else {
-        setNop(tempDataFilter.join(","));
+        // setNop(tempDataFilter.join(","));
       }
     } else {
       if (fieldToSearch === "kabupaten") {
         setKabupaten(null);
       } else if (fieldToSearch === "kecamatan") {
         setKecamatan(null);
+      } else if (fieldToSearch === "region") {
+        setRegion(null);
       } else if (fieldToSearch === "nop") {
         setNop(null);
       } else {
-        setNop(null);
+        //
       }
     }
   };
@@ -420,7 +436,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </Popover>
         )}
         {/* Single-Select Dropdown NOP */}
-        {fieldToSearch === "kabupaten" && (storeViewBy === "nop" || storeViewBy === "kabupaten") && (
+        {fieldToSearch === "kabupaten" && (
           <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-30 justify-start text-left" disabled={isLoadingNop}>
@@ -466,7 +482,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </Popover>
         )}
         {/* Single-Select Dropdown Kabupaten */}
-        {fieldToSearch === "kabupaten" && storeViewBy === "kabupaten" && (
+        {fieldToSearch === "kabupaten" && (
           <Popover>
             <PopoverTrigger asChild>
               <div
@@ -502,7 +518,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                       className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded px-2 text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
                       onClick={(e) => {
                         e.stopPropagation();
-                        clearKabupatens();
+                        clearTempFilter();
                       }}
                     >
                       <X className="mr-1 h-3 w-3" />
@@ -520,7 +536,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                         }...`
                       : `Select ${
                           fieldToSearch === "kabupaten"
-                            ? "Regions"
+                            ? "Kabupaten"
                             : fieldToSearch === "kecamatan"
                               ? "Kecamatans"
                               : "NOPs"
@@ -533,7 +549,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
               <Command>
                 <CommandInput
                   placeholder={`Search ${
-                    fieldToSearch === "kabupaten" ? "Regions" : fieldToSearch === "kecamatan" ? "Kecamatans" : "NOPs"
+                    fieldToSearch === "kabupaten" ? "Kabupaten" : fieldToSearch === "kecamatan" ? "Kecamatans" : "NOPs"
                   }...`}
                 />
                 <CommandList>
@@ -556,7 +572,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                       <div className="p-4 text-red-500 text-sm">
                         Error loading{" "}
                         {fieldToSearch === "kabupaten"
-                          ? "Regions"
+                          ? "Kabupaten"
                           : fieldToSearch === "kecamatan"
                             ? "Kecamatans"
                             : "NOPs"}
@@ -603,7 +619,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
                     {fieldToSearch === "kabupaten" ? "Kabupaten" : fieldToSearch === "kecamatan" ? "Kecamatan" : "NOP"}
                     {tempDataFilter.length > 1 ? "s" : ""} selected
                   </span>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearKabupatens}>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearTempFilter}>
                     <X className="mr-1 h-3 w-3" />
                     Clear all
                   </Button>
@@ -611,63 +627,6 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
               )}
             </PopoverContent>
           </Popover>
-
-          // <Popover
-          //   open={kabupatenPopoverOpen}
-          //   onOpenChange={setKabupatenPopoverOpen}>
-          //   <PopoverTrigger asChild>
-          //     <Button
-          //       variant="outline"
-          //       className="w-68 justify-start text-left"
-          //       disabled={isLoadingKabupaten}>
-          //       {storeKabupaten ? (
-          //         <span>{storeKabupaten}</span>
-          //       ) : (
-          //         <span className="text-muted-foreground">
-          //           {isLoadingKabupaten
-          //             ? "Loading Kabupatens..."
-          //             : "Select Kabupaten"}
-          //         </span>
-          //       )}
-          //     </Button>
-          //   </PopoverTrigger>
-          //   <PopoverContent className="w-80 p-0" align="start">
-          //     <Command>
-          //       <CommandList>
-          //         <CommandEmpty>No Kabupatens found.</CommandEmpty>
-          //         <CommandGroup>
-          //           {isLoadingKabupaten ? (
-          //             <div className="flex items-center justify-center p-4">
-          //               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          //               <span className="text-sm">Loading...</span>
-          //             </div>
-          //           ) : isErrorKabupaten ? (
-          //             <div className="p-4 text-red-500 text-sm">
-          //               Error loading Kabupatens
-          //             </div>
-          //           ) : Array.isArray(rawKabupaten) &&
-          //             rawKabupaten.length > 0 ? (
-          //             (rawKabupaten || []).map((select) => {
-          //               return (
-          //                 <CommandItem
-          //                   key={select.nama_item}
-          //                   value={select.nama_item}
-          //                   onSelect={() => selectKabupaten(select.nama_item)}
-          //                   className="flex cursor-pointer">
-          //                   <span className="flex-1">{select.nama_item}</span>
-          //                 </CommandItem>
-          //               );
-          //             })
-          //           ) : (
-          //             <div className="p-4 text-gray-500 text-sm">
-          //               No Kabupatens found
-          //             </div>
-          //           )}
-          //         </CommandGroup>
-          //       </CommandList>
-          //     </Command>
-          //   </PopoverContent>
-          // </Popover>
         )}
 
         {/* Process Button */}
@@ -684,7 +643,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-800">
               {(storeFilteredData || (tempDataFilter?.join(",") ?? "")).toUpperCase()}
             </span>
-            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearKabupatens}>
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearTempFilter}>
               Clear all
             </Button>
           </div>
