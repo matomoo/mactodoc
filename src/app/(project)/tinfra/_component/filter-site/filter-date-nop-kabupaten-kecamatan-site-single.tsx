@@ -204,6 +204,7 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
     setKabupaten(null);
     setTempDataFilter(null);
     setSiteId(null);
+    setSiteIdBadges([]);
   };
 
   const selectKabupaten = (itemName: string) => {
@@ -289,7 +290,7 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
         const combined = [...prev, ...siteIds];
         return Array.from(new Set(combined));
       });
-      // Immediately sync to tempDataFilter for UI display
+      // Sync to tempDataFilter for UI display only (NOT to Zustand yet)
       setTempDataFilter((prev) => {
         const current = prev || [];
         const newCombined = [...current, ...siteIds];
@@ -298,17 +299,6 @@ export function Filter_Date_Nop_Kabupaten_Kecamatan_Site_Single({ fieldToSearch1
       setSiteIdInput(""); // Clear input after processing
     }
   };
-
-  useEffect(() => {
-    if (siteIdBadges.length > 0) {
-      const siteIdString = siteIdBadges.join(",");
-      setSiteId(siteIdString);
-      setTempDataFilter(siteIdBadges);
-    } else {
-      setSiteId(null);
-      setTempDataFilter(null);
-    }
-  }, [siteIdBadges, setSiteId]);
 
   // Function to handle input changes and process pasted content (temporary state)
   const handleSiteIdInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
