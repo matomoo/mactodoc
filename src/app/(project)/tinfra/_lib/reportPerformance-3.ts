@@ -520,8 +520,8 @@ function computeKPIs(data: RawKpiRow[], useCellGranularity = false): ComputedKpi
       dropRate: (row.G4_SERVICE_DROP_RATE_NUM / row.G4_SERVICE_DROP_RATE_DENUM) * 100,
       dlPrbUtil: (row.G4_DL_PRB_UTILIZATION_NUM / row.G4_DL_PRB_UTILIZATION_DENUM) * 100,
       ulPrbUtil: (row.G4_UL_PRB_UTILIZATION_NUM / row.G4_UL_PRB_UTILIZATION_DENUM) * 100,
-      dlThroughput: row.G4_USER_DL_THP_NUM / row.G4_USER_DL_THP_DENUM / 1_000,
-      ulThroughput: row.G4_USER_UL_THP_NUM / row.G4_USER_UL_THP_DENUM / 1_000,
+      dlThroughput: row.G4_USER_DL_THP_NUM / row.G4_USER_DL_THP_DENUM,
+      ulThroughput: row.G4_USER_UL_THP_NUM / row.G4_USER_UL_THP_DENUM,
       seBh: row.G4_SE_NUM / row.G4_SE_DENUM,
       avgCQI: row.G4_AVG_CQI_NUM / row.G4_AVG_CQI_DENUM,
       avgNiCarrier: row.G4_AVG_NI_CARRIER_DBM,
@@ -711,10 +711,26 @@ function addComparisonSlide(pres: PptxGenJS, rows: ComparisonRow[]): void {
 
   // Only render legend if it fits on the slide (max 5.625" height)
   if (legendY < 5.3) {
-    const legendItems: Array<{ fill: string; text: string; textColor: string }> = [
-      { fill: "DCFCE7", text: "Improve – growth >2% & delta positive", textColor: "166534" },
-      { fill: "FEE2E2", text: "Degrade – growth >2% & delta negative", textColor: "991B1B" },
-      { fill: "FEF9C3", text: "Maintain – change within threshold", textColor: "854D0E" },
+    const legendItems: Array<{
+      fill: string;
+      text: string;
+      textColor: string;
+    }> = [
+      {
+        fill: "DCFCE7",
+        text: "Improve – growth >2% & delta positive",
+        textColor: "166534",
+      },
+      {
+        fill: "FEE2E2",
+        text: "Degrade – growth >2% & delta negative",
+        textColor: "991B1B",
+      },
+      {
+        fill: "FEF9C3",
+        text: "Maintain – change within threshold",
+        textColor: "854D0E",
+      },
     ];
 
     legendItems.forEach((item, i) => {
@@ -877,7 +893,15 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
 
   // Build PlosGroup for each aggrby
   const groups: PlosGroup[] = Array.from(groupedByAggrby.entries()).map(([aggrby, rows]) => {
-    const byDate = new Map<string, { failCount: number; packetLoss: number; avgDelay: number; avgJitter: number }>();
+    const byDate = new Map<
+      string,
+      {
+        failCount: number;
+        packetLoss: number;
+        avgDelay: number;
+        avgJitter: number;
+      }
+    >();
 
     for (const r of rows) {
       const label = new Date(r["Begin Time"]).toLocaleDateString("en-GB", {
@@ -885,7 +909,12 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
         month: "short",
       });
       // Accumulate (sum) if multiple rows share the same date key
-      const prev = byDate.get(label) ?? { failCount: 0, packetLoss: 0, avgDelay: 0, avgJitter: 0 };
+      const prev = byDate.get(label) ?? {
+        failCount: 0,
+        packetLoss: 0,
+        avgDelay: 0,
+        avgJitter: 0,
+      };
       byDate.set(label, {
         failCount: prev.failCount + r["FAIL Count"],
         packetLoss: prev.packetLoss + r["Avg Packet Loss Rate"],
@@ -947,7 +976,13 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
     // LINE series: Packet Loss Rate (left / primary Y-axis)
     leftComboData.push({
       type: (pres as any).charts.LINE,
-      data: [{ name: `PL Rate - ${group.aggrby}`, labels, values: extractSeries(group, "packetLoss", 4) }],
+      data: [
+        {
+          name: `PL Rate - ${group.aggrby}`,
+          labels,
+          values: extractSeries(group, "packetLoss", 4),
+        },
+      ],
       options: {
         chartColors: ["0D9488"],
         lineSize: 2,
@@ -961,7 +996,13 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
     // BAR series: Fail Count (right / secondary Y-axis)
     leftComboData.push({
       type: (pres as any).charts.BAR,
-      data: [{ name: `Fail Cnt - ${group.aggrby}`, labels, values: extractSeries(group, "failCount", 0) }],
+      data: [
+        {
+          name: `Fail Cnt - ${group.aggrby}`,
+          labels,
+          values: extractSeries(group, "failCount", 0),
+        },
+      ],
       options: {
         chartColors: ["DC2626"],
         barDir: "col",
@@ -1007,7 +1048,11 @@ function addPlosSlide(pres: PptxGenJS, dataPlos: RawKpiPlos4G[]): void {
     (slide as any).addChart(leftComboData, comboLayoutOpts);
 
     // ── RIGHT chart: LINE — Avg Delay + Avg Jitter ────────────────────────────
-    const delayJitterData: Array<{ name: string; labels: string[]; values: number[] }> = [];
+    const delayJitterData: Array<{
+      name: string;
+      labels: string[];
+      values: number[];
+    }> = [];
 
     // Delay series
     delayJitterData.push({
@@ -1180,7 +1225,11 @@ function addMeasTaSlide(pres: PptxGenJS, dataMeasTa: RawMeasTa4G[]): void {
       });
 
       // Build series data for each cell in this site-sector group
-      const seriesData: Array<{ name: string; labels: string[]; values: number[] }> = [];
+      const seriesData: Array<{
+        name: string;
+        labels: string[];
+        values: number[];
+      }> = [];
       const cellIds = Array.from(group.byCellAndTa.keys()).sort((a, b) => a - b);
 
       cellIds.forEach((cellId) => {
