@@ -370,21 +370,6 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </Popover>
         </div>
 
-        {/* Select ViewBy */}
-        {/* {mode === "chart" && (
-          <div className="flex flex-col gap-2">
-            <Select value={storeViewBy || ""} onValueChange={setViewBy}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Select View By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem defaultChecked={true} value="kabupaten">
-                  Kabupaten
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )} */}
         {/* Single-Select Dropdown Region */}
         {fieldToSearch === "region" && (
           <Popover open={regionPopoverOpen} onOpenChange={setRegionPopoverOpen}>
@@ -435,6 +420,115 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             </PopoverContent>
           </Popover>
         )}
+
+        {/* fieldToSearch === "nop" */}
+        {/* Multi-Select Dropdown Nop */}
+        {fieldToSearch === "nop" && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <div
+                className={cn(
+                  "flex w-90 cursor-pointer items-center justify-start rounded-lg border bg-background px-1 py-1 text-sm",
+                  isLoadingNop && "cursor-wait opacity-50",
+                )}
+                tabIndex={0}
+                role="combobox"
+                aria-expanded={false}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                  }
+                }}
+              >
+                {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 ? (
+                  <div className="flex flex-1 items-center gap-1">
+                    <div className="flex flex-1 flex-wrap gap-1">
+                      {tempDataFilter.slice(0, 2).map((nop: string) => (
+                        <Badge key={nop} variant="secondary" className="text-xs">
+                          {nop}
+                        </Badge>
+                      ))}
+                      {tempDataFilter.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{tempDataFilter.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded px-2 text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearTempFilter();
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {isLoadingNop ? `Loading ${"NOPs"}...` : `Select ${"NOPs"}...`}
+                  </span>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="start">
+              <Command>
+                <CommandInput placeholder={`Search ${"NOPs"}......`} />
+                <CommandList>
+                  <CommandEmpty>No {"NOPs"} found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingNop ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : isErrorNop ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading {"NOPs"}</div>
+                    ) : Array.isArray(rawNop) && rawNop.length > 0 ? (
+                      (rawNop || []).map((item) => {
+                        const isSelected =
+                          (Array.isArray(tempDataFilter)
+                            ? tempDataFilter
+                            : tempDataFilter
+                              ? [tempDataFilter]
+                              : []
+                          )?.includes(item.nama_item) || false;
+                        return (
+                          <CommandItem
+                            key={item.nama_item}
+                            value={item.nama_item}
+                            onSelect={() => toggleNop(item.nama_item)}
+                            className="flex cursor-pointer gap-2"
+                          >
+                            <Checkbox checked={isSelected} className="pointer-events-none" />
+                            <span className="flex-1">{item.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No {"NOPs"} found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+              {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 && (
+                <div className="flex items-center justify-between border-t p-2">
+                  <span className="text-muted-foreground text-xs">
+                    {tempDataFilter.length} {"NOP"}
+                    {tempDataFilter.length > 1 ? "s" : ""} selected
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearTempFilter}>
+                    <X className="mr-1 h-3 w-3" />
+                    Clear all
+                  </Button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        )}
+
+        {/* fieldToSearch === "kabupaten" */}
         {/* Single-Select Dropdown NOP */}
         {fieldToSearch === "kabupaten" && (
           <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
@@ -481,7 +575,7 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
             </PopoverContent>
           </Popover>
         )}
-        {/* Single-Select Dropdown Kabupaten */}
+        {/* Multi-Select Dropdown Kabupaten */}
         {fieldToSearch === "kabupaten" && (
           <Popover>
             <PopoverTrigger asChild>
