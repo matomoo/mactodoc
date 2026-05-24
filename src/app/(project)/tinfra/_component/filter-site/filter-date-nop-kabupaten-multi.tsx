@@ -182,6 +182,39 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Fetch Kecamatan from API
+  const {
+    data: rawKecamatan,
+    isLoading: isLoadingKecamatan,
+    error: isErrorKecamatan,
+  } = useQuery<ReturnData[]>({
+    queryKey: ["ref-query-dynamic", storeNop, storeKabupaten, storeKecamatan, "kecamatan"],
+    queryFn: async () => {
+      const response = await fetch(
+        `/tinfra/api/meas-db-ti-sul/aggregate/ref-query-dynamic?fieldToSearch=kecamatan&nop=${storeNop}&kabupaten=${storeKabupaten}&kecamatan=${storeKecamatan}`,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      // Extract unique field names from response
+      const rows = data?.rows || [];
+      if (!Array.isArray(rows)) {
+        return [];
+      }
+      const uniqueResults = Array.from(
+        new Set(rows.map((item: Record<string, string>) => item["kecamatan" as keyof Record<string, string>])),
+      ).map((name) => ({
+        nama_item: name as string,
+      }));
+
+      return uniqueResults;
+    },
+    enabled: fieldToSearch === "kecamatan" && !!storeNop && !!storeKabupaten,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   // API to fetch week range data
   const { data: weekData } = useQuery({
     queryKey: ["week-range-data"],
@@ -211,6 +244,13 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     setNop(itemName);
     setNopPopoverOpen(false); // Close popover after selection
     setKabupaten(null);
+    setTempDataFilter(null);
+  };
+
+  const selectKabupaten = (itemName: string) => {
+    setKabupaten(itemName);
+    setKabupatenPopoverOpen(false); // Close popover after selection
+    setKecamatan(null);
     setTempDataFilter(null);
   };
 
@@ -277,7 +317,6 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
     }
   };
 
-  // Toggle Kabupaten selection (temporary state)
   const toggleNop = (nopName: string) => {
     // Handle case where tempDataFilter might be a string (old data) or array
     let currentNops: string[] = [];
@@ -723,9 +762,212 @@ export function Filter_Date_Nop_Kabupaten_Multi({ fieldToSearch }: IProps) {
           </Popover>
         )}
 
+        {/* fieldToSearch === "kecamatan"  */}
+        {/* Single-Select Dropdown NOP */}
+        {fieldToSearch === "kecamatan" && (
+          <Popover open={nopPopoverOpen} onOpenChange={setNopPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-28 justify-start text-left" disabled={isLoadingNop}>
+                {storeNop ? (
+                  <span>{storeNop}</span>
+                ) : (
+                  <span className="text-muted-foreground">{isLoadingNop ? "Loading NOPs..." : "Select NOP"}</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-36 p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No NOPs found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingNop ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : isErrorNop ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading NOPs</div>
+                    ) : Array.isArray(rawNop) && rawNop.length > 0 ? (
+                      (rawNop || []).map((nop) => {
+                        return (
+                          <CommandItem
+                            key={nop.nama_item}
+                            value={nop.nama_item}
+                            onSelect={() => selectNop(nop.nama_item)}
+                            className="flex cursor-pointer"
+                          >
+                            <span className="flex-1">{nop.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No NOPs found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
+        {/* Multi-Select Dropdown Kabupaten */}
+        {fieldToSearch === "kecamatan" && (
+          <Popover open={kabupatenPopoverOpen} onOpenChange={setKabupatenPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-65 justify-start text-left" disabled={isLoadingKabupaten}>
+                {storeKabupaten ? (
+                  <span>{storeKabupaten}</span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {isLoadingKabupaten ? "Loading Kabupatens..." : "Select Kabupaten"}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-75 p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No Kabupatens found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingKabupaten ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : isErrorKabupaten ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading Kabupatens</div>
+                    ) : Array.isArray(rawKabupaten) && rawKabupaten.length > 0 ? (
+                      (rawKabupaten || []).map((kabupaten) => {
+                        return (
+                          <CommandItem
+                            key={kabupaten.nama_item}
+                            value={kabupaten.nama_item}
+                            onSelect={() => selectKabupaten(kabupaten.nama_item)}
+                            className="flex cursor-pointer"
+                          >
+                            <span className="flex-1">{kabupaten.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No Kabupatens found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )}
+        {/* Multi-Select Dropdown Kecamatan */}
+        {fieldToSearch === "kecamatan" && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <div
+                className={cn(
+                  "flex w-50 cursor-pointer items-center justify-start rounded-lg border bg-background px-1 py-1 text-sm",
+                  isLoadingKecamatan && "cursor-wait opacity-50",
+                )}
+                tabIndex={0}
+                role="combobox"
+                aria-expanded={false}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                  }
+                }}
+              >
+                {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 ? (
+                  <div className="flex flex-1 items-center gap-1">
+                    <div className="flex flex-1 flex-wrap gap-1">
+                      {tempDataFilter.slice(0, 2).map((nop: string) => (
+                        <Badge key={nop} variant="secondary" className="text-xs">
+                          {nop}
+                        </Badge>
+                      ))}
+                      {tempDataFilter.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{tempDataFilter.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded px-2 text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearTempFilter();
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {isLoadingKecamatan
+                      ? `Loading ${fieldToSearch.toWellFormed()}...`
+                      : `Select ${fieldToSearch.toWellFormed()}`}
+                  </span>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="start">
+              <Command>
+                <CommandInput placeholder={`Search ${fieldToSearch.toWellFormed()}...`} />
+                <CommandList>
+                  <CommandEmpty>No {fieldToSearch.toWellFormed()} found.</CommandEmpty>
+                  <CommandGroup>
+                    {isLoadingKecamatan ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    ) : isErrorKecamatan ? (
+                      <div className="p-4 text-red-500 text-sm">Error loading {fieldToSearch.toWellFormed()}</div>
+                    ) : Array.isArray(rawKecamatan) && rawKecamatan.length > 0 ? (
+                      (rawKecamatan || []).map((item) => {
+                        const isSelected =
+                          (Array.isArray(tempDataFilter)
+                            ? tempDataFilter
+                            : tempDataFilter
+                              ? [tempDataFilter]
+                              : []
+                          )?.includes(item.nama_item) || false;
+                        return (
+                          <CommandItem
+                            key={item.nama_item}
+                            value={item.nama_item}
+                            onSelect={() => toggleNop(item.nama_item)}
+                            className="flex cursor-pointer gap-2"
+                          >
+                            <Checkbox checked={isSelected} className="pointer-events-none" />
+                            <span className="flex-1">{item.nama_item}</span>
+                          </CommandItem>
+                        );
+                      })
+                    ) : (
+                      <div className="p-4 text-gray-500 text-sm">No {fieldToSearch.toWellFormed()} found</div>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+              {tempDataFilter && Array.isArray(tempDataFilter) && tempDataFilter.length > 0 && (
+                <div className="flex items-center justify-between border-t p-2">
+                  <span className="text-muted-foreground text-xs">
+                    {tempDataFilter.length} {fieldToSearch.toWellFormed()}
+                    {tempDataFilter.length > 1 ? "s" : ""} selected
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearTempFilter}>
+                    <X className="mr-1 h-3 w-3" />
+                    Clear all
+                  </Button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        )}
+
         {/* Process Button */}
         <div className="flex items-end justify-end">
-          <Button onClick={handleProcessFilters} disabled={isButtonDisabled} className="px-6">
+          <Button onClick={handleProcessFilters} disabled={isButtonDisabled} className="w-30 px-6">
             Process Filters
           </Button>
         </div>

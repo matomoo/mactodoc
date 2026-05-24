@@ -11,6 +11,8 @@ export async function GET(request: Request) {
     const searchByThis = searchParams.get("searchByThis");
     const fieldToSearch = searchParams.get("fieldToSearch");
     const searchNop = searchParams.get("nop");
+    const searchKabupaten = searchParams.get("kabupaten");
+    const searchKecamatan = searchParams.get("kecamatan");
 
     // Validate fieldToSearch to prevent SQL injection
     const allowedFields = ["kabupaten", "kecamatan", "nop", "siteid", "region"];
@@ -25,6 +27,15 @@ export async function GET(request: Request) {
       query = sql`
         SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 
         WHERE nop = ${searchNop}
+        AND remark IS NULL
+        ORDER BY ${sql.raw(fieldToSearch)}
+      `;
+    } else if (fieldToSearch === "kecamatan" && searchNop !== "---" && searchKabupaten !== "---") {
+      // When searching for specific value, return matching records
+      query = sql`
+        SELECT DISTINCT ${sql.raw(fieldToSearch)} FROM ref_cell_4g 
+        WHERE nop = ${searchNop}
+        AND kabupaten = ${searchKabupaten}
         AND remark IS NULL
         ORDER BY ${sql.raw(fieldToSearch)}
       `;
