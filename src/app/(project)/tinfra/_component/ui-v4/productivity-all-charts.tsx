@@ -31,6 +31,7 @@ export interface ProductivityAllChartsProps {
   legendBy?: string;
   payloadTitle?: string;
   trafficTitle?: string;
+  stackedView?: boolean;
 }
 
 const colors = [
@@ -49,6 +50,7 @@ export function ProductivityAllCharts({
   legendBy = "Tech",
   payloadTitle = "Total Payload (GB)",
   trafficTitle = "Total Traffic (Erlang)",
+  stackedView = true,
 }: ProductivityAllChartsProps) {
   const uniqueDates = useMemo(() => [...new Set(data.map((d) => d.BEGIN_TIME.split(" ")[0]))].sort(), [data]);
   const uniqueLegends = useMemo(
@@ -165,7 +167,7 @@ export function ProductivityAllCharts({
             const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_PAYLOAD_GB ?? 0), 0);
             return sum || null;
           }),
-          yAxisID: is4G ? "y1" : "y",
+          yAxisID: stackedView ? "y" : is4G ? "y1" : "y",
           stack: is4G ? "stack-4g" : "stack-2g",
         });
 
@@ -176,14 +178,14 @@ export function ProductivityAllCharts({
             const sum = dayData.reduce((acc, d) => acc + (d.TOTAL_TRAFFIC_ERL ?? 0), 0);
             return sum || null;
           }),
-          yAxisID: is4G ? "y1" : "y",
+          yAxisID: stackedView ? "y" : is4G ? "y1" : "y",
           stack: is4G ? "stack-4g" : "stack-2g",
         });
       });
     }
 
     return { payloadDatasets: payload, trafficDatasets: traffic };
-  }, [uniqueLegends, uniqueDates, data, legendBy]);
+  }, [uniqueLegends, uniqueDates, data, legendBy, stackedView]);
 
   const isTechMode = legendBy.toLowerCase() === "tech";
 
@@ -254,30 +256,31 @@ export function ProductivityAllCharts({
             },
           }),
         },
-        ...(isTechMode && {
-          y1: {
-            stacked: false,
-            beginAtZero: false,
-            position: "right" as const,
-            grid: {
-              drawOnChartArea: false,
-            },
-            title: {
-              display: true,
-              text: "4G",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
+        ...(isTechMode &&
+          !stackedView && {
+            y1: {
+              stacked: false,
+              beginAtZero: false,
+              position: "right" as const,
+              grid: {
+                drawOnChartArea: false,
+              },
+              title: {
+                display: true,
+                text: "4G",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                },
               },
             },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
-              },
-            },
-          },
-        }),
+          }),
       },
       interaction: {
         mode: "nearest" as const,
@@ -285,7 +288,7 @@ export function ProductivityAllCharts({
         intersect: false,
       },
     }),
-    [isTechMode],
+    [isTechMode, stackedView],
   );
 
   const payloadOptions = useMemo(
