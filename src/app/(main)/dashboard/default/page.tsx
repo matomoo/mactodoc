@@ -1,12 +1,49 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, BarChart3, Shield, Signal } from "lucide-react";
+import { FileText, FolderOpen, ListFilter, Plus, Search, Shield, Table2 } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
-export default function WelcomeScreen() {
+const features = [
+  {
+    icon: FileText,
+    title: "SQAC Document",
+    description: "Generate and manage SQAC documents online",
+    color: "emerald",
+  },
+  {
+    icon: Table2,
+    title: "Data Tracker",
+    description: "Track and monitor all SQAC entries",
+    color: "blue",
+  },
+  {
+    icon: Shield,
+    title: "Audit Ready",
+    description: "Prepare documents for compliance audits",
+    color: "violet",
+  },
+  {
+    icon: ListFilter,
+    title: "Smart Filtering",
+    description: "Filter by WID, site, band, and status",
+    color: "amber",
+  },
+];
+
+const recentDocuments = [
+  { id: "SQAC-2024-001", site: "MAKASSAR-001", band: "2100 MHz", status: "Completed", date: "2024-01-15" },
+  { id: "SQAC-2024-002", site: "MENADO-002", band: "1800 MHz", status: "In Progress", date: "2024-01-14" },
+  { id: "SQAC-2024-003", site: "PALU-003", band: "900 MHz", status: "Pending", date: "2024-01-13" },
+  { id: "SQAC-2024-004", site: "Kendari-004", band: "2600 MHz", status: "Completed", date: "2024-01-12" },
+];
+
+export default function MactodocLanding() {
   const { loading } = useRequireAuth();
 
   if (loading) {
@@ -16,152 +53,231 @@ export default function WelcomeScreen() {
       </div>
     );
   }
-  const features = [
-    {
-      icon: Activity,
-      title: "Real-time Analytics",
-      description: "Monitor network performance with live data updates",
-      color: "blue",
-    },
-    {
-      icon: BarChart3,
-      title: "Network Insights",
-      description: "Comprehensive view of your infrastructure performance",
-      color: "indigo",
-    },
-    {
-      icon: Shield,
-      title: "Secure & Reliable",
-      description: "Enterprise-grade security for your critical infrastructure",
-      color: "purple",
-    },
-  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-    },
+    visible: { y: 0, opacity: 1 },
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      {/* Background Decoration */}
-      <div className="mask-[radial-gradient(ellipse_at_center,white,transparent)] absolute inset-0 bg-grid-slate-200 dark:bg-grid-slate-800/20" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      {/* Subtle grid pattern */}
+      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-      {/* Animated gradient orbs */}
-      <div className="-left-4 absolute top-0 h-96 w-96 animate-blob rounded-full bg-blue-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-blue-900/30" />
-      <div className="-right-4 animation-delay-2000 absolute top-0 h-96 w-96 animate-blob rounded-full bg-indigo-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-indigo-900/30" />
-      <div className="-bottom-8 animation-delay-4000 absolute left-20 h-96 w-96 animate-blob rounded-full bg-purple-200 opacity-30 mix-blend-multiply blur-3xl filter dark:bg-purple-900/30" />
-
-      {/* Main Content */}
-      <div className="container relative mx-auto flex min-h-screen flex-col items-center justify-center px-4 py-16">
+      <div className="container relative mx-auto px-4 py-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
+          transition={{ duration: 0.5 }}
+          className="mb-10"
         >
-          {/* Logo/Badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 font-medium text-blue-700 text-sm dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400">
-            <Signal className="h-4 w-4" />
-            <span>Network Operations Center</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
+                <FolderOpen className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">MACTODOC</h1>
+                <p className="text-sm text-slate-500">Document Management System</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2">
+                <Search className="h-4 w-4" />
+                Search
+              </Button>
+              <Button className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+                <Plus className="h-4 w-4" />
+                New SQAC
+              </Button>
+            </div>
           </div>
+        </motion.div>
 
-          {/* Main Heading */}
-          <h1 className="mb-6 font-bold text-4xl text-slate-900 tracking-tight sm:text-6xl lg:text-7xl dark:text-slate-50">
-            TELKOMINFRA
-            <span className="block bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              SULAWESI
-            </span>
-          </h1>
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-10 rounded-2xl border bg-white/60 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/60 dark:shadow-slate-950/50"
+        >
+          <div className="flex flex-col items-center text-center lg:flex-row lg:text-left lg:justify-between">
+            <div className="mb-6 lg:mb-0">
+              <Badge className="mb-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400">
+                Document Generation
+              </Badge>
+              <h2 className="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-50">
+                Generate SQAC Documents
+                <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  Online & Instantly
+                </span>
+              </h2>
+              <p className="mx-auto max-w-lg text-slate-600 dark:text-slate-400 lg:mx-0">
+                Create, manage, and track your SQAC documents with ease. Streamline your documentation workflow with our
+                intuitive online tools.
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <Button
+                size="lg"
+                className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+              >
+                <FileText className="h-5 w-5" />
+                Create New
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2">
+                View All
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mx-auto mb-12 max-w-2xl text-lg text-slate-600 dark:text-slate-400"
-          >
-            Selamat datang di platform monitoring jaringan
-            <span className="mt-2 block font-medium text-slate-900 dark:text-slate-200">
-              Real-time network performance, simplified
-            </span>
-          </motion.p>
+        {/* Features Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            const colors = {
+              emerald:
+                "border-emerald-200/50 bg-gradient-to-br from-emerald-50/50 to-transparent dark:border-emerald-900/50 dark:from-emerald-950/30",
+              blue: "border-blue-200/50 bg-gradient-to-br from-blue-50/50 to-transparent dark:border-blue-900/50 dark:from-blue-950/30",
+              violet:
+                "border-violet-200/50 bg-gradient-to-br from-violet-50/50 to-transparent dark:border-violet-900/50 dark:from-violet-950/30",
+              amber:
+                "border-amber-200/50 bg-gradient-to-br from-amber-50/50 to-transparent dark:border-amber-900/50 dark:from-amber-950/30",
+            };
+            const iconColors = {
+              emerald: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+              blue: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+              violet: "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
+              amber: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+            };
 
-          {/* CTA Buttons */}
-          {/* <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
-          >
-            <Button size="lg" className="group gap-2 px-8">
-              Get Started
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button size="lg" variant="outline" className="px-8">
-              Learn More
-            </Button>
-          </motion.div> */}
+            return (
+              <motion.div key={feature.title} variants={itemVariants}>
+                <Card
+                  className={`group relative overflow-hidden border ${colors[feature.color as keyof typeof colors]} transition-all hover:shadow-lg`}
+                >
+                  <CardHeader className="pb-2">
+                    <div
+                      className={`mb-3 inline-flex rounded-xl p-3 ${iconColors[feature.color as keyof typeof iconColors]}`}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription>{feature.description}</CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </motion.div>
 
-          {/* Features Grid */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              const colors = {
-                blue: "from-blue-500/10 via-blue-500/5 to-transparent border-blue-200/50 dark:border-blue-900/50",
-                indigo:
-                  "from-indigo-500/10 via-indigo-500/5 to-transparent border-indigo-200/50 dark:border-indigo-900/50",
-                purple:
-                  "from-purple-500/10 via-purple-500/5 to-transparent border-purple-200/50 dark:border-purple-900/50",
-              };
+        {/* Recent Documents */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="border-slate-200/50 dark:border-slate-800/50">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">Recent SQAC Documents</CardTitle>
+                  <CardDescription>Latest generated documents</CardDescription>
+                </div>
+                <Input placeholder="Search documents..." className="w-64" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-hidden rounded-lg border">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Document ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Site
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Band
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-slate-600 dark:text-slate-400">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {recentDocuments.map((doc) => (
+                      <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100">{doc.id}</td>
+                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{doc.site}</td>
+                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{doc.band}</td>
+                        <td className="px-4 py-3">
+                          <Badge
+                            variant={
+                              doc.status === "Completed"
+                                ? "default"
+                                : doc.status === "In Progress"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                            className={
+                              doc.status === "Completed"
+                                ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                : doc.status === "In Progress"
+                                  ? "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
+                                  : ""
+                            }
+                          >
+                            {doc.status}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500">{doc.date}</td>
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              return (
-                <motion.div key={feature.title} variants={itemVariants}>
-                  <Card
-                    className={`group relative overflow-hidden border bg-linear-to-br ${colors[feature.color as keyof typeof colors]} backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-${feature.color}-500/10`}
-                  >
-                    <CardContent className="p-6">
-                      <div
-                        className={`mb-4 inline-flex rounded-xl bg-${feature.color}-100 p-3 text-${feature.color}-600 dark:bg-${feature.color}-900/30 dark:text-${feature.color}-400`}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </div>
-                      <h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-50">{feature.title}</h3>
-                      <p className="text-slate-600 text-sm dark:text-slate-400">{feature.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-
-          {/* Footer */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-16 text-slate-500 text-sm dark:text-slate-500"
-          >
-            <p>© 2026 Telkominfra Sulawesi. All rights reserved.</p>
-          </motion.div>
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-10 text-center text-sm text-slate-500 dark:text-slate-500"
+        >
+          <p>© 2026 MACTODOC. Document Management System for Network Operations.</p>
         </motion.div>
       </div>
     </div>
