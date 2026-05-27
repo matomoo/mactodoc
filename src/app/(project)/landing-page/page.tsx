@@ -1,11 +1,23 @@
-"use client"
+"use client";
 
 // app/page.tsx
 // biome-ignore assist/source/organizeImports: <will be handled by the formatter>
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { CheckCircle, TrendingUp, Zap, Database, BarChart3, Code, Rocket, Clock, Tag, ExternalLink, Eye } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle,
+  TrendingUp,
+  Zap,
+  Database,
+  BarChart3,
+  Code,
+  Rocket,
+  Clock,
+  Tag,
+  ExternalLink,
+  Eye,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const highlights = [
@@ -14,25 +26,25 @@ export default function Page() {
     { icon: <BarChart3 className="h-5 w-5" />, text: "Visualisasi Data dengan Chart.js" },
     { icon: <Code className="h-5 w-5" />, text: "Fullstack (Frontend + Backend)" },
     { icon: <TrendingUp className="h-5 w-5" />, text: "Siap Kerja sebagai Dashboard Specialist" },
-  ]
+  ];
 
   const steps = [
     {
       number: 1,
       title: "Update Query SQL ke API",
-      description: "Langsung praktik menghubungkan data dengan API, tanpa perlu membangun dari nol."
+      description: "Langsung praktik menghubungkan data dengan API, tanpa perlu membangun dari nol.",
     },
     {
       number: 2,
       title: "Sesuaikan Model Data",
-      description: "Pelajari cara mapping dan adaptasi struktur data dari database lokal ke dalam model dashboard."
+      description: "Pelajari cara mapping dan adaptasi struktur data dari database lokal ke dalam model dashboard.",
     },
     {
       number: 3,
       title: "Display Data dengan Chart.js",
-      description: "Implementasi visualisasi dinamis menggunakan library Chart.js yang powerful."
-    }
-  ]
+      description: "Implementasi visualisasi dinamis menggunakan library Chart.js yang powerful.",
+    },
+  ];
 
   return (
     <div className="min-h-screen rounded-4xl bg-linear-to-br from-white-0 to-blue-100 p-4 md:p-8">
@@ -94,9 +106,9 @@ export default function Page() {
               <CardContent className="pt-2">
                 <div className="mb-6">
                   <p className="text-gray-700 text-lg leading-relaxed">
-                    Kursus intensif ini akan membawa Anda dari nol pengalaman hingga deployment aplikasi dashboard profesional.
-                    Dibimbing mentor berpengalaman, Anda akan membangun dashboard fungsional dengan pendekatan{" "}
-                    <span className="font-bold text-blue-700">"cepat implementasi"</span>.
+                    Kursus intensif ini akan membawa Anda dari nol pengalaman hingga deployment aplikasi dashboard
+                    profesional. Dibimbing mentor berpengalaman, Anda akan membangun dashboard fungsional dengan
+                    pendekatan <span className="font-bold text-blue-700">"cepat implementasi"</span>.
                   </p>
                 </div>
 
@@ -107,8 +119,11 @@ export default function Page() {
                   </h3>
                   <div className="rounded-lg border border-blue-200 bg-blue-50 p-5">
                     <p className="mb-3 font-medium text-gray-800">
-                      Kami menyediakan <span className="font-bold text-blue-700">template dashboard siap pakai (frontend + backend)</span>,
-                      sehingga Anda dapat fokus pada penguasaan inti pengembangan dashboard.
+                      Kami menyediakan{" "}
+                      <span className="font-bold text-blue-700">
+                        template dashboard siap pakai (frontend + backend)
+                      </span>
+                      , sehingga Anda dapat fokus pada penguasaan inti pengembangan dashboard.
                     </p>
                     <p className="text-gray-700">
                       Anda cukup mengikuti tiga langkah utama yang telah kami rancang untuk memaksimalkan hasil belajar.
@@ -163,10 +178,11 @@ export default function Page() {
                   size="lg"
                   className="bg-linear-to-r from-blue-600 to-indigo-600 text-xl hover:from-blue-700 hover:to-indigo-700"
                   onClick={() => {
-                    const phoneNumber = '+628114446953';
-                    const message = 'Halo, Kak! Saya baru saja melihat kursus Web Dashboard-nya dan sangat tertarik untuk bergabung. Boleh saya tahu info pendaftarannya?';
+                    const phoneNumber = "+628114446953";
+                    const message =
+                      "Halo, Kak! Saya baru saja melihat kursus Web Dashboard-nya dan sangat tertarik untuk bergabung. Boleh saya tahu info pendaftarannya?";
                     const encodedMessage = encodeURIComponent(message);
-                    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+                    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
                   }}
                 >
                   Daftar Sekarang
@@ -201,8 +217,7 @@ export default function Page() {
             <Card className="border-orange-200 shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center text-xl">
-                  <Tag className="mr-2 h-5 w-5 text-orange-600" />
-                  💰 Investasi & Penawaran
+                  <Tag className="mr-2 h-5 w-5 text-orange-600" />💰 Investasi & Penawaran
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -285,5 +300,5 @@ export default function Page() {
         </footer>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
@@ -43,11 +44,7 @@ export function useProfile() {
           if (error.code === "23505") {
             // Unique violation
             console.log("Profile already exists, fetching existing...");
-            const { data: existingData } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", userId)
-              .single();
+            const { data: existingData } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
             if (existingData) return existingData;
           }
@@ -72,11 +69,7 @@ export function useProfile() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
 
       if (error) {
         if (error.code === "PGRST116") {
@@ -123,8 +116,7 @@ export function useProfile() {
       toast.success("Profile updated successfully!");
       return data;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to update profile";
+      const errorMessage = err instanceof Error ? err.message : "Failed to update profile";
       toast.error(errorMessage);
       console.error(err);
       throw err;
