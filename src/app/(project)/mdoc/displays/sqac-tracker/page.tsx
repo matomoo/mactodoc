@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -164,6 +165,9 @@ export default function SqacTrackerPage() {
     setIsDialogOpen(true);
   };
 
+  const handleOpenKpi = (item: SqacTrackerItem) => {
+    window.open(`/mdoc/displays/doc-4g/kpi-statistic/${item.wid}`, "_blank");
+  };
   const handleOpenEdit = (item: SqacTrackerItem) => {
     setEditingItem(item);
     setFormData({
@@ -320,6 +324,9 @@ export default function SqacTrackerPage() {
                 <TableCell>{item.sqac_remark}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleOpenKpi(item)}>
+                      KPI
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleOpenEdit(item)}>
                       Edit
                     </Button>

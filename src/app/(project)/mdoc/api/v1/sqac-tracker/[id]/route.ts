@@ -20,7 +20,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         audit = ${body.audit || null},
         dt = ${body.dt || null},
         sqac_status = ${body.sqac_status || ""},
-        sqac_remark = ${body.sqac_remark || ""}
+        type_of_work = ${body.type_of_work || ""},
+        tac = ${body.tac || ""},
+        city = ${body.city || ""},
+        band_impact = ${body.band_impact || ""}
       WHERE id = ${id}
       RETURNING *
     `);
