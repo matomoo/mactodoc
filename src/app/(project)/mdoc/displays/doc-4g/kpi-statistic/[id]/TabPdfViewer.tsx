@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
-import { Document, Page, PDFViewer, pdf } from "@react-pdf/renderer";
+import { PDFViewer } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 
 import type { SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
 
 import SqacPdfDocument from "./SqacPdfDocument";
 
-// PDFViewer component for react-pdf
 function PdfViewerComponent({ data, wid }: { data: SqacTrackerItem[]; wid: string }) {
   return (
     <PDFViewer width="100%" height={600} style={{ border: "none" }}>
@@ -34,7 +31,7 @@ export default function TabPdfViewer({ wid }: { wid: string }) {
   if (!data || data.length === 0) return <div className="text-muted-foreground">No data to display</div>;
 
   return (
-    <div className="flex h-[600px] flex-col">
+    <div className="flex h-150 flex-col">
       <PdfViewerComponent data={data} wid={wid} />
     </div>
   );

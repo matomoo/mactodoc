@@ -24,10 +24,10 @@ interface Props {
 
 export default function SqacPdfDocument({ data, wid }: Props) {
   return (
-    <Document>
+    <>
       {data.map((item) => (
         <SqacPdfPage key={item.id || wid} item={item} wid={wid} />
       ))}
-    </Document>
+    </>
   );
 }
