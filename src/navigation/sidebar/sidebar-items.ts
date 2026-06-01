@@ -42,4 +42,15 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+  {
+    id: 10,
+    label: "Nextjs Course",
+    items: [
+      {
+        title: "Home",
+        url: "/courses/nextjs/app/blog",
+        icon: LayoutDashboard,
+      },
+    ],
+  },
 ];

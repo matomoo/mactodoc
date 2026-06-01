@@ -3,11 +3,11 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "TELKOMINFRA SULAWESI",
+  name: "MACTODOC",
   version: packageJson.version,
-  copyright: `© ${currentYear}, TELKOMINFRA SULAWESI.`,
+  copyright: `© ${currentYear}, MACTODOC APPS.`,
   meta: {
-    title: "TELKOMINFRA SULAWESI",
+    title: "MACTODOC APPS",
     description: "Development by Macto.",
   },
 };
