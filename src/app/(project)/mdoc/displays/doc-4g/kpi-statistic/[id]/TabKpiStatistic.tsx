@@ -4,7 +4,7 @@ import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
 
-import type { SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataKpiStatistic4g, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
@@ -21,7 +21,11 @@ function _formatValue(value: string | null | undefined) {
 }
 
 export default function TabKpiStatisticPage({ wid }: { wid: string }) {
-  const { data, isPending, error } = useQuery<SqacTrackerItem[]>({
+  const {
+    data: dataSqacTracker,
+    isPending: isPendingSqacTracker,
+    error: errorSqacTracker,
+  } = useQuery<SqacTrackerItem[]>({
     queryKey: ["sqac-tracker", wid],
     queryFn: async () => {
       const response = await fetch(`/mdoc/api/v1/sqac-tracker?wid=${encodeURIComponent(wid)}`);
@@ -31,9 +35,64 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid,
   });
 
+  const {
+    data: dataTargetKpiStatistic4g,
+    isPending: isPendingTargetKpiStatistic4g,
+    error: errorTargetKpiStatistic4g,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["target-kpi-statistic-4g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/target-kpi-statistic-4g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03'`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log("dataTargetKpiStatistic4g", dataTargetKpiStatistic4g);
+
+  const {
+    data: dataKpiStatistic4g,
+    isPending: isPendingKpiStatistic4g,
+    error: errorKpiStatistic4g,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["kpi-statistic-4g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03'`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataKpiStatistic2g,
+    isPending: isPendingKpiStatistic2g,
+    error: errorKpiStatistic2g,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["kpi-statistic-2g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/kpi-statistic-2g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03'`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataKpiStatistic2g });
+
   const handleExportPdf = async () => {
-    if (!data || data.length === 0) return;
-    const blob = await pdf(<SqacPdfDocument data={data} wid={wid} />).toBlob();
+    if (!dataSqacTracker || dataSqacTracker.length === 0) return;
+    const blob = await pdf(<SqacPdfDocument data={dataSqacTracker} wid={wid} />).toBlob();
     saveAs(blob, `SQAC-${wid}.pdf`);
   };
 
@@ -42,19 +101,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">KPI Statistic</h1>
         <div className="flex gap-2">
-          <Button variant="default" onClick={handleExportPdf} disabled={!data || data.length === 0}>
+          <Button
+            variant="default"
+            onClick={handleExportPdf}
+            disabled={!dataSqacTracker || dataSqacTracker.length === 0}
+          >
             Export to PDF
           </Button>
         </div>
       </div>
 
-      {isPending && <div className="text-muted-foreground">Loading...</div>}
-      {error && <div className="text-destructive">Error: {error.message}</div>}
+      {/* Table Information 4G */}
+      {isPendingSqacTracker && <div className="text-muted-foreground">Loading...</div>}
+      {errorSqacTracker && <div className="text-destructive">Error: {errorSqacTracker.message}</div>}
 
-      {!data || data.length === 0 ? (
+      {!dataSqacTracker || dataSqacTracker.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        data.map((item) => (
+        dataSqacTracker.map((item) => (
           <div key={"table-1"}>
             <div className="font-bold text-lg">SITE QUALITY ACCEPTANCE CERTIFICATE</div>
             <div className="mt-2 text-sm">SITEID-PDID: {wid}</div>
@@ -101,6 +165,129 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             </div>
           </div>
         ))
+      )}
+
+      {/* Target KPI Statistic 4G */}
+      {isPendingTargetKpiStatistic4g && <div className="text-muted-foreground">Loading...</div>}
+      {errorTargetKpiStatistic4g && <div className="text-destructive">Error: {errorTargetKpiStatistic4g.message}</div>}
+
+      {!dataTargetKpiStatistic4g || dataTargetKpiStatistic4g.length === 0 ? (
+        <NoDataState message="No data available for the selected criteria." />
+      ) : (
+        <div key={"table-target-kpi-4g"}>
+          <div className="flex flex-row">
+            <div className="w-20.5 border-t border-r border-b border-l p-1">City</div>
+            <div className="w-20.5 border-t border-r border-b border-l p-1">Band</div>
+            <div className="flex flex-col">
+              <div className="flex flex-row">
+                <div className="flex flex-col">
+                  <div className="flex flex-row">
+                    <div className="w-205 border-t border-r border-b p-1 text-center">Cluster Value Summary</div>
+                  </div>
+                  <div className="flex flex-row">
+                    <div className="w-20.5 text-wrap border-t border-r border-b p-1 text-center">
+                      RRC Est Success Rate (%)
+                    </div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">E-RAB Success Rate (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">Call Setup Success Rate (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">E-RAB Drop Rate (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">Intra Freq LTE HO (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">Inter Freq LTE HO (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">CSFB (%)</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">CQI Average</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">SE2</div>
+                    <div className="w-20.5 border-t border-r border-b p-1 text-center">Uplink RSSI (dBm)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-row">
+            <div className="w-20.5 text-wrap border-t border-r border-b border-l p-1 text-center">LUWU</div>
+            <div className="w-20.5 text-wrap border-t border-r border-b p-1 text-center">L900</div>
+            <div className="w-20.5 text-wrap border-t border-r border-b border-l p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["RRC Est Success Rate (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["E-RAB Success Rate (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["Call Setup Success Rate (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["E-RAB Drop Rate (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["Intra Freq LTE HO (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["Inter Freq LTE HO (%)"] || "95.00"}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["CSFB (%)"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["CQI Average"] || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0].SE2 || ""}
+            </div>
+            <div className="w-20.5 border-t border-r border-b p-1 text-center">
+              {dataTargetKpiStatistic4g[0]["Uplink RSSI (dBm)"] || ""}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Table KPI Statistic 4G */}
+      {isPendingKpiStatistic4g && <div className="text-muted-foreground">Loading...</div>}
+      {errorKpiStatistic4g && <div className="text-destructive">Error: {errorKpiStatistic4g.message}</div>}
+
+      {!dataKpiStatistic4g || dataKpiStatistic4g.length === 0 ? (
+        <NoDataState message="No data available for the selected criteria." />
+      ) : (
+        <div key={"table-1"}>
+          <div className="font-bold text-lg">1. Statistical Quality</div>
+          <div className="mt-2 text-sm">1.1 NE Level Performance</div>
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <div className="w-65.5 border-t border-r border-b border-l p-1 font-bold">KPI</div>
+              <div className="flex flex-col">
+                <div className="w-143.5 border-t border-r border-b p-1 text-center">Site Name</div>
+                <div className="flex flex-row">
+                  <div className="flex flex-col">
+                    <div className="flex flex-row">
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Day-1</div>
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Day-2</div>
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Day-3</div>
+                    </div>
+                    <div className="flex flex-row">
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Tanggal-1</div>
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Tanggal-2</div>
+                      <div className="w-20.5 border-t border-r border-b p-1 text-center">Tanggal-3</div>
+                    </div>
+                  </div>
+                  <div className="w-20.5 border-t border-r border-b p-1 text-center">Average</div>
+                  <div className="w-20.5 border-t border-r border-b p-1 text-center">Target</div>
+                  <div className="w-20.5 text-wrap border-t border-r border-b p-1 text-center">Impro vement</div>
+                  <div className="w-20.5 border-t border-r border-b p-1 text-center">Result</div>
+                </div>
+              </div>
+            </div>
+            {dataKpiStatistic4g.map((item) => (
+              <div key={item.kpi_index} className="flex flex-row">
+                <div className="w-65.5 border-t border-r border-b border-l p-1 font-bold">{item.kpi_name}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.day1_val}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.day2_val}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.day3_val}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.average}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.target}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.delta}</div>
+                <div className="w-20.5 border-t border-r border-b p-1 text-center">{item.remark}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
