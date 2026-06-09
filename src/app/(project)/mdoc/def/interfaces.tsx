@@ -42,4 +42,20 @@ export interface DataKpiStatistic4g {
   "Inter Freq LTE HO (%)": string;
   SE2: string;
   "Uplink RSSI (dBm)": string;
+  "DCR (%)": string;
+  "HOSR (%)": string;
+  "ICM BAND (0-5)": string;
+  "SDSR (%)": string;
+  "TBF COMPLETION SR (%)": string;
+  "TBF DL EST SR (%)": string;
+  "TBF UL EST SR (%)": string;
+  Date: string;
+  Calendar_Day: string;
+  "Utilization (%)": string;
+  "BH Traffic (Erl)": string;
+  "Payload (MB)": string;
+  sort: number;
+  "Site Avail (%)": number;
+  "EDGE DL Payload (GByte)": string;
+  "EDGE UL Payload (GByte)": string;
 }

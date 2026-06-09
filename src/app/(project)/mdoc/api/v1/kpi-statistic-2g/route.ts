@@ -27,44 +27,33 @@ export async function GET(request: Request) {
   try {
     const result = await db_conn_v1.execute<Data2G4GModel>(sql`
             SELECT
-                date_val                                                        AS "Date",
-                MAX(CASE WHEN kpi_index = 1  THEN kpi_val END)                 AS "TCH Availability (%)",
-                MAX(CASE WHEN kpi_index = 2  THEN kpi_val END)                 AS "SDCCH Success Rate (%)",
-                MAX(CASE WHEN kpi_index = 3  THEN kpi_val END)                 AS "Handover Success Rate (%)",
-                MAX(CASE WHEN kpi_index = 4  THEN kpi_val END)                 AS "TCH Drop Rate (%)",
-                MAX(CASE WHEN kpi_index = 5  THEN kpi_val END)                 AS "TCH Blocking Rate (%)",
-                MAX(CASE WHEN kpi_index = 6  THEN kpi_val END)                 AS "SDCCH Blocking Rate (%)",
-                MAX(CASE WHEN kpi_index = 7  THEN kpi_val END)                 AS "TBF DL Est SR (%)",
-                MAX(CASE WHEN kpi_index = 8  THEN kpi_val END)                 AS "TBF UL Est SR (%)",
-                MAX(CASE WHEN kpi_index = 9  THEN kpi_val END)                 AS "TBF Completion SR (%)",
-                MAX(CASE WHEN kpi_index = 10 THEN kpi_val END)                 AS "UL RxQual 0-4 (%)",
-                MAX(CASE WHEN kpi_index = 11 THEN kpi_val END)                 AS "DL RxQual 0-4 (%)",
-                MAX(CASE WHEN kpi_index = 12 THEN kpi_val END)                 AS "ICM Band 3-5 (%)",
-                MAX(CASE WHEN kpi_index = 13 THEN kpi_val END)                 AS "Radio Utilization (%)",
-                MAX(CASE WHEN kpi_index = 14 THEN kpi_val END)                 AS "TCH Traffic (Erlang)",
-                MAX(CASE WHEN kpi_index = 15 THEN kpi_val END)                 AS "EDGE DL Throughput (Kbps)",
-                MAX(CASE WHEN kpi_index = 16 THEN kpi_val END)                 AS "GPRS DL Throughput (Kbps)",
-                MAX(CASE WHEN kpi_index = 17 THEN kpi_val END)                 AS "EDGE DL Payload (GByte)",
-                MAX(CASE WHEN kpi_index = 18 THEN kpi_val END)                 AS "EDGE UL Payload (GByte)"
+              sort_order                                                      AS sort,
+              date_val                                                        AS "Date",
+              MAX(CASE WHEN kpi_index = 1  THEN kpi_val END)                 AS "Site Avail (%)",
+              MAX(CASE WHEN kpi_index = 2  THEN kpi_val END)                 AS "SDSR (%)",
+              MAX(CASE WHEN kpi_index = 3  THEN kpi_val END)                 AS "HOSR (%)",
+              MAX(CASE WHEN kpi_index = 4  THEN kpi_val END)                 AS "DCR (%)",
+              MAX(CASE WHEN kpi_index = 5  THEN kpi_val END)                 AS "TCH Blocking Rate (%)",
+              MAX(CASE WHEN kpi_index = 6  THEN kpi_val END)                 AS "SDCCH Blocking Rate (%)",
+              MAX(CASE WHEN kpi_index = 7  THEN kpi_val END)                 AS "TBF DL EST SR (%)",
+              MAX(CASE WHEN kpi_index = 8  THEN kpi_val END)                 AS "TBF UL EST SR (%)",
+              MAX(CASE WHEN kpi_index = 9  THEN kpi_val END)                 AS "TBF Completion SR (%)",
+              MAX(CASE WHEN kpi_index = 10 THEN kpi_val END)                 AS "UL RxQual 0-4 (%)",
+              MAX(CASE WHEN kpi_index = 11 THEN kpi_val END)                 AS "DL RxQual 0-4 (%)",
+              MAX(CASE WHEN kpi_index = 12 THEN kpi_val END)                 AS "ICM BAND (0-5)",
+              MAX(CASE WHEN kpi_index = 13 THEN kpi_val END)                 AS "Utilization (%)",
+              MAX(CASE WHEN kpi_index = 14 THEN kpi_val END)                 AS "BH Traffic (Erl)",
+              MAX(CASE WHEN kpi_index = 15 THEN kpi_val END)                 AS "EDGE DL Throughput (Kbps)",
+              MAX(CASE WHEN kpi_index = 16 THEN kpi_val END)                 AS "GPRS DL Throughput (Kbps)",
+              MAX(CASE WHEN kpi_index = 17 THEN kpi_val END)                 AS "EDGE DL Payload (GByte)",
+              MAX(CASE WHEN kpi_index = 18 THEN kpi_val END)                 AS "EDGE UL Payload (GByte)",
+              MAX(CASE WHEN kpi_index = 20 THEN kpi_val END)                 AS "Payload (MB)"
             FROM get_kpi_statistic_2g_v2(
-                ${siteid},
-                ${band},
-                ${city},
-                ${day1},
-                ${day2},
-                ${day3}
+              ${siteid}, ${band}, ${city},
+              ${day1}::date, ${day2}::date, ${day3}::date
             )
-            GROUP BY row_type, date_val
-            ORDER BY
-                CASE date_val
-                    WHEN ${day1} THEN 1
-                    WHEN ${day2} THEN 2
-                    WHEN ${day3} THEN 3
-                    WHEN 'Average'    THEN 4
-                    WHEN 'Target'     THEN 5
-                    WHEN 'Delta'      THEN 6
-                    WHEN 'Remark'     THEN 7
-                END;
+            GROUP BY sort_order, row_type, date_val
+            ORDER BY sort_order
         `);
 
     return NextResponse.json(result);
