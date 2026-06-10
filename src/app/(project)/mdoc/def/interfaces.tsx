@@ -58,4 +58,15 @@ export interface DataKpiStatistic4g {
   "Site Avail (%)": number;
   "EDGE DL Payload (GByte)": string;
   "EDGE UL Payload (GByte)": string;
+  "Day-1 Before": string;
+  "Day-2 Before": string;
+  "Day-3 Before": string;
+  "Day-1 After": string;
+  "Day-2 After": string;
+  "Day-3 After": string;
+  "Average Before": string;
+  "Average After": string;
+  KPI: string;
+  Growth: string;
+  Result: string;
 }
