@@ -69,4 +69,10 @@ export interface DataKpiStatistic4g {
   KPI: string;
   Growth: string;
   Result: string;
+  begin_time: string;
+  sector: string;
+  band: string;
+  payload_gb: string;
+  max_cell_pdcp_thp_mbps: string;
+  max_rrc_con_user_number: string;
 }

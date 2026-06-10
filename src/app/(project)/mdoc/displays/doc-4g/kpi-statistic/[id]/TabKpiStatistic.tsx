@@ -11,7 +11,17 @@ import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
+import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import SqacPdfDocument from "./SqacPdfDocument";
+
+interface DataPayloadThpUser {
+  begin_time: string;
+  sector: string;
+  band: string;
+  payload_gb: number;
+  max_cell_pdcp_thp_mbps: number;
+  max_rrc_con_user_number: number;
+}
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -157,13 +167,32 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataProductivityTraffic });
+  const {
+    data: dataPayloadThpUser,
+    isPending: isPendingPayloadThpUser,
+    error: errorPayloadThpUser,
+  } = useQuery<DataPayloadThpUser[]>({
+    queryKey: ["payload-thp-user", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-thp-user?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataPayloadThpUser });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
     const blob = await pdf(<SqacPdfDocument data={dataSqacTracker} wid={wid} />).toBlob();
     saveAs(blob, `SQAC-${wid}.pdf`);
   };
+
+  const uniqueSector = [...new Set(dataPayloadThpUser?.map((item) => item.sector) || [])];
 
   return (
     <div className="mx-auto w-full space-y-4 p-6">
@@ -635,6 +664,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                 <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.Result}</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chart Payload THP User */}
+      {isPendingPayloadThpUser && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayloadThpUser && <div className="text-destructive">Error: {errorPayloadThpUser.message}</div>}
+
+      {dataPayloadThpUser && dataPayloadThpUser.length > 0 && (
+        <div key={"chart-payload-thp-user"} className="mt-16">
+          <div className="font-bold text-lg">3. Chart Productivity</div>
+          <div className="mt-2 text-sm">3.1. LTE Payload, Max DL Throughput & User Number LTE</div>
+          <div className="">
+            {uniqueSector
+              .sort((a, b) => a.localeCompare(b))
+              .map((item) => (
+                <ChartPayloadThpUser key={item} data={dataPayloadThpUser} sector={item} />
+              ))}
           </div>
         </div>
       )}
