@@ -21,7 +21,7 @@ ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, 
 
 interface DataPayloadBandSiteSow {
   begin_time: string;
-  band: string;
+  group_by: string;
   payload_gb: number;
 }
 
@@ -34,12 +34,12 @@ const BAND_COLORS: Record<string, { bar: string; line: string }> = {
   // L2100: { bar: "rgba(220, 38, 38, 0.6)", line: "#dc2626" },
   L2100: { bar: "rgba(220, 20, 60, 1)", line: "#dc143c" },
   L900: { bar: "rgba(245, 158, 11, 0.6)", line: "#f59e0b" },
-  L2300: { bar: "rgba(239, 68, 68, 0.6)", line: "#ef4444" },
+  L2300: { bar: "rgba(107, 114, 128, 0.6)", line: "#6b7280" },
 };
 
 export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSowProps) {
   // Get unique bands for legend
-  const bands = [...new Set(data.map((item) => item.band))];
+  const bands = [...new Set(data.map((item) => item.group_by))];
 
   // Sort by begin_time
   const sortedData = [...data].sort((a, b) => {
@@ -61,7 +61,7 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
     });
   });
 
-  // Payload by band as bar chart
+  // Payload by band as line chart (left axis)
   const payloadDatasets = bands.map((band) => {
     const colors = BAND_COLORS[band] || {
       bar: "rgba(107, 114, 128, 0.6)",
@@ -71,7 +71,7 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
       type: "line" as const,
       label: `${band} Payload (GB)`,
       data: uniqueDates.map((date) => {
-        const item = sortedData.find((d) => d.begin_time === date && d.band === band);
+        const item = sortedData.find((d) => d.begin_time === date && d.group_by === band);
         return item?.payload_gb ?? 0;
       }),
       backgroundColor: colors.bar,
@@ -80,8 +80,8 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
       fill: false,
       tension: 0.3,
       pointRadius: 0,
-      yAxisID: "y",
-      order: 1,
+      yAxisID: "y1",
+      order: 10, // Much higher order = rendered on top of y1
     };
   });
 
@@ -94,20 +94,17 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
       return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.payload_gb, 0);
     }),
     borderColor: "#3b82f6",
-    backgroundColor: "#b8d0fb",
-    yAxisID: "y1",
+    backgroundColor: "rgba(59, 130, 246, 0.2)",
+    yAxisID: "y",
     fill: { target: "start" as const },
     tension: 0.3,
     borderWidth: 0,
-    // borderDash: [5, 5],
     pointRadius: 0,
-    order: 0,
+    order: 0, // Lower order = rendered in back
   };
 
   const chartData = {
     labels,
-    // totalDataset (order: 0) first = rendered in back
-    // payloadDatasets (order: 1) second = rendered on top
     datasets: [totalDataset, ...payloadDatasets],
   };
 
@@ -121,7 +118,7 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
     plugins: {
       title: {
         display: true,
-        text: "Payload by Band Site SOW",
+        text: "LTE Payload NE & Site Level (GB)",
         font: {
           size: chartJsV1Settings.titleFontSize,
           // family: chartJsV1Settings.titleFontFamily,
@@ -164,28 +161,6 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
           display: false,
         },
       },
-      y: {
-        type: "linear" as const,
-        display: true,
-        position: "left" as const,
-        title: {
-          display: true,
-          text: "Payload by Band (GB)",
-          font: {
-            size: chartJsV1Settings.yAxisTitleFontSize,
-            family: chartJsV1Settings.legendFontFamily,
-            weight: chartJsV1Settings.yAxisTitleFontWeight,
-          },
-        },
-        ticks: {
-          font: {
-            size: chartJsV1Settings.yAxisTickFontSize,
-          },
-        },
-        grid: {
-          color: "#e0e0e0",
-        },
-      },
       y1: {
         type: "linear" as const,
         display: true,
@@ -206,6 +181,28 @@ export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSo
         },
         grid: {
           drawOnChartArea: false,
+        },
+      },
+      y: {
+        type: "linear" as const,
+        display: true,
+        position: "left" as const,
+        title: {
+          display: true,
+          text: "Payload by Band (GB)",
+          font: {
+            size: chartJsV1Settings.yAxisTitleFontSize,
+            family: chartJsV1Settings.legendFontFamily,
+            weight: chartJsV1Settings.yAxisTitleFontWeight,
+          },
+        },
+        ticks: {
+          font: {
+            size: chartJsV1Settings.yAxisTickFontSize,
+          },
+        },
+        grid: {
+          color: "#e0e0e0",
         },
       },
     },

@@ -28,6 +28,7 @@ interface DataPayloadBandSiteSow {
   band: string;
   payload_gb: number;
   total_payload_gb: number;
+  group_by: string;
 }
 
 function _formatDate(dateStr: string | null) {

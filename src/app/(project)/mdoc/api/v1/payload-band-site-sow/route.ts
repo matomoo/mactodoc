@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const result = await db_conn_v1.execute<Data2G4GModel>(sql`
             SELECT
                 "Begin Time" AS begin_time,
-                band,
+                band as group_by,
                 SUM ( "4G Payload (MByte) AMQ" ) AS payload_gb
             FROM
                 meas_4g_dy 
