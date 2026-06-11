@@ -1,42 +1,48 @@
 "use client";
 
-// biome-ignore assist/source/organizeImports: <none>
-import { chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
   type TooltipItem,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+import { chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
 
-interface DataPayloadThpUser {
+ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+
+interface DataPayloadBandSiteSow {
   begin_time: string;
-  sector: string;
+  band: string;
   payload_gb: number;
-  max_cell_pdcp_thp_mbps: number;
-  max_rrc_con_user_number: number;
 }
 
-interface ChartPayloadThpUserProps {
-  data: DataPayloadThpUser[];
-  sector: string;
+interface ChartPayloadBandSiteSowProps {
+  data: DataPayloadBandSiteSow[];
 }
 
-export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUserProps) {
-  // Filter data by sector
-  const filteredData = data.filter((item) => item.sector === sector);
+const BAND_COLORS: Record<string, { bar: string; line: string }> = {
+  L1800: { bar: "rgba(59, 130, 246, 0.6)", line: "#3b82f6" },
+  // L2100: { bar: "rgba(220, 38, 38, 0.6)", line: "#dc2626" },
+  L2100: { bar: "rgba(220, 20, 60, 1)", line: "#dc143c" },
+  L900: { bar: "rgba(245, 158, 11, 0.6)", line: "#f59e0b" },
+  L2300: { bar: "rgba(239, 68, 68, 0.6)", line: "#ef4444" },
+};
+
+export default function ChartPayloadBandSiteSow({ data }: ChartPayloadBandSiteSowProps) {
+  // Get unique bands for legend
+  const bands = [...new Set(data.map((item) => item.band))];
 
   // Sort by begin_time
-  const sortedData = [...filteredData].sort((a, b) => {
+  const sortedData = [...data].sort((a, b) => {
     const dateA = new Date(a.begin_time.replace(" ", "T"));
     const dateB = new Date(b.begin_time.replace(" ", "T"));
     return dateA.getTime() - dateB.getTime();
@@ -55,60 +61,54 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
     });
   });
 
-  // Payload as bar chart (blue)
-  const payloadDataset = {
-    type: "bar" as const,
-    label: "Payload (GB)",
+  // Payload by band as bar chart
+  const payloadDatasets = bands.map((band) => {
+    const colors = BAND_COLORS[band] || {
+      bar: "rgba(107, 114, 128, 0.6)",
+      line: "#6b7280",
+    };
+    return {
+      type: "line" as const,
+      label: `${band} Payload (GB)`,
+      data: uniqueDates.map((date) => {
+        const item = sortedData.find((d) => d.begin_time === date && d.band === band);
+        return item?.payload_gb ?? 0;
+      }),
+      backgroundColor: colors.bar,
+      borderColor: colors.line,
+      borderWidth: 3,
+      fill: false,
+      tension: 0.3,
+      pointRadius: 0,
+      yAxisID: "y",
+      order: 1,
+    };
+  });
+
+  // Total payload as line chart (right axis) - calculate from all bands per date
+  const totalDataset = {
+    type: "line" as const,
+    label: "Total Payload (GB)",
     data: uniqueDates.map((date) => {
-      const item = sortedData.find((d) => d.begin_time === date);
-      return item?.payload_gb ?? 0;
+      // Sum all payload_gb for this date across all bands
+      return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.payload_gb, 0);
     }),
-    backgroundColor: "rgba(59, 130, 246, 0.6)",
     borderColor: "#3b82f6",
+    backgroundColor: "#b8d0fb",
+    yAxisID: "y1",
+    fill: { target: "start" as const },
+    tension: 0.3,
     borderWidth: 0,
-    yAxisID: "y",
-    order: 2,
-  };
-
-  // THP as line chart (orange)
-  const thpDataset = {
-    type: "line" as const,
-    label: "PDCP Thp (Mbps)",
-    data: uniqueDates.map((date) => {
-      const item = sortedData.find((d) => d.begin_time === date);
-      return item?.max_cell_pdcp_thp_mbps ?? 0;
-    }),
-    borderColor: "hsl(38, 92%, 50%)",
-    backgroundColor: "hsl(38, 92%, 50%)",
-    yAxisID: "y1",
-    fill: false,
-    tension: 0.3,
+    // borderDash: [5, 5],
     pointRadius: 0,
-    borderWidth: 3,
     order: 0,
-  };
-
-  // RRC Users as line chart (gray)
-  const rrcDataset = {
-    type: "line" as const,
-    label: "RRC Users",
-    data: uniqueDates.map((date) => {
-      const item = sortedData.find((d) => d.begin_time === date);
-      return item?.max_rrc_con_user_number ?? 0;
-    }),
-    borderColor: "hsl(220, 9%, 46%)",
-    backgroundColor: "hsl(220, 9%, 46%)",
-    yAxisID: "y1",
-    fill: false,
-    tension: 0.3,
-    borderWidth: 3,
-    pointRadius: 0,
-    order: 1,
   };
 
   const chartData = {
     labels,
-    datasets: [payloadDataset, thpDataset, rrcDataset],
+    // totalDataset (order: 0) first = rendered in back
+    // payloadDatasets (order: 1) second = rendered on top
+    datasets: [totalDataset, ...payloadDatasets],
   };
 
   const options = {
@@ -121,7 +121,7 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
     plugins: {
       title: {
         display: true,
-        text: `LTE Payload, Max DL Throughput & User Number`,
+        text: "Payload by Band Site SOW",
         font: {
           size: chartJsV1Settings.titleFontSize,
           // family: chartJsV1Settings.titleFontFamily,
@@ -146,13 +146,7 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
           label: (context: TooltipItem<"bar" | "line">) => {
             const label = context.dataset.label || "";
             const value = context.raw as number;
-            if (label.includes("Payload")) {
-              return `${label}: ${value.toFixed(2)} GB`;
-            }
-            if (label.includes("PDCP")) {
-              return `${label}: ${value.toFixed(2)} Mbps`;
-            }
-            return `${label}: ${value}`;
+            return `${label}: ${value.toFixed(2)} GB`;
           },
         },
       },
@@ -176,7 +170,7 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
         position: "left" as const,
         title: {
           display: true,
-          text: "Payload (GB)",
+          text: "Payload by Band (GB)",
           font: {
             size: chartJsV1Settings.yAxisTitleFontSize,
             family: chartJsV1Settings.legendFontFamily,
@@ -198,7 +192,7 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
         position: "right" as const,
         title: {
           display: true,
-          text: "PDCP Thp (Mbps) / RRC Users",
+          text: "Total Payload (GB)",
           font: {
             size: chartJsV1Settings.yAxisTitleFontSize,
             family: chartJsV1Settings.legendFontFamily,
@@ -219,7 +213,6 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
 
   return (
     <div className="mt-12 h-96 w-250">
-      <div className="font-bold text-lg">Sector {sector.slice(7, 20)}</div>
       <Chart type="bar" data={chartData} options={options as never} />
     </div>
   );

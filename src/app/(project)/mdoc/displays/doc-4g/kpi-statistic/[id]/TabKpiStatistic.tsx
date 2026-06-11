@@ -11,16 +11,23 @@ import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
+import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import SqacPdfDocument from "./SqacPdfDocument";
 
 interface DataPayloadThpUser {
   begin_time: string;
   sector: string;
-  band: string;
   payload_gb: number;
   max_cell_pdcp_thp_mbps: number;
   max_rrc_con_user_number: number;
+}
+
+interface DataPayloadBandSiteSow {
+  begin_time: string;
+  band: string;
+  payload_gb: number;
+  total_payload_gb: number;
 }
 
 function _formatDate(dateStr: string | null) {
@@ -184,7 +191,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataPayloadThpUser });
+  const {
+    data: dataPayloadBandSiteSow,
+    isPending: isPendingPayloadBandSiteSow,
+    error: errorPayloadBandSiteSow,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["payload-band-site-sow", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-band-site-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataPayloadBandSiteSow });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -683,6 +707,17 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                 <ChartPayloadThpUser key={item} data={dataPayloadThpUser} sector={item} />
               ))}
           </div>
+        </div>
+      )}
+
+      {/* Chart Payload Band Site SOW */}
+      {isPendingPayloadBandSiteSow && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayloadBandSiteSow && <div className="text-destructive">Error: {errorPayloadBandSiteSow.message}</div>}
+
+      {dataPayloadBandSiteSow && dataPayloadBandSiteSow.length > 0 && (
+        <div key={"chart-payload-band-site-sow"} className="mt-16">
+          <div className="mt-2 text-sm">3.2. Total Payload Site Level & Payload 1st tier Site Level</div>
+          <ChartPayloadBandSiteSow data={dataPayloadBandSiteSow} />
         </div>
       )}
     </div>
