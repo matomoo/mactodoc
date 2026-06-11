@@ -209,7 +209,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataPayloadBandSiteSow });
+  const {
+    data: dataPayloadBandSiteTier,
+    isPending: isPendingPayloadBandSiteTier,
+    error: errorPayloadBandSiteTier,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["payload-band-site-tier", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-band-site-tier?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataPayloadBandSiteTier });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -718,7 +735,20 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {dataPayloadBandSiteSow && dataPayloadBandSiteSow.length > 0 && (
         <div key={"chart-payload-band-site-sow"} className="mt-16">
           <div className="mt-2 text-sm">3.2. Total Payload Site Level & Payload 1st tier Site Level</div>
-          <ChartPayloadBandSiteSow data={dataPayloadBandSiteSow} />
+          <ChartPayloadBandSiteSow data={dataPayloadBandSiteSow} legendBy={"band"} />
+        </div>
+      )}
+
+      {/* Chart Payload Band Site Tier */}
+      {isPendingPayloadBandSiteTier && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayloadBandSiteTier && <div className="text-destructive">Error: {errorPayloadBandSiteTier.message}</div>}
+
+      {dataPayloadBandSiteTier && dataPayloadBandSiteTier.length > 0 && (
+        <div key={"chart-payload-band-site-tier"} className="mt-16">
+          {/* <div className="mt-2 text-sm">
+            3.2. Total Payload Site Level & Payload 1st tier Site Level
+          </div> */}
+          <ChartPayloadBandSiteSow data={dataPayloadBandSiteTier} legendBy={"site"} />
         </div>
       )}
     </div>
