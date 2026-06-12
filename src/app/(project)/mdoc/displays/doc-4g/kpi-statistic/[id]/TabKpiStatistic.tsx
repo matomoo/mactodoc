@@ -6,30 +6,20 @@ import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
 
-import type { DataKpiStatistic4g, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
+import type {
+  DataKpiStatistic4g,
+  DataPayloadBandSiteSow,
+  DataPayloadThpUser,
+  SqacTrackerItem,
+} from "@/app/(project)/mdoc/def/interfaces";
 import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
 import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
+import ChartRrcUtilization from "./ChartRrcUtilization";
 import SqacPdfDocument from "./SqacPdfDocument";
-
-interface DataPayloadThpUser {
-  begin_time: string;
-  sector: string;
-  payload_gb: number;
-  max_cell_pdcp_thp_mbps: number;
-  max_rrc_con_user_number: number;
-}
-
-interface DataPayloadBandSiteSow {
-  begin_time: string;
-  band: string;
-  payload_gb: number;
-  total_payload_gb: number;
-  group_by: string;
-}
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -226,7 +216,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataPayloadBandSiteTier });
+  const {
+    data: dataRrcUtilization,
+    isPending: isPendingRrcUtilization,
+    error: errorRrcUtilization,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["rrc-utilization", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/rrc-utilization?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataRrcUtilization });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -745,10 +752,17 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
 
       {dataPayloadBandSiteTier && dataPayloadBandSiteTier.length > 0 && (
         <div key={"chart-payload-band-site-tier"} className="mt-16">
-          {/* <div className="mt-2 text-sm">
-            3.2. Total Payload Site Level & Payload 1st tier Site Level
-          </div> */}
           <ChartPayloadBandSiteSow data={dataPayloadBandSiteTier} legendBy={"site"} />
+        </div>
+      )}
+
+      {/* Chart Rrc Utilization */}
+      {isPendingRrcUtilization && <div className="text-muted-foreground">Loading...</div>}
+      {errorRrcUtilization && <div className="text-destructive">Error: {errorRrcUtilization.message}</div>}
+
+      {dataRrcUtilization && dataRrcUtilization.length > 0 && (
+        <div key={"chart-rrc-utilization"} className="mt-16">
+          <ChartRrcUtilization data={dataRrcUtilization} />
         </div>
       )}
     </div>

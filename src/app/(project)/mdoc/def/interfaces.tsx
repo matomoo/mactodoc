@@ -75,4 +75,25 @@ export interface DataKpiStatistic4g {
   payload_gb: string;
   max_cell_pdcp_thp_mbps: string;
   max_rrc_con_user_number: string;
+  rrc_conn: string;
+  dl_util: string;
+  group_by: string;
+}
+
+export interface DataPayloadThpUser {
+  begin_time: string;
+  sector: string;
+  payload_gb: number;
+  max_cell_pdcp_thp_mbps: number;
+  max_rrc_con_user_number: number;
+}
+
+export interface DataPayloadBandSiteSow {
+  begin_time: string;
+  band: string;
+  payload_gb: number;
+  total_payload_gb: number;
+  group_by: string;
+  rrc_conn: string;
+  dl_util: string;
 }
