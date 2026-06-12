@@ -26,20 +26,17 @@ export async function GET(request: Request) {
   try {
     const result = await db_conn_v1.execute<Data2G4GModel>(sql`
             SELECT
-                m."Begin Time" AS begin_time,
-                d.siteid_tier as group_by,
-                SUM(m."4G Payload (MByte) AMQ" / 1024)  AS productivity_val
-            FROM def_tier_site d
-            JOIN meas_4g_dy m
-                ON m.siteid = d.siteid_tier
-            WHERE d.siteid_main = ${siteid}
-            AND m."Begin Time" BETWEEN ${beforeDay1} AND ${afterDay3}
+              "Begin Time" AS begin_time,
+              "BTS Name" AS group_by,
+              SUM ( "2G EDGE Payload DL (Mbyte) NFJ" + "2G EDGE Payload UL (Mbyte) NFJ" ) /1024 AS productivity_val
+            FROM
+              meas_2g_dy 
+            WHERE
+                siteid = ${siteid} AND
+                "Begin Time" between ${beforeDay1} and ${afterDay3}
             GROUP BY
-                m."Begin Time",
-                d.siteid_tier
-            ORDER BY
-                m."Begin Time",
-                d.siteid_tier;
+                "Begin Time",
+                "BTS Name"  
         `);
 
     return NextResponse.json(result);

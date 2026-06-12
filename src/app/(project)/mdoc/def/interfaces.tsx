@@ -78,6 +78,8 @@ export interface DataKpiStatistic4g {
   rrc_conn: string;
   dl_util: string;
   group_by: string;
+  traffic_erl: number;
+  productivity_val: number;
 }
 
 export interface DataPayloadThpUser {
@@ -96,4 +98,5 @@ export interface DataPayloadBandSiteSow {
   group_by: string;
   rrc_conn: string;
   dl_util: string;
+  productivity_val: number;
 }

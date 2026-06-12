@@ -233,7 +233,75 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataRrcUtilization });
+  const {
+    data: dataPayload2gCellSiteSow,
+    isPending: isPendingPayload2gCellSiteSow,
+    error: errorPayload2gCellSiteSow,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["payload-2g-cell-site-sow", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataPayload2gSiteTier,
+    isPending: isPendingPayload2gSiteTier,
+    error: errorPayload2gSiteTier,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["payload-2g-site-tier", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-2g-site-tier?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataTrafficMiniCluster,
+    isPending: isPendingTrafficMiniCluster,
+    error: errorTrafficMiniCluster,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["traffic-mini-cluster", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/traffic-mini-cluster?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataPayloadMiniCluster,
+    isPending: isPendingPayloadMiniCluster,
+    error: errorPayloadMiniCluster,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["payload-mini-cluster", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-mini-cluster?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataPayloadMiniCluster });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -763,6 +831,50 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {dataRrcUtilization && dataRrcUtilization.length > 0 && (
         <div key={"chart-rrc-utilization"} className="mt-16">
           <ChartRrcUtilization data={dataRrcUtilization} />
+        </div>
+      )}
+
+      {/* Chart Payload Band Site SOW */}
+      {isPendingPayload2gCellSiteSow && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayload2gCellSiteSow && <div className="text-destructive">Error: {errorPayload2gCellSiteSow.message}</div>}
+
+      {dataPayload2gCellSiteSow && dataPayload2gCellSiteSow.length > 0 && (
+        <div key={"chart-payload-2g-cell-site-sow"} className="mt-16">
+          <div className="mt-2 text-sm">3.7. Payload Cell Level & Site Level 2G</div>
+          <ChartPayloadBandSiteSow data={dataPayload2gCellSiteSow} legendBy={"cell2g"} />
+        </div>
+      )}
+
+      {/* Chart Payload 2G Site Tier */}
+      {isPendingPayload2gSiteTier && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayload2gSiteTier && <div className="text-destructive">Error: {errorPayload2gSiteTier.message}</div>}
+
+      {dataPayload2gSiteTier && dataPayload2gSiteTier.length > 0 && (
+        <div key={"chart-payload-2g-site-tier"} className="mt-16">
+          <div className="mt-2 text-sm">3.8. Payload Site Level & Cluster Level 2G</div>
+          <ChartPayloadBandSiteSow data={dataPayload2gSiteTier} legendBy={"site"} />
+        </div>
+      )}
+
+      {/* Chart Traffic Mini Cluster */}
+      {isPendingTrafficMiniCluster && <div className="text-muted-foreground">Loading...</div>}
+      {errorTrafficMiniCluster && <div className="text-destructive">Error: {errorTrafficMiniCluster.message}</div>}
+
+      {dataTrafficMiniCluster && dataTrafficMiniCluster.length > 0 && (
+        <div key={"chart-traffic-mini-cluster"} className="mt-16">
+          <div className="mt-2 text-sm">4.1. Total Traffic Mini Cluster 2G-4G</div>
+          <ChartPayloadBandSiteSow data={dataTrafficMiniCluster} legendBy={"cluster"} />
+        </div>
+      )}
+
+      {/* Chart Payload Mini Cluster */}
+      {isPendingPayloadMiniCluster && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayloadMiniCluster && <div className="text-destructive">Error: {errorPayloadMiniCluster.message}</div>}
+
+      {dataPayloadMiniCluster && dataPayloadMiniCluster.length > 0 && (
+        <div key={"chart-payload-mini-cluster"} className="mt-16">
+          <div className="mt-2 text-sm">4.2. Total Payload Mini Cluster 2G-4G</div>
+          <ChartPayloadBandSiteSow data={dataPayloadMiniCluster} legendBy={"cluster"} />
         </div>
       )}
     </div>

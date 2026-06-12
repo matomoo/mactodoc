@@ -22,7 +22,7 @@ ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, 
 interface DataPayloadBandSiteSow {
   begin_time: string;
   group_by: string;
-  payload_gb: number;
+  productivity_val: number;
 }
 
 interface ChartPayloadBandSiteSowProps {
@@ -89,7 +89,7 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
         label: `${band}`,
         data: uniqueDates.map((date) => {
           const item = sortedData.find((d) => d.begin_time === date && d.group_by === band);
-          return item?.payload_gb ?? 0;
+          return item?.productivity_val ?? 0;
         }),
         backgroundColor: colorBg,
         borderColor: color,
@@ -97,7 +97,7 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
         fill: false,
         tension: 0.3,
         pointRadius: 0,
-        yAxisID: "y1",
+        yAxisID: band === "2G" ? "y1" : "y",
       };
     });
 
@@ -106,7 +106,7 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
       type: "line" as const,
       label: "Total Payload (GB)",
       data: uniqueDates.map((date) => {
-        return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.payload_gb, 0);
+        return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.productivity_val, 0);
       }),
       borderColor: "#b8d0fb",
       backgroundColor: "#b8d0fb",
@@ -141,14 +141,18 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
             text:
               legendBy === "band"
                 ? "LTE Payload NE Level - Site Level (GB)"
-                : "Total Payload Site Level - Cluster Level (GB)",
+                : legendBy === "cell2g"
+                  ? "2G Payload (Gbyte) Cell Level & Site level"
+                  : legendBy === "cluster"
+                    ? "Payload Tech Level"
+                    : "Total Payload Site Level - Cluster Level (GB)",
             font: {
               size: chartJsV1Settings.titleFontSize,
               weight: chartJsV1Settings.titleFontWeight,
             },
           },
           legend: {
-            position: "top" as const,
+            position: "bottom" as const,
             labels: {
               usePointStyle: true,
               boxWidth: 20,
@@ -182,37 +186,22 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
               display: false,
             },
           },
-          y1: {
-            beginAtZero: false,
-            type: "linear" as const,
-            display: true,
-            position: "right" as const,
-            title: {
-              display: true,
-              text: legendBy === "band" ? "Site Level" : "Cluster Level",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
-              },
-            },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
-              },
-            },
-            grid: {
-              drawOnChartArea: false,
-            },
-          },
+
           y: {
-            beginAtZero: false,
+            beginAtZero: true,
             type: "linear" as const,
             display: true,
             position: "left" as const,
             title: {
               display: true,
-              text: legendBy === "band" ? "NE Level" : "Site Level",
+              text:
+                legendBy === "band"
+                  ? "NE Level"
+                  : legendBy === "cell2g"
+                    ? "Cell Level"
+                    : legendBy === "cluster"
+                      ? "Total Payload & 4G"
+                      : "Site Level",
               font: {
                 size: chartJsV1Settings.yAxisTitleFontSize,
                 family: chartJsV1Settings.legendFontFamily,
@@ -226,6 +215,36 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
             },
             grid: {
               color: "#e0e0e0",
+            },
+          },
+          y1: {
+            beginAtZero: true,
+            type: "linear" as const,
+            display: true,
+            position: "right" as const,
+            title: {
+              display: true,
+              text:
+                legendBy === "band"
+                  ? "Site Level"
+                  : legendBy === "cell2g"
+                    ? "Site Level"
+                    : legendBy === "cluster"
+                      ? "2G"
+                      : "Cluster Level",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
+            },
+            ticks: {
+              font: {
+                size: chartJsV1Settings.yAxisTickFontSize,
+              },
+            },
+            grid: {
+              drawOnChartArea: false,
             },
           },
         },

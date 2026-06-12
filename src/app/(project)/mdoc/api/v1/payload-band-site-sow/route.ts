@@ -28,7 +28,7 @@ export async function GET(request: Request) {
             SELECT
                 "Begin Time" AS begin_time,
                 band as group_by,
-                SUM ( "4G Payload (MByte) AMQ" / 1024) AS payload_gb
+                SUM ( "4G Payload (MByte) AMQ" / 1024) AS productivity_val
             FROM
                 meas_4g_dy 
             WHERE

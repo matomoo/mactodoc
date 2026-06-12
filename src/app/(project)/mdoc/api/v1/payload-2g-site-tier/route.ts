@@ -28,9 +28,9 @@ export async function GET(request: Request) {
             SELECT
                 m."Begin Time" AS begin_time,
                 d.siteid_tier as group_by,
-                SUM(m."4G Payload (MByte) AMQ" / 1024)  AS productivity_val
+                SUM ( "2G EDGE Payload DL (Mbyte) NFJ" + "2G EDGE Payload UL (Mbyte) NFJ" ) /1024  AS productivity_val
             FROM def_tier_site d
-            JOIN meas_4g_dy m
+            JOIN meas_2g_dy m
                 ON m.siteid = d.siteid_tier
             WHERE d.siteid_main = ${siteid}
             AND m."Begin Time" BETWEEN ${beforeDay1} AND ${afterDay3}
