@@ -16,6 +16,7 @@ import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
+import ChartPayloadBandCellSow from "./ChartPayloadBandCellSow";
 import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import ChartRrcUtilization from "./ChartRrcUtilization";
@@ -301,7 +302,58 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataPayloadMiniCluster });
+  const {
+    data: dataTablePrbUtilization,
+    isPending: isPendingTablePrbUtilization,
+    error: errorTablePrbUtilization,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["table-prb-utilization", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/prb-utilization?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataPayload4gCellSow,
+    isPending: isPendingPayload4gCellSow,
+    error: errorPayload4gCellSow,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["payload-4g-cell-sow", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/payload-4g-cell-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataUtilization4gCellSow,
+    isPending: isPendingUtilization4gCellSow,
+    error: errorUtilization4gCellSow,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["utilization-4g-cell-sow", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/utilization-4g-cell-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataUtilization4gCellSow });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -877,6 +929,125 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <ChartPayloadBandSiteSow data={dataPayloadMiniCluster} legendBy={"cluster"} />
         </div>
       )}
+
+      {/* Table PRB Utilization */}
+      {isPendingTablePrbUtilization && <div className="text-muted-foreground">Loading...</div>}
+      {errorTablePrbUtilization && <div className="text-destructive">Error: {errorTablePrbUtilization.message}</div>}
+
+      {!dataTablePrbUtilization || dataTablePrbUtilization.length === 0 ? (
+        <NoDataState message="No data available for the selected criteria." />
+      ) : (
+        <div key={"table-prb-utilization"} className="overflow-x-auto">
+          <div className="mt-2 text-sm">PRB Utilization</div>
+          <div className="flex flex-col">
+            <div className="flex flex-row flex-nowrap">
+              <div className="flex h-35.5 w-20 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+                <span style={{ transform: "rotate(270deg)" }}>Site ID</span>
+              </div>
+              <div className="flex h-35.5 w-20 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+                <span style={{ transform: "rotate(270deg)" }}>Sector</span>
+              </div>
+              <div className="flex h-35.5 w-15 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+                <span style={{ transform: "rotate(270deg)" }}>Band Combination</span>
+              </div>
+              <div className="flex shrink-0 flex-col">
+                <div className="flex flex-row">
+                  <div className="flex flex-col">
+                    <div className="border-t border-r border-b p-1 text-center">PRB Actual</div>
+                    <div className="flex flex-row">
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L900</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L1800</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L2100</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L2300</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>Max PRB</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>Min PRB</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <div className="border-t border-r border-b p-1 text-center">Gap PRB</div>
+                    <div className="flex flex-row">
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L900</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L1800</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L2100</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>L2300</span>
+                      </div>
+                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                        <span style={{ transform: "rotate(270deg)" }}>Max GAP PRB</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {dataTablePrbUtilization.map((item) => (
+              <div key={item.Sector} className="flex flex-row flex-nowrap">
+                <div className="shrink-0 basis-20 border-t border-r border-b border-l p-1">{item["Site ID"]}</div>
+                <div className="w-20 shrink-0 border-t border-r border-b p-1 text-center">{item["Sector"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">
+                  {item["Band Combination"]}
+                </div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L900"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L1800"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L2100"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L2300"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Max PRB"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Min PRB"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L900"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L1800"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L2100"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L2300"]}</div>
+                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Max GAP PRB"]}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chart Payload Cell Per Sector*/}
+      {isPendingPayload4gCellSow && <div className="text-muted-foreground">Loading...</div>}
+      {errorPayload4gCellSow && <div className="text-destructive">Error: {errorPayload4gCellSow.message}</div>}
+
+      {/* Chart Payload Cell Per Sector*/}
+      {isPendingUtilization4gCellSow && <div className="text-muted-foreground">Loading...</div>}
+      {errorUtilization4gCellSow && <div className="text-destructive">Error: {errorUtilization4gCellSow.message}</div>}
+
+      {dataPayload4gCellSow &&
+        dataPayload4gCellSow.length > 0 &&
+        dataUtilization4gCellSow &&
+        dataUtilization4gCellSow.length > 0 && (
+          <div key={"chart-payload-cell-per-sector"} className="mt-16">
+            <div>
+              {uniqueSector
+                .sort((a, b) => a.localeCompare(b))
+                .map((item) => (
+                  <div key={item} className="flex flex-row">
+                    <ChartPayloadBandCellSow data={dataUtilization4gCellSow} filter_by={item} legendBy={"util-4g"} />
+                    <ChartPayloadBandCellSow data={dataPayload4gCellSow} filter_by={item} legendBy={"payload-4g"} />
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

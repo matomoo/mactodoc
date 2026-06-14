@@ -80,6 +80,21 @@ export interface DataKpiStatistic4g {
   group_by: string;
   traffic_erl: number;
   productivity_val: number;
+  "Site ID": string;
+  Sector: string;
+  "Band Combination": string;
+  L900: string;
+  L1800: string;
+  L2100: string;
+  L2300: string;
+  "Max PRB": string;
+  "Min PRB": string;
+  "Gap L900": string;
+  "Gap L1800": string;
+  "Gap L2100": string;
+  "Gap L2300": string;
+  "Max GAP PRB": string;
+  filter_by: string;
 }
 
 export interface DataPayloadThpUser {

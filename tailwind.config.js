@@ -5,5 +5,10 @@ export default {
     width: {
       55: "220px", // or '13.75rem'
     },
+    extend: {
+      rotate: {
+        270: "270deg",
+      },
+    },
   },
 };
