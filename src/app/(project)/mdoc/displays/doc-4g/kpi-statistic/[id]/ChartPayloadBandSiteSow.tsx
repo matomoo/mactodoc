@@ -143,6 +143,10 @@ export default function ChartPayloadBandSiteSow({
         const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
         return hasActivity ? 1 : 0;
       }),
+      _activityLogIndices: uniqueDates.map((date) => {
+        const idx = dataActivityLog.findIndex((log) => log.tanggal?.startsWith(date));
+        return idx >= 0 ? idx + 1 : null;
+      }),
       borderColor: "#00000099",
       backgroundColor: "#00000099",
       yAxisID: "yActivity",
@@ -153,6 +157,30 @@ export default function ChartPayloadBandSiteSow({
       order: 0,
       barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
       categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.2,
+      datalabels: {
+        display: true,
+        anchor: "end" as const,
+        align: "start" as const,
+        backgroundColor: "#fff",
+        borderColor: "#666",
+        borderWidth: 1,
+        borderRadius: 4,
+        color: "#333",
+        font: {
+          size: 10,
+          weight: "bold" as const,
+        },
+        padding: 4,
+        formatter: (
+          _value: number,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          context: any,
+        ) => {
+          const idx = context.dataset?._activityLogIndices?.[context.dataIndex];
+          const label = idx?.toString() ?? "";
+          return label === "" ? null : label;
+        },
+      },
     };
 
     // Payload bands first (behind), total last (on top)
@@ -174,9 +202,6 @@ export default function ChartPayloadBandSiteSow({
           intersect: false,
         },
         plugins: {
-          datalabels: {
-            display: false,
-          },
           title: {
             display: true,
             text:
@@ -209,9 +234,19 @@ export default function ChartPayloadBandSiteSow({
               label: (context: TooltipItem<"bar">) => {
                 const label = context.dataset.label || "";
                 const value = context.parsed.y;
+                if (label === "Activity Log" && value === 1) {
+                  const activityDataset = context.dataset as {
+                    _activityLogIndices?: (number | null)[];
+                  };
+                  const idx = activityDataset._activityLogIndices?.[context.dataIndex];
+                  return `${label}: ${idx}`;
+                }
                 return `${label}: ${value?.toFixed(2)} GB`;
               },
             },
+          },
+          datalabels: {
+            display: false,
           },
         },
         scales: {
@@ -323,7 +358,7 @@ export default function ChartPayloadBandSiteSow({
         chartInstance.current = null;
       }
     };
-  }, [data, legendBy, dataActivityLog.some]);
+  }, [data, legendBy, dataActivityLog.some, dataActivityLog.findIndex]);
 
   if (!data?.length) {
     return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;

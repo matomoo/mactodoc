@@ -13,18 +13,32 @@ import {
   Title,
   Tooltip,
   type ChartConfiguration,
+  type TooltipItem,
 } from "chart.js";
 
-import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
-import type { DataPayloadBandSiteSow } from "@/app/(project)/mdoc/def/interfaces";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
+import type { DataActivityLog, DataPayloadBandSiteSow } from "@/app/(project)/mdoc/def/interfaces";
+
+ChartJS.register(
+  Filler,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels,
+);
 
 interface ChartRrcUtilizationProps {
   data: DataPayloadBandSiteSow[];
+  dataActivityLog: DataActivityLog[];
 }
 
-export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) {
+export default function ChartRrcUtilization({ data, dataActivityLog = [] }: ChartRrcUtilizationProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
 
@@ -73,6 +87,7 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
       tension: 0.3,
       pointRadius: 0,
       yAxisID: "y",
+      dataLabels: { display: false },
     };
 
     // DL Utilization on right axis (y1)
@@ -90,15 +105,63 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
       tension: 0.3,
       pointRadius: 0,
       yAxisID: "y1",
+      dataLabels: { display: false },
+    };
+
+    const activityLogDataset = {
+      type: "bar" as const,
+      label: "Activity Log",
+      data: uniqueDates.map((date) => {
+        const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
+        return hasActivity ? 1 : 0;
+      }),
+      _activityLogIndices: uniqueDates.map((date) => {
+        const idx = dataActivityLog.findIndex((log) => log.tanggal?.startsWith(date));
+        return idx >= 0 ? idx + 1 : null;
+      }),
+      borderColor: "#00000099",
+      backgroundColor: "#00000099",
+      yAxisID: "yActivity",
+      fill: { target: "start" as const },
+      tension: 0.3,
+      borderWidth: 0,
+      pointRadius: 0,
+      order: 0,
+      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+      categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.2,
+      datalabels: {
+        display: true,
+        anchor: "end" as const,
+        align: "start" as const,
+        backgroundColor: "#fff",
+        borderColor: "#666",
+        borderWidth: 1,
+        borderRadius: 4,
+        color: "#333",
+        font: {
+          size: 10,
+          weight: "bold" as const,
+        },
+        padding: 4,
+        formatter: (
+          _value: number,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          context: any,
+        ) => {
+          const idx = context.dataset?._activityLogIndices?.[context.dataIndex];
+          const label = idx?.toString() ?? "";
+          return label === "" ? null : label;
+        },
+      },
     };
 
     const chartData = {
       labels,
-      datasets: [rrcDataset, dlUtilDataset],
+      datasets: [rrcDataset, activityLogDataset, dlUtilDataset],
     };
 
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
+    const config = {
+      type: "bar" as const,
       data: chartData,
       options: {
         responsive: true,
@@ -108,9 +171,6 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
           intersect: false,
         },
         plugins: {
-          datalabels: {
-            display: false,
-          },
           title: {
             display: true,
             text: "RRC Connections & DL Utilization",
@@ -133,13 +193,23 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: (context: TooltipItem<"bar">) => {
                 const label = context.dataset.label || "";
                 const value = context.parsed.y;
+                if (label === "Activity Log" && value === 1) {
+                  const activityDataset = context.dataset as {
+                    _activityLogIndices?: (number | null)[];
+                  };
+                  const idx = activityDataset._activityLogIndices?.[context.dataIndex];
+                  return `${label}: ${idx}`;
+                }
                 const suffix = label.includes("%") ? " %" : "";
                 return `${label}: ${value?.toFixed(2)}${suffix}`;
               },
             },
+          },
+          datalabels: {
+            display: false,
           },
         },
         scales: {
@@ -201,6 +271,29 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
               color: "#e0e0e0",
             },
           },
+          yActivity: {
+            beginAtZero: true,
+            type: "linear" as const,
+            display: false,
+            position: "right" as const,
+            title: {
+              display: true,
+              text: "Acitivity Log",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
+            },
+            ticks: {
+              font: {
+                size: chartJsV1Settings.yAxisTickFontSize,
+              },
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          },
         },
       },
     };
@@ -213,7 +306,7 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
         chartInstance.current = null;
       }
     };
-  }, [data]);
+  }, [data, dataActivityLog.findIndex, dataActivityLog.some]);
 
   if (!data?.length) {
     return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;

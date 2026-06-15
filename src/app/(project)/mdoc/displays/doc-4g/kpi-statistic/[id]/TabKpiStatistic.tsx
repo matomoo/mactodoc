@@ -588,6 +588,73 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         </div>
       )}
 
+      {/* Table Kpi Statistic 4G tier site */}
+
+      {/* Table Information 2G */}
+
+      {!dataSqacTracker || dataSqacTracker.length === 0 ? (
+        <NoDataState message="No data available for the selected criteria." />
+      ) : (
+        dataSqacTracker.map((item) => (
+          <div key={"table-1"}>
+            <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>
+            <div className="flex flex-col">
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Site ID</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.site}</div>
+                <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">Band SOW</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.band}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Name</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.site_name"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Site No.</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site No."}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">LAC</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"LAC"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">CI</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"CI"}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Detail SOW</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Detail SOW"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Band</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Band"}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Kabupaten</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Kabupaten"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Connected Date</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Connected Date"}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Longitude</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site Longitude"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Integrated Date</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Integrated Date"}</div>
+              </div>
+              <div className="flex flex-row">
+                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Latitude</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site Latitude"}</div>
+                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">TRX Configuration</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"TRX Configuration"}</div>
+              </div>
+            </div>
+
+            <div className="mt-2 flex flex-row">
+              <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Integration Date</div>
+              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.connected}</div>
+              <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"On Air Date"}</div>
+              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.connected}</div>
+              <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"Acceptance Date"}</div>
+              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.dt}</div>
+            </div>
+          </div>
+        ))
+      )}
+
       {/* Target KPI Statistic 2G */}
       {isPendingTargetKpiStatistic2g && <div className="text-muted-foreground">Loading...</div>}
       {errorTargetKpiStatistic2g && <div className="text-destructive">Error: {errorTargetKpiStatistic2g.message}</div>}
@@ -858,7 +925,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {isPendingPayloadThpUser && <div className="text-muted-foreground">Loading...</div>}
       {errorPayloadThpUser && <div className="text-destructive">Error: {errorPayloadThpUser.message}</div>}
 
-      {dataPayloadThpUser && dataPayloadThpUser.length > 0 && (
+      {dataPayloadThpUser && dataPayloadThpUser.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
         <div key={"chart-payload-thp-user"} className="mt-16">
           <div className="font-bold text-lg">3. Chart Productivity</div>
           <div className="mt-2 text-sm">3.1. LTE Payload, Max DL Throughput & User Number LTE</div>
@@ -866,7 +933,12 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             {uniqueSector
               .sort((a, b) => a.localeCompare(b))
               .map((item) => (
-                <ChartPayloadThpUser key={item} data={dataPayloadThpUser} sector={item} />
+                <ChartPayloadThpUser
+                  key={item}
+                  data={dataPayloadThpUser}
+                  sector={item}
+                  dataActivityLog={dataGetActivityLog}
+                />
               ))}
           </div>
         </div>
@@ -913,7 +985,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
 
       {dataRrcUtilization && dataRrcUtilization.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
         <div key={"chart-rrc-utilization"} className="mt-16">
-          <ChartRrcUtilization data={dataRrcUtilization} />
+          <ChartRrcUtilization data={dataRrcUtilization} dataActivityLog={dataGetActivityLog} />
         </div>
       )}
 
