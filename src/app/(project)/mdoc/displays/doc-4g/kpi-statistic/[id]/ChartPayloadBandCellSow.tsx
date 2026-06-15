@@ -185,7 +185,8 @@ export default function ChartPayloadBandCellSow({
           context: any,
         ) => {
           const idx = context.dataset?._activityLogIndices?.[context.dataIndex];
-          return idx?.toString() ?? "";
+          const label = idx?.toString() ?? "";
+          return label === "" ? null : label;
         },
       },
     };
