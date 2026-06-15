@@ -95,6 +95,9 @@ export interface DataKpiStatistic4g {
   "Gap L2300": string;
   "Max GAP PRB": string;
   filter_by: string;
+  tanggal: string;
+  siteid: string;
+  deskripsi: string;
 }
 
 export interface DataPayloadThpUser {
@@ -114,4 +117,11 @@ export interface DataPayloadBandSiteSow {
   rrc_conn: string;
   dl_util: string;
   productivity_val: number;
+}
+
+export interface DataActivityLog {
+  tanggal: string;
+  siteid: string;
+  band: string;
+  deskripsi: string;
 }

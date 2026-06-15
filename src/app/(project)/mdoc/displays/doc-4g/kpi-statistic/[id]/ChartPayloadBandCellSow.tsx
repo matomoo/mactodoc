@@ -12,10 +12,11 @@ import {
   CategoryScale,
   Title,
   Tooltip,
-  type ChartConfiguration,
+  type TooltipItem,
 } from "chart.js";
 
 import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
+import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
 
 ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -24,18 +25,21 @@ interface DataPayloadBandCellSow {
   sector: string;
   group_by: string;
   productivity_val: number;
+  tanggal: string;
 }
 
 interface ChartPayloadBandCellSowProps {
   data: DataPayloadBandCellSow[];
   legendBy: string;
   filter_by: string;
+  dataActivityLog: DataActivityLog[];
 }
 
 export default function ChartPayloadBandCellSow({
   data,
   legendBy = "site",
   filter_by = "1",
+  dataActivityLog = [],
 }: ChartPayloadBandCellSowProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
@@ -124,18 +128,42 @@ export default function ChartPayloadBandCellSow({
       tension: 0.3,
       borderWidth: 0,
       pointRadius: 0,
+      order: 2,
+    };
+
+    const activityLogDataset = {
+      type: "bar" as const,
+      label: "Activity Log",
+      data: uniqueDates.map((date) => {
+        const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
+        return hasActivity ? 1 : 0;
+      }),
+      borderColor: "#00000099",
+      backgroundColor: "#00000099",
+      yAxisID: "yActivity",
+      fill: { target: "start" as const },
+      tension: 0.3,
+      borderWidth: 0,
+      pointRadius: 0,
+      order: 0,
+      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+      categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.4,
+      // barThickness: 1.2,
     };
 
     // Payload bands first (behind), total last (on top)
-    const allDatasets = legendBy === "util-4g" ? [...payloadDatasets] : [...payloadDatasets, totalDataset];
+    const allDatasets =
+      legendBy === "util-4g"
+        ? [...payloadDatasets, activityLogDataset]
+        : [...payloadDatasets, activityLogDataset, totalDataset];
 
     const chartData = {
       labels,
       datasets: allDatasets,
     };
 
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
+    const config = {
+      type: "bar" as const,
       data: chartData,
       options: {
         responsive: true,
@@ -174,7 +202,7 @@ export default function ChartPayloadBandCellSow({
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: (context: TooltipItem<"bar">) => {
                 const label = context.dataset.label || "";
                 const value = context.parsed.y;
                 return `${label}: ${value?.toFixed(2)} GB`;
@@ -242,6 +270,29 @@ export default function ChartPayloadBandCellSow({
               drawOnChartArea: false,
             },
           },
+          yActivity: {
+            beginAtZero: true,
+            type: "linear" as const,
+            display: false,
+            position: "right" as const,
+            title: {
+              display: true,
+              text: "Acitivity Log",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
+            },
+            ticks: {
+              font: {
+                size: chartJsV1Settings.yAxisTickFontSize,
+              },
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          },
         },
       },
     };
@@ -254,7 +305,7 @@ export default function ChartPayloadBandCellSow({
         chartInstance.current = null;
       }
     };
-  }, [data, legendBy, filter_by]);
+  }, [data, legendBy, filter_by, dataActivityLog]);
 
   if (!data?.length) {
     return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;

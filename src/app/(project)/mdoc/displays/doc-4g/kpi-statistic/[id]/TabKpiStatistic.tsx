@@ -353,7 +353,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataUtilization4gCellSow });
+  const {
+    data: dataGetActivityLog,
+    isPending: isPendingGetActivityLog,
+    error: errorGetActivityLog,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["get-activity-log", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/get-activity-log?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataGetActivityLog });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -859,28 +876,42 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {isPendingPayloadBandSiteSow && <div className="text-muted-foreground">Loading...</div>}
       {errorPayloadBandSiteSow && <div className="text-destructive">Error: {errorPayloadBandSiteSow.message}</div>}
 
-      {dataPayloadBandSiteSow && dataPayloadBandSiteSow.length > 0 && (
-        <div key={"chart-payload-band-site-sow"} className="mt-16">
-          <div className="mt-2 text-sm">3.2. Total Payload Site Level & Payload 1st tier Site Level</div>
-          <ChartPayloadBandSiteSow data={dataPayloadBandSiteSow} legendBy={"band"} />
-        </div>
-      )}
+      {dataPayloadBandSiteSow &&
+        dataPayloadBandSiteSow.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-payload-band-site-sow"} className="mt-16">
+            <div className="mt-2 text-sm">3.2. Total Payload Site Level & Payload 1st tier Site Level</div>
+            <ChartPayloadBandSiteSow
+              data={dataPayloadBandSiteSow}
+              legendBy={"band"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Chart Payload Band Site Tier */}
       {isPendingPayloadBandSiteTier && <div className="text-muted-foreground">Loading...</div>}
       {errorPayloadBandSiteTier && <div className="text-destructive">Error: {errorPayloadBandSiteTier.message}</div>}
 
-      {dataPayloadBandSiteTier && dataPayloadBandSiteTier.length > 0 && (
-        <div key={"chart-payload-band-site-tier"} className="mt-16">
-          <ChartPayloadBandSiteSow data={dataPayloadBandSiteTier} legendBy={"site"} />
-        </div>
-      )}
+      {dataPayloadBandSiteTier &&
+        dataPayloadBandSiteTier.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-payload-band-site-tier"} className="mt-16">
+            <ChartPayloadBandSiteSow
+              data={dataPayloadBandSiteTier}
+              legendBy={"site"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Chart Rrc Utilization */}
       {isPendingRrcUtilization && <div className="text-muted-foreground">Loading...</div>}
       {errorRrcUtilization && <div className="text-destructive">Error: {errorRrcUtilization.message}</div>}
 
-      {dataRrcUtilization && dataRrcUtilization.length > 0 && (
+      {dataRrcUtilization && dataRrcUtilization.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
         <div key={"chart-rrc-utilization"} className="mt-16">
           <ChartRrcUtilization data={dataRrcUtilization} />
         </div>
@@ -890,45 +921,73 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {isPendingPayload2gCellSiteSow && <div className="text-muted-foreground">Loading...</div>}
       {errorPayload2gCellSiteSow && <div className="text-destructive">Error: {errorPayload2gCellSiteSow.message}</div>}
 
-      {dataPayload2gCellSiteSow && dataPayload2gCellSiteSow.length > 0 && (
-        <div key={"chart-payload-2g-cell-site-sow"} className="mt-16">
-          <div className="mt-2 text-sm">3.7. Payload Cell Level & Site Level 2G</div>
-          <ChartPayloadBandSiteSow data={dataPayload2gCellSiteSow} legendBy={"cell2g"} />
-        </div>
-      )}
+      {dataPayload2gCellSiteSow &&
+        dataPayload2gCellSiteSow.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-payload-2g-cell-site-sow"} className="mt-16">
+            <div className="mt-2 text-sm">3.7. Payload Cell Level & Site Level 2G</div>
+            <ChartPayloadBandSiteSow
+              data={dataPayload2gCellSiteSow}
+              legendBy={"cell2g"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Chart Payload 2G Site Tier */}
       {isPendingPayload2gSiteTier && <div className="text-muted-foreground">Loading...</div>}
       {errorPayload2gSiteTier && <div className="text-destructive">Error: {errorPayload2gSiteTier.message}</div>}
 
-      {dataPayload2gSiteTier && dataPayload2gSiteTier.length > 0 && (
-        <div key={"chart-payload-2g-site-tier"} className="mt-16">
-          <div className="mt-2 text-sm">3.8. Payload Site Level & Cluster Level 2G</div>
-          <ChartPayloadBandSiteSow data={dataPayload2gSiteTier} legendBy={"site"} />
-        </div>
-      )}
+      {dataPayload2gSiteTier &&
+        dataPayload2gSiteTier.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-payload-2g-site-tier"} className="mt-16">
+            <div className="mt-2 text-sm">3.8. Payload Site Level & Cluster Level 2G</div>
+            <ChartPayloadBandSiteSow
+              data={dataPayload2gSiteTier}
+              legendBy={"site"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Chart Traffic Mini Cluster */}
       {isPendingTrafficMiniCluster && <div className="text-muted-foreground">Loading...</div>}
       {errorTrafficMiniCluster && <div className="text-destructive">Error: {errorTrafficMiniCluster.message}</div>}
 
-      {dataTrafficMiniCluster && dataTrafficMiniCluster.length > 0 && (
-        <div key={"chart-traffic-mini-cluster"} className="mt-16">
-          <div className="mt-2 text-sm">4.1. Total Traffic Mini Cluster 2G-4G</div>
-          <ChartPayloadBandSiteSow data={dataTrafficMiniCluster} legendBy={"cluster"} />
-        </div>
-      )}
+      {dataTrafficMiniCluster &&
+        dataTrafficMiniCluster.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-traffic-mini-cluster"} className="mt-16">
+            <div className="mt-2 text-sm">4.1. Total Traffic Mini Cluster 2G-4G</div>
+            <ChartPayloadBandSiteSow
+              data={dataTrafficMiniCluster}
+              legendBy={"cluster"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Chart Payload Mini Cluster */}
       {isPendingPayloadMiniCluster && <div className="text-muted-foreground">Loading...</div>}
       {errorPayloadMiniCluster && <div className="text-destructive">Error: {errorPayloadMiniCluster.message}</div>}
 
-      {dataPayloadMiniCluster && dataPayloadMiniCluster.length > 0 && (
-        <div key={"chart-payload-mini-cluster"} className="mt-16">
-          <div className="mt-2 text-sm">4.2. Total Payload Mini Cluster 2G-4G</div>
-          <ChartPayloadBandSiteSow data={dataPayloadMiniCluster} legendBy={"cluster"} />
-        </div>
-      )}
+      {dataPayloadMiniCluster &&
+        dataPayloadMiniCluster.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-payload-mini-cluster"} className="mt-16">
+            <div className="mt-2 text-sm">4.2. Total Payload Mini Cluster 2G-4G</div>
+            <ChartPayloadBandSiteSow
+              data={dataPayloadMiniCluster}
+              legendBy={"cluster"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
 
       {/* Table PRB Utilization */}
       {isPendingTablePrbUtilization && <div className="text-muted-foreground">Loading...</div>}
@@ -1034,15 +1093,27 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {dataPayload4gCellSow &&
         dataPayload4gCellSow.length > 0 &&
         dataUtilization4gCellSow &&
-        dataUtilization4gCellSow.length > 0 && (
+        dataUtilization4gCellSow.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
           <div key={"chart-payload-cell-per-sector"} className="mt-16">
             <div>
               {uniqueSector
                 .sort((a, b) => a.localeCompare(b))
                 .map((item) => (
                   <div key={item} className="flex flex-row">
-                    <ChartPayloadBandCellSow data={dataUtilization4gCellSow} filter_by={item} legendBy={"util-4g"} />
-                    <ChartPayloadBandCellSow data={dataPayload4gCellSow} filter_by={item} legendBy={"payload-4g"} />
+                    <ChartPayloadBandCellSow
+                      data={dataUtilization4gCellSow}
+                      filter_by={item}
+                      legendBy={"util-4g"}
+                      dataActivityLog={dataGetActivityLog}
+                    />
+                    <ChartPayloadBandCellSow
+                      data={dataPayload4gCellSow}
+                      filter_by={item}
+                      legendBy={"payload-4g"}
+                      dataActivityLog={dataGetActivityLog}
+                    />
                   </div>
                 ))}
             </div>

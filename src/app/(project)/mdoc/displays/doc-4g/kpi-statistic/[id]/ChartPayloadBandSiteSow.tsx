@@ -13,9 +13,11 @@ import {
   Title,
   Tooltip,
   type ChartConfiguration,
+  type TooltipItem,
 } from "chart.js";
 
 import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
+import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
 
 ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -28,9 +30,14 @@ interface DataPayloadBandSiteSow {
 interface ChartPayloadBandSiteSowProps {
   data: DataPayloadBandSiteSow[];
   legendBy: string;
+  dataActivityLog: DataActivityLog[];
 }
 
-export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: ChartPayloadBandSiteSowProps) {
+export default function ChartPayloadBandSiteSow({
+  data,
+  legendBy = "site",
+  dataActivityLog = [],
+}: ChartPayloadBandSiteSowProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
 
@@ -117,16 +124,35 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
       pointRadius: 0,
     };
 
+    const activityLogDataset = {
+      type: "bar" as const,
+      label: "Activity Log",
+      data: uniqueDates.map((date) => {
+        const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
+        return hasActivity ? 1 : 0;
+      }),
+      borderColor: "#00000099",
+      backgroundColor: "#00000099",
+      yAxisID: "yActivity",
+      fill: { target: "start" as const },
+      tension: 0.3,
+      borderWidth: 0,
+      pointRadius: 0,
+      order: 0,
+      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+      categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.2,
+    };
+
     // Payload bands first (behind), total last (on top)
-    const allDatasets = [...payloadDatasets, totalDataset];
+    const allDatasets = [...payloadDatasets, activityLogDataset, totalDataset];
 
     const chartData = {
       labels,
       datasets: allDatasets,
     };
 
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
+    const config = {
+      type: "bar" as const,
       data: chartData,
       options: {
         responsive: true,
@@ -165,7 +191,7 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: (context: TooltipItem<"bar">) => {
                 const label = context.dataset.label || "";
                 const value = context.parsed.y;
                 return `${label}: ${value?.toFixed(2)} GB`;
@@ -247,6 +273,29 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
               drawOnChartArea: false,
             },
           },
+          yActivity: {
+            beginAtZero: true,
+            type: "linear" as const,
+            display: false,
+            position: "right" as const,
+            title: {
+              display: true,
+              text: "Acitivity Log",
+              font: {
+                size: chartJsV1Settings.yAxisTitleFontSize,
+                family: chartJsV1Settings.legendFontFamily,
+                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              },
+            },
+            ticks: {
+              font: {
+                size: chartJsV1Settings.yAxisTickFontSize,
+              },
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          },
         },
       },
     };
@@ -259,7 +308,7 @@ export default function ChartPayloadBandSiteSow({ data, legendBy = "site" }: Cha
         chartInstance.current = null;
       }
     };
-  }, [data, legendBy]);
+  }, [data, legendBy, dataActivityLog.some]);
 
   if (!data?.length) {
     return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;

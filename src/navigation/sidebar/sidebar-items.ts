@@ -40,6 +40,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/mdoc/displays/sqac-tracker",
         icon: Fingerprint,
       },
+      {
+        title: "Activity Log",
+        url: "/mdoc/displays/activity-log",
+        icon: Fingerprint,
+      },
     ],
   },
   {
