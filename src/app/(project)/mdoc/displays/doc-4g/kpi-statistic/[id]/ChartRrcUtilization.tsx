@@ -108,6 +108,9 @@ export default function ChartRrcUtilization({ data }: ChartRrcUtilizationProps) 
           intersect: false,
         },
         plugins: {
+          datalabels: {
+            display: false,
+          },
           title: {
             display: true,
             text: "RRC Connections & DL Utilization",

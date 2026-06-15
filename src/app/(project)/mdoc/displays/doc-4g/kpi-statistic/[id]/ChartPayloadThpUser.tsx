@@ -119,6 +119,9 @@ export default function ChartPayloadThpUser({ data, sector }: ChartPayloadThpUse
       intersect: false,
     },
     plugins: {
+      datalabels: {
+        display: false,
+      },
       title: {
         display: true,
         text: `LTE Payload, Max DL Throughput & User Number`,

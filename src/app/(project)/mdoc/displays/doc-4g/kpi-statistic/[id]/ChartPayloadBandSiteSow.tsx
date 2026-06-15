@@ -12,14 +12,24 @@ import {
   CategoryScale,
   Title,
   Tooltip,
-  type ChartConfiguration,
   type TooltipItem,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { chartJsColors, chartJsColorsTransparent, chartJsV1Settings } from "@/app/(project)/mdoc/def/chartjs-setting";
 import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
 
-ChartJS.register(Filler, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  Filler,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels,
+);
 
 interface DataPayloadBandSiteSow {
   begin_time: string;
@@ -105,6 +115,7 @@ export default function ChartPayloadBandSiteSow({
         tension: 0.3,
         pointRadius: 0,
         yAxisID: band === "2G" ? "y1" : "y",
+        dataLabels: { display: false },
       };
     });
 
@@ -122,6 +133,7 @@ export default function ChartPayloadBandSiteSow({
       tension: 0.3,
       borderWidth: 0,
       pointRadius: 0,
+      dataLabels: { display: false },
     };
 
     const activityLogDataset = {
@@ -162,6 +174,9 @@ export default function ChartPayloadBandSiteSow({
           intersect: false,
         },
         plugins: {
+          datalabels: {
+            display: false,
+          },
           title: {
             display: true,
             text:

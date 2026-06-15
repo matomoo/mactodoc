@@ -14,6 +14,7 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { WeekRangeSelect } from "@/components/ui/week-range-select";
 import { useFilterStore } from "@/stores/filterStore";
@@ -22,7 +23,7 @@ import { chartJsV1Settings } from "../contexts/chartjs/chartjs-settings";
 import { ErrorState, NoDataState } from "../ui-v1/additional-component";
 import { EnhancedLoadingState } from "../ui-v1/enhanced-loading-state";
 
-Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend);
+Chart.register(CategoryScale, LinearScale, LineElement, Title, Tooltip, Legend, ChartDataLabels);
 
 interface MeasPlos4GData {
   rows: {
