@@ -99,6 +99,10 @@ export default function ChartPayloadThpUser({ data, sector, dataActivityLog = []
       borderWidth: 0,
       yAxisID: "y",
       order: 3,
+      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+      xAxisID: "x",
+      grouped: false,
+      // barThickness: 20,
     };
 
     // THP as line chart (orange)
@@ -156,8 +160,11 @@ export default function ChartPayloadThpUser({ data, sector, dataActivityLog = []
       borderWidth: 0,
       pointRadius: 0,
       order: 0,
-      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
-      categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.4,
+      barPercentage: uniqueDates.length < 20 ? 1.0 : 0.4,
+      // categoryPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+      grouped: false,
+      xAxisID: "xActivity",
+      barThickness: 5,
       datalabels: {
         display: true,
         anchor: "end" as const,
@@ -252,6 +259,22 @@ export default function ChartPayloadThpUser({ data, sector, dataActivityLog = []
         },
         scales: {
           x: {
+            stacked: false,
+            ticks: {
+              maxRotation: 90,
+              minRotation: 90,
+              font: {
+                size: chartJsV1Settings.xAxisTickFontSize,
+              },
+            },
+            grid: {
+              display: false,
+            },
+          },
+          xActivity: {
+            display: false,
+            stacked: false,
+            position: "top" as const,
             ticks: {
               maxRotation: 90,
               minRotation: 90,

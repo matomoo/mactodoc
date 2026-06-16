@@ -68,7 +68,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["target-kpi-statistic-4g", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/target-kpi-statistic-4g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/target-kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -87,7 +87,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["kpi-statistic-4g", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -104,7 +104,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["target-kpi-statistic-2g", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/target-kpi-statistic-2g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/target-kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -123,7 +123,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["kpi-statistic-2g", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/kpi-statistic-2g?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].city}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -140,7 +140,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["productivity-payload", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/productivity-payload?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/productivity-payload?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -157,7 +157,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["productivity-traffic", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/productivity-traffic?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/productivity-traffic?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -174,7 +174,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-thp-user", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-thp-user?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-thp-user?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -191,7 +191,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-band-site-sow", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-band-site-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-band-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -208,7 +208,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-band-site-tier", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-band-site-tier?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-band-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -225,7 +225,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["rrc-utilization", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/rrc-utilization?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/rrc-utilization?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -242,7 +242,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-2g-cell-site-sow", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -259,7 +259,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-2g-site-tier", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-2g-site-tier?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-2g-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -276,7 +276,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["traffic-mini-cluster", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/traffic-mini-cluster?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/traffic-mini-cluster?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -293,7 +293,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-mini-cluster", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-mini-cluster?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-mini-cluster?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -310,7 +310,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["table-prb-utilization", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/prb-utilization?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/prb-utilization?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -327,7 +327,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["payload-4g-cell-sow", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/payload-4g-cell-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/payload-4g-cell-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -344,7 +344,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["utilization-4g-cell-sow", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/utilization-4g-cell-sow?siteid=${dataSqacTracker?.[0].site}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/utilization-4g-cell-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -361,7 +361,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryKey: ["get-activity-log", wid],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/get-activity-log?siteid=${dataSqacTracker?.[0].site}&band=${dataSqacTracker?.[0].band}&city=${dataSqacTracker?.[0].city}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+        `/mdoc/api/v1/get-activity-log?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -409,15 +409,17 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             <div className="flex flex-col">
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Site ID</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.site}</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.siteid}</div>
                 <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">Band SOW</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.band}</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">
+                  {item.band_4g_sow}-{item.band_2g_sow}
+                </div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Name</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.site_name"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.site_name_4g}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">eNodeB ID</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.enodeb_id"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.enodeb_id}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Type Of Work</div>
@@ -427,13 +429,15 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">City</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.city}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.kabupaten}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Cell ID</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.cell_id"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.cell_id_4g}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Band Impact</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.band_impact}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">
+                  {item.band_4g_sow}-{item.band_2g_sow}
+                </div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">{""}</div>
                 <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{""}</div>
               </div>
@@ -445,7 +449,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"On Air Date"}</div>
               <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.connected}</div>
               <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"Acceptance Date"}</div>
-              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.dt}</div>
+              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{""}</div>
             </div>
           </div>
         ))
@@ -596,60 +600,51 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         <NoDataState message="No data available for the selected criteria." />
       ) : (
         dataSqacTracker.map((item) => (
-          <div key={"table-1"}>
+          <div key={"table-1"} className="mt-12">
             <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>
             <div className="flex flex-col">
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Site ID</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.site}</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.siteid}</div>
                 <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">Band SOW</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.band}</div>
+                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.band_2g_sow}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Name</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.site_name"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.site_name_2g}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Site No.</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site No."}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.site_no_2g}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">LAC</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"LAC"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.lac_2g}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">CI</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"CI"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.cell_id_2g}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Detail SOW</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Detail SOW"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.type_of_work}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Band</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Band"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.band_2g_sow}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Kabupaten</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Kabupaten"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.kabupaten}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Connected Date</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Connected Date"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.connected}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Longitude</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site Longitude"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.longitude}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Integrated Date</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"Integrated Date"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.connected}</div>
               </div>
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Latitude</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"item.Site Latitude"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.latitude}</div>
                 <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">TRX Configuration</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{"TRX Configuration"}</div>
+                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.trx_configuration}</div>
               </div>
-            </div>
-
-            <div className="mt-2 flex flex-row">
-              <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Integration Date</div>
-              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.connected}</div>
-              <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"On Air Date"}</div>
-              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.connected}</div>
-              <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">{"Acceptance Date"}</div>
-              <div className="w-32 shrink-0 border-t border-r border-b p-1 text-center">{item.dt}</div>
             </div>
           </div>
         ))

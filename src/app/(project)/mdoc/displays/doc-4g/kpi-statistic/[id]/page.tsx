@@ -5,6 +5,7 @@ import { use } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import TabClearAlarmPage from "./TabClearAlarm";
 import TabKpiStatisticPage from "./TabKpiStatistic";
 import TabPdfViewer from "./TabPdfViewer";
 
@@ -27,6 +28,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
         <TabsList>
           <TabsTrigger value="doc_checker">Doc Checker</TabsTrigger>
           <TabsTrigger value="kpi_statictic">KPI Statistic</TabsTrigger>
+          <TabsTrigger value="clear-alarm">Clear Alarm</TabsTrigger>
           <TabsTrigger value="pdf_viewer">PDF Viewer</TabsTrigger>
         </TabsList>
         <TabsContent value="doc_checker">
@@ -40,6 +42,9 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
         </TabsContent>
         <TabsContent value="kpi_statictic">
           <TabKpiStatisticPage wid={wid} />
+        </TabsContent>
+        <TabsContent value="clear-alarm">
+          <TabClearAlarmPage wid={wid} />
         </TabsContent>
         <TabsContent value="pdf_viewer">
           <TabPdfViewer wid={wid} />

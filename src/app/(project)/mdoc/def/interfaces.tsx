@@ -14,6 +14,20 @@ export interface SqacTrackerItem {
   tac: string;
   city: string;
   band_impact: string;
+  siteid: string;
+  band_4g_sow: string;
+  band_2g_sow: string;
+  site_name_4g: string;
+  enodeb_id: string;
+  cell_id_4g: string;
+  site_name_2g: string;
+  site_no_2g: string;
+  lac_2g: string;
+  cell_id_2g: string;
+  latitude: string;
+  longitude: string;
+  kabupaten: string;
+  trx_configuration: string;
 }
 
 export interface DataKpiStatistic4g {

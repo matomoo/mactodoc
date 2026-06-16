@@ -14,16 +14,27 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const result = await db_conn_v1.execute(sql`
       UPDATE sqac_tracker SET
         wid = ${body.wid || ""},
-        site = ${body.site || ""},
-        band = ${body.band || ""},
+        siteid = ${body.siteid || ""},
+        band_4g_sow = ${body.band_4g_sow || ""},
+        band_2g_sow = ${body.band_2g_sow || ""},
         connected = ${body.connected || null},
         audit = ${body.audit || null},
         dt = ${body.dt || null},
         sqac_status = ${body.sqac_status || ""},
+        sqac_remark = ${body.sqac_remark || ""},
         type_of_work = ${body.type_of_work || ""},
         tac = ${body.tac || ""},
-        city = ${body.city || ""},
-        band_impact = ${body.band_impact || ""}
+        site_name_4g = ${body.site_name_4g || ""},
+        site_name_2g = ${body.site_name_2g || ""},
+        enodeb_id = ${body.enodeb_id || ""},
+        cell_id_4g = ${body.cell_id_4g || ""},
+        cell_id_2g = ${body.cell_id_2g || ""},
+        longitude = ${body.longitude || ""},
+        latitude = ${body.latitude || ""},
+        kabupaten = ${body.kabupaten || ""},
+        lac_2g = ${body.lac_2g || ""},
+        site_no_2g = ${body.site_no_2g || ""},
+        trx_configuration = ${body.trx_configuration || ""}
       WHERE id = ${id}
       RETURNING *
     `);

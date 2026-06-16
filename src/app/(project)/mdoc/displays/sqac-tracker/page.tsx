@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,38 +14,83 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 interface SqacTrackerItem {
   id: string;
-  user_id: string;
+  user_id: string | null;
   wid: string;
-  site: string;
-  band: string;
+  siteid: string;
+  band_4g_sow: string;
   connected: string | null;
   audit: string | null;
   dt: string | null;
   sqac_status: string;
   sqac_remark: string;
   created_at: string;
+  type_of_work: string;
+  tac: string;
+  city: string;
+  band_2g_sow: string;
+  site_name_4g: string;
+  site_name_2g: string;
+  enodeb_id: string;
+  cell_id_4g: string;
+  cell_id_2g: string;
+  longitude: string;
+  latitude: string;
+  kabupaten: string;
+  lac_2g: string;
+  site_no_2g: string;
+  trx_configuration: string;
 }
 
 interface FormData {
   wid: string;
-  site: string;
-  band: string;
+  siteid: string;
+  band_4g_sow: string;
   connected: string;
   audit: string;
   dt: string;
   sqac_status: string;
   sqac_remark: string;
+  type_of_work: string;
+  tac: string;
+  city: string;
+  band_2g_sow: string;
+  site_name_4g: string;
+  site_name_2g: string;
+  enodeb_id: string;
+  cell_id_4g: string;
+  cell_id_2g: string;
+  longitude: string;
+  latitude: string;
+  kabupaten: string;
+  lac_2g: string;
+  site_no_2g: string;
+  trx_configuration: string;
 }
 
 const emptyForm: FormData = {
   wid: "",
-  site: "",
-  band: "",
+  siteid: "",
+  band_4g_sow: "",
   connected: "",
   audit: "",
   dt: "",
   sqac_status: "",
   sqac_remark: "",
+  type_of_work: "",
+  tac: "",
+  city: "",
+  band_2g_sow: "",
+  site_name_4g: "",
+  site_name_2g: "",
+  enodeb_id: "",
+  cell_id_4g: "",
+  cell_id_2g: "",
+  longitude: "",
+  latitude: "",
+  kabupaten: "",
+  lac_2g: "",
+  site_no_2g: "",
+  trx_configuration: "",
 };
 
 export default function SqacTrackerPage() {
@@ -63,6 +107,7 @@ export default function SqacTrackerPage() {
   const [filterSite, setFilterSite] = useState("all");
   const [filterBand, setFilterBand] = useState("all");
   const [filterSqacStatus, setFilterSqacStatus] = useState("all");
+  const [filterKabupaten, setFilterKabupaten] = useState("all");
 
   // Fetch data
   const { data, isPending, error } = useQuery<SqacTrackerItem[]>({
@@ -75,10 +120,20 @@ export default function SqacTrackerPage() {
   });
 
   // Extract unique values for dropdowns
-  const uniqueSites = useMemo(() => [...new Set(data?.map((item) => item.site).filter(Boolean) || [])].sort(), [data]);
-  const uniqueBands = useMemo(() => [...new Set(data?.map((item) => item.band).filter(Boolean) || [])].sort(), [data]);
+  const uniqueSites = useMemo(
+    () => [...new Set(data?.map((item) => item.siteid).filter(Boolean) || [])].sort(),
+    [data],
+  );
+  const uniqueBands = useMemo(
+    () => [...new Set(data?.map((item) => item.band_4g_sow).filter(Boolean) || [])].sort(),
+    [data],
+  );
   const uniqueSqacStatuses = useMemo(
     () => [...new Set(data?.map((item) => item.sqac_status).filter(Boolean) || [])].sort(),
+    [data],
+  );
+  const uniqueKabupaten = useMemo(
+    () => [...new Set(data?.map((item) => item.kabupaten).filter(Boolean) || [])].sort(),
     [data],
   );
 
@@ -87,12 +142,13 @@ export default function SqacTrackerPage() {
     if (!data) return [];
     return data.filter((item) => {
       const matchWid = !searchWid || item.wid.toLowerCase().includes(searchWid.toLowerCase());
-      const matchSite = filterSite === "all" || item.site === filterSite;
-      const matchBand = filterBand === "all" || item.band === filterBand;
+      const matchSite = filterSite === "all" || item.siteid === filterSite;
+      const matchBand = filterBand === "all" || item.band_4g_sow === filterBand;
       const matchSqacStatus = filterSqacStatus === "all" || item.sqac_status === filterSqacStatus;
-      return matchWid && matchSite && matchBand && matchSqacStatus;
+      const matchKabupaten = filterKabupaten === "all" || item.kabupaten === filterKabupaten;
+      return matchWid && matchSite && matchBand && matchSqacStatus && matchKabupaten;
     });
-  }, [data, searchWid, filterSite, filterBand, filterSqacStatus]);
+  }, [data, searchWid, filterSite, filterBand, filterSqacStatus, filterKabupaten]);
 
   // Create mutation
   const createMutation = useMutation({
@@ -168,17 +224,33 @@ export default function SqacTrackerPage() {
   const handleOpenKpi = (item: SqacTrackerItem) => {
     window.open(`/mdoc/displays/doc-4g/kpi-statistic/${item.wid}`, "_blank");
   };
+
   const handleOpenEdit = (item: SqacTrackerItem) => {
     setEditingItem(item);
     setFormData({
-      wid: item.wid,
-      site: item.site,
-      band: item.band,
+      wid: item.wid ?? "",
+      siteid: item.siteid ?? "",
+      band_4g_sow: item.band_4g_sow ?? "",
       connected: item.connected ? item.connected.split("T")[0] : "",
       audit: item.audit ? item.audit.split("T")[0] : "",
       dt: item.dt ? item.dt.split("T")[0] : "",
-      sqac_status: item.sqac_status,
-      sqac_remark: item.sqac_remark,
+      sqac_status: item.sqac_status ?? "",
+      sqac_remark: item.sqac_remark ?? "",
+      type_of_work: item.type_of_work ?? "",
+      tac: item.tac ?? "",
+      city: item.city ?? "",
+      band_2g_sow: item.band_2g_sow ?? "",
+      site_name_4g: item.site_name_4g ?? "",
+      site_name_2g: item.site_name_2g ?? "",
+      enodeb_id: item.enodeb_id ?? "",
+      cell_id_4g: item.cell_id_4g ?? "",
+      cell_id_2g: item.cell_id_2g ?? "",
+      longitude: item.longitude ?? "",
+      latitude: item.latitude ?? "",
+      kabupaten: item.kabupaten ?? "",
+      lac_2g: item.lac_2g ?? "",
+      site_no_2g: item.site_no_2g ?? "",
+      trx_configuration: item.trx_configuration ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -208,6 +280,7 @@ export default function SqacTrackerPage() {
     setFilterSite("all");
     setFilterBand("all");
     setFilterSqacStatus("all");
+    setFilterKabupaten("all");
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -216,14 +289,14 @@ export default function SqacTrackerPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">SQAC Tracker</h1>
+        <h1 className="font-bold text-2xl">SQAC Tracker</h1>
         <Button onClick={handleOpenCreate}>Add New</Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
+      <div className="flex flex-wrap items-end gap-3">
         <div className="w-48">
           <Label htmlFor="search-wid">Search WID</Label>
           <Input
@@ -234,7 +307,7 @@ export default function SqacTrackerPage() {
           />
         </div>
         <div className="w-40">
-          <Label htmlFor="filter-site">Site</Label>
+          <Label htmlFor="filter-site">Site ID</Label>
           <Select value={filterSite} onValueChange={setFilterSite}>
             <SelectTrigger id="filter-site">
               <SelectValue placeholder="All Sites" />
@@ -250,7 +323,7 @@ export default function SqacTrackerPage() {
           </Select>
         </div>
         <div className="w-36">
-          <Label htmlFor="filter-band">Band</Label>
+          <Label htmlFor="filter-band">Band 4G SOW</Label>
           <Select value={filterBand} onValueChange={setFilterBand}>
             <SelectTrigger id="filter-band">
               <SelectValue placeholder="All Bands" />
@@ -281,6 +354,22 @@ export default function SqacTrackerPage() {
             </SelectContent>
           </Select>
         </div>
+        <div className="w-44">
+          <Label htmlFor="filter-kabupaten">Kabupaten</Label>
+          <Select value={filterKabupaten} onValueChange={setFilterKabupaten}>
+            <SelectTrigger id="filter-kabupaten">
+              <SelectValue placeholder="All Kabupaten" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Kabupaten</SelectItem>
+              {uniqueKabupaten.map((kab) => (
+                <SelectItem key={kab} value={kab}>
+                  {kab}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button variant="outline" size="sm" onClick={handleClearFilters}>
           Clear
         </Button>
@@ -289,25 +378,25 @@ export default function SqacTrackerPage() {
       {isPending && <div className="text-muted-foreground">Loading...</div>}
       {error && <div className="text-destructive">Error: {error.message}</div>}
 
-      <div className="border rounded-lg">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>WID</TableHead>
-              <TableHead>Site</TableHead>
-              <TableHead>Band</TableHead>
+              <TableHead>Site ID</TableHead>
+              <TableHead>Band 4G SOW</TableHead>
+              <TableHead>Band 2G SOW</TableHead>
+              <TableHead>Kabupaten</TableHead>
+              <TableHead>Type of Work</TableHead>
               <TableHead>Connected</TableHead>
-              <TableHead>Audit</TableHead>
-              <TableHead>DT</TableHead>
               <TableHead>SQAC Status</TableHead>
-              <TableHead>SQAC Remark</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={21} className="text-center text-muted-foreground">
                   No data available
                 </TableCell>
               </TableRow>
@@ -315,13 +404,13 @@ export default function SqacTrackerPage() {
             {filteredData.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.wid}</TableCell>
-                <TableCell>{item.site}</TableCell>
-                <TableCell>{item.band}</TableCell>
+                <TableCell>{item.siteid}</TableCell>
+                <TableCell>{item.band_4g_sow}</TableCell>
+                <TableCell>{item.band_2g_sow}</TableCell>
+                <TableCell>{item.kabupaten}</TableCell>
+                <TableCell>{item.type_of_work}</TableCell>
                 <TableCell>{formatDate(item.connected)}</TableCell>
-                <TableCell>{formatDate(item.audit)}</TableCell>
-                <TableCell>{formatDate(item.dt)}</TableCell>
                 <TableCell>{item.sqac_status}</TableCell>
-                <TableCell>{item.sqac_remark}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => handleOpenKpi(item)}>
@@ -343,12 +432,12 @@ export default function SqacTrackerPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] max-w-3xl! overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? "Edit Item" : "Add New Item"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               <div>
                 <Label htmlFor="wid">WID</Label>
                 <Input
@@ -359,21 +448,52 @@ export default function SqacTrackerPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="site">Site</Label>
+                <Label htmlFor="siteid">Site ID</Label>
                 <Input
-                  id="site"
-                  value={formData.site}
-                  onChange={(e) => setFormData({ ...formData, site: e.target.value })}
+                  id="siteid"
+                  value={formData.siteid}
+                  onChange={(e) => setFormData({ ...formData, siteid: e.target.value })}
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="band">Band</Label>
+                <Label htmlFor="site_name_4g">Site Name 4G</Label>
                 <Input
-                  id="band"
-                  value={formData.band}
-                  onChange={(e) => setFormData({ ...formData, band: e.target.value })}
-                  required
+                  id="site_name_4g"
+                  value={formData.site_name_4g}
+                  onChange={(e) => setFormData({ ...formData, site_name_4g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="site_name_2g">Site Name 2G</Label>
+                <Input
+                  id="site_name_2g"
+                  value={formData.site_name_2g}
+                  onChange={(e) => setFormData({ ...formData, site_name_2g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="band_4g_sow">Band 4G SOW</Label>
+                <Input
+                  id="band_4g_sow"
+                  value={formData.band_4g_sow}
+                  onChange={(e) => setFormData({ ...formData, band_4g_sow: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="band_2g_sow">Band 2G SOW</Label>
+                <Input
+                  id="band_2g_sow"
+                  value={formData.band_2g_sow}
+                  onChange={(e) => setFormData({ ...formData, band_2g_sow: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="kabupaten">Kabupaten</Label>
+                <Input
+                  id="kabupaten"
+                  value={formData.kabupaten}
+                  onChange={(e) => setFormData({ ...formData, kabupaten: e.target.value })}
                 />
               </div>
               <div>
@@ -383,6 +503,91 @@ export default function SqacTrackerPage() {
                   value={formData.sqac_status}
                   onChange={(e) => setFormData({ ...formData, sqac_status: e.target.value })}
                   required
+                />
+              </div>
+              <div>
+                <Label htmlFor="type_of_work">Type of Work</Label>
+                <Input
+                  id="type_of_work"
+                  value={formData.type_of_work}
+                  onChange={(e) => setFormData({ ...formData, type_of_work: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="tac">TAC</Label>
+                <Input
+                  id="tac"
+                  value={formData.tac}
+                  onChange={(e) => setFormData({ ...formData, tac: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lac_2g">LAC</Label>
+                <Input
+                  id="lac_2g"
+                  value={formData.lac_2g}
+                  onChange={(e) => setFormData({ ...formData, lac_2g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="site_no_2g">Site No 2G</Label>
+                <Input
+                  id="site_no_2g"
+                  value={formData.site_no_2g}
+                  onChange={(e) => setFormData({ ...formData, site_no_2g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="enodeb_id">eNodeB ID</Label>
+                <Input
+                  id="enodeb_id"
+                  value={formData.enodeb_id}
+                  onChange={(e) => setFormData({ ...formData, enodeb_id: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cell_id_4g">Cell ID 4G</Label>
+                <Input
+                  id="cell_id_4g"
+                  value={formData.cell_id_4g}
+                  onChange={(e) => setFormData({ ...formData, cell_id_4g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cell_id_2g">Cell ID 2G</Label>
+                <Input
+                  id="cell_id_2g"
+                  value={formData.cell_id_2g}
+                  onChange={(e) => setFormData({ ...formData, cell_id_2g: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="trx_configuration">TRX Configuration</Label>
+                <Input
+                  id="trx_configuration"
+                  value={formData.trx_configuration}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      trx_configuration: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="longitude">Longitude</Label>
+                <Input
+                  id="longitude"
+                  value={formData.longitude}
+                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="latitude">Latitude</Label>
+                <Input
+                  id="latitude"
+                  value={formData.latitude}
+                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
                 />
               </div>
               <div>
