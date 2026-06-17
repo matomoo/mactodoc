@@ -2,25 +2,13 @@
 
 import { useState } from "react";
 
-import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
-import { saveAs } from "file-saver";
 
-import type {
-  DataKpiStatistic4g,
-  DataPayloadBandSiteSow,
-  DataPayloadThpUser,
-  SqacTrackerItem,
-} from "@/app/(project)/mdoc/def/interfaces";
-import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
+import type { DataKpiStatistic4g, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
-import ChartPayloadBandCellSow from "./ChartPayloadBandCellSow";
-import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
-import ChartPayloadThpUser from "./ChartPayloadThpUser";
-import ChartRrcUtilization from "./ChartRrcUtilization";
-import SqacPdfDocument from "./SqacPdfDocument";
+import ChartKpi4g from "./ChartKpi4g";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -76,6 +64,42 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     },
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
+
+  const {
+    data: dataGetKpi4g,
+    isPending: isPendingGetKpi4g,
+    error: errorGetKpi4g,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["get-kpi-4g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/chart-kpi-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataGetKpi2g,
+    isPending: isPendingGetKpi2g,
+    error: errorGetKpi2g,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["get-kpi-2g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/chart-kpi-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataGetKpi2g });
 
   return (
     <div className="mx-auto w-full space-y-4 p-6">
@@ -196,6 +220,168 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
               <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{""}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Chart Payload Cell Per Sector*/}
+      {isPendingGetKpi4g && <div className="text-muted-foreground">Loading...</div>}
+      {errorGetKpi4g && <div className="text-destructive">Error: {errorGetKpi4g.message}</div>}
+
+      {dataGetKpi4g && dataGetKpi4g.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
+        <div key={"chart-kpi-4g"} className="mt-16">
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"availability"}
+              chart_title={"Availability (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"rrc_setup"}
+              chart_title={"RRC Setup SR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"erab_setup"}
+              chart_title={"E-RAB Success Rate (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"cssr"}
+              chart_title={"Call Setup Success Rate (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"erab_drop"}
+              chart_title={"E-RAB Drop Rate (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"ifho"}
+              chart_title={"Success Rate of Intra RAT- Intra Freq Cell Outgoing Handover (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"csfb"}
+              chart_title={"CSFB Preparation Success Rate (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"cqi_average"}
+              chart_title={"CQI Average"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"se2"}
+              chart_title={"Spectral Efficiency 2"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"number_csfb"}
+              chart_title={"Number of Redirection Requests from LTE to GSM(CSFB)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi4g}
+              kpi_by={"payload_ca"}
+              chart_title={"Total Payload CA (Mbyte)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Chart Kpi 2g*/}
+      {isPendingGetKpi2g && <div className="text-muted-foreground">Loading...</div>}
+      {errorGetKpi2g && <div className="text-destructive">Error: {errorGetKpi2g.message}</div>}
+
+      {dataGetKpi2g && dataGetKpi2g.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
+        <div key={"chart-kpi-2g"} className="mt-16">
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"availability"}
+              chart_title={"Availability (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"sdsr"}
+              chart_title={"SDSR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"hosr"}
+              chart_title={"HOSR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"dcr"}
+              chart_title={"DCR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"tbf_dl"}
+              chart_title={"TBF DL EST SR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"tbf_comp"}
+              chart_title={"TBF Completion SR (%)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              data={dataGetKpi2g}
+              kpi_by={"fast_return_lte"}
+              chart_title={"Number of fastreturn to LTE (2G)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
         </div>
       )}
       {/* eof */}

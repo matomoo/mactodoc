@@ -112,6 +112,23 @@ export interface DataKpiStatistic4g {
   tanggal: string;
   siteid: string;
   deskripsi: string;
+  availability: string;
+  rrc_setup: string;
+  erab_setup: string;
+  cssr: string;
+  erab_drop: string;
+  ifho: string;
+  csfb: string;
+  cqi_average: string;
+  se2: string;
+  number_csfb: string;
+  payload_ca: string;
+  sdsr: string;
+  hosr: string;
+  dcr: string;
+  tbf_dl: string;
+  tbf_comp: string;
+  fast_return_lte: string;
 }
 
 export interface DataPayloadThpUser {
