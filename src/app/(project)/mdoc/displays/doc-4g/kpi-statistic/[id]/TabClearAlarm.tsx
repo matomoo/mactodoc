@@ -104,7 +104,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
   return (
     <div className="mx-auto w-full space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl">KPI Statistic</h1>
+        <h1 className="font-bold text-2xl">Clear Alarm</h1>
         <div className="flex gap-2">
           <Button
             variant="default"
