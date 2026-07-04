@@ -1,7 +1,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
-import { useRef, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
   Filler,
@@ -39,6 +39,10 @@ interface DataPayloadBandCellSow {
   tanggal: string;
 }
 
+export interface ChartPayloadBandCellSowRef {
+  getImageData: () => string | null;
+}
+
 interface ChartPayloadBandCellSowProps {
   data: DataPayloadBandCellSow[];
   legendBy: string;
@@ -46,324 +50,350 @@ interface ChartPayloadBandCellSowProps {
   dataActivityLog: DataActivityLog[];
 }
 
-export default function ChartPayloadBandCellSow({
-  data,
-  legendBy = "site",
-  filter_by = "1",
-  dataActivityLog = [],
-}: ChartPayloadBandCellSowProps) {
-  const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstance = useRef<ChartJS | null>(null);
+const ChartPayloadBandCellSow = forwardRef<ChartPayloadBandCellSowRef, ChartPayloadBandCellSowProps>(
+  function ChartPayloadBandCellSow({ data, legendBy = "site", filter_by = "1", dataActivityLog = [] }, ref) {
+    const chartRef = useRef<HTMLCanvasElement>(null);
+    const chartInstance = useRef<ChartJS | null>(null);
 
-  useEffect(() => {
-    if (!chartRef.current) return;
+    useImperativeHandle(ref, () => ({
+      getImageData: () => {
+        if (!chartInstance.current) return null;
 
-    const ctx = chartRef.current.getContext("2d");
-    if (!ctx) return;
+        const canvas = chartInstance.current.canvas;
+        const width = canvas.width;
+        const height = canvas.height;
 
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
+        // Create a temporary canvas with white background
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext("2d");
 
-    // Get unique bands for legend
-    const oldBands = [...new Set(data.map((item) => item.group_by))];
-    const bands = oldBands.sort((a, b) => a.localeCompare(b));
+        if (!tempCtx) return null;
 
-    // Sort by begin_time
-    const oldSortedData = [...data].sort((a, b) => {
-      const dateA = new Date(a.begin_time.replace(" ", "T"));
-      const dateB = new Date(b.begin_time.replace(" ", "T"));
-      return dateA.getTime() - dateB.getTime();
-    });
+        // Fill with white background
+        tempCtx.fillStyle = "#ffffff";
+        tempCtx.fillRect(0, 0, width, height);
 
-    const sortedData = oldSortedData.filter((a) => a.sector === filter_by);
+        // Draw the chart on top
+        tempCtx.drawImage(canvas, 0, 0);
 
-    // Get unique dates for labels
-    const uniqueDates = [...new Set(sortedData.map((item) => item.begin_time))].sort();
+        return tempCanvas.toDataURL("image/jpeg", 1.0);
+      },
+    }));
 
-    // Format x-axis labels (dd/mm/yyyy)
-    const labels = uniqueDates.map((dateStr) => {
-      const date = new Date(dateStr.replace(" ", "T"));
-      return date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    });
+    useEffect(() => {
+      if (!chartRef.current) return;
 
-    // Payload by band as line chart (left axis)
-    const payloadDatasets = bands.map((band, index) => {
-      let newIndex = 1;
-      if (band === "L900" || band.includes("MT1")) {
-        newIndex = 1;
-      } else if (band === "L1800" || band.includes("ML1")) {
-        newIndex = 0;
-      } else if (band === "L2100" || band.includes("MR1")) {
-        newIndex = 14;
-      } else if (band === "L2300" || band.includes("ME1")) {
-        newIndex = 29;
-      } else {
-        newIndex = index;
+      const ctx = chartRef.current.getContext("2d");
+      if (!ctx) return;
+
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
       }
 
-      const color = chartJsColors[newIndex % chartJsColors.length];
-      const colorBg = chartJsColorsTransparent[newIndex % chartJsColors.length];
-      return {
+      // Get unique bands for legend
+      const oldBands = [...new Set(data.map((item) => item.group_by))];
+      const bands = oldBands.sort((a, b) => a.localeCompare(b));
+
+      // Sort by begin_time
+      const oldSortedData = [...data].sort((a, b) => {
+        const dateA = new Date(a.begin_time.replace(" ", "T"));
+        const dateB = new Date(b.begin_time.replace(" ", "T"));
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      const sortedData = oldSortedData.filter((a) => a.sector === filter_by);
+
+      // Get unique dates for labels
+      const uniqueDates = [...new Set(sortedData.map((item) => item.begin_time))].sort();
+
+      // Format x-axis labels (dd/mm/yyyy)
+      const labels = uniqueDates.map((dateStr) => {
+        const date = new Date(dateStr.replace(" ", "T"));
+        return date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      });
+
+      // Payload by band as line chart (left axis)
+      const payloadDatasets = bands.map((band, index) => {
+        let newIndex = 1;
+        if (band === "L900" || band.includes("MT1")) {
+          newIndex = 1;
+        } else if (band === "L1800" || band.includes("ML1")) {
+          newIndex = 0;
+        } else if (band === "L2100" || band.includes("MR1")) {
+          newIndex = 14;
+        } else if (band === "L2300" || band.includes("ME1")) {
+          newIndex = 29;
+        } else {
+          newIndex = index;
+        }
+
+        const color = chartJsColors[newIndex % chartJsColors.length];
+        const colorBg = chartJsColorsTransparent[newIndex % chartJsColors.length];
+        return {
+          type: "line" as const,
+          label: `${band}`,
+          data: uniqueDates.map((date) => {
+            const item = sortedData.find((d) => d.begin_time === date && d.group_by === band);
+            return item?.productivity_val ?? 0;
+          }),
+          backgroundColor: colorBg,
+          borderColor: color,
+          borderWidth: 3,
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          yAxisID: "y",
+          dataLabels: { display: false },
+        };
+      });
+
+      // Total payload as line chart (right axis) - calculate from all bands per date
+      const totalDataset = {
         type: "line" as const,
-        label: `${band}`,
+        label: "Total Payload (GB)",
         data: uniqueDates.map((date) => {
-          const item = sortedData.find((d) => d.begin_time === date && d.group_by === band);
-          return item?.productivity_val ?? 0;
+          return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.productivity_val, 0);
         }),
-        backgroundColor: colorBg,
-        borderColor: color,
-        borderWidth: 3,
-        fill: false,
+        borderColor: "#b8d0fb",
+        backgroundColor: "#b8d0fb",
+        yAxisID: "y1",
+        fill: { target: "start" as const },
         tension: 0.3,
+        borderWidth: 0,
         pointRadius: 0,
-        yAxisID: "y",
+        order: 2,
         dataLabels: { display: false },
       };
-    });
 
-    // Total payload as line chart (right axis) - calculate from all bands per date
-    const totalDataset = {
-      type: "line" as const,
-      label: "Total Payload (GB)",
-      data: uniqueDates.map((date) => {
-        return sortedData.filter((d) => d.begin_time === date).reduce((sum, item) => sum + item.productivity_val, 0);
-      }),
-      borderColor: "#b8d0fb",
-      backgroundColor: "#b8d0fb",
-      yAxisID: "y1",
-      fill: { target: "start" as const },
-      tension: 0.3,
-      borderWidth: 0,
-      pointRadius: 0,
-      order: 2,
-      dataLabels: { display: false },
-    };
-
-    const activityLogDataset = {
-      type: "bar" as const,
-      label: "Activity Log",
-      data: uniqueDates.map((date) => {
-        const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
-        return hasActivity ? 1 : 0;
-      }),
-      _activityLogIndices: uniqueDates.map((date) => {
-        const idx = dataActivityLog.findIndex((log) => log.tanggal?.startsWith(date));
-        return idx >= 0 ? idx + 1 : null;
-      }),
-      borderColor: "#00000099",
-      backgroundColor: "#00000099",
-      yAxisID: "yActivity",
-      fill: { target: "start" as const },
-      tension: 0.3,
-      borderWidth: 0,
-      pointRadius: 0,
-      order: 0,
-      barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
-      categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.4,
-      datalabels: {
-        display: true,
-        anchor: "end" as const,
-        align: "start" as const,
-        backgroundColor: "#fff",
-        borderColor: "#666",
-        borderWidth: 1,
-        borderRadius: 4,
-        color: "#333",
-        font: {
-          size: 10,
-          weight: "bold" as const,
-        },
-        padding: 4,
-        formatter: (
-          _value: number,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          context: any,
-        ) => {
-          const idx = context.dataset?._activityLogIndices?.[context.dataIndex];
-          const label = idx?.toString() ?? "";
-          return label === "" ? null : label;
-        },
-      },
-    };
-
-    // Payload bands first (behind), total last (on top)
-    const allDatasets =
-      legendBy === "util-4g"
-        ? [...payloadDatasets, activityLogDataset]
-        : [...payloadDatasets, activityLogDataset, totalDataset];
-
-    const chartData = {
-      labels,
-      datasets: allDatasets,
-    };
-
-    const config = {
-      type: "bar" as const,
-      data: chartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: "index" as const,
-          intersect: false,
-        },
-        plugins: {
-          title: {
-            display: true,
-            text:
-              legendBy === "band"
-                ? "LTE Payload NE Level - Site Level (GB)"
-                : legendBy === "cell2g"
-                  ? "2G Payload (Gbyte) Cell Level & Site level"
-                  : legendBy === "cluster"
-                    ? "Payload Tech Level"
-                    : "Total Payload Site Level - Cluster Level (GB)",
-            font: {
-              size: chartJsV1Settings.titleFontSize,
-              weight: chartJsV1Settings.titleFontWeight,
-            },
+      const activityLogDataset = {
+        type: "bar" as const,
+        label: "Activity Log",
+        data: uniqueDates.map((date) => {
+          const hasActivity = dataActivityLog.some((log) => log.tanggal?.startsWith(date));
+          return hasActivity ? 1 : 0;
+        }),
+        _activityLogIndices: uniqueDates.map((date) => {
+          const idx = dataActivityLog.findIndex((log) => log.tanggal?.startsWith(date));
+          return idx >= 0 ? idx + 1 : null;
+        }),
+        borderColor: "#00000099",
+        backgroundColor: "#00000099",
+        yAxisID: "yActivity",
+        fill: { target: "start" as const },
+        tension: 0.3,
+        borderWidth: 0,
+        pointRadius: 0,
+        order: 0,
+        barPercentage: uniqueDates.length < 20 ? 1.0 : 1.0,
+        categoryPercentage: uniqueDates.length < 20 ? 0.1 : 0.4,
+        datalabels: {
+          display: true,
+          anchor: "end" as const,
+          align: "start" as const,
+          backgroundColor: "#fff",
+          borderColor: "#666",
+          borderWidth: 1,
+          borderRadius: 4,
+          color: "#333",
+          font: {
+            size: 10,
+            weight: "bold" as const,
           },
-          legend: {
-            position: "bottom" as const,
-            labels: {
-              usePointStyle: true,
-              boxWidth: 20,
-              padding: 15,
+          padding: 4,
+          formatter: (
+            _value: number,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            context: any,
+          ) => {
+            const idx = context.dataset?._activityLogIndices?.[context.dataIndex];
+            const label = idx?.toString() ?? "";
+            return label === "" ? null : label;
+          },
+        },
+      };
+
+      // Payload bands first (behind), total last (on top)
+      const allDatasets =
+        legendBy === "util-4g"
+          ? [...payloadDatasets, activityLogDataset]
+          : [...payloadDatasets, activityLogDataset, totalDataset];
+
+      const chartData = {
+        labels,
+        datasets: allDatasets,
+      };
+
+      const config = {
+        type: "bar" as const,
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index" as const,
+            intersect: false,
+          },
+          plugins: {
+            title: {
+              display: true,
+              text:
+                legendBy === "band"
+                  ? "LTE Payload NE Level - Site Level (GB)"
+                  : legendBy === "cell2g"
+                    ? "2G Payload (Gbyte) Cell Level & Site level"
+                    : legendBy === "cluster"
+                      ? "Payload Tech Level"
+                      : "Total Payload Site Level - Cluster Level (GB)",
               font: {
-                size: chartJsV1Settings.legendFontSize,
-                weight: chartJsV1Settings.legendFontWeight,
+                size: chartJsV1Settings.titleFontSize,
+                weight: chartJsV1Settings.titleFontWeight,
               },
             },
-          },
-          tooltip: {
-            callbacks: {
-              label: (context: TooltipItem<"bar">) => {
-                const label = context.dataset.label || "";
-                const value = context.parsed.y;
-                if (label === "Activity Log" && value === 1) {
-                  const activityDataset = context.dataset as {
-                    _activityLogIndices?: (number | null)[];
-                  };
-                  const idx = activityDataset._activityLogIndices?.[context.dataIndex];
-                  return `${label}: ${idx}`;
-                }
-                return `${label}: ${value?.toFixed(2)} GB`;
+            legend: {
+              position: "bottom" as const,
+              labels: {
+                usePointStyle: true,
+                boxWidth: 20,
+                padding: 15,
+                font: {
+                  size: chartJsV1Settings.legendFontSize,
+                  weight: chartJsV1Settings.legendFontWeight,
+                },
               },
             },
-          },
-          datalabels: {
-            display: false,
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              maxRotation: 90,
-              minRotation: 90,
-              font: {
-                size: chartJsV1Settings.xAxisTickFontSize,
+            tooltip: {
+              callbacks: {
+                label: (context: TooltipItem<"bar">) => {
+                  const label = context.dataset.label || "";
+                  const value = context.parsed.y;
+                  if (label === "Activity Log" && value === 1) {
+                    const activityDataset = context.dataset as {
+                      _activityLogIndices?: (number | null)[];
+                    };
+                    const idx = activityDataset._activityLogIndices?.[context.dataIndex];
+                    return `${label}: ${idx}`;
+                  }
+                  return `${label}: ${value?.toFixed(2)} GB`;
+                },
               },
             },
-            grid: {
+            datalabels: {
               display: false,
             },
           },
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 90,
+                minRotation: 90,
+                font: {
+                  size: chartJsV1Settings.xAxisTickFontSize,
+                },
+              },
+              grid: {
+                display: false,
+              },
+            },
 
-          y: {
-            beginAtZero: true,
-            type: "linear" as const,
-            display: true,
-            position: "left" as const,
-            title: {
+            y: {
+              beginAtZero: true,
+              type: "linear" as const,
               display: true,
-              text: "Band",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              position: "left" as const,
+              title: {
+                display: true,
+                text: "Band",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                },
+              },
+              grid: {
+                color: "#e0e0e0",
               },
             },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
+            y1: {
+              beginAtZero: true,
+              type: "linear" as const,
+              display: legendBy !== "util-4g",
+              position: "right" as const,
+              title: {
+                display: true,
+                text: "Total Payload",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
+              },
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                },
+              },
+              grid: {
+                drawOnChartArea: false,
               },
             },
-            grid: {
-              color: "#e0e0e0",
-            },
-          },
-          y1: {
-            beginAtZero: true,
-            type: "linear" as const,
-            display: legendBy !== "util-4g",
-            position: "right" as const,
-            title: {
-              display: true,
-              text: "Total Payload",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
+            yActivity: {
+              beginAtZero: true,
+              type: "linear" as const,
+              display: false,
+              position: "right" as const,
+              title: {
+                display: true,
+                text: "Acitivity Log",
+                font: {
+                  size: chartJsV1Settings.yAxisTitleFontSize,
+                  family: chartJsV1Settings.legendFontFamily,
+                  weight: chartJsV1Settings.yAxisTitleFontWeight,
+                },
               },
-            },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
+              ticks: {
+                font: {
+                  size: chartJsV1Settings.yAxisTickFontSize,
+                },
               },
-            },
-            grid: {
-              drawOnChartArea: false,
-            },
-          },
-          yActivity: {
-            beginAtZero: true,
-            type: "linear" as const,
-            display: false,
-            position: "right" as const,
-            title: {
-              display: true,
-              text: "Acitivity Log",
-              font: {
-                size: chartJsV1Settings.yAxisTitleFontSize,
-                family: chartJsV1Settings.legendFontFamily,
-                weight: chartJsV1Settings.yAxisTitleFontWeight,
+              grid: {
+                drawOnChartArea: false,
               },
-            },
-            ticks: {
-              font: {
-                size: chartJsV1Settings.yAxisTickFontSize,
-              },
-            },
-            grid: {
-              drawOnChartArea: false,
             },
           },
         },
-      },
-    };
+      };
 
-    chartInstance.current = new ChartJS(ctx, config);
+      chartInstance.current = new ChartJS(ctx, config);
 
-    return () => {
-      if (chartInstance.current) {
-        chartInstance.current.destroy();
-        chartInstance.current = null;
-      }
-    };
-  }, [data, legendBy, filter_by, dataActivityLog]);
+      return () => {
+        if (chartInstance.current) {
+          chartInstance.current.destroy();
+          chartInstance.current = null;
+        }
+      };
+    }, [data, legendBy, filter_by, dataActivityLog]);
 
-  if (!data?.length) {
-    return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;
-  }
+    if (!data?.length) {
+      return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;
+    }
 
-  return (
-    <div className="mt-12 h-96 w-150">
-      <canvas ref={chartRef} />
-    </div>
-  );
-}
+    return (
+      <div className="mt-12 h-96 w-150">
+        <canvas ref={chartRef} />
+      </div>
+    );
+  },
+);
+
+export default ChartPayloadBandCellSow;

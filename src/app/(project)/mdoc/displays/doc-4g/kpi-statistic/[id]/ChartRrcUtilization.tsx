@@ -1,7 +1,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
-import { useRef, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
   Filler,
@@ -33,14 +33,48 @@ ChartJS.register(
   ChartDataLabels,
 );
 
+export interface ChartRrcUtilizationRef {
+  getImageData: () => string | null;
+}
+
 interface ChartRrcUtilizationProps {
   data: DataPayloadBandSiteSow[];
   dataActivityLog: DataActivityLog[];
 }
 
-export default function ChartRrcUtilization({ data, dataActivityLog = [] }: ChartRrcUtilizationProps) {
+const ChartRrcUtilization = forwardRef<ChartRrcUtilizationRef, ChartRrcUtilizationProps>(function ChartRrcUtilization(
+  { data, dataActivityLog = [] },
+  ref,
+) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    getImageData: () => {
+      if (!chartInstance.current) return null;
+
+      const canvas = chartInstance.current.canvas;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Create a temporary canvas with white background
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext("2d");
+
+      if (!tempCtx) return null;
+
+      // Fill with white background
+      tempCtx.fillStyle = "#ffffff";
+      tempCtx.fillRect(0, 0, width, height);
+
+      // Draw the chart on top
+      tempCtx.drawImage(canvas, 0, 0);
+
+      return tempCanvas.toDataURL("image/jpeg", 1.0);
+    },
+  }));
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -317,4 +351,6 @@ export default function ChartRrcUtilization({ data, dataActivityLog = [] }: Char
       <canvas ref={chartRef} />
     </div>
   );
-}
+});
+
+export default ChartRrcUtilization;

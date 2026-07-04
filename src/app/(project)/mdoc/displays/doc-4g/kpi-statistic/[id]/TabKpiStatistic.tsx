@@ -18,10 +18,13 @@ import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
+import type { ChartPayloadBandCellSowRef } from "./ChartPayloadBandCellSow";
 import ChartPayloadBandCellSow from "./ChartPayloadBandCellSow";
+import type { ChartPayloadBandSiteSowRef } from "./ChartPayloadBandSiteSow";
 import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import type { ChartPayloadThpUserRef } from "./ChartPayloadThpUser";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
+import type { ChartRrcUtilizationRef } from "./ChartRrcUtilization";
 import ChartRrcUtilization from "./ChartRrcUtilization";
 import SqacPdfDocument from "./SqacPdfDocument";
 
@@ -52,6 +55,15 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
 
   // Refs for chart components
   const chartPayloadThpUserRefs = useRef<Map<string, ChartPayloadThpUserRef>>(new Map());
+  const chartPayloadBandSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartPayloadBandSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartRrcUtilizationRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartPayload2gCellSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartPayload2gSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartTrafficMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartPayloadMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartPayload4gCellSowRefs = useRef<Map<string, ChartPayloadBandCellSowRef>>(new Map());
+  const chartUtilization4gCellSowRefs = useRef<Map<string, ChartPayloadBandCellSowRef>>(new Map());
 
   const {
     data: dataSqacTracker,
@@ -389,22 +401,164 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     setIsExporting(true);
 
     try {
-      for (const [_sector, chartRef] of chartPayloadThpUserRefs.current.entries()) {
+      // Export Payload Band Site SOW chart
+      if (chartPayloadBandSiteSowRef.current) {
+        const imageData = chartPayloadBandSiteSowRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-band-site-sow.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Payload Band Site Tier chart
+      if (chartPayloadBandSiteTierRef.current) {
+        const imageData = chartPayloadBandSiteTierRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-band-site-tier.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export RRC Utilization chart
+      if (chartRrcUtilizationRef.current) {
+        const imageData = chartRrcUtilizationRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-rrc-utilization.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Payload 2G Cell Site SOW chart
+      if (chartPayload2gCellSiteSowRef.current) {
+        const imageData = chartPayload2gCellSiteSowRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-2g-cell-site-sow.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Payload 2G Site Tier chart
+      if (chartPayload2gSiteTierRef.current) {
+        const imageData = chartPayload2gSiteTierRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-2g-site-tier.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Traffic Mini Cluster chart
+      if (chartTrafficMiniClusterRef.current) {
+        const imageData = chartTrafficMiniClusterRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-traffic-mini-cluster.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Payload Mini Cluster chart
+      if (chartPayloadMiniClusterRef.current) {
+        const imageData = chartPayloadMiniClusterRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-mini-cluster.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Payload Cell Per Sector charts
+      for (const [sector, chartRef] of chartPayload4gCellSowRefs.current.entries()) {
         const imageData = chartRef.getImageData();
-        if (!imageData) continue;
+        if (imageData) {
+          const filename = `${wid}-chart-payload-cell-per-sector-payload-${sector.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
 
-        const sectorValue = chartRef.getSector();
-        const filename = `${wid}-chart-payload-thp-user-sector-${sectorValue.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
 
-        const response = await fetch("/mdoc/api/v1/chart-export", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageData, filename }),
-        });
+      for (const [sector, chartRef] of chartUtilization4gCellSowRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-cell-per-sector-util-${sector.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Failed to save chart");
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
         }
       }
 
@@ -1004,6 +1158,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div key={"chart-payload-band-site-sow"} className="mt-16">
             <div className="mt-2 text-sm">3.2. Total Payload Site Level & Payload 1st tier Site Level</div>
             <ChartPayloadBandSiteSow
+              ref={chartPayloadBandSiteSowRef}
               data={dataPayloadBandSiteSow}
               legendBy={"band"}
               dataActivityLog={dataGetActivityLog}
@@ -1021,6 +1176,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         dataGetActivityLog.length > 0 && (
           <div key={"chart-payload-band-site-tier"} className="mt-16">
             <ChartPayloadBandSiteSow
+              ref={chartPayloadBandSiteTierRef}
               data={dataPayloadBandSiteTier}
               legendBy={"site"}
               dataActivityLog={dataGetActivityLog}
@@ -1034,7 +1190,11 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
 
       {dataRrcUtilization && dataRrcUtilization.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
         <div key={"chart-rrc-utilization"} className="mt-16">
-          <ChartRrcUtilization data={dataRrcUtilization} dataActivityLog={dataGetActivityLog} />
+          <ChartRrcUtilization
+            ref={chartRrcUtilizationRef}
+            data={dataRrcUtilization}
+            dataActivityLog={dataGetActivityLog}
+          />
         </div>
       )}
 
@@ -1049,6 +1209,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div key={"chart-payload-2g-cell-site-sow"} className="mt-16">
             <div className="mt-2 text-sm">3.7. Payload Cell Level & Site Level 2G</div>
             <ChartPayloadBandSiteSow
+              ref={chartPayload2gCellSiteSowRef}
               data={dataPayload2gCellSiteSow}
               legendBy={"cell2g"}
               dataActivityLog={dataGetActivityLog}
@@ -1067,6 +1228,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div key={"chart-payload-2g-site-tier"} className="mt-16">
             <div className="mt-2 text-sm">3.8. Payload Site Level & Cluster Level 2G</div>
             <ChartPayloadBandSiteSow
+              ref={chartPayload2gSiteTierRef}
               data={dataPayload2gSiteTier}
               legendBy={"site"}
               dataActivityLog={dataGetActivityLog}
@@ -1085,6 +1247,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div key={"chart-traffic-mini-cluster"} className="mt-16">
             <div className="mt-2 text-sm">4.1. Total Traffic Mini Cluster 2G-4G</div>
             <ChartPayloadBandSiteSow
+              ref={chartTrafficMiniClusterRef}
               data={dataTrafficMiniCluster}
               legendBy={"cluster"}
               dataActivityLog={dataGetActivityLog}
@@ -1103,6 +1266,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div key={"chart-payload-mini-cluster"} className="mt-16">
             <div className="mt-2 text-sm">4.2. Total Payload Mini Cluster 2G-4G</div>
             <ChartPayloadBandSiteSow
+              ref={chartPayloadMiniClusterRef}
               data={dataPayloadMiniCluster}
               legendBy={"cluster"}
               dataActivityLog={dataGetActivityLog}
@@ -1224,12 +1388,26 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                 .map((item) => (
                   <div key={item} className="flex flex-row">
                     <ChartPayloadBandCellSow
+                      ref={(ref) => {
+                        if (ref) {
+                          chartUtilization4gCellSowRefs.current.set(item, ref);
+                        } else {
+                          chartUtilization4gCellSowRefs.current.delete(item);
+                        }
+                      }}
                       data={dataUtilization4gCellSow}
                       filter_by={item}
                       legendBy={"util-4g"}
                       dataActivityLog={dataGetActivityLog}
                     />
                     <ChartPayloadBandCellSow
+                      ref={(ref) => {
+                        if (ref) {
+                          chartPayload4gCellSowRefs.current.set(item, ref);
+                        } else {
+                          chartPayload4gCellSowRefs.current.delete(item);
+                        }
+                      }}
                       data={dataPayload4gCellSow}
                       filter_by={item}
                       legendBy={"payload-4g"}
