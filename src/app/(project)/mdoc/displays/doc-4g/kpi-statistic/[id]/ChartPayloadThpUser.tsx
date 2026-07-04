@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 import {
   BarController,
@@ -43,15 +43,51 @@ interface DataPayloadThpUser {
   max_rrc_con_user_number: number;
 }
 
+export interface ChartPayloadThpUserRef {
+  getImageData: () => string | null;
+  getSector: () => string;
+}
+
 interface ChartPayloadThpUserProps {
   data: DataPayloadThpUser[];
   sector: string;
   dataActivityLog: DataActivityLog[];
 }
 
-export default function ChartPayloadThpUser({ data, sector, dataActivityLog = [] }: ChartPayloadThpUserProps) {
+const ChartPayloadThpUser = forwardRef<ChartPayloadThpUserRef, ChartPayloadThpUserProps>(function ChartPayloadThpUser(
+  { data, sector, dataActivityLog = [] },
+  ref,
+) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    getImageData: () => {
+      if (!chartInstance.current) return null;
+
+      const canvas = chartInstance.current.canvas;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Create a temporary canvas with white background
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext("2d");
+
+      if (!tempCtx) return null;
+
+      // Fill with white background
+      tempCtx.fillStyle = "#ffffff";
+      tempCtx.fillRect(0, 0, width, height);
+
+      // Draw the chart on top
+      tempCtx.drawImage(canvas, 0, 0);
+
+      return tempCanvas.toDataURL("image/jpeg", 1.0);
+    },
+    getSector: () => sector,
+  }));
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -377,4 +413,6 @@ export default function ChartPayloadThpUser({ data, sector, dataActivityLog = []
       <canvas ref={chartRef} />
     </div>
   );
-}
+});
+
+export default ChartPayloadThpUser;

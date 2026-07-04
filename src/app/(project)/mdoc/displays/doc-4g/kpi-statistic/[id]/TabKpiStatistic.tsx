@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
+import { Download, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import type {
   DataKpiStatistic4g,
@@ -18,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 import ChartPayloadBandCellSow from "./ChartPayloadBandCellSow";
 import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
+import type { ChartPayloadThpUserRef } from "./ChartPayloadThpUser";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import ChartRrcUtilization from "./ChartRrcUtilization";
 import SqacPdfDocument from "./SqacPdfDocument";
@@ -45,6 +48,10 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const [afterDay1, setAfterDay1] = useState("2026-06-01");
   const [afterDay2, setAfterDay2] = useState("2026-06-02");
   const [afterDay3, setAfterDay3] = useState("2026-06-03");
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Refs for chart components
+  const chartPayloadThpUserRefs = useRef<Map<string, ChartPayloadThpUserRef>>(new Map());
 
   const {
     data: dataSqacTracker,
@@ -378,6 +385,38 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     saveAs(blob, `SQAC-${wid}.pdf`);
   };
 
+  const handleExportChartsToServer = async () => {
+    setIsExporting(true);
+
+    try {
+      for (const [_sector, chartRef] of chartPayloadThpUserRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (!imageData) continue;
+
+        const sectorValue = chartRef.getSector();
+        const filename = `${wid}-chart-payload-thp-user-sector-${sectorValue.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+
+        const response = await fetch("/mdoc/api/v1/chart-export", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageData, filename }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to save chart");
+        }
+      }
+
+      toast.success("Charts exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to export charts");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const uniqueSector = [...new Set(dataPayloadThpUser?.map((item) => item.sector) || [])];
 
   return (
@@ -385,6 +424,14 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">KPI Statistic</h1>
         <div className="flex gap-2">
+          <Button
+            variant="default"
+            onClick={handleExportChartsToServer}
+            disabled={isExporting || uniqueSector.length === 0}
+          >
+            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Export Charts
+          </Button>
           <Button
             variant="default"
             onClick={handleExportPdf}
@@ -930,6 +977,13 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               .map((item) => (
                 <ChartPayloadThpUser
                   key={item}
+                  ref={(ref) => {
+                    if (ref) {
+                      chartPayloadThpUserRefs.current.set(item, ref);
+                    } else {
+                      chartPayloadThpUserRefs.current.delete(item);
+                    }
+                  }}
                   data={dataPayloadThpUser}
                   sector={item}
                   dataActivityLog={dataGetActivityLog}
