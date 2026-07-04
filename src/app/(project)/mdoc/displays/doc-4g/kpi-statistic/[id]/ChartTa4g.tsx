@@ -1,7 +1,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
-import { useRef, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,6 +31,10 @@ ChartJS.register(
   ChartDataLabels,
 );
 
+export interface ChartTa4gRef {
+  getImageData: () => string | null;
+}
+
 interface ChartTa4gProps {
   data: TaDataItem[];
   siteid: string;
@@ -39,10 +43,40 @@ interface ChartTa4gProps {
   chart_title?: string;
 }
 
-export default function ChartTa4g({ data, siteid, band, cellId, chart_title = "TA Distribution" }: ChartTa4gProps) {
+const ChartTa4g = forwardRef<ChartTa4gRef, ChartTa4gProps>(function ChartTa4g(
+  { data, siteid, band, cellId, chart_title = "TA Distribution" },
+  ref,
+) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartInstance = useRef<any>(null);
+
+  useImperativeHandle(ref, () => ({
+    getImageData: () => {
+      if (!chartInstance.current) return null;
+
+      const canvas = chartInstance.current.canvas;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Create a temporary canvas with white background
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext("2d");
+
+      if (!tempCtx) return null;
+
+      // Fill with white background
+      tempCtx.fillStyle = "#ffffff";
+      tempCtx.fillRect(0, 0, width, height);
+
+      // Draw the chart on top
+      tempCtx.drawImage(canvas, 0, 0);
+
+      return tempCanvas.toDataURL("image/jpeg", 1.0);
+    },
+  }));
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -241,4 +275,6 @@ export default function ChartTa4g({ data, siteid, band, cellId, chart_title = "T
       <canvas ref={chartRef} />
     </div>
   );
-}
+});
+
+export default ChartTa4g;

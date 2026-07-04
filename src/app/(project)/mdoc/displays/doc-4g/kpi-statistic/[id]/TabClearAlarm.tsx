@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
+import { Download, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import type { DataKpiStatistic4g, SqacTrackerItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
+import type { ChartKpi4gRef } from "./ChartKpi4g";
 import ChartKpi4g from "./ChartKpi4g";
+import type { ChartTa4gRef } from "./ChartTa4g";
 import ChartTa4g from "./ChartTa4g";
 
 function _formatDate(dateStr: string | null) {
@@ -34,6 +38,29 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
   const [afterDay1, setAfterDay1] = useState("2026-06-01");
   const [afterDay2, setAfterDay2] = useState("2026-06-02");
   const [afterDay3, setAfterDay3] = useState("2026-06-03");
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Refs for chart components
+  const chartKpi4gAvailabilityRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gRrcSetupRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gErabSetupRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gCssrRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gErabDropRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gIfhoRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gCsfbRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gCqiAverageRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gSe2Ref = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gNumberCsfbRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gPayloadCaRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gAvailabilityRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gSdsrRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gHosrRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gDcrRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gTbfDlRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gTbfCompRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi2gFastReturnLteRef = useRef<ChartKpi4gRef>(null);
+  const chartTa4gBandSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
+  const chartTa4gBandNotSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
 
   const {
     data: dataSqacTracker,
@@ -119,11 +146,111 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
 
   console.log({ dataGetTa4g });
 
+  const handleExportChartsToServer = async () => {
+    setIsExporting(true);
+
+    const chartRefs = [
+      // 4G KPI charts
+      { ref: chartKpi4gAvailabilityRef, name: "kpi-4g-availability" },
+      { ref: chartKpi4gRrcSetupRef, name: "kpi-4g-rrc_setup" },
+      { ref: chartKpi4gErabSetupRef, name: "kpi-4g-erab_setup" },
+      { ref: chartKpi4gCssrRef, name: "kpi-4g-cssr" },
+      { ref: chartKpi4gErabDropRef, name: "kpi-4g-erab_drop" },
+      { ref: chartKpi4gIfhoRef, name: "kpi-4g-ifho" },
+      { ref: chartKpi4gCsfbRef, name: "kpi-4g-csfb" },
+      { ref: chartKpi4gCqiAverageRef, name: "kpi-4g-cqi_average" },
+      { ref: chartKpi4gSe2Ref, name: "kpi-4g-se2" },
+      { ref: chartKpi4gNumberCsfbRef, name: "kpi-4g-number_csfb" },
+      { ref: chartKpi4gPayloadCaRef, name: "kpi-4g-payload_ca" },
+      // 2G KPI charts
+      { ref: chartKpi2gAvailabilityRef, name: "kpi-2g-availability" },
+      { ref: chartKpi2gSdsrRef, name: "kpi-2g-sdsr" },
+      { ref: chartKpi2gHosrRef, name: "kpi-2g-hosr" },
+      { ref: chartKpi2gDcrRef, name: "kpi-2g-dcr" },
+      { ref: chartKpi2gTbfDlRef, name: "kpi-2g-tbf_dl" },
+      { ref: chartKpi2gTbfCompRef, name: "kpi-2g-tbf_comp" },
+      { ref: chartKpi2gFastReturnLteRef, name: "kpi-2g-fast_return_lte" },
+    ];
+
+    try {
+      // Export KPI charts
+      for (const { ref, name } of chartRefs) {
+        if (ref.current) {
+          const imageData = ref.current.getImageData();
+          if (imageData) {
+            const filename = `${wid}-chart-${name}.jpg`;
+            const response = await fetch("/mdoc/api/v1/chart-export", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ imageData, filename }),
+            });
+
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.message || "Failed to save chart");
+            }
+          }
+        }
+      }
+
+      // Export TA 4G Band SOW charts
+      for (const [key, chartRef] of chartTa4gBandSowRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-ta-4g-band-sow-${key}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export TA 4G Band Not SOW charts
+      for (const [key, chartRef] of chartTa4gBandNotSowRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-ta-4g-band-not-sow-${key}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      toast.success("Charts exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to export charts");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="mx-auto w-full space-y-4 p-6">
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">Clear Alarm</h1>
         <div className="flex gap-2">
+          <Button
+            variant="default"
+            onClick={handleExportChartsToServer}
+            disabled={isExporting || !dataSqacTracker || dataSqacTracker.length === 0}
+          >
+            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Export Charts
+          </Button>
           <Button
             variant="default"
             // onClick={handleExportPdf}
@@ -249,6 +376,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         <div key={"chart-kpi-4g"} className="mt-16">
           <div>
             <ChartKpi4g
+              ref={chartKpi4gAvailabilityRef}
               data={dataGetKpi4g}
               kpi_by={"availability"}
               chart_title={"Availability (%)"}
@@ -257,6 +385,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gRrcSetupRef}
               data={dataGetKpi4g}
               kpi_by={"rrc_setup"}
               chart_title={"RRC Setup SR (%)"}
@@ -265,6 +394,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gErabSetupRef}
               data={dataGetKpi4g}
               kpi_by={"erab_setup"}
               chart_title={"E-RAB Success Rate (%)"}
@@ -273,6 +403,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gCssrRef}
               data={dataGetKpi4g}
               kpi_by={"cssr"}
               chart_title={"Call Setup Success Rate (%)"}
@@ -281,6 +412,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gErabDropRef}
               data={dataGetKpi4g}
               kpi_by={"erab_drop"}
               chart_title={"E-RAB Drop Rate (%)"}
@@ -289,6 +421,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gIfhoRef}
               data={dataGetKpi4g}
               kpi_by={"ifho"}
               chart_title={"Success Rate of Intra RAT- Intra Freq Cell Outgoing Handover (%)"}
@@ -297,6 +430,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gCsfbRef}
               data={dataGetKpi4g}
               kpi_by={"csfb"}
               chart_title={"CSFB Preparation Success Rate (%)"}
@@ -305,6 +439,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gCqiAverageRef}
               data={dataGetKpi4g}
               kpi_by={"cqi_average"}
               chart_title={"CQI Average"}
@@ -313,6 +448,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gSe2Ref}
               data={dataGetKpi4g}
               kpi_by={"se2"}
               chart_title={"Spectral Efficiency 2"}
@@ -321,6 +457,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gNumberCsfbRef}
               data={dataGetKpi4g}
               kpi_by={"number_csfb"}
               chart_title={"Number of Redirection Requests from LTE to GSM(CSFB)"}
@@ -329,6 +466,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi4gPayloadCaRef}
               data={dataGetKpi4g}
               kpi_by={"payload_ca"}
               chart_title={"Total Payload CA (Mbyte)"}
@@ -346,6 +484,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         <div key={"chart-kpi-2g"} className="mt-16">
           <div>
             <ChartKpi4g
+              ref={chartKpi2gAvailabilityRef}
               data={dataGetKpi2g}
               kpi_by={"availability"}
               chart_title={"Availability (%)"}
@@ -354,6 +493,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gSdsrRef}
               data={dataGetKpi2g}
               kpi_by={"sdsr"}
               chart_title={"SDSR (%)"}
@@ -362,6 +502,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gHosrRef}
               data={dataGetKpi2g}
               kpi_by={"hosr"}
               chart_title={"HOSR (%)"}
@@ -370,6 +511,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gDcrRef}
               data={dataGetKpi2g}
               kpi_by={"dcr"}
               chart_title={"DCR (%)"}
@@ -378,6 +520,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gTbfDlRef}
               data={dataGetKpi2g}
               kpi_by={"tbf_dl"}
               chart_title={"TBF DL EST SR (%)"}
@@ -386,6 +529,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gTbfCompRef}
               data={dataGetKpi2g}
               kpi_by={"tbf_comp"}
               chart_title={"TBF Completion SR (%)"}
@@ -394,6 +538,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
+              ref={chartKpi2gFastReturnLteRef}
               data={dataGetKpi2g}
               kpi_by={"fast_return_lte"}
               chart_title={"Number of fastreturn to LTE (2G)"}
@@ -415,10 +560,18 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
             ),
           ].map((cellId) => {
             const item = dataGetTa4g.find((d) => d.cellId === cellId && d.band === dataSqacTracker?.[0].band_4g_sow);
+            const refKey = `band-${dataSqacTracker?.[0].band_4g_sow?.toLowerCase()}-cellid-${cellId}`;
             return (
               <div key={cellId} className="mb-8">
                 <div>{item?.siteid_short_band_sector ?? `Cell ${cellId}`}</div>
                 <ChartTa4g
+                  ref={(ref) => {
+                    if (ref) {
+                      chartTa4gBandSowRefs.current.set(refKey, ref);
+                    } else {
+                      chartTa4gBandSowRefs.current.delete(refKey);
+                    }
+                  }}
                   data={dataGetTa4g}
                   siteid={item?.siteid ?? ""}
                   band={dataSqacTracker?.[0].band_4g_sow ?? ""}
@@ -441,10 +594,23 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
                   .sort()
                   .map((cellId) => {
                     const item = dataGetTa4g.find((d) => d.cellId === cellId && d.band === band);
+                    const refKey = `band-${band.toLowerCase()}-cellid-${cellId}`;
                     return (
                       <div key={cellId} className="mb-4">
                         <div>{item?.siteid_short_band_sector ?? `Cell ${cellId}`}</div>
-                        <ChartTa4g data={dataGetTa4g} siteid={item?.siteid ?? ""} band={band} cellId={cellId} />
+                        <ChartTa4g
+                          ref={(ref) => {
+                            if (ref) {
+                              chartTa4gBandNotSowRefs.current.set(refKey, ref);
+                            } else {
+                              chartTa4gBandNotSowRefs.current.delete(refKey);
+                            }
+                          }}
+                          data={dataGetTa4g}
+                          siteid={item?.siteid ?? ""}
+                          band={band}
+                          cellId={cellId}
+                        />
                       </div>
                     );
                   })}

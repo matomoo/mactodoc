@@ -1,7 +1,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <none>
-import { useRef, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
   Filler,
@@ -56,6 +56,10 @@ interface DataKpi4g {
   fast_return_lte: string;
 }
 
+export interface ChartKpi4gRef {
+  getImageData: () => string | null;
+}
+
 interface ChartKpi4gProps {
   data: DataKpi4g[];
   legendBy?: string;
@@ -64,16 +68,40 @@ interface ChartKpi4gProps {
   chart_title: string;
 }
 
-export default function ChartKpi4g({
-  data,
-  legendBy = "group_by",
-  kpi_by = "availability",
-  chart_title = "no-title",
-  dataActivityLog = [],
-}: ChartKpi4gProps) {
+const ChartKpi4g = forwardRef<ChartKpi4gRef, ChartKpi4gProps>(function ChartKpi4g(
+  { data, legendBy = "group_by", kpi_by = "availability", chart_title = "no-title", dataActivityLog = [] },
+  ref,
+) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartInstance = useRef<any>(null);
+
+  useImperativeHandle(ref, () => ({
+    getImageData: () => {
+      if (!chartInstance.current) return null;
+
+      const canvas = chartInstance.current.canvas;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Create a temporary canvas with white background
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext("2d");
+
+      if (!tempCtx) return null;
+
+      // Fill with white background
+      tempCtx.fillStyle = "#ffffff";
+      tempCtx.fillRect(0, 0, width, height);
+
+      // Draw the chart on top
+      tempCtx.drawImage(canvas, 0, 0);
+
+      return tempCanvas.toDataURL("image/jpeg", 1.0);
+    },
+  }));
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -355,4 +383,6 @@ export default function ChartKpi4g({
       <canvas ref={chartRef} />
     </div>
   );
-}
+});
+
+export default ChartKpi4g;
