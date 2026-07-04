@@ -156,3 +156,15 @@ export interface DataActivityLog {
   band: string;
   deskripsi: string;
 }
+
+export interface TaDataItem {
+  siteid: string;
+  band: string;
+  siteid_short_band_sector: string;
+  cellId: number;
+  sector: string;
+  ta_range: string;
+  sort_order: number;
+  total_reports: number;
+  percentage: string;
+}

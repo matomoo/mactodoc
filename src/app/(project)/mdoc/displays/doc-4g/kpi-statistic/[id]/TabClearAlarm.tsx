@@ -4,11 +4,12 @@ import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
-import type { DataKpiStatistic4g, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataKpiStatistic4g, SqacTrackerItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 
 import ChartKpi4g from "./ChartKpi4g";
+import ChartTa4g from "./ChartTa4g";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -99,7 +100,24 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataGetKpi2g });
+  const {
+    data: dataGetTa4g,
+    isPending: isPendingGetTa4g,
+    error: errorGetTa4g,
+  } = useQuery<TaDataItem[]>({
+    queryKey: ["get-ta-4g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/ta-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataGetTa4g });
 
   return (
     <div className="mx-auto w-full space-y-4 p-6">
@@ -384,6 +402,57 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
         </div>
       )}
+
+      {/* Chart TA 4g*/}
+      {isPendingGetTa4g && <div className="text-muted-foreground">Loading...</div>}
+      {errorGetTa4g && <div className="text-destructive">Error: {errorGetTa4g.message}</div>}
+
+      {dataGetTa4g && dataGetTa4g.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
+        <div key={"chart-ta-4g-band-sow"} className="mt-16">
+          {[
+            ...new Set(
+              dataGetTa4g.filter((d) => d.band === dataSqacTracker?.[0].band_4g_sow).map((item) => item.cellId),
+            ),
+          ].map((cellId) => {
+            const item = dataGetTa4g.find((d) => d.cellId === cellId && d.band === dataSqacTracker?.[0].band_4g_sow);
+            return (
+              <div key={cellId} className="mb-8">
+                <div>{item?.siteid_short_band_sector ?? `Cell ${cellId}`}</div>
+                <ChartTa4g
+                  data={dataGetTa4g}
+                  siteid={item?.siteid ?? ""}
+                  band={dataSqacTracker?.[0].band_4g_sow ?? ""}
+                  cellId={cellId}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {dataGetTa4g && dataGetTa4g.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
+        <div key={"chart-ta-4g-band-not-sow"} className="mt-16">
+          {[...new Set(dataGetTa4g.filter((d) => d.band !== dataSqacTracker?.[0].band_4g_sow).map((item) => item.band))]
+            .sort()
+            .map((band) => (
+              <div key={band} className="mb-8">
+                <div className="font-bold text-lg mb-4">{band}</div>
+                {[...new Set(dataGetTa4g.filter((d) => d.band === band).map((item) => item.cellId))]
+                  .sort()
+                  .map((cellId) => {
+                    const item = dataGetTa4g.find((d) => d.cellId === cellId && d.band === band);
+                    return (
+                      <div key={cellId} className="mb-4">
+                        <div>{item?.siteid_short_band_sector ?? `Cell ${cellId}`}</div>
+                        <ChartTa4g data={dataGetTa4g} siteid={item?.siteid ?? ""} band={band} cellId={cellId} />
+                      </div>
+                    );
+                  })}
+              </div>
+            ))}
+        </div>
+      )}
+
       {/* eof */}
     </div>
   );
