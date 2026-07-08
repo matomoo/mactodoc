@@ -63,102 +63,106 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
 
         {/* Row 1 */}
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Site ID</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.site)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Band SOW</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.band)}</Text>
           </View>
         </View>
 
         {/* Row 2 */}
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Site Name</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.site_name)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>eNodeB ID</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.enodeb_id)}</Text>
           </View>
         </View>
 
         {/* Row 3 */}
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Type Of Work</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.type_of_work)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>TAC</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.tac)}</Text>
           </View>
         </View>
 
         {/* Row 4 */}
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>City</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.city)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Cell ID</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.cell_id)}</Text>
           </View>
         </View>
 
         {/* Row 5 */}
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Band Impact</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.cellBottom, styles.w62]}>
             <Text>{formatValue(item.band_impact)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text />
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellBottom, styles.cellValue, styles.w62]}
+          >
             <Text />
           </View>
         </View>
 
         {/* Integration Date Row */}
         <View style={[styles.row, { marginTop: 8, marginBottom: 8 }]}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Integration Date</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellValue, styles.w32]}>
             <Text>{formatDate(item.connected)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>On Air Date</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellValue, styles.w32]}>
             <Text>{formatDate(item.connected)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Acceptance Date</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellBottom, styles.cellValue, styles.w32]}
+          >
             <Text>{formatDate(item.dt)}</Text>
           </View>
         </View>
@@ -195,67 +199,133 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </Text>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>Manager SQA Telkomsel</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>RANQ Escalation</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>Telkominfra</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Approved By:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Andrisyal</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Approved By:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>{""}</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Originator:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellRight,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 9 },
+            ]}
+          >
             <Text>Andi Zahuriansyah</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Date:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>{""}</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Date:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>{""}</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+          >
             <Text>Date:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellRight,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 9 },
+            ]}
+          >
             <Text>{""}</Text>
           </View>
         </View>
 
         <View style={[styles.row, { lineHeight: 4 }]}>
-          <View style={[styles.cell, styles.cellValue, styles.w62, { textAlign: "left" }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellBottom,
+              styles.cellValue,
+              styles.w62,
+              { textAlign: "left" },
+            ]}
+          >
             <Text>Signature:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62, { textAlign: "left" }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellBottom,
+              styles.cellValue,
+              styles.w62,
+              { textAlign: "left" },
+            ]}
+          >
             <Text>Signature:</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62, { textAlign: "left" }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellRight,
+              styles.cellBottom,
+              styles.cellValue,
+              styles.w62,
+              { textAlign: "left" },
+            ]}
+          >
             <Text>Signature:</Text>
           </View>
         </View>
@@ -263,52 +333,147 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         <View style={[styles.row, { marginTop: 8 }]}>
           <View style={[styles.col, styles.w62]}>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "40%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellValue,
+                  { width: "40%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Company:</Text>
               </View>
-              <View style={[styles.cell, styles.cellValue, { width: "60%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellValue,
+                  { width: "60%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Telkominfra</Text>
               </View>
             </View>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "40%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellValue,
+                  { width: "40%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Prepare By:</Text>
               </View>
-              <View style={[styles.cell, styles.cellValue, { width: "60%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellValue,
+                  { width: "60%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>ISM</Text>
               </View>
             </View>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "40%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellBottom,
+                  styles.cellValue,
+                  { width: "40%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Author:</Text>
               </View>
-              <View style={[styles.cell, styles.cellValue, { width: "60%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellBottom,
+                  styles.cellValue,
+                  { width: "60%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>ISM</Text>
               </View>
             </View>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62, { textAlign: "left", justifyContent: "center" }]}>
+          <View
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellBottom,
+              styles.cellValue,
+              styles.w62,
+              { textAlign: "left", justifyContent: "center" },
+            ]}
+          >
             <Text>Site Quality Acceptance Certificate</Text>
           </View>
           <View style={[styles.col, styles.w62]}>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "100%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellRight,
+
+                  styles.cellValue,
+                  { width: "100%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>{formatValue(item.site_name)}</Text>
               </View>
             </View>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "40%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+
+                  styles.cellValue,
+                  { width: "40%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Last Updated:</Text>
               </View>
-              <View style={[styles.cell, styles.cellValue, { width: "60%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellRight,
+                  styles.cellValue,
+                  { width: "60%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>{today}</Text>
               </View>
             </View>
             <View style={[styles.row]}>
-              <View style={[styles.cell, styles.cellValue, { width: "40%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellBottom,
+                  styles.cellValue,
+                  { width: "40%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Page: 1/1</Text>
               </View>
-              <View style={[styles.cell, styles.cellValue, { width: "60%", textAlign: "left", fontSize: 9 }]}>
+              <View
+                style={[
+                  styles.cellTop,
+                  styles.cellLeft,
+                  styles.cellRight,
+                  styles.cellBottom,
+                  styles.cellValue,
+                  { width: "60%", textAlign: "left", fontSize: 9 },
+                ]}
+              >
                 <Text>Version: 2024</Text>
               </View>
             </View>
@@ -325,110 +490,344 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         <Text style={styles.header}>KPI STATISTICAL 4G</Text>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Site ID</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.site)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>SDR Manager</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{"---"}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>eNodeB Name</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{"---"}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>eNodeB ID</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.enodeb_id)}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Band SOW</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.band)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>CI</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{"---"}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>TAC</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.city)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Detail SOW</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.type_of_work)}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Band Impact</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.band_impact)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Connected Date</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.connected)}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>City</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.city)}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Integrated Date</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
             <Text>{formatValue(item.connected)}</Text>
           </View>
         </View>
 
         <View style={styles.row}>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Site Longitude</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellValue, styles.w62]}>
             <Text>{"---"}</Text>
           </View>
-          <View style={[styles.cell, styles.cellLabel, styles.w37]}>
+          <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Site Latitude</Text>
           </View>
-          <View style={[styles.cell, styles.cellValue, styles.w62]}>
+          <View
+            style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellBottom, styles.cellValue, styles.w62]}
+          >
             <Text>{"---"}</Text>
+          </View>
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-target-kpi-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* Page 3 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-sqac-information-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-target-kpi-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* Page 4 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-productivity-payload.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-productivity-traffic.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* Page 5, chart payload-thp-user */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+      </Page>
+
+      {/* Page 6, chart payload-thp-user */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-band-site-tier.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* page 7, traffic 2g cell level, site level, volte */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-traffic-2g-cell-site-sow.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        {/* <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-volte.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View> */}
+      </Page>
+
+      {/* Page 8, chart payload 2g, cell level, site level */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-2g-cell-site-sow.jpg`}
+            style={{ width: 500, height: "auto" }}
+          />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* Page 9, total traffic/payload mini cluster */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+      </Page>
+
+      {/* Page 10, table prb, chart payload, chart util per sector */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+          <Image src={`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        </View>
+
+        <View
+          style={{
+            marginTop: 16,
+            alignItems: "flex-start",
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ marginRight: 8 }}>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
+          </View>
+          <View>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
+          </View>
+        </View>
+        <View
+          style={{
+            marginTop: 16,
+            alignItems: "flex-start",
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ marginRight: 8 }}>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
+          </View>
+          <View>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
+          </View>
+        </View>
+        <View
+          style={{
+            marginTop: 16,
+            alignItems: "flex-start",
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ marginRight: 8 }}>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
+          </View>
+          <View>
+            <Image
+              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+              style={{ width: 230, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
+
+      {/* eof */}
     </Document>
   );
 }
@@ -471,7 +870,28 @@ export const styles = StyleSheet.create({
   },
   cell: {
     padding: 4,
-    borderWidth: 0.5,
+    borderWidth: 0.3,
+    borderColor: "#000",
+  },
+  cellTop: {
+    padding: 4,
+    borderTopWidth: 0.3,
+    // borderWidth: 0.3,
+    borderColor: "#000",
+  },
+  cellLeft: {
+    padding: 4,
+    borderLeftWidth: 0.3,
+    borderColor: "#000",
+  },
+  cellRight: {
+    padding: 4,
+    borderRightWidth: 0.3,
+    borderColor: "#000",
+  },
+  cellBottom: {
+    padding: 4,
+    borderBottomWidth: 0.3,
     borderColor: "#000",
   },
   cellLabel: {
@@ -498,7 +918,7 @@ export const styles = StyleSheet.create({
   checkbox: {
     width: 14,
     height: 14,
-    borderWidth: 1,
+    borderWidth: 0.3,
     borderColor: "#000",
     justifyContent: "center",
     alignItems: "center",

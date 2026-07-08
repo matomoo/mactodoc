@@ -59,8 +59,10 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const chartPayloadBandSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayloadBandSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartRrcUtilizationRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartTraffic2gCellSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayload2gCellSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayload2gSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartTraffic2gSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartTrafficMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayloadMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayload4gCellSowRefs = useRef<Map<string, ChartPayloadBandCellSowRef>>(new Map());
@@ -75,6 +77,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const tableKpiStatistic2gRef = useRef<HTMLDivElement>(null);
   const tableProductivityPayloadRef = useRef<HTMLDivElement>(null);
   const tableProductivityTrafficRef = useRef<HTMLDivElement>(null);
+  const tablePrbUtilization4gRef = useRef<HTMLDivElement>(null);
 
   const {
     data: dataSqacTracker,
@@ -265,6 +268,40 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   });
 
   const {
+    data: dataTraffic2gCellSiteSow,
+    isPending: isPendingTraffic2gCellSiteSow,
+    error: errorTraffic2gCellSiteSow,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["traffic-2g-cell-site-sow", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/traffic-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataTraffic2gSiteTier,
+    isPending: isPendingTraffic2gSiteTier,
+    error: errorTraffic2gSiteTier,
+  } = useQuery<DataPayloadBandSiteSow[]>({
+    queryKey: ["traffic-2g-site-tier", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/traffic-2g-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
     data: dataPayload2gCellSiteSow,
     isPending: isPendingPayload2gCellSiteSow,
     error: errorPayload2gCellSiteSow,
@@ -400,7 +437,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataGetActivityLog });
+  // console.log({ dataGetActivityLog });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -525,6 +562,42 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         const imageData = chartPayloadMiniClusterRef.current.getImageData();
         if (imageData) {
           const filename = `${wid}-chart-payload-mini-cluster.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Traffic 2G Cell Site SOW chart
+      if (chartTraffic2gCellSiteSowRef.current) {
+        const imageData = chartTraffic2gCellSiteSowRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-traffic-2g-cell-site-sow.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Traffic 2G Site Tier chart
+      if (chartTraffic2gSiteTierRef.current) {
+        const imageData = chartTraffic2gSiteTierRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-traffic-2g-site-tier.jpg`;
           const response = await fetch("/mdoc/api/v1/chart-export", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -742,6 +815,29 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             backgroundColor: "#ffffff",
           });
           const filename = `${wid}-table-productivity-traffic.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table PRB Utilization 4G
+      if (tablePrbUtilization4gRef.current) {
+        try {
+          const imageData = await toJpeg(tablePrbUtilization4gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-prb-utilization-4g.jpg`;
           const response = await fetch("/mdoc/api/v1/chart-export", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1398,6 +1494,45 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       )}
 
       {/* Chart Payload Band Site SOW */}
+      {isPendingTraffic2gCellSiteSow && <div className="text-muted-foreground">Loading...</div>}
+      {errorTraffic2gCellSiteSow && <div className="text-destructive">Error: {errorTraffic2gCellSiteSow.message}</div>}
+
+      {/* Chart 2g Traffic Band Site SOW */}
+      {dataTraffic2gCellSiteSow &&
+        dataTraffic2gCellSiteSow.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-traffic-2g-cell-site-sow"} className="mt-16">
+            <div className="mt-2 text-sm">3.7. Traffic Cell Level & Site Level 2G</div>
+            <ChartPayloadBandSiteSow
+              ref={chartTraffic2gCellSiteSowRef}
+              data={dataTraffic2gCellSiteSow}
+              legendBy={"cell2g"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
+
+      {/* Chart Traffic 2G Site Tier */}
+      {isPendingTraffic2gSiteTier && <div className="text-muted-foreground">Loading...</div>}
+      {errorTraffic2gSiteTier && <div className="text-destructive">Error: {errorTraffic2gSiteTier.message}</div>}
+
+      {dataTraffic2gSiteTier &&
+        dataTraffic2gSiteTier.length > 0 &&
+        dataGetActivityLog &&
+        dataGetActivityLog.length > 0 && (
+          <div key={"chart-traffic-2g-site-tier"} className="mt-16">
+            <div className="mt-2 text-sm">3.8. Traffic Site Level & Cluster Level 2G</div>
+            <ChartPayloadBandSiteSow
+              ref={chartTraffic2gSiteTierRef}
+              data={dataTraffic2gSiteTier}
+              legendBy={"site"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+        )}
+
+      {/* Chart 2g Payload Band Site SOW */}
       {isPendingPayload2gCellSiteSow && <div className="text-muted-foreground">Loading...</div>}
       {errorPayload2gCellSiteSow && <div className="text-destructive">Error: {errorPayload2gCellSiteSow.message}</div>}
 
@@ -1480,7 +1615,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataTablePrbUtilization || dataTablePrbUtilization.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-prb-utilization"} className="overflow-x-auto">
+        <div key={"table-prb-utilization"} ref={tablePrbUtilization4gRef} className="overflow-x-auto">
           <div className="mt-2 text-sm">PRB Utilization</div>
           <div className="flex flex-col">
             <div className="flex flex-row flex-nowrap">
