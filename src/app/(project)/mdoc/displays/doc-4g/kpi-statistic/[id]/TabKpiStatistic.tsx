@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { saveAs } from "file-saver";
+import { toJpeg } from "html-to-image";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,6 +65,16 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const chartPayloadMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayload4gCellSowRefs = useRef<Map<string, ChartPayloadBandCellSowRef>>(new Map());
   const chartUtilization4gCellSowRefs = useRef<Map<string, ChartPayloadBandCellSowRef>>(new Map());
+
+  // Refs for table components
+  const tableSqacInfoRef = useRef<HTMLDivElement>(null);
+  const tableTargetKpi4gRef = useRef<HTMLDivElement>(null);
+  const tableKpiStatistic4gRef = useRef<HTMLDivElement>(null);
+  const tableSqacInformation2gRef = useRef<HTMLDivElement>(null);
+  const tableTargetKpi2gRef = useRef<HTMLDivElement>(null);
+  const tableKpiStatistic2gRef = useRef<HTMLDivElement>(null);
+  const tableProductivityPayloadRef = useRef<HTMLDivElement>(null);
+  const tableProductivityTrafficRef = useRef<HTMLDivElement>(null);
 
   const {
     data: dataSqacTracker,
@@ -562,6 +573,190 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         }
       }
 
+      // Export Table SQAC Info
+      if (tableSqacInfoRef.current) {
+        try {
+          const imageData = await toJpeg(tableSqacInfoRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-sqac-info.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table Target KPI 4G
+      if (tableTargetKpi4gRef.current) {
+        try {
+          const imageData = await toJpeg(tableTargetKpi4gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-target-kpi-4g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table KPI Statistic 4G
+      if (tableKpiStatistic4gRef.current) {
+        try {
+          const imageData = await toJpeg(tableKpiStatistic4gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-kpi-statistic-4g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table SQAC Information 2G
+      if (tableSqacInformation2gRef.current) {
+        try {
+          const imageData = await toJpeg(tableSqacInformation2gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-sqac-information-2g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table Target KPI 2G
+      if (tableTargetKpi2gRef.current) {
+        try {
+          const imageData = await toJpeg(tableTargetKpi2gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-target-kpi-2g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table KPI Statistic 2G
+      if (tableKpiStatistic2gRef.current) {
+        try {
+          const imageData = await toJpeg(tableKpiStatistic2gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-kpi-statistic-2g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table Productivity Payload
+      if (tableProductivityPayloadRef.current) {
+        try {
+          const imageData = await toJpeg(tableProductivityPayloadRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-productivity-payload.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table Productivity Traffic
+      if (tableProductivityTrafficRef.current) {
+        try {
+          const imageData = await toJpeg(tableProductivityTrafficRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-productivity-traffic.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
       toast.success("Charts exported successfully!");
     } catch (error) {
       console.error("Export error:", error);
@@ -603,8 +798,8 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataSqacTracker || dataSqacTracker.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        dataSqacTracker.map((item) => (
-          <div key={"table-1"}>
+        dataSqacTracker.map((item, index) => (
+          <div key={"table-sqac-info"} ref={index === 0 ? tableSqacInfoRef : undefined} className="p-1">
             <div className="font-bold text-lg">SITE QUALITY ACCEPTANCE CERTIFICATE</div>
             <div className="mt-2 text-sm">SITEID-PDID: {wid}</div>
             <div className="flex flex-col">
@@ -663,7 +858,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataTargetKpiStatistic4g || dataTargetKpiStatistic4g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-target-kpi-4g"} className="overflow-x-auto">
+        <div key={"table-target-kpi-4g"} ref={tableTargetKpi4gRef} className="overflow-x-auto p-1">
           <div className="flex flex-row flex-nowrap">
             <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">City</div>
             <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">Band</div>
@@ -747,7 +942,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataKpiStatistic4g || dataKpiStatistic4g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-kpi-statistic-4g"} className="overflow-x-auto">
+        <div key={"table-kpi-statistic-4g"} ref={tableKpiStatistic4gRef} className="overflow-x-auto">
           <div className="font-bold text-lg">1. Statistical Quality</div>
           <div className="mt-2 text-sm">1.1 NE Level Performance</div>
           <div className="flex flex-col">
@@ -800,8 +995,12 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataSqacTracker || dataSqacTracker.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        dataSqacTracker.map((item) => (
-          <div key={"table-1"} className="mt-12">
+        dataSqacTracker.map((item, index) => (
+          <div
+            key={"table-sqac-information-2g"}
+            ref={index === 0 ? tableSqacInformation2gRef : undefined}
+            className="mt-12 p-1"
+          >
             <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>
             <div className="flex flex-col">
               <div className="flex flex-row">
@@ -858,7 +1057,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataTargetKpiStatistic2g || dataTargetKpiStatistic2g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-target-kpi-2g"} className="overflow-x-auto">
+        <div key={"table-target-kpi-2g"} ref={tableTargetKpi2gRef} className="overflow-x-auto p-1">
           <div className="flex flex-row flex-nowrap">
             <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">City</div>
             <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">Band</div>
@@ -912,7 +1111,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataKpiStatistic2g || dataKpiStatistic2g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-kpi-statistic-2g"} className="overflow-x-auto">
+        <div key={"table-kpi-statistic-2g"} ref={tableKpiStatistic2gRef} className="overflow-x-auto p-1">
           <div className="mt-2 text-sm">Site Level Performance</div>
           <div className="flex flex-col">
             <div className="flex flex-row flex-nowrap">
@@ -985,7 +1184,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataProductivityPayload || dataProductivityPayload.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-productivity-payload"} className="overflow-x-auto">
+        <div key={"table-productivity-payload"} ref={tableProductivityPayloadRef} className="overflow-x-auto p-1">
           <div className="font-bold text-lg">2. Productivity Info</div>
           <div className="mt-2 text-sm">2.1 Productivity Information Payload</div>
           <div className="flex flex-col">
@@ -1055,7 +1254,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataProductivityTraffic || dataProductivityTraffic.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-productivity-traffic"} className="overflow-x-auto">
+        <div key={"table-productivity-traffic"} ref={tableProductivityTrafficRef} className="overflow-x-auto">
           <div className="mt-2 text-sm">2.2 Productivity Information Traffic</div>
           <div className="flex flex-col">
             <div className="flex flex-row flex-nowrap">

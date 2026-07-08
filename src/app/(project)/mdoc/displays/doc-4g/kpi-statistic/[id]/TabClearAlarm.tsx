@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
+import { toJpeg } from "html-to-image";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -61,6 +62,10 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
   const chartKpi2gFastReturnLteRef = useRef<ChartKpi4gRef>(null);
   const chartTa4gBandSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
   const chartTa4gBandNotSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
+
+  // Refs for table components
+  const tableClearAlarmInfo4gRef = useRef<HTMLDivElement>(null);
+  const tableActivityLog4gRef = useRef<HTMLDivElement>(null);
 
   const {
     data: dataSqacTracker,
@@ -144,7 +149,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataGetTa4g });
+  // console.log({ dataGetTa4g });
 
   const handleExportChartsToServer = async () => {
     setIsExporting(true);
@@ -229,6 +234,52 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         }
       }
 
+      // Export Table Clear Alarm Info 4G
+      if (tableClearAlarmInfo4gRef.current) {
+        try {
+          const imageData = await toJpeg(tableClearAlarmInfo4gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-clear-alarm-info-4g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
+      // Export Table Activity Log 4G
+      if (tableActivityLog4gRef.current) {
+        try {
+          const imageData = await toJpeg(tableActivityLog4gRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-activity-log-4g.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
       toast.success("Charts exported successfully!");
     } catch (error) {
       console.error("Export error:", error);
@@ -268,8 +319,12 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
       {!dataSqacTracker || dataSqacTracker.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        dataSqacTracker.map((item) => (
-          <div key={"table-1"}>
+        dataSqacTracker.map((item, index) => (
+          <div
+            key={"table-clear-alarm-info-4g"}
+            ref={index === 0 ? tableClearAlarmInfo4gRef : undefined}
+            className="p-1"
+          >
             <div className="font-bold text-lg">ACTIVITY LOG INFORMATION</div>
             <div className="flex flex-col">
               <div className="flex flex-row">
@@ -321,14 +376,14 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         ))
       )}
 
-      {/* Table Information 4G */}
+      {/* Table activity log 4G */}
       {isPendingGetActivityLog && <div className="text-muted-foreground">Loading...</div>}
       {errorGetActivityLog && <div className="text-destructive">Error: {errorGetActivityLog.message}</div>}
 
       {!dataGetActivityLog || dataGetActivityLog.length === 0 || !dataSqacTracker ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div className="flex flex-col">
+        <div key={"table-activity-log-4g"} ref={tableActivityLog4gRef} className="flex flex-col p-1">
           <div className="flex flex-row">
             <div className="w-10 shrink-0 border-t border-r border-b border-l p-1 text-center">No</div>
             <div className="w-82.5 shrink-0 border-t border-r border-b p-1 text-center">Site Name</div>
