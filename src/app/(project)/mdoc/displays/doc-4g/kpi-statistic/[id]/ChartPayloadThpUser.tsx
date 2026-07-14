@@ -408,7 +408,7 @@ const ChartPayloadThpUser = forwardRef<ChartPayloadThpUserRef, ChartPayloadThpUs
   }
 
   return (
-    <div className="mt-12 h-96 w-250">
+    <div className="mt-12 h-80 w-250">
       <div className="font-bold text-lg">Sector {sector.slice(7, 20)}</div>
       <canvas ref={chartRef} />
     </div>

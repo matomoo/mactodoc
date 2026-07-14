@@ -449,6 +449,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     setIsExporting(true);
 
     try {
+      // Export Payload THP User charts
+      for (const [sector, chartRef] of chartPayloadThpUserRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-payload-thp-user-${sector.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
       // Export Payload Band Site SOW chart
       if (chartPayloadBandSiteSowRef.current) {
         const imageData = chartPayloadBandSiteSowRef.current.getImageData();
@@ -954,82 +972,97 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataTargetKpiStatistic4g || dataTargetKpiStatistic4g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-target-kpi-4g"} ref={tableTargetKpi4gRef} className="overflow-x-auto p-1">
-          <div className="flex flex-row flex-nowrap">
-            <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">City</div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">Band</div>
+        <div key={"table-target-kpi-4g"} ref={tableTargetKpi4gRef} className="w-248 overflow-x-auto p-1">
+          <div className="flex flex-row flex-nowrap bg-blue-200">
+            <div className="w-20.5 shrink-0 content-center border-neutral-500 border-t border-l p-1 text-center">
+              City
+            </div>
+            <div className="w-20.5 shrink-0 content-center border-neutral-500 border-t border-r border-l p-1 text-center">
+              Band
+            </div>
             <div className="flex flex-col">
               <div className="flex flex-row">
                 <div className="flex flex-col">
                   <div className="flex flex-row">
-                    <div className="w-205 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-205 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       Cluster Value Summary
                     </div>
                   </div>
                   <div className="flex flex-row">
-                    <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r p-1 text-center">
                       RRC Est Success Rate (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       E-RAB Success Rate (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       Call Setup Success Rate (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       E-RAB Drop Rate (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       Intra Freq LTE HO (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       Inter Freq LTE HO (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">CSFB (%)</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">CQI Average</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">SE2</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Uplink RSSI (dBm)</div>
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">CSFB (%)</div>
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
+                      CQI Average
+                    </div>
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">SE2</div>
+                    <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
+                      Uplink RSSI (dBm)
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-row">
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b border-l p-1 text-center">LUWU</div>
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">L900</div>
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b border-l p-1 text-center">
+            <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-b border-l p-1 text-center">
+              LUWU
+            </div>
+            <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+              L900
+            </div>
+            <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["RRC Est Success Rate (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["E-RAB Success Rate (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Call Setup Success Rate (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["E-RAB Drop Rate (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Intra Freq LTE HO (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500  border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Inter Freq LTE HO (%)"] || "95.00"}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["CSFB (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["CQI Average"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0].SE2 || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Uplink RSSI (dBm)"] || ""}
             </div>
           </div>
         </div>
       )}
+
+      <div className="font-bold text-lg">1. Statistical Quality</div>
+      <div className="mt-2 text-sm">1.1 NE Level Performance</div>
 
       {/* Table KPI Statistic 4G */}
       {isPendingKpiStatistic4g && <div className="text-muted-foreground">Loading...</div>}
@@ -1038,46 +1071,70 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataKpiStatistic4g || dataKpiStatistic4g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-kpi-statistic-4g"} ref={tableKpiStatistic4gRef} className="overflow-x-auto">
-          <div className="font-bold text-lg">1. Statistical Quality</div>
-          <div className="mt-2 text-sm">1.1 NE Level Performance</div>
+        <div key={"table-kpi-statistic-4g"} ref={tableKpiStatistic4gRef} className="w-211 overflow-x-auto p-1">
           <div className="flex flex-col">
-            <div className="flex flex-row flex-nowrap">
-              <div className="w-65.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">KPI</div>
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="w-65.5 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+                KPI
+              </div>
               <div className="flex flex-col">
-                <div className="w-143.5 shrink-0 border-t border-r border-b p-1 text-center">Site Name</div>
+                <div className="w-143.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Site Name</div>
                 <div className="flex flex-row">
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Tanggal-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Tanggal-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Tanggal-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        Tanggal-1
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        Tanggal-2
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        Tanggal-3
+                      </div>
                     </div>
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Average</div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Target</div>
-                  <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Target
+                  </div>
+                  <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
                     Impro vement
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Result</div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Result
+                  </div>
                 </div>
               </div>
             </div>
             {dataKpiStatistic4g.map((item) => (
               <div key={item.kpi_index} className="flex flex-row flex-nowrap">
-                <div className="w-65.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">{item.kpi_name}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.day1_val}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.day2_val}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.day3_val}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.average}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.target}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.delta}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.remark}</div>
+                <div className="w-65.5 shrink-0 border-neutral-500 border-r border-b border-l p-1">{item.kpi_name}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.day1_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.day2_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.day3_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.average}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.target}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">{item.delta}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.remark}
+                </div>
               </div>
             ))}
           </div>
@@ -1087,6 +1144,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {/* Table Kpi Statistic 4G tier site */}
 
       {/* Table Information 2G */}
+      <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>
 
       {!dataSqacTracker || dataSqacTracker.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
@@ -1095,51 +1153,94 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
           <div
             key={"table-sqac-information-2g"}
             ref={index === 0 ? tableSqacInformation2gRef : undefined}
-            className="mt-12 p-1"
+            className="w-230 overflow-x-auto p-1"
           >
-            <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>
             <div className="flex flex-col">
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Site ID</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.siteid}</div>
-                <div className="w-37.5 shrink-0 border-t border-r border-b p-1 font-bold">Band SOW</div>
-                <div className="w-62.5 shrink-0 border-t border-r border-b p-1 text-center">{item.band_2g_sow}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-t border-r border-b border-l p-1 font-bold">
+                  Site ID
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                  {item.siteid}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 font-bold">
+                  Band SOW
+                </div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                  {item.band_2g_sow}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Name</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.site_name_2g}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Site No.</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.site_no_2g}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">
+                  Site Name
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.site_name_2g}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">Site No.</div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.site_no_2g}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">LAC</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.lac_2g}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">CI</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.cell_id_2g}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">LAC</div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">{item.lac_2g}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">CI</div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.cell_id_2g}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Detail SOW</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.type_of_work}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Band</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.band_2g_sow}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">
+                  Detail SOW
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.type_of_work}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">Band</div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.band_2g_sow}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Kabupaten</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.kabupaten}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Connected Date</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.connected}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">
+                  Kabupaten
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.kabupaten}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">Connected Date</div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.connected}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Longitude</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.longitude}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">Integrated Date</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.connected}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">
+                  Site Longitude
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.longitude}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">
+                  Integrated Date
+                </div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.connected}
+                </div>
               </div>
               <div className="flex flex-row">
-                <div className="w-37.5 shrink-0 border-r border-b border-l p-1 font-bold">Site Latitude</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.latitude}</div>
-                <div className="w-37.5 shrink-0 border-r border-b p-1 font-bold">TRX Configuration</div>
-                <div className="w-62.5 shrink-0 border-r border-b p-1 text-center">{item.trx_configuration}</div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b border-l p-1 font-bold">
+                  Site Latitude
+                </div>
+                <div className="w-90 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.latitude}
+                </div>
+                <div className="w-37.5 shrink-0 border-neutral-500 border-r border-b p-1 font-bold">
+                  TRX Configuration
+                </div>
+                <div className="w-62.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.trx_configuration}
+                </div>
               </div>
             </div>
           </div>
@@ -1153,47 +1254,61 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       {!dataTargetKpiStatistic2g || dataTargetKpiStatistic2g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-target-kpi-2g"} ref={tableTargetKpi2gRef} className="overflow-x-auto p-1">
-          <div className="flex flex-row flex-nowrap">
-            <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">City</div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b border-l p-1">Band</div>
+        <div key={"table-target-kpi-2g"} ref={tableTargetKpi2gRef} className="w-257 overflow-x-auto p-1">
+          <div className="flex flex-row flex-nowrap bg-blue-200">
+            <div className="w-25 shrink-0 content-center border-neutral-500 border-t border-r border-l p-1 text-center">
+              City
+            </div>
+            <div className="w-25 shrink-0 content-center border-neutral-500 border-t border-r p-1 text-center">
+              Band
+            </div>
             <div className="flex flex-col">
               <div className="flex flex-row">
                 <div className="flex flex-col">
-                  <div className="border-t border-r border-b p-1 text-center">KPI ACCEPTANCE (ACCEPTANCE VALUE)</div>
+                  <div className="border-neutral-500 border-t border-r p-1 text-center">
+                    KPI ACCEPTANCE (ACCEPTANCE VALUE)
+                  </div>
                   <div className="flex flex-row">
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">SDSR (%)</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">HOSR (%)</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">DCR (%)</div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">TBF DL EST SR (%)</div>
-                    <div className="wrap-break-word w-20.5 border-t border-r border-b p-1 text-center">
+                    <div className="w-25 shrink-0 border-neutral-500 border-t border-r p-1 text-center">SDSR (%)</div>
+                    <div className="w-25 shrink-0 border-neutral-500 border-t border-r p-1 text-center">HOSR (%)</div>
+                    <div className="w-25 shrink-0 border-neutral-500 border-t border-r p-1 text-center">DCR (%)</div>
+                    <div className="w-40 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
+                      TBF DL EST SR (%)
+                    </div>
+                    <div className="w-55 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
                       TBF COMPLETION SR (%)
                     </div>
-                    <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">ICM BAND (0-5)</div>
+                    <div className="w-35 shrink-0 border-neutral-500 border-t border-r p-1 text-center">
+                      ICM BAND (0-5)
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex flex-row">
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b border-l p-1 text-center">LUWU</div>
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">L900</div>
-            <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b border-l p-1 text-center">
+            <div className="w-25 shrink-0 text-wrap border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+              LUWU
+            </div>
+            <div className="w-25 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
+              L900
+            </div>
+            <div className="w-25 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["SDSR (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-25 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["HOSR (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-25 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["DCR (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-40 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["TBF DL EST SR (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-55 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["TBF COMPLETION SR (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+            <div className="w-35 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic2g[0]["ICM BAND (0-5)"] || "95.00"}
             </div>
           </div>
@@ -1201,142 +1316,292 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       )}
 
       {/* Table KPI Statistic 2G */}
+
+      <div className="mt-2 text-sm">Site Level Performance</div>
+
       {isPendingKpiStatistic2g && <div className="text-muted-foreground">Loading...</div>}
       {errorKpiStatistic2g && <div className="text-destructive">Error: {errorKpiStatistic2g.message}</div>}
 
       {!dataKpiStatistic2g || dataKpiStatistic2g.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-kpi-statistic-2g"} ref={tableKpiStatistic2gRef} className="overflow-x-auto p-1">
-          <div className="mt-2 text-sm">Site Level Performance</div>
+        <div key={"table-kpi-statistic-2g"} ref={tableKpiStatistic2gRef} className="w-287 overflow-x-auto p-1">
           <div className="flex flex-col">
-            <div className="flex flex-row flex-nowrap">
-              <div className="w-28 shrink-0 border-t border-r border-b border-l p-1">Date</div>
-              <div className="w-28 shrink-0 border-t border-r border-b border-l p-1">Calendar Day</div>
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="w-25 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+                Date
+              </div>
+              <div className="w-25 shrink-0 content-center border-neutral-500 border-t border-r border-b p-1 text-center">
+                Calendar Day
+              </div>
               <div className="flex flex-col">
-                <div className="border-t border-r border-b p-1 text-center">KPI Parameters</div>
+                <div className="border-neutral-500 border-t border-r p-1 text-center">KPI Parameters</div>
                 <div className="flex flex-row">
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">Site Avail (%)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">SDSR (%)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">HOSR (%)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">TBF UL EST SR (%)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">TBF DL EST SR (%)</div>
-                  <div className="wrap-break-word w-16 border-t border-r border-b p-1 text-center">
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Site Avail (%)
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    SDSR (%)
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    HOSR (%)
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    TBF UL EST SR (%)
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    TBF DL EST SR (%)
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
                     TBF COMPLETION SR (%)
                   </div>
-                  <div className="wrap-break-word w-16 border-t border-r border-b p-1 text-center">UTILIZATION (%)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">BH Traffic (Erl)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">Payload (MB)</div>
-                  <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">ICM BAND (0-5)</div>
+                  <div className="w-25 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    UTILIZATION (%)
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    BH Traffic (Erl)
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Payload (MB)
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    ICM BAND (0-5)
+                  </div>
                 </div>
               </div>
             </div>
-            {dataKpiStatistic2g.map((item) => (
+            {dataKpiStatistic2g
+              .filter((item) => item.sort === 1 || item.sort === 2 || item.sort === 3)
+              .sort((a, b) => a.sort - b.sort)
+              .map((item) => (
+                <div key={item.sort} className="flex flex-row flex-nowrap">
+                  <div className="w-25 shrink-0 border-neutral-500 border-r border-b border-l p-1">{item.Date}</div>
+                  <div className="w-25 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {formatDayName(item.Date)}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Site Avail (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["SDSR (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["HOSR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["DCR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["TBF UL EST SR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["TBF DL EST SR (%)"])}
+                  </div>
+                  <div className="w-25 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Utilization (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["BH Traffic (Erl)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Payload (MB)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["ICM BAND (0-5)"])}
+                  </div>
+                </div>
+              ))}
+            <div key={"baris-average"} className="flex flex-row flex-nowrap">
+              <div className="w-50 shrink-0 border-neutral-500 border-r border-l p-1 text-center">Summary</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-25 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+              <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">Average</div>
+            </div>
+            {dataKpiStatistic2g
+              .filter((item) => item.sort === 4)
+              .sort((a, b) => a.sort - b.sort)
+              .map((item) => (
+                <div key={item.sort} className="flex flex-row flex-nowrap">
+                  <div className="w-50 shrink-0 border-neutral-500 border-r border-b border-l p-1">
+                    {/* {item.Date} */}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Site Avail (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["SDSR (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["HOSR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["DCR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["TBF UL EST SR (%)"])}
+                  </div>
+                  <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["TBF DL EST SR (%)"])}
+                  </div>
+                  <div className="w-25 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Utilization (%)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["BH Traffic (Erl)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["Payload (MB)"])}
+                  </div>
+                  <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                    {_formatYn(item["ICM BAND (0-5)"])}
+                  </div>
+                </div>
+              ))}
+          </div>
+          {dataKpiStatistic2g
+            .filter((item) => item.sort === 5 || item.sort === 6 || item.sort === 7)
+            .sort((a, b) => a.sort - b.sort)
+            .map((item) => (
               <div key={item.sort} className="flex flex-row flex-nowrap">
-                <div className="w-28 shrink-0 border-t border-r border-b border-l p-1">{item.Date}</div>
-                <div className="w-28 shrink-0 border-t border-r border-b p-1 text-center">
-                  {formatDayName(item.Date)}
+                <div className="w-50 shrink-0 border-neutral-500 border-r border-b border-l p-1 text-center">
+                  {item.Date}
                 </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
-                  {_formatYn(item["Site Avail (%)"])}
-                </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">-</div>
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {_formatYn(item["SDSR (%)"])}
                 </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {_formatYn(item["HOSR (%)"])}
                 </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {_formatYn(item["DCR (%)"])}
                 </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
-                  {_formatYn(item["TBF UL EST SR (%)"])}
-                </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">-</div>
+                <div className="w-30 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {_formatYn(item["TBF DL EST SR (%)"])}
                 </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
-                  {_formatYn(item["Utilization (%)"])}
-                </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
-                  {_formatYn(item["BH Traffic (Erl)"])}
-                </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
-                  {_formatYn(item["Payload (MB)"])}
-                </div>
-                <div className="w-16 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-25 shrink-0 border-neutral-500 border-r border-b p-1 text-center">-</div>
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">-</div>
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">-</div>
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {_formatYn(item["ICM BAND (0-5)"])}
                 </div>
               </div>
             ))}
-          </div>
         </div>
       )}
 
       {/* Table Productivity Payload */}
+
+      <div className="font-bold text-lg">2. Productivity Info</div>
+      <div className="mt-2 text-sm">2.1 Productivity Information Payload</div>
+
       {isPendingProductivityPayload && <div className="text-muted-foreground">Loading...</div>}
       {errorProductivityPayload && <div className="text-destructive">Error: {errorProductivityPayload.message}</div>}
 
       {!dataProductivityPayload || dataProductivityPayload.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-productivity-payload"} ref={tableProductivityPayloadRef} className="overflow-x-auto p-1">
-          <div className="font-bold text-lg">2. Productivity Info</div>
-          <div className="mt-2 text-sm">2.1 Productivity Information Payload</div>
+        <div key={"table-productivity-payload"} ref={tableProductivityPayloadRef} className="w-247 overflow-x-auto p-1">
           <div className="flex flex-col">
-            <div className="flex flex-row flex-nowrap">
-              <div className="w-40 shrink-0 border-t border-r border-b border-l p-1">KPI</div>
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="w-40 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+                KPI
+              </div>
               <div className="flex shrink-0 flex-col">
-                <div className="w-205 border-t border-r border-b p-1 text-center">Productivity Payload</div>
+                <div className="w-205 border-neutral-500 border-t border-r p-1 text-center">Productivity Payload</div>
                 <div className="flex flex-row">
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay1}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay2}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay3}</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay3}
+                      </div>
                     </div>
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Average Before</div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average Before
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay1}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay2}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay3}</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay3}
+                      </div>
                     </div>
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Average After</div>
-                  <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">Growth</div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Result</div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average After
+                  </div>
+                  <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Growth
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Result
+                  </div>
                 </div>
               </div>
             </div>
             {dataProductivityPayload.map((item) => (
               <div key={item.sort} className="flex flex-row flex-nowrap">
-                <div className="shrink-0 basis-40 border-t border-r border-b border-l p-1">{item.KPI}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-1 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-2 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-3 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="shrink-0 basis-40 border-neutral-500 border-r border-b border-l p-1">{item.KPI}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-1 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-2 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-3 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {item["Average Before"]}
                 </div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-1 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-2 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-3 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-1 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-2 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-3 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {item["Average After"]}
                 </div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.Growth}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.Result}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.Growth}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.Result}
+                </div>
               </div>
             ))}
           </div>
@@ -1344,68 +1609,107 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
       )}
 
       {/* Table Productivity Traffic */}
+      <div className="mt-2 text-sm">2.2 Productivity Information Traffic</div>
+
       {isPendingProductivityTraffic && <div className="text-muted-foreground">Loading...</div>}
       {errorProductivityTraffic && <div className="text-destructive">Error: {errorProductivityTraffic.message}</div>}
 
       {!dataProductivityTraffic || dataProductivityTraffic.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-productivity-traffic"} ref={tableProductivityTrafficRef} className="overflow-x-auto">
-          <div className="mt-2 text-sm">2.2 Productivity Information Traffic</div>
+        <div key={"table-productivity-traffic"} ref={tableProductivityTrafficRef} className="w-247 overflow-x-auto p-1">
           <div className="flex flex-col">
-            <div className="flex flex-row flex-nowrap">
-              <div className="w-40 shrink-0 border-t border-r border-b border-l p-1">KPI</div>
-              <div className="flex shrink-0 flex-col">
-                <div className="w-205 border-t border-r border-b p-1 text-center">Productivity Traffic</div>
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="w-40 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+                KPI
+              </div>
+              <div className="flex shrink-0 flex-col border-neutral-500">
+                <div className="w-205 border-neutral-500 border-t border-r p-1 text-center">Productivity Traffic</div>
                 <div className="flex flex-row">
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay1}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay2}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{beforeDay3}</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {beforeDay3}
+                      </div>
                     </div>
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Average Before</div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average Before
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-1</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-2</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Day-3</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay1}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay2}</div>
-                      <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{afterDay3}</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                        {afterDay3}
+                      </div>
                     </div>
                   </div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Average After</div>
-                  <div className="w-20.5 shrink-0 text-wrap border-t border-r border-b p-1 text-center">Growth</div>
-                  <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">Result</div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average After
+                  </div>
+                  <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Growth
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Result
+                  </div>
                 </div>
               </div>
             </div>
             {dataProductivityTraffic.map((item) => (
               <div key={item.sort} className="flex flex-row flex-nowrap">
-                <div className="shrink-0 basis-40 border-t border-r border-b border-l p-1">{item.KPI}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-1 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-2 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-3 Before"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="shrink-0 basis-40 border-neutral-500 border-r border-b border-l p-1">{item.KPI}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-1 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-2 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-3 Before"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {item["Average Before"]}
                 </div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-1 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-2 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item["Day-3 After"]}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-1 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-2 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Day-3 After"]}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {item["Average After"]}
                 </div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.Growth}</div>
-                <div className="w-20.5 shrink-0 border-t border-r border-b p-1 text-center">{item.Result}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.Growth}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.Result}
+                </div>
               </div>
             ))}
           </div>

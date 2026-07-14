@@ -212,27 +212,57 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
 
         <View style={styles.row}>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Approved By:</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Andrisyal</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Approved By:</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>{""}</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Originator:</Text>
           </View>
@@ -243,7 +273,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
               styles.cellRight,
               styles.cellValue,
               styles.w32,
-              { textAlign: "left", fontSize: 9 },
+              { textAlign: "left", fontSize: 8.5 },
             ]}
           >
             <Text>Andi Zahuriansyah</Text>
@@ -252,27 +282,57 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
 
         <View style={styles.row}>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Date:</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>{""}</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Date:</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>{""}</Text>
           </View>
           <View
-            style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w32, { textAlign: "left", fontSize: 9 }]}
+            style={[
+              styles.cellTop,
+              styles.cellLeft,
+              styles.cellValue,
+              styles.w32,
+              { textAlign: "left", fontSize: 8.5 },
+            ]}
           >
             <Text>Date:</Text>
           </View>
@@ -283,7 +343,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
               styles.cellRight,
               styles.cellValue,
               styles.w32,
-              { textAlign: "left", fontSize: 9 },
+              { textAlign: "left", fontSize: 8.5 },
             ]}
           >
             <Text>{""}</Text>
@@ -338,7 +398,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellTop,
                   styles.cellLeft,
                   styles.cellValue,
-                  { width: "40%", textAlign: "left", fontSize: 9 },
+                  { width: "40%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Company:</Text>
@@ -348,7 +408,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellTop,
                   styles.cellLeft,
                   styles.cellValue,
-                  { width: "60%", textAlign: "left", fontSize: 9 },
+                  { width: "60%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Telkominfra</Text>
@@ -360,7 +420,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellTop,
                   styles.cellLeft,
                   styles.cellValue,
-                  { width: "40%", textAlign: "left", fontSize: 9 },
+                  { width: "40%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Prepare By:</Text>
@@ -370,7 +430,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellTop,
                   styles.cellLeft,
                   styles.cellValue,
-                  { width: "60%", textAlign: "left", fontSize: 9 },
+                  { width: "60%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>ISM</Text>
@@ -383,7 +443,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellLeft,
                   styles.cellBottom,
                   styles.cellValue,
-                  { width: "40%", textAlign: "left", fontSize: 9 },
+                  { width: "40%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Author:</Text>
@@ -394,7 +454,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellLeft,
                   styles.cellBottom,
                   styles.cellValue,
-                  { width: "60%", textAlign: "left", fontSize: 9 },
+                  { width: "60%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>ISM</Text>
@@ -422,7 +482,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellRight,
 
                   styles.cellValue,
-                  { width: "100%", textAlign: "left", fontSize: 9 },
+                  { width: "100%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>{formatValue(item.site_name)}</Text>
@@ -435,7 +495,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellLeft,
 
                   styles.cellValue,
-                  { width: "40%", textAlign: "left", fontSize: 9 },
+                  { width: "40%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Last Updated:</Text>
@@ -446,7 +506,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellLeft,
                   styles.cellRight,
                   styles.cellValue,
-                  { width: "60%", textAlign: "left", fontSize: 9 },
+                  { width: "60%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>{today}</Text>
@@ -459,7 +519,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellLeft,
                   styles.cellBottom,
                   styles.cellValue,
-                  { width: "40%", textAlign: "left", fontSize: 9 },
+                  { width: "40%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Page: 1/1</Text>
@@ -471,7 +531,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
                   styles.cellRight,
                   styles.cellBottom,
                   styles.cellValue,
-                  { width: "60%", textAlign: "left", fontSize: 9 },
+                  { width: "60%", textAlign: "left", fontSize: 8.5 },
                 ]}
               >
                 <Text>Version: 2024</Text>
@@ -596,12 +656,22 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           </View>
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-target-kpi-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        <View
+          style={{
+            marginTop: 8,
+            alignItems: "flex-start",
+            marginLeft: -2,
+          }}
+        >
+          <Image src={`/chart-for-doc/${wid}-table-target-kpi-4g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        <Text style={[styles.header2, { marginTop: 10 }]}>1. Statistical Quality</Text>
+
+        <Text style={[styles.subHeader]}>1.1 NE Level Performance</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`} style={{ width: 400, height: "auto" }} />
         </View>
       </Page>
 
@@ -612,16 +682,22 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-sqac-information-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        <Text style={styles.header}>2G SITE QUALITY ACCEPTANCE CERTIFICATE</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-sqac-information-2g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-target-kpi-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        <Text style={[styles.header2, { marginTop: 8 }]}>Sales Cluster Target Performance</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-target-kpi-2g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-2g.jpg`} style={{ width: 500, height: "auto" }} />
+        <Text style={[styles.header2, { marginTop: 8 }]}>Site Level Performance</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-2g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -631,42 +707,71 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
+        <Text style={[styles.header2, { marginTop: 10 }]}>2. Productivity Info</Text>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-productivity-payload.jpg`} style={{ width: 500, height: "auto" }} />
+        <Text style={[styles.subHeader]}>2.1 Productivity Information Payload</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-productivity-payload.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-productivity-traffic.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={styles.boxRemark}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
+
+        <Text style={[styles.subHeader]}>2.2 Productivity Information Traffic</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-productivity-traffic.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={styles.boxRemark}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
       </Page>
 
       {/* Page 5, chart payload-thp-user */}
-      <Page size="A4" style={styles.page}>
+      <Page size={[595.28, 992.13]} style={styles.page}>
         <View style={styles.logoRow}>
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3. Chart Productivity</Text>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        <Text style={[styles.subHeader]}>3.1. LTE Payload, Max DL Throughput & User Number LTE</Text>
+        <Text style={[styles.subHeader, { marginTop: 6 }]}>Sector 1</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
-            style={{ width: 500, height: "auto" }}
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+            style={{ width: 518, height: "auto" }}
           />
         </View>
-
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
-            style={{ width: 500, height: "auto" }}
-          />
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        <Text style={[styles.subHeader, { marginTop: 6 }]}>Sector 2</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-sector-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
-            style={{ width: 500, height: "auto" }}
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+            style={{ width: 518, height: "auto" }}
           />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 6 }]}>Sector 3</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image
+            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+            style={{ width: 518, height: "auto" }}
+          />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
       </Page>
 
@@ -677,19 +782,19 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-payload-band-site-tier.jpg`}
-            style={{ width: 500, height: "auto" }}
+            style={{ width: 518, height: "auto" }}
           />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -700,21 +805,21 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-traffic-2g-cell-site-sow.jpg`}
-            style={{ width: 500, height: "auto" }}
+            style={{ width: 518, height: "auto" }}
           />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        {/* <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        {/* <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-volte.jpg`}
-            style={{ width: 500, height: "auto" }}
+            style={{ width: 518, height: "auto" }}
           />
         </View> */}
       </Page>
@@ -726,15 +831,15 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-payload-2g-cell-site-sow.jpg`}
-            style={{ width: 500, height: "auto" }}
+            style={{ width: 518, height: "auto" }}
           />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -745,12 +850,12 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -761,8 +866,8 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start" }}>
-          <Image src={`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`} style={{ width: 500, height: "auto" }} />
+        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
         <View
@@ -835,32 +940,37 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
 export const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontSize: 10,
+    fontSize: 8.5,
     fontFamily: "Helvetica",
   },
   logoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   logo: {
     width: 80,
     height: "auto",
   },
   header: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: "center",
   },
-  subHeader: {
+  header2: {
     fontSize: 9,
-    marginBottom: 8,
+    marginBottom: 4,
+    fontWeight: "bold",
+  },
+  subHeader: {
+    fontSize: 8.5,
+    marginBottom: 4,
   },
   paragraphNormal: {
-    fontSize: 10,
-    marginBottom: 8,
+    fontSize: 8.5,
+    marginBottom: 4,
   },
   row: {
     flexDirection: "row",
@@ -874,23 +984,23 @@ export const styles = StyleSheet.create({
     borderColor: "#000",
   },
   cellTop: {
-    padding: 4,
+    padding: 2,
     borderTopWidth: 0.3,
     // borderWidth: 0.3,
     borderColor: "#000",
   },
   cellLeft: {
-    padding: 4,
+    padding: 2,
     borderLeftWidth: 0.3,
     borderColor: "#000",
   },
   cellRight: {
-    padding: 4,
+    padding: 2,
     borderRightWidth: 0.3,
     borderColor: "#000",
   },
   cellBottom: {
-    padding: 4,
+    padding: 2,
     borderBottomWidth: 0.3,
     borderColor: "#000",
   },
@@ -925,8 +1035,18 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   checkmark: {
-    fontSize: 10,
+    fontSize: 8.5,
     fontWeight: "bold",
+  },
+  boxRemark: {
+    alignItems: "flex-start",
+    marginLeft: 0,
+    borderWidth: 0.3,
+    borderColor: "#000",
+    marginTop: 2,
+    padding: 4,
+    marginBottom: 8,
+    height: 40,
   },
 });
 
