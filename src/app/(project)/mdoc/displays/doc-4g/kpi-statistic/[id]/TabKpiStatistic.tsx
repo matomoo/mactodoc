@@ -1913,67 +1913,68 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         )}
 
       {/* Table PRB Utilization */}
+      <div className="mt-2 text-sm">PRB Utilization</div>
+
       {isPendingTablePrbUtilization && <div className="text-muted-foreground">Loading...</div>}
       {errorTablePrbUtilization && <div className="text-destructive">Error: {errorTablePrbUtilization.message}</div>}
 
       {!dataTablePrbUtilization || dataTablePrbUtilization.length === 0 ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-prb-utilization"} ref={tablePrbUtilization4gRef} className="overflow-x-auto">
-          <div className="mt-2 text-sm">PRB Utilization</div>
+        <div key={"table-prb-utilization"} ref={tablePrbUtilization4gRef} className="w-220 overflow-x-auto">
           <div className="flex flex-col">
-            <div className="flex flex-row flex-nowrap">
-              <div className="flex h-35.5 w-20 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="flex h-35.5 w-20 shrink-0 items-center justify-center border-neutral-500 border-t border-b border-l border-r p-1">
                 <span style={{ transform: "rotate(270deg)" }}>Site ID</span>
               </div>
-              <div className="flex h-35.5 w-20 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+              <div className="flex h-35.5 w-20 shrink-0 border-neutral-500 items-center justify-center border-t border-b border-r p-1">
                 <span style={{ transform: "rotate(270deg)" }}>Sector</span>
               </div>
-              <div className="flex h-35.5 w-15 shrink-0 items-center justify-center border-t border-r border-b border-l p-1">
+              <div className="flex h-35.5 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1">
                 <span style={{ transform: "rotate(270deg)" }}>Band Combination</span>
               </div>
-              <div className="flex shrink-0 flex-col">
+              <div className="flex shrink-0 border-neutral-500 flex-col">
                 <div className="flex flex-row">
                   <div className="flex flex-col">
-                    <div className="border-t border-r border-b p-1 text-center">PRB Actual</div>
+                    <div className="border-neutral-500 border-t border-r p-1 text-center">PRB Actual</div>
                     <div className="flex flex-row">
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L900</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L1800</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L2100</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L2300</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>Max PRB</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>Min PRB</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col">
-                    <div className="border-t border-r border-b p-1 text-center">Gap PRB</div>
+                    <div className="border-neutral-500 border-t border-r p-1 text-center">Gap PRB</div>
                     <div className="flex flex-row">
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L900</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L1800</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L2100</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>L2300</span>
                       </div>
-                      <div className="flex h-28 w-15 shrink-0 items-center justify-center border-t border-r border-b p-1 text-center">
+                      <div className="flex h-28 w-15 shrink-0 border-neutral-500 items-center justify-center border-t border-r border-b p-1 text-center">
                         <span style={{ transform: "rotate(270deg)" }}>Max GAP PRB</span>
                       </div>
                     </div>
@@ -1983,22 +1984,48 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             </div>
             {dataTablePrbUtilization.map((item) => (
               <div key={item.Sector} className="flex flex-row flex-nowrap">
-                <div className="shrink-0 basis-20 border-t border-r border-b border-l p-1">{item["Site ID"]}</div>
-                <div className="w-20 shrink-0 border-t border-r border-b p-1 text-center">{item["Sector"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">
+                <div className="shrink-0 basis-20 border-neutral-500 border-r border-b border-l p-1">
+                  {item["Site ID"]}
+                </div>
+                <div className="w-20 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Sector"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
                   {item["Band Combination"]}
                 </div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L900"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L1800"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L2100"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["L2300"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Max PRB"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Min PRB"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L900"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L1800"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L2100"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Gap L2300"]}</div>
-                <div className="w-15 shrink-0 border-t border-r border-b p-1 text-center">{item["Max GAP PRB"]}</div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.L900 !== "%" && item.L900}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.L1800 !== "%" && item.L1800}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.L2100 !== "%" && item.L2100}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.L2300 !== "%" && item.L2300}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Max PRB"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Min PRB"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Gap L900"] !== "%" && item["Gap L900"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Gap L1800"] !== "%" && item["Gap L1800"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Gap L2100"] !== "%" && item["Gap L2100"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Gap L2300"] !== "%" && item["Gap L2300"]}
+                </div>
+                <div className="w-15 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item["Max GAP PRB"]}
+                </div>
               </div>
             ))}
           </div>

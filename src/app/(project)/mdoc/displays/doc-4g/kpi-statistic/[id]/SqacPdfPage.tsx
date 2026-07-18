@@ -776,14 +776,21 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
       </Page>
 
       {/* Page 6, chart payload-thp-user */}
-      <Page size="A4" style={styles.page}>
+      <Page size={[595.28, 992.13]} style={styles.page}>
         <View style={styles.logoRow}>
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>
+          3.2. Total Payload Site Level & Payload 1st tier Site Level
+        </Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
 
         <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
@@ -792,31 +799,50 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             style={{ width: 518, height: "auto" }}
           />
         </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.3. PRB Utilization & RRC Connection User</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
       </Page>
 
       {/* page 7, traffic 2g cell level, site level, volte */}
-      <Page size="A4" style={styles.page}>
+      <Page size={[595.28, 992.13]} style={styles.page}>
         <View style={styles.logoRow}>
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.4. Traffic Cell Level & Site Level 2G</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-traffic-2g-cell-site-sow.jpg`}
             style={{ width: 518, height: "auto" }}
           />
         </View>
-
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
 
-        {/* <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.5. Traffic Site Level & Cluster Level 2G</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
+
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.6. Traffic Volte</Text>
+        {/* <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-volte.jpg`}
             style={{ width: 518, height: "auto" }}
@@ -831,15 +857,24 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.7. Payload Cell Level & Site Level 2G</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
             src={`/chart-for-doc/${wid}-chart-payload-2g-cell-site-sow.jpg`}
             style={{ width: 518, height: "auto" }}
           />
         </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>3.8. Payload Site level & Cluster Level 2G</Text>
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
       </Page>
 
@@ -850,12 +885,20 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>4.1. Total Traffic Mini Cluster 2G</Text>
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
+        </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>4.2. Total Payload Mini Cluster 2G-4G</Text>
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
+        <View style={[styles.boxRemark, { marginTop: 6 }]}>
+          <Text style={{ fontSize: 8 }}>Remark:</Text>
         </View>
       </Page>
 
@@ -866,7 +909,8 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
+        <Text style={[styles.header2, { marginTop: 10 }]}>PRB Utilization</Text>
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`} style={{ width: 518, height: "auto" }} />
         </View>
 
