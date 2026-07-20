@@ -47,11 +47,15 @@ interface ChartPayloadBandCellSowProps {
   data: DataPayloadBandCellSow[];
   legendBy: string;
   filter_by: string;
+  title: string;
   dataActivityLog: DataActivityLog[];
 }
 
 const ChartPayloadBandCellSow = forwardRef<ChartPayloadBandCellSowRef, ChartPayloadBandCellSowProps>(
-  function ChartPayloadBandCellSow({ data, legendBy = "site", filter_by = "1", dataActivityLog = [] }, ref) {
+  function ChartPayloadBandCellSow(
+    { data, legendBy = "site", filter_by = "1", title = "", dataActivityLog = [] },
+    ref,
+  ) {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstance = useRef<ChartJS | null>(null);
 
@@ -249,7 +253,7 @@ const ChartPayloadBandCellSow = forwardRef<ChartPayloadBandCellSowRef, ChartPayl
                     ? "2G Payload (Gbyte) Cell Level & Site level"
                     : legendBy === "cluster"
                       ? "Payload Tech Level"
-                      : "Total Payload Site Level - Cluster Level (GB)",
+                      : title,
               font: {
                 size: chartJsV1Settings.titleFontSize,
                 weight: chartJsV1Settings.titleFontWeight,
@@ -382,7 +386,7 @@ const ChartPayloadBandCellSow = forwardRef<ChartPayloadBandCellSowRef, ChartPayl
           chartInstance.current = null;
         }
       };
-    }, [data, legendBy, filter_by, dataActivityLog]);
+    }, [data, legendBy, filter_by, dataActivityLog, title]);
 
     if (!data?.length) {
       return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;

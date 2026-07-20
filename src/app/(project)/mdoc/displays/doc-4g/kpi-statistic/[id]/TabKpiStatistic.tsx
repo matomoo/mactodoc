@@ -1760,6 +1760,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartPayloadBandSiteSowRef}
               data={dataPayloadBandSiteSow}
               legendBy={"band"}
+              title="LTE Payload NE & Site Level (GB)"
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1778,6 +1779,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartPayloadBandSiteTierRef}
               data={dataPayloadBandSiteTier}
               legendBy={"site"}
+              title="Total Payload Site Level - Cluster Level"
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1812,6 +1814,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartTraffic2gCellSiteSowRef}
               data={dataTraffic2gCellSiteSow}
               legendBy={"cell2g"}
+              title={"2G Traffic (Erl) Cell Level & Site Level"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1831,6 +1834,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartTraffic2gSiteTierRef}
               data={dataTraffic2gSiteTier}
               legendBy={"site"}
+              title={"2G Traffic (Erl) Site Level & Cluster Level"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1850,6 +1854,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartPayload2gCellSiteSowRef}
               data={dataPayload2gCellSiteSow}
               legendBy={"cell2g"}
+              title={"2G Payload (Gbyte) Cell Level & Site Level"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1869,6 +1874,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartPayload2gSiteTierRef}
               data={dataPayload2gSiteTier}
               legendBy={"site"}
+              title={"2G Payload (GB) Site Level & Cluster Level"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1888,6 +1894,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartTrafficMiniClusterRef}
               data={dataTrafficMiniCluster}
               legendBy={"cluster"}
+              title={"Traffik (Erl) Tech Level"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -1907,6 +1914,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
               ref={chartPayloadMiniClusterRef}
               data={dataPayloadMiniCluster}
               legendBy={"cluster"}
+              title="Payload Tech Level"
               dataActivityLog={dataGetActivityLog}
             />
           </div>
@@ -2063,6 +2071,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       data={dataUtilization4gCellSow}
                       filter_by={item}
                       legendBy={"util-4g"}
+                      title={`DL PRB - Sector ${item.split("_")[1]}`}
                       dataActivityLog={dataGetActivityLog}
                     />
                     <ChartPayloadBandCellSow
@@ -2076,6 +2085,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       data={dataPayload4gCellSow}
                       filter_by={item}
                       legendBy={"payload-4g"}
+                      title={`Payload - Sector ${item.split("_")[1]}`}
                       dataActivityLog={dataGetActivityLog}
                     />
                   </div>

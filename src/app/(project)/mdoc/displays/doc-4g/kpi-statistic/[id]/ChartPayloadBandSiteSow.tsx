@@ -45,10 +45,11 @@ interface ChartPayloadBandSiteSowProps {
   data: DataPayloadBandSiteSow[];
   legendBy: string;
   dataActivityLog: DataActivityLog[];
+  title: string;
 }
 
 const ChartPayloadBandSiteSow = forwardRef<ChartPayloadBandSiteSowRef, ChartPayloadBandSiteSowProps>(
-  function ChartPayloadBandSiteSow({ data, legendBy = "site", dataActivityLog = [] }, ref) {
+  function ChartPayloadBandSiteSow({ data, legendBy = "site", dataActivityLog = [], title = "" }, ref) {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstance = useRef<ChartJS | null>(null);
 
@@ -232,14 +233,7 @@ const ChartPayloadBandSiteSow = forwardRef<ChartPayloadBandSiteSowRef, ChartPayl
           plugins: {
             title: {
               display: true,
-              text:
-                legendBy === "band"
-                  ? "LTE Payload NE Level - Site Level (GB)"
-                  : legendBy === "cell2g"
-                    ? "2G Payload (Gbyte) Cell Level & Site level"
-                    : legendBy === "cluster"
-                      ? "Payload Tech Level"
-                      : "Total Payload Site Level - Cluster Level (GB)",
+              text: title,
               font: {
                 size: chartJsV1Settings.titleFontSize,
                 weight: chartJsV1Settings.titleFontWeight,
@@ -386,7 +380,7 @@ const ChartPayloadBandSiteSow = forwardRef<ChartPayloadBandSiteSowRef, ChartPayl
           chartInstance.current = null;
         }
       };
-    }, [data, legendBy, dataActivityLog.some, dataActivityLog.findIndex]);
+    }, [data, legendBy, dataActivityLog.some, dataActivityLog.findIndex, title]);
 
     if (!data?.length) {
       return <div className="flex items-center justify-center p-10 text-gray-500 text-lg">No data available</div>;
