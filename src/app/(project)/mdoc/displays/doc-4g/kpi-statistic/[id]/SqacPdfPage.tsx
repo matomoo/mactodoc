@@ -5,17 +5,23 @@ const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
 
 export interface SqacPdfPageProps {
   item: {
-    site?: string | null;
-    band?: string | null;
+    siteid?: string | null;
+    band_4g_sow?: string | null;
+    band_2g_sow?: string | null;
     site_name?: string | null;
+    site_name_4g?: string | null;
     enodeb_id?: string | null;
     type_of_work?: string | null;
     tac?: string | null;
-    city?: string | null;
+    kabupaten?: string | null;
+    cell_id_4g?: string | null;
     cell_id?: string | null;
     band_impact?: string | null;
     connected?: string | null;
     dt?: string | null;
+    longitude?: string | null;
+    latitude?: string | null;
+    sdr_manager?: string | null;
   };
   wid: string;
 }
@@ -67,13 +73,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Site ID</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.site)}</Text>
+            <Text>{formatValue(item.siteid)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Band SOW</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.band)}</Text>
+            <Text>{formatValue(`${item.band_4g_sow}-${item.band_2g_sow}`)}</Text>
           </View>
         </View>
 
@@ -83,7 +89,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Site Name</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.site_name)}</Text>
+            <Text>{formatValue(item.site_name_4g)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>eNodeB ID</Text>
@@ -115,13 +121,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>City</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.city)}</Text>
+            <Text>{formatValue(item.kabupaten)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Cell ID</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.cell_id)}</Text>
+            <Text>{formatValue(item.cell_id_4g)}</Text>
           </View>
         </View>
 
@@ -131,7 +137,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Band Impact</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.cellBottom, styles.w62]}>
-            <Text>{formatValue(item.band_impact)}</Text>
+            <Text>{formatValue(`${item.band_4g_sow}-${item.band_2g_sow}`)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text />
@@ -163,7 +169,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <View
             style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellBottom, styles.cellValue, styles.w32]}
           >
-            <Text>{formatDate(item.dt)}</Text>
+            <Text>{""}</Text>
           </View>
         </View>
 
@@ -554,13 +560,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Site ID</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.site)}</Text>
+            <Text>{formatValue(item.siteid)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>SDR Manager</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
-            <Text>{"---"}</Text>
+            <Text>{formatValue(item.sdr_manager)}</Text>
           </View>
         </View>
 
@@ -569,7 +575,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>eNodeB Name</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{"---"}</Text>
+            <Text>{formatValue(item.site_name_4g)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>eNodeB ID</Text>
@@ -584,13 +590,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Band SOW</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.band)}</Text>
+            <Text>{formatValue(`${item.band_4g_sow}-${item.band_2g_sow}`)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>CI</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, styles.w62]}>
-            <Text>{"---"}</Text>
+            <Text>{formatValue(item.cell_id_4g)}</Text>
           </View>
         </View>
 
@@ -599,7 +605,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>TAC</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.city)}</Text>
+            <Text>{formatValue(item.tac)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Detail SOW</Text>
@@ -614,7 +620,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Band Impact</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.band_impact)}</Text>
+            <Text>{formatValue(`${item.band_4g_sow}-${item.band_2g_sow}`)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Connected Date</Text>
@@ -629,7 +635,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>City</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, styles.w62]}>
-            <Text>{formatValue(item.city)}</Text>
+            <Text>{formatValue(item.kabupaten)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, styles.w37]}>
             <Text>Integrated Date</Text>
@@ -644,7 +650,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
             <Text>Site Longitude</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellValue, styles.w62]}>
-            <Text>{"---"}</Text>
+            <Text>{formatValue(item.longitude)}</Text>
           </View>
           <View style={[styles.cellTop, styles.cellLeft, styles.cellBottom, styles.cellLabel, styles.w37]}>
             <Text>Site Latitude</Text>
@@ -652,7 +658,7 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
           <View
             style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellBottom, styles.cellValue, styles.w62]}
           >
-            <Text>{"---"}</Text>
+            <Text>{formatValue(item.latitude)}</Text>
           </View>
         </View>
 
