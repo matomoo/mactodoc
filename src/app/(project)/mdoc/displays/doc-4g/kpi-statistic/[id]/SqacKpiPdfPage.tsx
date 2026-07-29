@@ -57,7 +57,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
     day: "numeric",
   });
 
-  console.log({ dataActivity });
+  // console.log({ dataActivity });
 
   return (
     <Document>

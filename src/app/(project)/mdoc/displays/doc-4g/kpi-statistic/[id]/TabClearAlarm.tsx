@@ -313,6 +313,8 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
       </div>
 
       {/* Table Information 4G */}
+      <div className="font-bold text-lg">ACTIVITY LOG INFORMATION</div>
+
       {isPendingSqacTracker && <div className="text-muted-foreground">Loading...</div>}
       {errorSqacTracker && <div className="text-destructive">Error: {errorSqacTracker.message}</div>}
 
@@ -323,9 +325,8 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           <div
             key={"table-clear-alarm-info-4g"}
             ref={index === 0 ? tableClearAlarmInfo4gRef : undefined}
-            className="p-1"
+            className="w-202 overflow-x-auto p-1"
           >
-            <div className="font-bold text-lg">ACTIVITY LOG INFORMATION</div>
             <div className="flex flex-col">
               <div className="flex flex-row">
                 <div className="w-37.5 shrink-0 border-t border-r border-b border-l p-1 font-bold">Site ID</div>
@@ -383,7 +384,11 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
       {!dataGetActivityLog || dataGetActivityLog.length === 0 || !dataSqacTracker ? (
         <NoDataState message="No data available for the selected criteria." />
       ) : (
-        <div key={"table-activity-log-4g"} ref={tableActivityLog4gRef} className="flex flex-col p-1">
+        <div
+          key={"table-activity-log-4g"}
+          ref={tableActivityLog4gRef}
+          className="flex w-269 flex-col overflow-x-auto p-1"
+        >
           <div className="flex flex-row">
             <div className="w-10 shrink-0 border-t border-r border-b border-l p-1 text-center">No</div>
             <div className="w-82.5 shrink-0 border-t border-r border-b p-1 text-center">Site Name</div>
