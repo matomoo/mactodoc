@@ -1,6 +1,6 @@
 import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 
-import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataActivityLog, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
@@ -27,6 +27,7 @@ export interface SqacPdfPageProps {
   };
   wid: string;
   dataActivity: DataActivityLog[];
+  dataTa4g: TaDataItem[];
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -39,7 +40,7 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function PdfSqacClearAlarm({ item, wid, dataActivity }: SqacPdfPageProps) {
+export function PdfSqacClearAlarm({ item, wid, dataActivity, dataTa4g }: SqacPdfPageProps) {
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">

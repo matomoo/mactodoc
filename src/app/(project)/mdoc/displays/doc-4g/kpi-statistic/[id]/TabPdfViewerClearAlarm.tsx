@@ -5,22 +5,24 @@ import { useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 
-import type { DataActivityLog, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataActivityLog, SqacTrackerItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
 import SqacClearAlarmPdfDocument from "./SqacClearAlarmPdfDocument";
 
 function ClearAlarmPdfViewerComponent({
   data,
   dataActivity,
+  dataTa4g,
   wid,
 }: {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
+  dataTa4g: TaDataItem[];
   wid: string;
 }) {
   return (
     <PDFViewer width="100%" height={600} style={{ border: "none" }}>
-      <SqacClearAlarmPdfDocument data={data} wid={wid} dataActivity={dataActivity} />
+      <SqacClearAlarmPdfDocument data={data} wid={wid} dataActivity={dataActivity} dataTa4g={dataTa4g} />
     </PDFViewer>
   );
 }
@@ -70,13 +72,35 @@ export default function TabPdfViewerClearAlarm({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
+  const {
+    data: dataGetTa4g,
+    isPending: isPendingGetTa4g,
+    error: errorGetTa4g,
+  } = useQuery<TaDataItem[]>({
+    queryKey: ["get-ta-4g", wid],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/ta-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
   if (isPending) return <div className="text-muted-foreground">Loading PDF...</div>;
   if (error) return <div className="text-destructive">Error: {error.message}</div>;
   if (!data || data.length === 0) return <div className="text-muted-foreground">No data to display</div>;
 
   return (
     <div className="flex h-150 flex-col">
-      <ClearAlarmPdfViewerComponent data={data} dataActivity={dataGetActivityLog ?? []} wid={wid} />
+      <ClearAlarmPdfViewerComponent
+        data={data}
+        dataActivity={dataGetActivityLog ?? []}
+        dataTa4g={dataGetTa4g ?? []}
+        wid={wid}
+      />
     </div>
   );
 }

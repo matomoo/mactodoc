@@ -1,6 +1,6 @@
 import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 
-import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataActivityLog, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
@@ -27,6 +27,7 @@ export interface SqacPdfPageProps {
   };
   wid: string;
   dataActivity: DataActivityLog[];
+  dataTa4g: TaDataItem[];
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -39,7 +40,7 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function SqacClearAlarmPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
+export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: SqacPdfPageProps) {
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">
@@ -57,7 +58,7 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity }: SqacPdfPagePr
     day: "numeric",
   });
 
-  console.log({ item });
+  console.log({ dataTa4g });
 
   return (
     <Document>
@@ -257,76 +258,127 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity }: SqacPdfPagePr
         </View>
       </Page>
 
-      {/* Page 8 */}
+      {/* Page 8 ta band sow */}
       <Page size="A4" style={styles.page}>
         <View style={styles.logoRow}>
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
         </View>
 
-        <Text style={styles.header}>TIMING ADVANCE MT</Text>
+        <Text style={styles.header}>TIMING ADVANCE BAND {item.band_4g_sow?.toUpperCase()}</Text>
 
-        <View
-          style={{
-            marginTop: 8,
-            alignItems: "flex-start",
-            flexDirection: "row",
-          }}
-        >
-          <View style={{ marginRight: 10 }}>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
-              style={{ width: 340, height: "auto" }}
-            />
-          </View>
-          <View>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
-              style={{ width: 168, height: "auto" }}
-            />
-          </View>
-        </View>
-        <View
-          style={{
-            marginTop: 8,
-            alignItems: "flex-start",
-            flexDirection: "row",
-          }}
-        >
-          <View style={{ marginRight: 10 }}>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-${item.band_4g_sow?.toLowerCase()}-cellid-${item.cell_id_4g}.jpg`}
-              style={{ width: 340, height: "auto" }}
-            />
-          </View>
-          <View>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-22.jpg`}
-              style={{ width: 168, height: "auto" }}
-            />
-          </View>
-        </View>
-        <View
-          style={{
-            marginTop: 8,
-            alignItems: "flex-start",
-            flexDirection: "row",
-          }}
-        >
-          <View style={{ marginRight: 10 }}>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-32.jpg`}
-              style={{ width: 340, height: "auto" }}
-            />
-          </View>
-          <View>
-            <Image
-              src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-32.jpg`}
-              style={{ width: 168, height: "auto" }}
-            />
-          </View>
-        </View>
+        {[...new Set(dataTa4g.filter((d) => d.band === item.band_4g_sow).map((d) => d.cellId))].map((cellId) => {
+          const formatBandSow =
+            item.band_4g_sow === "L900"
+              ? "MT"
+              : item.band_4g_sow === "L1800"
+                ? "ML"
+                : item.band_4g_sow === "L2100"
+                  ? "MR"
+                  : item.band_4g_sow === "L2300"
+                    ? "ME"
+                    : "No Band";
+          const refKey = `band-${item.band_4g_sow?.toLowerCase()}-cellid-${cellId}`;
+          return (
+            <View
+              key={cellId}
+              style={{
+                marginTop: 8,
+                alignItems: "flex-start",
+                flexDirection: "column",
+              }}
+            >
+              <Text style={styles.subHeader}>
+                Sector_{cellId.toString().slice(0, -1)}
+                {formatBandSow}
+              </Text>
+              <View
+                key={cellId}
+                style={{
+                  marginTop: 2,
+                  alignItems: "flex-start",
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ marginRight: 10 }}>
+                  <Image
+                    src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-${refKey}.jpg`}
+                    style={{ width: 340, height: "auto" }}
+                  />
+                </View>
+                <View>
+                  <Image
+                    src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
+                    style={{ width: 168, height: "auto" }}
+                  />
+                </View>
+              </View>
+            </View>
+          );
+        })}
       </Page>
+
+      {/* Page 9 ta band not sow */}
+      {[...new Set(dataTa4g.filter((d) => d.band !== item.band_4g_sow).map((item) => item.band))].sort().map((band) => (
+        <Page size="A4" style={styles.page} key={band}>
+          <View style={styles.logoRow}>
+            <Image src={LOGO_TINFRA} style={styles.logo} />
+            <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+          </View>
+
+          <Text style={styles.header}>TIMING ADVANCE BAND {band}</Text>
+          {[...new Set(dataTa4g.filter((d) => d.band === band).map((item) => item.cellId))].sort().map((cellId) => {
+            const item = dataTa4g.find((d) => d.cellId === cellId && d.band === band);
+            const refKey = `band-${band.toLowerCase()}-cellid-${cellId}`;
+            const formatBand =
+              band === "L900"
+                ? "MT"
+                : band === "L1800"
+                  ? "ML"
+                  : band === "L2100"
+                    ? "MR"
+                    : band === "L2300"
+                      ? "ME"
+                      : "No Band";
+            return (
+              <View
+                key={cellId}
+                style={{
+                  marginTop: 8,
+                  alignItems: "flex-start",
+                  flexDirection: "column",
+                }}
+              >
+                <Text style={styles.subHeader}>
+                  Sector_{item?.sector}
+                  {formatBand}
+                </Text>
+                <View
+                  key={cellId}
+                  style={{
+                    marginTop: 2,
+                    alignItems: "flex-start",
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ marginRight: 10 }}>
+                    <Image
+                      src={`/chart-for-doc/${wid}-chart-ta-4g-band-not-sow-${refKey}.jpg`}
+                      style={{ width: 340, height: "auto" }}
+                    />
+                  </View>
+                  <View>
+                    <Image
+                      src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
+                      style={{ width: 168, height: "auto" }}
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          })}
+        </Page>
+      ))}
 
       {/* eof */}
     </Document>

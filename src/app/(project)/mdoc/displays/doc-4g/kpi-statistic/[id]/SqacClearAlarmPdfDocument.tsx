@@ -1,4 +1,4 @@
-import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataActivityLog, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
 import { SqacClearAlarmPdfPage } from "./SqacClearAlarmPdfPage";
 
@@ -20,14 +20,21 @@ interface SqacTrackerItem {
 interface Props {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
+  dataTa4g: TaDataItem[];
   wid: string;
 }
 
-export default function SqacClearAlarmPdfDocument({ data, wid, dataActivity }: Props) {
+export default function SqacClearAlarmPdfDocument({ data, wid, dataActivity, dataTa4g }: Props) {
   return (
     <>
       {data.map((item) => (
-        <SqacClearAlarmPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} />
+        <SqacClearAlarmPdfPage
+          key={item.id || wid}
+          item={item}
+          wid={wid}
+          dataActivity={dataActivity}
+          dataTa4g={dataTa4g}
+        />
       ))}
     </>
   );
