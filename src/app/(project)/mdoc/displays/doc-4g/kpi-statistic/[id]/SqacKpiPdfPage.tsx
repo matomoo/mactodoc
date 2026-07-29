@@ -1,5 +1,7 @@
 import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 
+import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
+
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
 
@@ -24,6 +26,7 @@ export interface SqacPdfPageProps {
     sdr_manager?: string | null;
   };
   wid: string;
+  dataActivity: DataActivityLog[];
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -36,7 +39,7 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
+export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">
@@ -53,6 +56,8 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
     month: "long",
     day: "numeric",
   });
+
+  console.log({ dataActivity });
 
   return (
     <Document>
@@ -723,6 +728,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
 
         <View style={styles.boxRemark}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.subHeader]}>2.2 Productivity Information Traffic</Text>
@@ -732,6 +744,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={styles.boxRemark}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
       </Page>
 
@@ -754,6 +773,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.subHeader, { marginTop: 6 }]}>Sector 2</Text>
@@ -766,6 +792,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.subHeader, { marginTop: 6 }]}>Sector 3</Text>
@@ -778,6 +811,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
       </Page>
 
@@ -797,6 +837,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
@@ -807,6 +854,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.3. PRB Utilization & RRC Connection User</Text>
@@ -816,6 +870,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
       </Page>
 
@@ -836,6 +897,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.5. Traffic Site Level & Cluster Level 2G</Text>
@@ -845,6 +913,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.6. Traffic Volte</Text>
@@ -873,6 +948,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.8. Payload Site level & Cluster Level 2G</Text>
@@ -881,6 +963,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
       </Page>
 
@@ -897,6 +986,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>4.2. Total Payload Mini Cluster 2G-4G</Text>
@@ -905,6 +1001,13 @@ export function SqacPdfPage({ item, wid }: SqacPdfPageProps) {
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
+          {dataActivity
+            .filter((a) => a.siteid === wid || wid.includes(a.siteid))
+            .map((a) => (
+              <Text key={`${formatDate(a.tanggal)}-${a.band}-${a.siteid}`} style={{ fontSize: 7 }}>
+                {formatDate(a.tanggal)} - {a.deskripsi}
+              </Text>
+            ))}
         </View>
       </Page>
 
@@ -1101,4 +1204,4 @@ export const styles = StyleSheet.create({
 });
 
 // Apply styles to the page component
-Object.assign(SqacPdfPage.prototype, { styles: styles });
+Object.assign(SqacKpiPdfPage.prototype, { styles: styles });

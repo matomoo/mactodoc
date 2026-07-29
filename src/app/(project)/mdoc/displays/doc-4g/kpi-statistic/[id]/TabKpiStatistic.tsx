@@ -27,7 +27,8 @@ import type { ChartPayloadThpUserRef } from "./ChartPayloadThpUser";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import type { ChartRrcUtilizationRef } from "./ChartRrcUtilization";
 import ChartRrcUtilization from "./ChartRrcUtilization";
-import SqacPdfDocument from "./SqacPdfDocument";
+import SqacPdfDocument from "./SqacKpiPdfDocument";
+import SqacKpiPdfDocument from "./SqacKpiPdfDocument";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -441,7 +442,9 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
-    const blob = await pdf(<SqacPdfDocument data={dataSqacTracker} wid={wid} />).toBlob();
+    const blob = await pdf(
+      <SqacKpiPdfDocument data={dataSqacTracker} wid={wid} dataActivity={dataGetActivityLog ?? []} />,
+    ).toBlob();
     saveAs(blob, `SQAC-${wid}.pdf`);
   };
 

@@ -1,6 +1,8 @@
 import { Document } from "@react-pdf/renderer";
 
-import { SqacPdfPage } from "./SqacPdfPage";
+import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
+
+import { SqacKpiPdfPage } from "./SqacKpiPdfPage";
 
 interface SqacTrackerItem {
   id?: string;
@@ -19,14 +21,15 @@ interface SqacTrackerItem {
 
 interface Props {
   data: SqacTrackerItem[];
+  dataActivity: DataActivityLog[];
   wid: string;
 }
 
-export default function SqacPdfDocument({ data, wid }: Props) {
+export default function SqacKpiPdfDocument({ data, wid, dataActivity }: Props) {
   return (
     <>
       {data.map((item) => (
-        <SqacPdfPage key={item.id || wid} item={item} wid={wid} />
+        <SqacKpiPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} />
       ))}
     </>
   );

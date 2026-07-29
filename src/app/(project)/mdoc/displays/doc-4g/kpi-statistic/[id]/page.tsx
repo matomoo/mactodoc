@@ -5,9 +5,10 @@ import { use } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
 import TabClearAlarmPage from "./TabClearAlarm";
 import TabKpiStatisticPage from "./TabKpiStatistic";
-import TabPdfViewer from "./TabPdfViewer";
+import TabPdfViewer from "./TabPdfViewerKpiStatistic";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -29,7 +30,6 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <TabsTrigger value="doc_checker">Doc Checker</TabsTrigger>
           <TabsTrigger value="kpi_statictic">KPI Statistic</TabsTrigger>
           <TabsTrigger value="clear-alarm">Clear Alarm</TabsTrigger>
-          <TabsTrigger value="pdf_viewer">PDF Viewer</TabsTrigger>
         </TabsList>
         <TabsContent value="doc_checker">
           <Card>
@@ -41,13 +41,10 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           </Card>
         </TabsContent>
         <TabsContent value="kpi_statictic">
-          <TabKpiStatisticPage wid={wid} />
+          <Tab1KpiStatisticPage wid={wid} />
         </TabsContent>
         <TabsContent value="clear-alarm">
           <TabClearAlarmPage wid={wid} />
-        </TabsContent>
-        <TabsContent value="pdf_viewer">
-          <TabPdfViewer wid={wid} />
         </TabsContent>
       </Tabs>
     </div>
