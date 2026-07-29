@@ -5,6 +5,7 @@ import { use } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
 import TabClearAlarmPage from "./TabClearAlarm";
 import TabKpiStatisticPage from "./TabKpiStatistic";
@@ -44,7 +45,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <Tab1KpiStatisticPage wid={wid} />
         </TabsContent>
         <TabsContent value="clear-alarm">
-          <TabClearAlarmPage wid={wid} />
+          <Tab1ClearAlarmPage wid={wid} />
         </TabsContent>
       </Tabs>
     </div>
