@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
+import Tab1Upload from "./Tab1Upload";
 import TabClearAlarmPage from "./TabClearAlarm";
 import TabKpiStatisticPage from "./TabKpiStatistic";
 import TabPdfViewer from "./TabPdfViewerKpiStatistic";
@@ -31,6 +32,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <TabsTrigger value="doc_checker">Doc Checker</TabsTrigger>
           <TabsTrigger value="kpi_statictic">KPI Statistic</TabsTrigger>
           <TabsTrigger value="clear-alarm">Clear Alarm</TabsTrigger>
+          <TabsTrigger value="upload">Upload</TabsTrigger>
         </TabsList>
         <TabsContent value="doc_checker">
           <Card>
@@ -46,6 +48,9 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
         </TabsContent>
         <TabsContent value="clear-alarm">
           <Tab1ClearAlarmPage wid={wid} />
+        </TabsContent>
+        <TabsContent value="upload">
+          <Tab1Upload wid={wid} />
         </TabsContent>
       </Tabs>
     </div>
