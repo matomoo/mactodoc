@@ -1085,6 +1085,106 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         </View>
       </Page>
 
+      {/* Page 12 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <Text style={[styles.header]}>Geographical Information</Text>
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>Sales Cluster Map</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image
+              src={`/chart-for-doc/${wid}-map_cluster.jpg`}
+              style={{ width: 450, height: "auto", alignItems: "center" }}
+            />
+          </View>
+        </View>
+
+        <View style={[styles.col, { marginTop: 16, alignSelf: "flex-end" }]}>
+          <View style={[styles.row]}>
+            <View style={[styles.cellTop, styles.cellLeft, styles.cellLabel, { width: "150px", alignItems: "center" }]}>
+              <Text>Telkominfra</Text>
+            </View>
+            <View
+              style={[
+                styles.cellTop,
+                styles.cellLeft,
+                styles.cellRight,
+                styles.cellLabel,
+                { width: "150px", alignItems: "center" },
+              ]}
+            >
+              <Text>TELKOMSEL SQA REGIONAL</Text>
+            </View>
+          </View>
+          <View style={[styles.row]}>
+            <View style={[styles.cellTop, styles.cellLeft, styles.cellValue, { width: "150px", height: 80 }]}>
+              <Text>{""}</Text>
+            </View>
+            <View style={[styles.cellTop, styles.cellLeft, styles.cellRight, styles.cellValue, { width: "150px" }]}>
+              <Text>{""}</Text>
+            </View>
+          </View>
+          <View style={[styles.row]}>
+            <View
+              style={[styles.cellTop, styles.cellLeft, styles.cellValue, { width: "150px", alignItems: "flex-start" }]}
+            >
+              <Text>
+                Name: <Text style={{ fontWeight: "bold" }}>Andi Zahuriansyah</Text>
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.cellTop,
+                styles.cellLeft,
+                styles.cellRight,
+                styles.cellValue,
+                { width: "150px", alignItems: "flex-start" },
+              ]}
+            >
+              <Text>
+                Name: <Text style={{ fontWeight: "bold" }}>Andrisyal</Text>
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.row]}>
+            <View
+              style={[
+                styles.cellTop,
+                styles.cellLeft,
+                styles.cellBottom,
+                styles.cellValue,
+                { width: "150px", alignItems: "flex-start" },
+              ]}
+            >
+              <Text>{"Date:"}</Text>
+            </View>
+            <View
+              style={[
+                styles.cellTop,
+                styles.cellLeft,
+                styles.cellRight,
+                styles.cellBottom,
+                styles.cellValue,
+                { width: "150px", alignItems: "flex-start" },
+              ]}
+            >
+              <Text>{"Date:"}</Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+
       {/* eof */}
     </Document>
   );
