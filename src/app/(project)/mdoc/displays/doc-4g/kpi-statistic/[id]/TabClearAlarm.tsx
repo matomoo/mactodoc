@@ -52,6 +52,8 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
   const chartKpi4gCqiAverageRef = useRef<ChartKpi4gRef>(null);
   const chartKpi4gSe2Ref = useRef<ChartKpi4gRef>(null);
   const chartKpi4gNumberCsfbRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gNiCarrierRef = useRef<ChartKpi4gRef>(null);
+  const chartKpi4gRssiRef = useRef<ChartKpi4gRef>(null);
   const chartKpi4gPayloadCaRef = useRef<ChartKpi4gRef>(null);
   const chartKpi2gAvailabilityRef = useRef<ChartKpi4gRef>(null);
   const chartKpi2gSdsrRef = useRef<ChartKpi4gRef>(null);
@@ -149,7 +151,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  // console.log({ dataGetTa4g });
+  console.log({ dataGetKpi4g });
 
   const handleExportChartsToServer = async () => {
     setIsExporting(true);
@@ -166,6 +168,8 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
       { ref: chartKpi4gCqiAverageRef, name: "kpi-4g-cqi_average" },
       { ref: chartKpi4gSe2Ref, name: "kpi-4g-se2" },
       { ref: chartKpi4gNumberCsfbRef, name: "kpi-4g-number_csfb" },
+      { ref: chartKpi4gNiCarrierRef, name: "kpi-4g-ni_carrier" },
+      { ref: chartKpi4gRssiRef, name: "kpi-4g-rssi" },
       { ref: chartKpi4gPayloadCaRef, name: "kpi-4g-payload_ca" },
       // 2G KPI charts
       { ref: chartKpi2gAvailabilityRef, name: "kpi-2g-availability" },
@@ -526,10 +530,19 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </div>
           <div>
             <ChartKpi4g
-              ref={chartKpi4gPayloadCaRef}
+              ref={chartKpi4gNiCarrierRef}
               data={dataGetKpi4g}
-              kpi_by={"payload_ca"}
-              chart_title={"Total Payload CA (Mbyte)"}
+              kpi_by={"ni_carrier"}
+              chart_title={"Average NI of Carrier (dBm)"}
+              dataActivityLog={dataGetActivityLog}
+            />
+          </div>
+          <div>
+            <ChartKpi4g
+              ref={chartKpi4gRssiRef}
+              data={dataGetKpi4g}
+              kpi_by={"rssi"}
+              chart_title={"Average Cell RSSI(dBm)"}
               dataActivityLog={dataGetActivityLog}
             />
           </div>

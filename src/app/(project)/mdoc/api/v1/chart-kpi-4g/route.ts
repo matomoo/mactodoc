@@ -38,6 +38,8 @@ export async function GET(request: Request) {
                 AVG ( "CQI Average AMQ" ) AS cqi_average,
                 AVG ( "FDD Spectral Efficiency 2" ) AS se2,
                 SUM ( "Number of Redirection Requests from LTE to GSM(CSFB)" ) AS number_csfb,
+                AVG ( "Average NI of Carrier(dBm)" ) AS ni_carrier,
+                AVG ( "Average Cell RSSI(dBm)" ) AS rssi,
                 SUM ( "Total Payload CA_(MByte) AMQ" ) AS payload_ca 
             FROM
                 meas_4g_dy 

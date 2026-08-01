@@ -129,6 +129,8 @@ export interface DataKpiStatistic4g {
   tbf_dl: string;
   tbf_comp: string;
   fast_return_lte: string;
+  ni_carrier: string;
+  rssi: string;
 }
 
 export interface DataPayloadThpUser {

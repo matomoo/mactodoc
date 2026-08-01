@@ -307,10 +307,7 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: Sqa
                   />
                 </View>
                 <View>
-                  <Image
-                    src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
-                    style={{ width: 168, height: "auto" }}
-                  />
+                  <Image src={`/chart-for-doc/${wid}-map_ta.jpg`} style={{ width: 168, height: "auto" }} />
                 </View>
               </View>
             </View>
@@ -368,10 +365,7 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: Sqa
                     />
                   </View>
                   <View>
-                    <Image
-                      src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-band-l900-cellid-12.jpg`}
-                      style={{ width: 168, height: "auto" }}
-                    />
+                    <Image src={`/chart-for-doc/${wid}-map_ta.jpg`} style={{ width: 168, height: "auto" }} />
                   </View>
                 </View>
               </View>
@@ -379,6 +373,114 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: Sqa
           })}
         </Page>
       ))}
+
+      {/* Page 10 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <Text style={styles.header}>TA 1st Tier</Text>
+
+        <View
+          style={{
+            marginTop: 8,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 8 }}>
+            <Image src={`/chart-for-doc/${wid}-map_ta`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+      </Page>
+
+      {/* Page 11 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>AVERAGE NI per RB</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-ni_carrier.jpg`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 12 }]}>Uplink RSSI (dBm)</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-rssi.jpg`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+      </Page>
+
+      {/* Page 12 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.logoRow}>
+          <Image src={LOGO_TINFRA} style={styles.logo} />
+          <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>SD TO TCH</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image src={`/chart-for-doc/${wid}-sd_to_tch.jpg`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>Packet Loss</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image src={`/chart-for-doc/${wid}-packet_loss.jpg`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>Active Alarm</Text>
+
+        <View
+          style={{
+            marginTop: 0,
+            alignItems: "flex-start",
+            flexDirection: "column",
+          }}
+        >
+          <View style={{ marginBottom: 0 }}>
+            <Image src={`/chart-for-doc/${wid}-active_alarm.jpg`} style={{ width: 518, height: "auto" }} />
+          </View>
+        </View>
+      </Page>
 
       {/* eof */}
     </Document>
