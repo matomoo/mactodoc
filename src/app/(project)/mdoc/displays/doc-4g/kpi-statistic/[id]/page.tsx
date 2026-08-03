@@ -2,15 +2,13 @@
 
 import { use } from "react";
 
+import { DateRangeFilter } from "@/components/date-range-filter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
 import Tab1Upload from "./Tab1Upload";
-import TabClearAlarmPage from "./TabClearAlarm";
-import TabKpiStatisticPage from "./TabKpiStatistic";
-import TabPdfViewer from "./TabPdfViewerKpiStatistic";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -27,6 +25,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="space-y-4 p-6">
+      <DateRangeFilter />
       <Tabs defaultValue="doc_checker" className="w-full">
         <TabsList>
           <TabsTrigger value="doc_checker">Doc Checker</TabsTrigger>
