@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import type { DataKpiStatistic4g, SqacTrackerItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
+import { useSqacStore } from "@/stores/sqacStore";
 
 import type { ChartKpi4gRef } from "./ChartKpi4g";
 import ChartKpi4g from "./ChartKpi4g";
@@ -32,13 +33,25 @@ function _formatYn(value: string | number | null | undefined): string {
   return String(value ?? "");
 }
 
+function _addDays(dateStr: string | null, days: number): string {
+  if (!dateStr) return "---";
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day + days);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export default function TabClearAlarmPage({ wid }: { wid: string }) {
-  const [beforeDay1, setBeforeDay1] = useState("2026-05-01");
-  const [beforeDay2, setBeforeDay2] = useState("2026-05-02");
-  const [beforeDay3, setBeforeDay3] = useState("2026-05-03");
-  const [afterDay1, setAfterDay1] = useState("2026-06-01");
-  const [afterDay2, setAfterDay2] = useState("2026-06-02");
-  const [afterDay3, setAfterDay3] = useState("2026-06-03");
+  const { dateStart, dateEnd } = useSqacStore();
+
+  const beforeDay1 = dateStart ?? "";
+  // const beforeDay2 = _addDays(dateStart, 1);
+  // const beforeDay3 = _addDays(dateStart, 2);
+  // const afterDay1 = _addDays(dateEnd, -2);
+  // const afterDay2 = _addDays(dateEnd, -1);
+  const afterDay3 = dateEnd ?? "";
   const [isExporting, setIsExporting] = useState(false);
 
   // Refs for chart components
@@ -88,7 +101,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     isPending: isPendingGetActivityLog,
     error: errorGetActivityLog,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["get-activity-log", wid],
+    queryKey: ["get-activity-log", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/get-activity-log?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -105,7 +118,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     isPending: isPendingGetKpi4g,
     error: errorGetKpi4g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["get-kpi-4g", wid],
+    queryKey: ["get-kpi-4g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/chart-kpi-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -122,7 +135,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     isPending: isPendingGetKpi2g,
     error: errorGetKpi2g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["get-kpi-2g", wid],
+    queryKey: ["get-kpi-2g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/chart-kpi-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -139,7 +152,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     isPending: isPendingGetTa4g,
     error: errorGetTa4g,
   } = useQuery<TaDataItem[]>({
-    queryKey: ["get-ta-4g", wid],
+    queryKey: ["get-ta-4g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/ta-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
