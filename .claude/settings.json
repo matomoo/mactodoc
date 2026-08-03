@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx @biomejs/biome format --write src/components/date-range-filter.tsx)"
+    ]
+  }
+}

@@ -18,6 +18,7 @@ import type {
 import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
+import { useSqacStore } from "@/stores/sqacStore";
 
 import type { ChartPayloadBandCellSowRef } from "./ChartPayloadBandCellSow";
 import ChartPayloadBandCellSow from "./ChartPayloadBandCellSow";
@@ -25,9 +26,7 @@ import type { ChartPayloadBandSiteSowRef } from "./ChartPayloadBandSiteSow";
 import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import type { ChartPayloadThpUserRef } from "./ChartPayloadThpUser";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
-import type { ChartRrcUtilizationRef } from "./ChartRrcUtilization";
 import ChartRrcUtilization from "./ChartRrcUtilization";
-import SqacPdfDocument from "./SqacKpiPdfDocument";
 import SqacKpiPdfDocument from "./SqacKpiPdfDocument";
 
 function _formatDate(dateStr: string | null) {
@@ -46,13 +45,25 @@ function _formatYn(value: string | number | null | undefined): string {
   return String(value ?? "");
 }
 
+function _addDays(dateStr: string | null, days: number): string {
+  if (!dateStr) return "---";
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day + days);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export default function TabKpiStatisticPage({ wid }: { wid: string }) {
-  const [beforeDay1, setBeforeDay1] = useState("2026-05-01");
-  const [beforeDay2, setBeforeDay2] = useState("2026-05-02");
-  const [beforeDay3, setBeforeDay3] = useState("2026-05-03");
-  const [afterDay1, setAfterDay1] = useState("2026-06-01");
-  const [afterDay2, setAfterDay2] = useState("2026-06-02");
-  const [afterDay3, setAfterDay3] = useState("2026-06-03");
+  const { dateStart, dateEnd } = useSqacStore();
+
+  const beforeDay1 = dateStart ?? "";
+  const beforeDay2 = _addDays(dateStart, 1);
+  const beforeDay3 = _addDays(dateStart, 2);
+  const afterDay1 = _addDays(dateEnd, -2);
+  const afterDay2 = _addDays(dateEnd, -1);
+  const afterDay3 = dateEnd ?? "";
   const [isExporting, setIsExporting] = useState(false);
 
   // Refs for chart components
@@ -99,10 +110,10 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTargetKpiStatistic4g,
     error: errorTargetKpiStatistic4g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["target-kpi-statistic-4g", wid],
+    queryKey: ["target-kpi-statistic-4g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/target-kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/target-kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=${beforeDay1}&day2=${beforeDay2}&day3=${beforeDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -111,17 +122,15 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  // console.log("dataTargetKpiStatistic4g", dataTargetKpiStatistic4g);
-
   const {
     data: dataKpiStatistic4g,
     isPending: isPendingKpiStatistic4g,
     error: errorKpiStatistic4g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["kpi-statistic-4g", wid],
+    queryKey: ["kpi-statistic-4g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=${afterDay1}&day2=${afterDay2}&day3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -135,10 +144,10 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTargetKpiStatistic2g,
     error: errorTargetKpiStatistic2g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["target-kpi-statistic-2g", wid],
+    queryKey: ["target-kpi-statistic-2g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/target-kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/target-kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=${beforeDay1}&day2=${beforeDay2}&day3=${beforeDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -147,17 +156,15 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  // console.log({ dataTargetKpiStatistic2g });
-
   const {
     data: dataKpiStatistic2g,
     isPending: isPendingKpiStatistic2g,
     error: errorKpiStatistic2g,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["kpi-statistic-2g", wid],
+    queryKey: ["kpi-statistic-2g", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
-        `/mdoc/api/v1/kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=2026-06-01&day2=2026-06-02&day3=2026-06-03`,
+        `/mdoc/api/v1/kpi-statistic-2g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&day1=${afterDay1}&day2=${afterDay2}&day3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -171,7 +178,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingProductivityPayload,
     error: errorProductivityPayload,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["productivity-payload", wid],
+    queryKey: ["productivity-payload", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/productivity-payload?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
@@ -188,7 +195,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingProductivityTraffic,
     error: errorProductivityTraffic,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["productivity-traffic", wid],
+    queryKey: ["productivity-traffic", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/productivity-traffic?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow === "L900" ? "GSM900" : "DCS1800"}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
@@ -205,7 +212,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayloadThpUser,
     error: errorPayloadThpUser,
   } = useQuery<DataPayloadThpUser[]>({
-    queryKey: ["payload-thp-user", wid],
+    queryKey: ["payload-thp-user", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-thp-user?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -222,7 +229,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayloadBandSiteSow,
     error: errorPayloadBandSiteSow,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["payload-band-site-sow", wid],
+    queryKey: ["payload-band-site-sow", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-band-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -239,7 +246,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayloadBandSiteTier,
     error: errorPayloadBandSiteTier,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["payload-band-site-tier", wid],
+    queryKey: ["payload-band-site-tier", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-band-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -256,7 +263,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingRrcUtilization,
     error: errorRrcUtilization,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["rrc-utilization", wid],
+    queryKey: ["rrc-utilization", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/rrc-utilization?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -273,7 +280,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTraffic2gCellSiteSow,
     error: errorTraffic2gCellSiteSow,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["traffic-2g-cell-site-sow", wid],
+    queryKey: ["traffic-2g-cell-site-sow", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/traffic-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -290,7 +297,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTraffic2gSiteTier,
     error: errorTraffic2gSiteTier,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["traffic-2g-site-tier", wid],
+    queryKey: ["traffic-2g-site-tier", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/traffic-2g-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -307,7 +314,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayload2gCellSiteSow,
     error: errorPayload2gCellSiteSow,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["payload-2g-cell-site-sow", wid],
+    queryKey: ["payload-2g-cell-site-sow", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-2g-cell-site-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -324,7 +331,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayload2gSiteTier,
     error: errorPayload2gSiteTier,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["payload-2g-site-tier", wid],
+    queryKey: ["payload-2g-site-tier", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-2g-site-tier?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -341,7 +348,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTrafficMiniCluster,
     error: errorTrafficMiniCluster,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["traffic-mini-cluster", wid],
+    queryKey: ["traffic-mini-cluster", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/traffic-mini-cluster?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -358,7 +365,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayloadMiniCluster,
     error: errorPayloadMiniCluster,
   } = useQuery<DataPayloadBandSiteSow[]>({
-    queryKey: ["payload-mini-cluster", wid],
+    queryKey: ["payload-mini-cluster", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-mini-cluster?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -375,7 +382,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingTablePrbUtilization,
     error: errorTablePrbUtilization,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["table-prb-utilization", wid],
+    queryKey: ["table-prb-utilization", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/prb-utilization?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -392,7 +399,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingPayload4gCellSow,
     error: errorPayload4gCellSow,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["payload-4g-cell-sow", wid],
+    queryKey: ["payload-4g-cell-sow", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/payload-4g-cell-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -409,7 +416,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingUtilization4gCellSow,
     error: errorUtilization4gCellSow,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["utilization-4g-cell-sow", wid],
+    queryKey: ["utilization-4g-cell-sow", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/utilization-4g-cell-sow?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -426,7 +433,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     isPending: isPendingGetActivityLog,
     error: errorGetActivityLog,
   } = useQuery<DataKpiStatistic4g[]>({
-    queryKey: ["get-activity-log", wid],
+    queryKey: ["get-activity-log", wid, dateStart, dateEnd],
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/get-activity-log?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
@@ -437,8 +444,6 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     },
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
-
-  // console.log({ dataGetActivityLog });
 
   const handleExportPdf = async () => {
     if (!dataSqacTracker || dataSqacTracker.length === 0) return;
@@ -1045,7 +1050,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Intra Freq LTE HO (%)"] || ""}
             </div>
-            <div className="w-20.5 shrink-0 border-neutral-500  border-t border-r border-b p-1 text-center">
+            <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
               {dataTargetKpiStatistic4g[0]["Inter Freq LTE HO (%)"] || "95.00"}
             </div>
             <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
@@ -1090,14 +1095,14 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
-                        Tanggal-1
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay1}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
-                        Tanggal-2
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay2}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
-                        Tanggal-3
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay3}
                       </div>
                     </div>
                   </div>
@@ -1108,7 +1113,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                     Target
                   </div>
                   <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
-                    Impro vement
+                    Improve ment
                   </div>
                   <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
                     Result
@@ -1528,13 +1533,13 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay1}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay2}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay3}
                       </div>
                     </div>
@@ -1549,13 +1554,13 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay1}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay2}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay3}
                       </div>
                     </div>
@@ -1636,13 +1641,13 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay1}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay2}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {beforeDay3}
                       </div>
                     </div>
@@ -1657,13 +1662,13 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
                       <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
                     </div>
                     <div className="flex flex-row">
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay1}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay2}
                       </div>
-                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
                         {afterDay3}
                       </div>
                     </div>
