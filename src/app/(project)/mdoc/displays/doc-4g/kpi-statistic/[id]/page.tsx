@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ActivityLogPage from "../../../activity-log/page";
 import SqacFirstTierPage from "../../../sqac-first-tier/page";
+import DocChecker from "./DocChecker";
 import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
 import Tab1Upload from "./Tab1Upload";
@@ -41,9 +42,11 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <Card>
             <CardHeader>
               <CardTitle>Doc Checker</CardTitle>
-              <CardDescription>---</CardDescription>
+              <CardDescription>Check document status for this site</CardDescription>
             </CardHeader>
-            <CardContent className="text-muted-foreground text-sm">---</CardContent>
+            <CardContent>
+              <DocChecker wid={wid} />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="kpi_statictic">
