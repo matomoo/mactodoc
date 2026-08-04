@@ -40,16 +40,16 @@ export const sidebarItems: NavGroup[] = [
         url: "/mdoc/displays/sqac-tracker",
         icon: Fingerprint,
       },
-      {
-        title: "SQAC First Tier",
-        url: "/mdoc/displays/sqac-first-tier",
-        icon: Fingerprint,
-      },
-      {
-        title: "Activity Log",
-        url: "/mdoc/displays/activity-log",
-        icon: Fingerprint,
-      },
+      // {
+      //   title: "SQAC First Tier",
+      //   url: "/mdoc/displays/sqac-first-tier",
+      //   icon: Fingerprint,
+      // },
+      // {
+      //   title: "Activity Log",
+      //   url: "/mdoc/displays/activity-log",
+      //   icon: Fingerprint,
+      // },
     ],
   },
   {

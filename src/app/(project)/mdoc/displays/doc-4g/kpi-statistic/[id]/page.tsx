@@ -34,6 +34,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <TabsTrigger value="clear-alarm">Clear Alarm</TabsTrigger>
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="manage-1st-tier">Manage 1st Tier</TabsTrigger>
+          <TabsTrigger value="manage-activity-log">Manage Activity Log</TabsTrigger>
         </TabsList>
         <TabsContent value="doc_checker">
           <Card>
@@ -54,6 +55,9 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <Tab1Upload wid={wid} />
         </TabsContent>
         <TabsContent value="manage-1st-tier">
+          <SqacFirstTierPage wid={wid} />
+        </TabsContent>
+        <TabsContent value="manage-activity-log">
           <SqacFirstTierPage wid={wid} />
         </TabsContent>
       </Tabs>

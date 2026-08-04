@@ -33,7 +33,11 @@ const emptyForm: FormData = {
   remark: "",
 };
 
-export default function SqacFirstTierPage({ wid }: { wid: string }) {
+interface SqacFirstTierPageProps {
+  wid?: string;
+}
+
+export default function SqacFirstTierPage({ wid }: SqacFirstTierPageProps) {
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -42,27 +46,39 @@ export default function SqacFirstTierPage({ wid }: { wid: string }) {
   const [deletingItem, setDeletingItem] = useState<SqacFirstTierItem | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyForm);
 
-  // Search filters
-  const [searchSiteidMain, setSearchSiteidMain] = useState("");
-  const [searchSiteidTier, setSearchSiteidTier] = useState("");
-
-  // Fetch data
-  const { data, isPending, error } = useQuery<SqacFirstTierItem[]>({
-    queryKey: ["sqac-first-tier"],
+  // Fetch siteid from sqac_tracker based on wid
+  const { data: sqacTrackerData } = useQuery({
+    queryKey: ["sqac-tracker-wid", wid],
     queryFn: async () => {
-      const response = await fetch("/mdoc/api/v1/sqac-first-tier");
+      const response = await fetch(`/mdoc/api/v1/sqac-tracker?wid=${encodeURIComponent(wid || "")}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data[0] || null;
+    },
+    enabled: !!wid,
+  });
+
+  const siteidFromWid = sqacTrackerData?.siteid;
+
+  // Fetch sqac_first_tier data, filtered by siteid from wid
+  const { data, isPending, error } = useQuery<SqacFirstTierItem[]>({
+    queryKey: ["sqac-first-tier", wid],
+    queryFn: async () => {
+      const url = wid ? `/mdoc/api/v1/sqac-first-tier?wid=${encodeURIComponent(wid)}` : "/mdoc/api/v1/sqac-first-tier";
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch data");
       return response.json();
     },
   });
 
+  // Search filter for tier site
+  const [searchSiteidTier, setSearchSiteidTier] = useState("");
+
   // Filtered data
   const filteredData =
-    data?.filter((item) => {
-      const matchMain = !searchSiteidMain || item.siteid_main.toLowerCase().includes(searchSiteidMain.toLowerCase());
-      const matchTier = !searchSiteidTier || item.siteid_tier.toLowerCase().includes(searchSiteidTier.toLowerCase());
-      return matchMain && matchTier;
-    }) || [];
+    data?.filter(
+      (item) => !searchSiteidTier || item.siteid_tier.toLowerCase().includes(searchSiteidTier.toLowerCase()),
+    ) || [];
 
   // Create mutation
   const createMutation = useMutation({
@@ -131,7 +147,12 @@ export default function SqacFirstTierPage({ wid }: { wid: string }) {
 
   const handleOpenCreate = () => {
     setEditingItem(null);
-    setFormData(emptyForm);
+    setFormData({
+      siteid_main: siteidFromWid || "",
+      siteid_tier: "",
+      sector_tier: "",
+      remark: "",
+    });
     setIsDialogOpen(true);
   };
 
@@ -167,28 +188,25 @@ export default function SqacFirstTierPage({ wid }: { wid: string }) {
   };
 
   const handleClearFilters = () => {
-    setSearchSiteidMain("");
     setSearchSiteidTier("");
   };
 
   return (
     <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl">SQAC First Tier</h1>
-        <Button onClick={handleOpenCreate}>Add New</Button>
+        <div className="flex items-center gap-4">
+          <h1 className="font-bold text-xl">First Tier List</h1>
+          {siteidFromWid && (
+            <span className="rounded bg-muted px-3 py-1 font-medium text-sm">Main Site: {siteidFromWid}</span>
+          )}
+        </div>
+        <Button onClick={handleOpenCreate} disabled={!siteidFromWid && !wid}>
+          Add New
+        </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="w-48">
-          <Label htmlFor="search-siteid-main">Search Site ID Main</Label>
-          <Input
-            id="search-siteid-main"
-            placeholder="Search Site ID Main..."
-            value={searchSiteidMain}
-            onChange={(e) => setSearchSiteidMain(e.target.value)}
-          />
-        </div>
+      {/* <div className="flex flex-wrap items-end gap-3">
         <div className="w-48">
           <Label htmlFor="search-siteid-tier">Search Site ID Tier</Label>
           <Input
@@ -201,7 +219,7 @@ export default function SqacFirstTierPage({ wid }: { wid: string }) {
         <Button variant="outline" size="sm" onClick={handleClearFilters}>
           Clear
         </Button>
-      </div>
+      </div> */}
 
       {isPending && <div className="text-muted-foreground">Loading...</div>}
       {error && <div className="text-destructive">Error: {error.message}</div>}
@@ -262,6 +280,7 @@ export default function SqacFirstTierPage({ wid }: { wid: string }) {
                   value={formData.siteid_main}
                   onChange={(e) => setFormData({ ...formData, siteid_main: e.target.value })}
                   required
+                  disabled={!!editingItem}
                 />
               </div>
               <div>
