@@ -770,33 +770,57 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
       {dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0 && dataGetTa4GTier && dataGetTa4GTier.length > 0 && (
         <div key={"chart-ta-4g-first-tier"} className="mt-16">
           <div className="mb-4 font-bold text-lg">First Tier Neighbor Sites</div>
-          {dataGetSqacFirstTier.map((tier) => {
-            const refKey = `first-tier-${tier.siteid_tier.toLowerCase()}-sector-${tier.sector_tier}`;
-            const matchingData = dataGetTa4GTier.filter(
-              (d) => d.siteid === tier.siteid_tier && d.sector?.toString() === tier.sector_tier,
+          {/* Loop by siteid_tier first */}
+          {[...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))].map((siteidTier) => {
+            const tierItems = dataGetSqacFirstTier.filter((t) => t.siteid_tier === siteidTier);
+            const sectorTiers = tierItems.map((t) => t.sector_tier);
+            // Filter dataGetTa4GTier to only include sectors matching sector_tier
+            const filteredTierData = dataGetTa4GTier.filter(
+              (d) => d.siteid === siteidTier && sectorTiers.includes(d.sector?.toString() ?? ""),
             );
-            if (matchingData.length === 0) return null;
 
             return (
-              <div key={tier.siteid_tier + tier.sector_tier} className="mb-8">
-                <div className="mb-2 font-semibold">
-                  {tier.siteid_tier} - Sector {tier.sector_tier}
+              <div key={siteidTier} className="mb-8">
+                <div className="mb-4 flex items-center gap-4">
+                  <div className="font-semibold text-lg">{siteidTier}</div>
+                  <div className="text-sm text-muted-foreground">{tierItems[0]?.remark}</div>
                 </div>
-                <div className="text-sm text-muted-foreground mb-2">{tier.remark}</div>
-                <ChartTa4g
-                  ref={(ref) => {
-                    if (ref) {
-                      chartTa4gFirstTierRefs.current.set(refKey, ref);
-                    } else {
-                      chartTa4gFirstTierRefs.current.delete(refKey);
-                    }
-                  }}
-                  data={dataGetTa4GTier}
-                  siteid={tier.siteid_tier}
-                  band={""}
-                  cellId={matchingData[0].cellId}
-                  chart_title={`TA Distribution - ${tier.siteid_tier} Sector ${tier.sector_tier}`}
-                />
+                {/* Loop by band within each siteid_tier */}
+                {[...new Set(filteredTierData.map((d) => d.band))].sort().map((band) => (
+                  <div key={band} className="mb-6 ml-4">
+                    <div className="mb-3 font-medium">{band}</div>
+                    {/* Loop by cellId within each band */}
+                    {[...new Set(filteredTierData.filter((d) => d.band === band).map((d) => d.cellId))]
+                      .sort()
+                      .map((cellId) => {
+                        const refKey = `first-tier-${siteidTier.toLowerCase()}-${band.toLowerCase()}-cellid-${cellId}`;
+                        const matchingData = filteredTierData.filter((d) => d.band === band && d.cellId === cellId);
+                        if (matchingData.length === 0) return null;
+
+                        return (
+                          <div key={cellId} className="mb-6 ml-4">
+                            <div className="mb-2 text-sm font-medium">
+                              {matchingData[0]?.siteid_short_band_sector ?? `Cell ${cellId}`}
+                            </div>
+                            <ChartTa4g
+                              ref={(ref) => {
+                                if (ref) {
+                                  chartTa4gFirstTierRefs.current.set(refKey, ref);
+                                } else {
+                                  chartTa4gFirstTierRefs.current.delete(refKey);
+                                }
+                              }}
+                              data={filteredTierData}
+                              siteid={siteidTier}
+                              band={band}
+                              cellId={cellId}
+                              chart_title={`TA Distribution - ${siteidTier} ${band} Sector ${matchingData[0]?.sector}`}
+                            />
+                          </div>
+                        );
+                      })}
+                  </div>
+                ))}
               </div>
             );
           })}
