@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx @biomejs/biome format --write src/components/date-range-filter.tsx)"
+      "Bash(npx @biomejs/biome format --write src/components/date-range-filter.tsx)",
+      "Bash(mkdir -p /Users/mato/dev/Projects/macto/mactodoc/src/app/\\\\\\(project\\\\\\)/mdoc/api/v1/sqac-first-tier/\\\\[id\\\\])"
+    ],
+    "additionalDirectories": [
+      "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/api/v1/sqac-first-tier"
     ]
   }
 }
