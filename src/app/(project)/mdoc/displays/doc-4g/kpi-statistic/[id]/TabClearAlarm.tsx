@@ -164,7 +164,22 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataGetKpi4g });
+  const {
+    data: dataGetSqacFirstTier,
+    isPending: isPendingGetSqacFirstTier,
+    error: errorGetSqacFirstTier,
+  } = useQuery<TaDataItem[]>({
+    queryKey: ["get-sqac-first-tier", wid],
+    queryFn: async () => {
+      const response = await fetch(`/mdoc/api/v1/get-sqac-first-tier?siteid=${dataSqacTracker?.[0].siteid}`);
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  console.log({ dataGetSqacFirstTier });
 
   const handleExportChartsToServer = async () => {
     setIsExporting(true);
@@ -675,7 +690,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
             .sort()
             .map((band) => (
               <div key={band} className="mb-8">
-                <div className="font-bold text-lg mb-4">{band}</div>
+                <div className="mb-4 font-bold text-lg">{band}</div>
                 {[...new Set(dataGetTa4g.filter((d) => d.band === band).map((item) => item.cellId))]
                   .sort()
                   .map((cellId) => {
@@ -704,6 +719,8 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
             ))}
         </div>
       )}
+
+      {/* get data from api. api  */}
 
       {/* eof */}
     </div>
