@@ -34,7 +34,11 @@ const emptyForm: FormData = {
   deskripsi: "",
 };
 
-export default function ActivityLogPage() {
+interface ActivityLogPageProps {
+  wid?: string;
+}
+
+export default function ActivityLogPage({ wid }: ActivityLogPageProps) {
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,11 +51,26 @@ export default function ActivityLogPage() {
   const [searchSiteid, setSearchSiteid] = useState("");
   const [filterBand, setFilterBand] = useState("all");
 
-  // Fetch data
-  const { data, isPending, error } = useQuery<ActivityLogItem[]>({
-    queryKey: ["activity-log"],
+  // Fetch siteid from sqac_tracker based on wid
+  const { data: sqacTrackerData } = useQuery({
+    queryKey: ["sqac-tracker-wid", wid],
     queryFn: async () => {
-      const response = await fetch("/mdoc/api/v1/activity-log");
+      const response = await fetch(`/mdoc/api/v1/sqac-tracker?wid=${encodeURIComponent(wid || "")}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data[0] || null;
+    },
+    enabled: !!wid,
+  });
+
+  const siteidFromWid = sqacTrackerData?.siteid;
+
+  // Fetch data filtered by wid
+  const { data, isPending, error } = useQuery<ActivityLogItem[]>({
+    queryKey: ["activity-log", wid],
+    queryFn: async () => {
+      const url = wid ? `/mdoc/api/v1/activity-log?wid=${encodeURIComponent(wid)}` : "/mdoc/api/v1/activity-log";
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch data");
       return response.json();
     },
@@ -142,7 +161,12 @@ export default function ActivityLogPage() {
 
   const handleOpenCreate = () => {
     setEditingItem(null);
-    setFormData(emptyForm);
+    setFormData({
+      tanggal: "",
+      siteid: siteidFromWid || "",
+      band: "",
+      deskripsi: "",
+    });
     setIsDialogOpen(true);
   };
 
@@ -195,14 +219,21 @@ export default function ActivityLogPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Activity Log</h1>
-        <Button onClick={handleOpenCreate}>Add New</Button>
+        <div className="flex items-center gap-4">
+          <h1 className="font-bold text-xl">Activity Log</h1>
+          {siteidFromWid && (
+            <span className="rounded bg-muted px-3 py-1 font-medium text-sm">Site: {siteidFromWid}</span>
+          )}
+        </div>
+        <Button onClick={handleOpenCreate} disabled={!siteidFromWid && !wid}>
+          Add New
+        </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
+      {/* <div className="flex flex-wrap items-end gap-3">
         <div className="w-48">
           <Label htmlFor="search-siteid">Search Site ID</Label>
           <Input
@@ -231,12 +262,12 @@ export default function ActivityLogPage() {
         <Button variant="outline" size="sm" onClick={handleClearFilters}>
           Clear
         </Button>
-      </div>
+      </div> */}
 
       {isPending && <div className="text-muted-foreground">Loading...</div>}
       {error && <div className="text-destructive">Error: {error.message}</div>}
 
-      <div className="border rounded-lg">
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

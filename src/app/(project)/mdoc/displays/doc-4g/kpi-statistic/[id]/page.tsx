@@ -6,6 +6,7 @@ import { DateRangeFilter } from "@/components/date-range-filter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import ActivityLogPage from "../../../activity-log/page";
 import SqacFirstTierPage from "../../../sqac-first-tier/page";
 import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
@@ -58,7 +59,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <SqacFirstTierPage wid={wid} />
         </TabsContent>
         <TabsContent value="manage-activity-log">
-          <SqacFirstTierPage wid={wid} />
+          <ActivityLogPage wid={wid} />
         </TabsContent>
       </Tabs>
     </div>

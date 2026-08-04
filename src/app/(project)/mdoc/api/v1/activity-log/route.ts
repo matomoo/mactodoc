@@ -4,19 +4,40 @@ import { sql } from "drizzle-orm";
 
 import { NextResponse } from "next/server";
 
-// GET all (optionally filter by siteid query param)
+// GET all (optionally filter by siteid or wid query param)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const wid = searchParams.get("wid");
   const siteid = searchParams.get("siteid");
 
-  let query = sql`SELECT * FROM activity_log`;
-  if (siteid) {
-    query = sql`SELECT * FROM activity_log WHERE siteid = ${siteid}`;
+  let trackerSiteid: string | null = null;
+
+  // Query sqac_tracker to get siteid based on wid
+  if (wid) {
+    const trackerResult = await db_conn_v1.execute(sql`
+      SELECT siteid FROM sqac_tracker WHERE wid = ${wid} LIMIT 1
+    `);
+    trackerSiteid = trackerResult.rows[0]?.siteid || null;
   }
-  query = sql`${query} ORDER BY tanggal DESC`;
 
-  const result = await db_conn_v1.execute(query);
+  // Filter by siteid
+  if (trackerSiteid) {
+    const result = await db_conn_v1.execute(sql`
+      SELECT * FROM activity_log WHERE siteid = ${trackerSiteid} ORDER BY tanggal DESC
+    `);
+    return NextResponse.json(result.rows);
+  }
+  if (siteid) {
+    const result = await db_conn_v1.execute(sql`
+      SELECT * FROM activity_log WHERE siteid = ${siteid} ORDER BY tanggal DESC
+    `);
+    return NextResponse.json(result.rows);
+  }
 
+  // Return all data if no filter
+  const result = await db_conn_v1.execute(sql`
+    SELECT * FROM activity_log ORDER BY tanggal DESC
+  `);
   return NextResponse.json(result.rows);
 }
 
