@@ -170,3 +170,11 @@ export interface TaDataItem {
   total_reports: number;
   percentage: string;
 }
+
+export interface SqacFirstTierItem {
+  id: string;
+  siteid_main: string;
+  siteid_tier: string;
+  sector_tier: string;
+  remark: string;
+}

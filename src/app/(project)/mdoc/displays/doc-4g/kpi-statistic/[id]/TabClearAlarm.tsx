@@ -7,7 +7,12 @@ import { toJpeg } from "html-to-image";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import type { DataKpiStatistic4g, SqacTrackerItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
+import type {
+  DataKpiStatistic4g,
+  SqacFirstTierItem,
+  SqacTrackerItem,
+  TaDataItem,
+} from "@/app/(project)/mdoc/def/interfaces";
 import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 import { useSqacStore } from "@/stores/sqacStore";
@@ -77,6 +82,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
   const chartKpi2gFastReturnLteRef = useRef<ChartKpi4gRef>(null);
   const chartTa4gBandSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
   const chartTa4gBandNotSowRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
+  const chartTa4gFirstTierRefs = useRef<Map<string, ChartTa4gRef>>(new Map());
 
   // Refs for table components
   const tableClearAlarmInfo4gRef = useRef<HTMLDivElement>(null);
@@ -168,7 +174,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     data: dataGetSqacFirstTier,
     isPending: isPendingGetSqacFirstTier,
     error: errorGetSqacFirstTier,
-  } = useQuery<TaDataItem[]>({
+  } = useQuery<SqacFirstTierItem[]>({
     queryKey: ["get-sqac-first-tier", wid],
     queryFn: async () => {
       const response = await fetch(`/mdoc/api/v1/get-sqac-first-tier?siteid=${dataSqacTracker?.[0].siteid}`);
@@ -179,7 +185,37 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log({ dataGetSqacFirstTier });
+  const {
+    data: dataGetTa4GTier,
+    isPending: isPendingGetTa4GTier,
+    error: errorGetTa4GTier,
+  } = useQuery<TaDataItem[]>({
+    queryKey: ["get-ta-4g-tier", wid, dataGetSqacFirstTier],
+    queryFn: async () => {
+      if (!dataGetSqacFirstTier || dataGetSqacFirstTier.length === 0) {
+        return [];
+      }
+
+      const uniqueSiteids = [...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))];
+
+      const results = await Promise.all(
+        uniqueSiteids.map(async (siteidTier) => {
+          const response = await fetch(
+            `/mdoc/api/v1/ta-4g?siteid=${encodeURIComponent(siteidTier)}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch data");
+          const result = await response.json();
+          console.log({ result });
+          return result.rows;
+        }),
+      );
+
+      return results.flat();
+    },
+    enabled: !!wid && !!dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0,
+  });
+
+  console.log({ dataGetTa4GTier });
 
   const handleExportChartsToServer = async () => {
     setIsExporting(true);
@@ -720,7 +756,52 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         </div>
       )}
 
-      {/* get data from api. api  */}
+      {/* Chart TA 4G First Tier */}
+      {isPendingGetSqacFirstTier && <div className="text-muted-foreground">Loading...</div>}
+      {errorGetSqacFirstTier && <div className="text-destructive">Error: {errorGetSqacFirstTier.message}</div>}
+
+      {dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0 && (
+        <>
+          {isPendingGetTa4GTier && <div className="text-muted-foreground">Loading TA data for first tier...</div>}
+          {errorGetTa4GTier && <div className="text-destructive">Error: {errorGetTa4GTier.message}</div>}
+        </>
+      )}
+
+      {dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0 && dataGetTa4GTier && dataGetTa4GTier.length > 0 && (
+        <div key={"chart-ta-4g-first-tier"} className="mt-16">
+          <div className="mb-4 font-bold text-lg">First Tier Neighbor Sites</div>
+          {dataGetSqacFirstTier.map((tier) => {
+            const refKey = `first-tier-${tier.siteid_tier.toLowerCase()}-sector-${tier.sector_tier}`;
+            const matchingData = dataGetTa4GTier.filter(
+              (d) => d.siteid === tier.siteid_tier && d.sector?.toString() === tier.sector_tier,
+            );
+            if (matchingData.length === 0) return null;
+
+            return (
+              <div key={tier.siteid_tier + tier.sector_tier} className="mb-8">
+                <div className="mb-2 font-semibold">
+                  {tier.siteid_tier} - Sector {tier.sector_tier}
+                </div>
+                <div className="text-sm text-muted-foreground mb-2">{tier.remark}</div>
+                <ChartTa4g
+                  ref={(ref) => {
+                    if (ref) {
+                      chartTa4gFirstTierRefs.current.set(refKey, ref);
+                    } else {
+                      chartTa4gFirstTierRefs.current.delete(refKey);
+                    }
+                  }}
+                  data={dataGetTa4GTier}
+                  siteid={tier.siteid_tier}
+                  band={""}
+                  cellId={matchingData[0].cellId}
+                  chart_title={`TA Distribution - ${tier.siteid_tier} Sector ${tier.sector_tier}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* eof */}
     </div>
