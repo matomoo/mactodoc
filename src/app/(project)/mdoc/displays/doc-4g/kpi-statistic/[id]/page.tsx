@@ -40,10 +40,10 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
         </TabsList>
         <TabsContent value="doc_checker">
           <Card>
-            <CardHeader>
+            {/* <CardHeader>
               <CardTitle>Doc Checker</CardTitle>
               <CardDescription>Check document status for this site</CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
               <DocChecker wid={wid} />
             </CardContent>
