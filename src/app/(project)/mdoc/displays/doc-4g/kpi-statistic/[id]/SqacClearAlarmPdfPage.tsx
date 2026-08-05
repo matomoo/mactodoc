@@ -1,6 +1,6 @@
 import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 
-import type { DataActivityLog, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
+import type { DataActivityLog, SqacFirstTierItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
@@ -28,6 +28,8 @@ export interface SqacPdfPageProps {
   wid: string;
   dataActivity: DataActivityLog[];
   dataTa4g: TaDataItem[];
+  dataGetSqacFirstTier: SqacFirstTierItem[];
+  dataGetTa4GTier: TaDataItem[];
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -40,7 +42,14 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: SqacPdfPageProps) {
+export function SqacClearAlarmPdfPage({
+  item,
+  wid,
+  dataActivity,
+  dataTa4g,
+  dataGetSqacFirstTier,
+  dataGetTa4GTier,
+}: SqacPdfPageProps) {
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">
@@ -374,8 +383,76 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: Sqa
         </Page>
       ))}
 
+      {/* Page 9 ta tier */}
+      {dataGetSqacFirstTier &&
+        dataGetSqacFirstTier.length > 0 &&
+        dataGetTa4GTier &&
+        dataGetTa4GTier.length > 0 &&
+        [...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))].map((siteidTier) => {
+          const tierItems = dataGetSqacFirstTier.filter((t) => t.siteid_tier === siteidTier);
+          const sectorTiers = tierItems.map((t) => t.sector_tier);
+          // Filter dataGetTa4GTier to only include sectors matching sector_tier
+          const filteredTierData = dataGetTa4GTier.filter(
+            (d) => d.siteid === siteidTier && sectorTiers.includes(d.sector?.toString() ?? ""),
+          );
+
+          return (
+            <Page key={siteidTier} size="A4" style={styles.page}>
+              <View style={styles.logoRow}>
+                <Image src={LOGO_TINFRA} style={styles.logo} />
+                <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+              </View>
+
+              <Text style={styles.header}>TA 1st Tier</Text>
+              <View
+                key={siteidTier}
+                style={{
+                  marginTop: 8,
+                  alignItems: "flex-start",
+                  flexDirection: "column",
+                }}
+              >
+                {/* <Text style={styles.subHeader}>
+                  Sector_{item?.sector}
+                  {formatBand}
+                </Text> */}
+                {[...new Set(filteredTierData.map((d) => d.band))].sort().map((band) => (
+                  <View
+                    key={band}
+                    style={{
+                      marginTop: 2,
+                      alignItems: "flex-start",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {[...new Set(filteredTierData.filter((d) => d.band === band).map((d) => d.cellId))]
+                      .sort()
+                      .map((cellId) => {
+                        const refKey = `${siteidTier.toLowerCase()}-${band.toLowerCase()}-cellid-${cellId}`;
+                        const matchingData = filteredTierData.filter((d) => d.band === band && d.cellId === cellId);
+                        if (matchingData.length === 0) return null;
+
+                        return (
+                          <View key={cellId} style={{ marginRight: 10, marginBottom: 12 }}>
+                            <Text style={styles.subHeader}>
+                              {matchingData[0]?.siteid_short_band_sector ?? `Cell ${cellId}`}
+                            </Text>
+                            <Image
+                              src={`/chart-for-doc/${wid}-chart-ta-4g-first-tier-${refKey}.jpg`}
+                              style={{ width: 518, height: "auto" }}
+                            />
+                          </View>
+                        );
+                      })}
+                  </View>
+                ))}
+              </View>
+            </Page>
+          );
+        })}
+
       {/* Page 10 */}
-      <Page size="A4" style={styles.page}>
+      {/* <Page size="A4" style={styles.page}>
         <View style={styles.logoRow}>
           <Image src={LOGO_TINFRA} style={styles.logo} />
           <Image src={LOGO_TELKOMSEL} style={styles.logo} />
@@ -388,13 +465,15 @@ export function SqacClearAlarmPdfPage({ item, wid, dataActivity, dataTa4g }: Sqa
             marginTop: 8,
             alignItems: "flex-start",
             flexDirection: "column",
-          }}
-        >
+          }}>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-map_ta`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={`/chart-for-doc/${wid}-map_ta`}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
-      </Page>
+      </Page> */}
 
       {/* Page 11 */}
       <Page size="A4" style={styles.page}>

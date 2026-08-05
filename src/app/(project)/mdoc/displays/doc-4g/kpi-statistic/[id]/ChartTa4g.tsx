@@ -107,8 +107,9 @@ const ChartTa4g = forwardRef<ChartTa4gRef, ChartTa4gProps>(function ChartTa4g(
       type: "bar" as const,
       label: "Total Reports",
       data: sortedData.map((item) => item.total_reports),
-      backgroundColor: chartJsColors[0] + "80", // with transparency
+      backgroundColor: `${chartJsColors[0]}`, // with transparency
       borderColor: chartJsColors[0],
+      pointBackgroundColor: chartJsColors[0],
       borderWidth: 1,
       yAxisID: "y",
       order: 2,
@@ -120,13 +121,13 @@ const ChartTa4g = forwardRef<ChartTa4gRef, ChartTa4gProps>(function ChartTa4g(
       type: "line" as const,
       label: "Percentage",
       data: sortedData.map((item) => parseFloat(item.percentage)),
-      borderColor: chartJsColors[1],
+      borderColor: chartJsColors[14],
       backgroundColor: "transparent",
       borderWidth: 3,
       fill: false,
       tension: 0.3,
       pointRadius: 4,
-      pointBackgroundColor: chartJsColors[1],
+      pointBackgroundColor: chartJsColors[14],
       yAxisID: "y1",
       order: 1,
       dataLabels: { display: false },
@@ -193,8 +194,8 @@ const ChartTa4g = forwardRef<ChartTa4gRef, ChartTa4gProps>(function ChartTa4g(
         scales: {
           x: {
             ticks: {
-              maxRotation: 45,
-              minRotation: 45,
+              maxRotation: 90,
+              minRotation: 90,
               font: {
                 size: chartJsV1Settings.xAxisTickFontSize,
               },

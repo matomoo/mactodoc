@@ -215,7 +215,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     enabled: !!wid && !!dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0,
   });
 
-  console.log({ dataGetTa4GTier });
+  // console.log({ dataGetTa4GTier });
 
   const handleExportChartsToServer = async () => {
     setIsExporting(true);
@@ -289,6 +289,24 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
         const imageData = chartRef.getImageData();
         if (imageData) {
           const filename = `${wid}-chart-ta-4g-band-not-sow-${key}.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export TA 4G First Tier charts
+      for (const [key, chartRef] of chartTa4gFirstTierRefs.current.entries()) {
+        const imageData = chartRef.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-ta-4g-first-tier-${key}.jpg`;
           const response = await fetch("/mdoc/api/v1/chart-export", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -783,7 +801,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
               <div key={siteidTier} className="mb-8">
                 <div className="mb-4 flex items-center gap-4">
                   <div className="font-semibold text-lg">{siteidTier}</div>
-                  <div className="text-sm text-muted-foreground">{tierItems[0]?.remark}</div>
+                  <div className="text-muted-foreground text-sm">{tierItems[0]?.remark}</div>
                 </div>
                 {/* Loop by band within each siteid_tier */}
                 {[...new Set(filteredTierData.map((d) => d.band))].sort().map((band) => (
@@ -793,13 +811,13 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
                     {[...new Set(filteredTierData.filter((d) => d.band === band).map((d) => d.cellId))]
                       .sort()
                       .map((cellId) => {
-                        const refKey = `first-tier-${siteidTier.toLowerCase()}-${band.toLowerCase()}-cellid-${cellId}`;
+                        const refKey = `${siteidTier.toLowerCase()}-${band.toLowerCase()}-cellid-${cellId}`;
                         const matchingData = filteredTierData.filter((d) => d.band === band && d.cellId === cellId);
                         if (matchingData.length === 0) return null;
 
                         return (
                           <div key={cellId} className="mb-6 ml-4">
-                            <div className="mb-2 text-sm font-medium">
+                            <div className="mb-2 font-medium text-sm">
                               {matchingData[0]?.siteid_short_band_sector ?? `Cell ${cellId}`}
                             </div>
                             <ChartTa4g
@@ -814,7 +832,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
                               siteid={siteidTier}
                               band={band}
                               cellId={cellId}
-                              chart_title={`TA Distribution - ${siteidTier} ${band} Sector ${matchingData[0]?.sector}`}
+                              chart_title={`TA Distribution`}
                             />
                           </div>
                         );
