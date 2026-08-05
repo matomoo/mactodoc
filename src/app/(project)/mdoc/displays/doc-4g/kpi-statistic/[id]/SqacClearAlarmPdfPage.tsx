@@ -383,73 +383,74 @@ export function SqacClearAlarmPdfPage({
         </Page>
       ))}
 
-      {/* Page 9 ta tier */}
-      {dataGetSqacFirstTier &&
-        dataGetSqacFirstTier.length > 0 &&
-        dataGetTa4GTier &&
-        dataGetTa4GTier.length > 0 &&
-        [...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))].map((siteidTier) => {
-          const tierItems = dataGetSqacFirstTier.filter((t) => t.siteid_tier === siteidTier);
+      {/* TA 1st Tier - with auto-pagination (max 3 charts per page) */}
+      {(() => {
+        if (
+          !dataGetSqacFirstTier ||
+          dataGetSqacFirstTier.length === 0 ||
+          !dataGetTa4GTier ||
+          dataGetTa4GTier.length === 0
+        ) {
+          return null;
+        }
+
+        const siteidTiers = [...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))];
+        const pages: Array<{
+          siteidTier: string;
+          charts: Array<{ band: string; cellId: string; refKey: string; label: string }>;
+        }> = [];
+
+        siteidTiers.forEach((siteidTier) => {
+          const tierKey = String(siteidTier);
+          const tierItems = dataGetSqacFirstTier.filter((t) => String(t.siteid_tier) === tierKey);
           const sectorTiers = tierItems.map((t) => t.sector_tier);
-          // Filter dataGetTa4GTier to only include sectors matching sector_tier
           const filteredTierData = dataGetTa4GTier.filter(
             (d) => d.siteid === siteidTier && sectorTiers.includes(d.sector?.toString() ?? ""),
           );
 
-          return (
-            <Page key={siteidTier} size="A4" style={styles.page}>
-              <View style={styles.logoRow}>
-                <Image src={LOGO_TINFRA} style={styles.logo} />
-                <Image src={LOGO_TELKOMSEL} style={styles.logo} />
-              </View>
+          const bands = [...new Set(filteredTierData.map((d) => d.band))].sort();
+          bands.forEach((band) => {
+            const cellIds = [
+              ...new Set(filteredTierData.filter((d) => d.band === band).map((d) => String(d.cellId))),
+            ].sort();
+            cellIds.forEach((cellId) => {
+              const cellIdStr = String(cellId);
+              const refKey = `${tierKey.toLowerCase()}-${band.toLowerCase()}-cellid-${cellIdStr}`;
+              const matchingData = filteredTierData.filter((d) => d.band === band && String(d.cellId) === cellIdStr);
+              const label = matchingData[0]?.siteid_short_band_sector ?? `Cell ${cellIdStr}`;
 
-              <Text style={styles.header}>TA 1st Tier</Text>
-              <View
-                key={siteidTier}
-                style={{
-                  marginTop: 8,
-                  alignItems: "flex-start",
-                  flexDirection: "column",
-                }}
-              >
-                {/* <Text style={styles.subHeader}>
-                  Sector_{item?.sector}
-                  {formatBand}
-                </Text> */}
-                {[...new Set(filteredTierData.map((d) => d.band))].sort().map((band) => (
-                  <View
-                    key={band}
-                    style={{
-                      marginTop: 2,
-                      alignItems: "flex-start",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {[...new Set(filteredTierData.filter((d) => d.band === band).map((d) => d.cellId))]
-                      .sort()
-                      .map((cellId) => {
-                        const refKey = `${siteidTier.toLowerCase()}-${band.toLowerCase()}-cellid-${cellId}`;
-                        const matchingData = filteredTierData.filter((d) => d.band === band && d.cellId === cellId);
-                        if (matchingData.length === 0) return null;
+              // Find existing page with less than 3 charts for same siteidTier, or create new page
+              let targetPage = pages.find((p) => p.siteidTier === tierKey && p.charts.length < 3);
+              if (!targetPage) {
+                targetPage = { siteidTier: tierKey, charts: [] };
+                pages.push(targetPage);
+              }
+              targetPage.charts.push({ band, cellId: cellIdStr, refKey, label });
+            });
+          });
+        });
 
-                        return (
-                          <View key={cellId} style={{ marginRight: 10, marginBottom: 12 }}>
-                            <Text style={styles.subHeader}>
-                              {matchingData[0]?.siteid_short_band_sector ?? `Cell ${cellId}`}
-                            </Text>
-                            <Image
-                              src={`/chart-for-doc/${wid}-chart-ta-4g-first-tier-${refKey}.jpg`}
-                              style={{ width: 518, height: "auto" }}
-                            />
-                          </View>
-                        );
-                      })}
-                  </View>
-                ))}
-              </View>
-            </Page>
-          );
-        })}
+        return pages.map((page, pageIndex) => (
+          <Page key={`${page.siteidTier}-${pageIndex}`} size="A4" style={styles.page}>
+            <View style={styles.logoRow}>
+              <Image src={LOGO_TINFRA} style={styles.logo} />
+              <Image src={LOGO_TELKOMSEL} style={styles.logo} />
+            </View>
+            <Text style={styles.header}>TA 1st Tier</Text>
+            <View style={{ marginTop: 8, alignItems: "flex-start", flexDirection: "column" }}>
+              {page.charts.map((chart) => (
+                <View key={chart.cellId} style={{ marginRight: 10, marginBottom: 12 }}>
+                  <Text style={styles.subHeader}>{chart.label}</Text>
+                  <Image
+                    src={`/chart-for-doc/${wid}-chart-ta-4g-first-tier-${chart.refKey}.jpg`}
+                    style={{ width: 518, height: "auto" }}
+                  />
+                </View>
+              ))}
+            </View>
+          </Page>
+        ));
+      })()}
 
       {/* Page 10 */}
       {/* <Page size="A4" style={styles.page}>
