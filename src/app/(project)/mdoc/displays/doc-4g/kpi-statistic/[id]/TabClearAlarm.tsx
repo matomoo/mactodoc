@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 
+import { pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { toJpeg } from "html-to-image";
 import { Download, Loader2 } from "lucide-react";
@@ -21,6 +22,7 @@ import type { ChartKpi4gRef } from "./ChartKpi4g";
 import ChartKpi4g from "./ChartKpi4g";
 import type { ChartTa4gRef } from "./ChartTa4g";
 import ChartTa4g from "./ChartTa4g";
+import SqacClearAlarmPdfDocument from "./SqacClearAlarmPdfDocument";
 
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
@@ -375,6 +377,37 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
     }
   };
 
+  const handleExportPdf = async () => {
+    if (!dataSqacTracker || dataSqacTracker.length === 0) return;
+
+    try {
+      const doc = (
+        <SqacClearAlarmPdfDocument
+          data={dataSqacTracker}
+          wid={wid}
+          dataActivity={dataGetActivityLog ?? []}
+          dataTa4g={dataGetTa4g ?? []}
+          dataGetSqacFirstTier={dataGetSqacFirstTier ?? []}
+          dataGetTa4GTier={dataGetTa4GTier ?? []}
+        />
+      );
+
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Clear-Alarm-${wid}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("PDF exported successfully!");
+    } catch (err) {
+      console.error("PDF export error:", err);
+      toast.error("Failed to export PDF");
+    }
+  };
+
   return (
     <div className="mx-auto w-full space-y-4 p-6">
       <div className="flex items-center justify-between">
@@ -390,7 +423,7 @@ export default function TabClearAlarmPage({ wid }: { wid: string }) {
           </Button>
           <Button
             variant="default"
-            // onClick={handleExportPdf}
+            onClick={handleExportPdf}
             disabled={!dataSqacTracker || dataSqacTracker.length === 0}
           >
             Export to PDF

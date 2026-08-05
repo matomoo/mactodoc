@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import { PDFViewer } from "@react-pdf/renderer";
+import { useSearchParams } from "next/navigation";
+
+import { PDFViewer, pdf } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import type {
   DataActivityLog,
@@ -43,9 +46,70 @@ function ClearAlarmPdfViewerComponent({
   );
 }
 
-export default function TabPdfViewerClearAlarm({ wid }: { wid: string }) {
-  const [beforeDay1, setBeforeDay1] = useState("2026-05-01");
-  const [afterDay3, setAfterDay3] = useState("2026-06-03");
+function PdfExportHandler({
+  data,
+  dataActivity,
+  dataTa4g,
+  dataGetSqacFirstTier,
+  dataGetTa4GTier,
+  wid,
+}: {
+  data: SqacTrackerItem[];
+  dataActivity: DataActivityLog[];
+  dataTa4g: TaDataItem[];
+  dataGetSqacFirstTier: SqacFirstTierItem[];
+  dataGetTa4GTier: TaDataItem[];
+  wid: string;
+}) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  useEffect(() => {
+    setIsExporting(true);
+
+    const exportPdf = async () => {
+      try {
+        const doc = (
+          <SqacClearAlarmPdfDocument
+            data={data}
+            wid={wid}
+            dataActivity={dataActivity}
+            dataTa4g={dataTa4g}
+            dataGetSqacFirstTier={dataGetSqacFirstTier}
+            dataGetTa4GTier={dataGetTa4GTier}
+          />
+        );
+
+        const blob = await pdf(doc).toBlob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${wid}-clear-alarm-report.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success("PDF exported successfully!");
+      } catch (err) {
+        console.error("PDF export error:", err);
+        toast.error("Failed to export PDF");
+      } finally {
+        setIsExporting(false);
+      }
+    };
+
+    exportPdf();
+  }, [data, dataActivity, dataTa4g, dataGetSqacFirstTier, dataGetTa4GTier, wid]);
+
+  if (isExporting) {
+    return <div className="text-muted-foreground">Generating PDF...</div>;
+  }
+
+  return null;
+}
+
+function TabPdfViewerClearAlarmInner({ wid, isExportMode }: { wid: string; isExportMode: boolean }) {
+  const [beforeDay1] = useState("2026-05-01");
+  const [afterDay3] = useState("2026-06-03");
 
   const { data, isPending, error } = useQuery<SqacTrackerItem[]>({
     queryKey: ["sqac-tracker", wid],
@@ -150,9 +214,40 @@ export default function TabPdfViewerClearAlarm({ wid }: { wid: string }) {
     enabled: !!wid && !!dataGetSqacFirstTier && dataGetSqacFirstTier.length > 0,
   });
 
-  if (isPending) return <div className="text-muted-foreground">Loading PDF...</div>;
-  if (error) return <div className="text-destructive">Error: {error.message}</div>;
+  if (
+    isPending ||
+    isPendingSqacTracker ||
+    isPendingGetActivityLog ||
+    isPendingGetTa4g ||
+    isPendingGetSqacFirstTier ||
+    isPendingGetTa4GTier
+  ) {
+    return <div className="text-muted-foreground">Loading PDF...</div>;
+  }
+  if (error || errorSqacTracker || errorGetActivityLog || errorGetTa4g || errorGetSqacFirstTier || errorGetTa4GTier) {
+    const errMsg =
+      error?.message ||
+      errorSqacTracker?.message ||
+      errorGetActivityLog?.message ||
+      errorGetTa4g?.message ||
+      errorGetSqacFirstTier?.message ||
+      errorGetTa4GTier?.message;
+    return <div className="text-destructive">Error: {errMsg}</div>;
+  }
   if (!data || data.length === 0) return <div className="text-muted-foreground">No data to display</div>;
+
+  if (isExportMode) {
+    return (
+      <PdfExportHandler
+        data={data}
+        dataActivity={dataGetActivityLog ?? []}
+        dataTa4g={dataGetTa4g ?? []}
+        dataGetSqacFirstTier={dataGetSqacFirstTier ?? []}
+        dataGetTa4GTier={dataGetTa4GTier ?? []}
+        wid={wid}
+      />
+    );
+  }
 
   return (
     <div className="flex h-150 flex-col">
@@ -165,5 +260,16 @@ export default function TabPdfViewerClearAlarm({ wid }: { wid: string }) {
         wid={wid}
       />
     </div>
+  );
+}
+
+export default function TabPdfViewerClearAlarm({ wid }: { wid: string }) {
+  const searchParams = useSearchParams();
+  const isExportMode = searchParams.get("mode") === "export";
+
+  return (
+    <Suspense fallback={<div className="text-muted-foreground">Loading...</div>}>
+      <TabPdfViewerClearAlarmInner wid={wid} isExportMode={isExportMode} />
+    </Suspense>
   );
 }
