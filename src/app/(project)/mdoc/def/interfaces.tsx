@@ -131,6 +131,8 @@ export interface DataKpiStatistic4g {
   fast_return_lte: string;
   ni_carrier: string;
   rssi: string;
+  volte_traffic: string;
+  volte_user: string;
 }
 
 export interface DataPayloadThpUser {
@@ -150,6 +152,8 @@ export interface DataPayloadBandSiteSow {
   rrc_conn: string;
   dl_util: string;
   productivity_val: number;
+  volte_traffic: number;
+  volte_user: number;
 }
 
 export interface DataActivityLog {

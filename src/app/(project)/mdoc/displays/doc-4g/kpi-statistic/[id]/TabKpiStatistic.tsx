@@ -27,6 +27,8 @@ import ChartPayloadBandSiteSow from "./ChartPayloadBandSiteSow";
 import type { ChartPayloadThpUserRef } from "./ChartPayloadThpUser";
 import ChartPayloadThpUser from "./ChartPayloadThpUser";
 import ChartRrcUtilization from "./ChartRrcUtilization";
+import type { ChartVolteUserRef } from "./ChartVolteUser";
+import ChartVolteUser from "./ChartVolteUser";
 import SqacKpiPdfDocument from "./SqacKpiPdfDocument";
 
 function _formatDate(dateStr: string | null) {
@@ -73,6 +75,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const chartRrcUtilizationRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartTraffic2gCellSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartPayload2gCellSiteSowRef = useRef<ChartPayloadBandSiteSowRef>(null);
+  const chartVolteUserRef = useRef<ChartVolteUserRef>(null);
   const chartPayload2gSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartTraffic2gSiteTierRef = useRef<ChartPayloadBandSiteSowRef>(null);
   const chartTrafficMiniClusterRef = useRef<ChartPayloadBandSiteSowRef>(null);
@@ -429,6 +432,23 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   });
 
   const {
+    data: dataVolteUser,
+    isPending: isPendingVolteUser,
+    error: errorVolteUser,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["volte-user", wid, dateStart, dateEnd],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/volte-user?siteid=${dataSqacTracker?.[0].siteid}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&afterDay3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
     data: dataGetActivityLog,
     isPending: isPendingGetActivityLog,
     error: errorGetActivityLog,
@@ -534,6 +554,24 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         const imageData = chartPayload2gCellSiteSowRef.current.getImageData();
         if (imageData) {
           const filename = `${wid}-chart-payload-2g-cell-site-sow.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save chart");
+          }
+        }
+      }
+
+      // Export Volte
+      if (chartVolteUserRef.current) {
+        const imageData = chartVolteUserRef.current.getImageData();
+        if (imageData) {
+          const filename = `${wid}-chart-volte-user.jpg`;
           const response = await fetch("/mdoc/api/v1/chart-export", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1847,6 +1885,17 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
             />
           </div>
         )}
+
+      {/* Chart 2g Payload Band Site SOW */}
+      {isPendingVolteUser && <div className="text-muted-foreground">Loading...</div>}
+      {errorVolteUser && <div className="text-destructive">Error: {errorVolteUser.message}</div>}
+
+      {dataVolteUser && dataVolteUser.length > 0 && dataGetActivityLog && dataGetActivityLog.length > 0 && (
+        <div key={"chart-volte-user"} className="mt-16">
+          <div className="mt-2 text-sm">3.6. Traffic Volte</div>
+          <ChartVolteUser ref={chartVolteUserRef} data={dataVolteUser} dataActivityLog={dataGetActivityLog} />
+        </div>
+      )}
 
       {/* Chart 2g Payload Band Site SOW */}
       {isPendingPayload2gCellSiteSow && <div className="text-muted-foreground">Loading...</div>}

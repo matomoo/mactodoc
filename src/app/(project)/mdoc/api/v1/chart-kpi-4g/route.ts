@@ -26,31 +26,89 @@ export async function GET(request: Request) {
   try {
     const result = await db_conn_v1.execute<Data2G4GModel>(sql`
             SELECT
-                "Begin Time" as begin_time,
-                CONCAT('Sector-',right(sector,1), ' - ', short_band,'1') as group_by,
-                SUM ( "Cell Availability Num 4G AMQ" ) / NULLIF ( SUM ( "Cell Availability Denum 4G AMQ" ), 0 ) * 100 AS availability,
-                SUM ( "Num RRC Setup SR AMQ" ) / NULLIF ( SUM ( "Denum RRC Setup SR AMQ" ), 0 ) * 100 AS rrc_setup,
-                SUM ( "Num E-RAB Setup SR AMQ" ) / NULLIF ( SUM ( "Denum E-RAB Setup SR AMQ" ), 0 ) * 100 AS erab_setup,
-                SUM ( "Num CSSR AMQ" ) / NULLIF ( SUM ( "Denum CSSR AMQ" ), 0 ) * 100 AS cssr,
-                SUM ( "Num E-RAB Drop AMQ" ) / NULLIF ( SUM ( "Denum E-RAB Drop AMQ" ), 0 ) AS erab_drop,
-                SUM ( "Num IFHO SR AMQ" ) / NULLIF ( SUM ( "Denum IFHO SR AMQ" ), 0 ) * 100 AS ifho,
-                SUM ( "Num CSFB SR AMQ" ) / NULLIF ( SUM ( "Denum CSFB SR AMQ" ), 0 ) * 100 AS csfb,
-                AVG ( "CQI Average AMQ" ) AS cqi_average,
-                AVG ( "FDD Spectral Efficiency 2" ) AS se2,
-                SUM ( "Number of Redirection Requests from LTE to GSM(CSFB)" ) AS number_csfb,
-                AVG ( "Average NI of Carrier(dBm)" ) AS ni_carrier,
-                AVG ( "Average Cell RSSI(dBm)" ) AS rssi,
-                SUM ( "Total Payload CA_(MByte) AMQ" ) AS payload_ca 
-            FROM
-                meas_4g_dy 
+                d."Begin Time" AS begin_time,
+
+                CONCAT(
+                    'Sector-',
+                    RIGHT(d.sector, 1),
+                    ' - ',
+                    d.short_band,
+                    '1'
+                ) AS group_by,
+
+                SUM(d."Cell Availability Num 4G AMQ")
+                    / NULLIF(SUM(d."Cell Availability Denum 4G AMQ"), 0) * 100
+                    AS availability,
+
+                SUM(d."Num RRC Setup SR AMQ")
+                    / NULLIF(SUM(d."Denum RRC Setup SR AMQ"), 0) * 100
+                    AS rrc_setup,
+
+                SUM(d."Num E-RAB Setup SR AMQ")
+                    / NULLIF(SUM(d."Denum E-RAB Setup SR AMQ"), 0) * 100
+                    AS erab_setup,
+
+                SUM(d."Num CSSR AMQ")
+                    / NULLIF(SUM(d."Denum CSSR AMQ"), 0) * 100
+                    AS cssr,
+
+                SUM(d."Num E-RAB Drop AMQ")
+                    / NULLIF(SUM(d."Denum E-RAB Drop AMQ"), 0)
+                    AS erab_drop,
+
+                SUM(d."Num IFHO SR AMQ")
+                    / NULLIF(SUM(d."Denum IFHO SR AMQ"), 0) * 100
+                    AS ifho,
+
+                SUM(d."Num CSFB SR AMQ")
+                    / NULLIF(SUM(d."Denum CSFB SR AMQ"), 0) * 100
+                    AS csfb,
+
+                AVG(d."CQI Average AMQ") AS cqi_average,
+
+                AVG(d."FDD Spectral Efficiency 2") AS se2,
+
+                SUM(
+                    d."Number of Redirection Requests from LTE to GSM(CSFB)"
+                ) AS number_csfb,
+
+                AVG(d."Average NI of Carrier(dBm)") AS ni_carrier,
+
+                AVG(d."Average Cell RSSI(dBm)") AS rssi,
+
+                SUM(d."Total Payload CA_(MByte) AMQ") AS payload_ca,
+
+                COALESCE(SUM(v.volte_traffic), 0) AS volte_traffic
+
+            FROM meas_4g_dy d
+
+            LEFT JOIN (
+                SELECT
+                    "Begin Time",
+                    "eNodeBId",
+                    "cellId",
+                    SUM("[VoLTE]_Traffic (Erl)_TJH") AS volte_traffic
+                FROM meas_4g_volte
+                WHERE
+                    "Begin Time" BETWEEN ${beforeDay1} AND ${afterDay3}
+                GROUP BY
+                    "Begin Time",
+                    "eNodeBId",
+                    "cellId"
+            ) v
+                ON v."Begin Time" = d."Begin Time"
+                AND v."eNodeBId" = d."eNodeBId"
+                AND v."cellId" = d."cellId"
+
             WHERE
-                siteid = ${siteid} 
-                AND "Begin Time" BETWEEN ${beforeDay1} AND ${afterDay3}
+                d.siteid = ${siteid}
+                AND d."Begin Time" BETWEEN ${beforeDay1} AND ${afterDay3}
+
             GROUP BY
-                "Begin Time",
-                siteid_cellid,
-                sector,
-                short_band
+                d."Begin Time",
+                d.siteid_cellid,
+                d.sector,
+                d.short_band;
         `);
 
     return NextResponse.json(result);

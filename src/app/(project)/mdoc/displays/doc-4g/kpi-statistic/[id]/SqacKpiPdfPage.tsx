@@ -923,12 +923,9 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.6. Traffic Volte</Text>
-        {/* <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image
-            src={`/chart-for-doc/${wid}-chart-volte.jpg`}
-            style={{ width: 518, height: "auto" }}
-          />
-        </View> */}
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-chart-volte-user.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
       </Page>
 
       {/* Page 8, chart payload 2g, cell level, site level */}
