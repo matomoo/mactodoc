@@ -133,6 +133,14 @@ export interface DataKpiStatistic4g {
   rssi: string;
   volte_traffic: string;
   volte_user: string;
+  before_day1_val: string;
+  before_day2_val: string;
+  before_day3_val: string;
+  average_before: string;
+  after_day1_val: string;
+  after_day2_val: string;
+  after_day3_val: string;
+  average_after: string;
 }
 
 export interface DataPayloadThpUser {

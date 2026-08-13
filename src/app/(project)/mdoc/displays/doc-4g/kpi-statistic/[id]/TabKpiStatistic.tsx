@@ -87,6 +87,7 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
   const tableSqacInfoRef = useRef<HTMLDivElement>(null);
   const tableTargetKpi4gRef = useRef<HTMLDivElement>(null);
   const tableKpiStatistic4gRef = useRef<HTMLDivElement>(null);
+  const tableKpiStatistic4gTierRef = useRef<HTMLDivElement>(null);
   const tableSqacInformation2gRef = useRef<HTMLDivElement>(null);
   const tableTargetKpi2gRef = useRef<HTMLDivElement>(null);
   const tableKpiStatistic2gRef = useRef<HTMLDivElement>(null);
@@ -134,6 +135,23 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
     queryFn: async () => {
       const response = await fetch(
         `/mdoc/api/v1/kpi-statistic-4g?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&day1=${afterDay1}&day2=${afterDay2}&day3=${afterDay3}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const result = await response.json();
+      return result.rows;
+    },
+    enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
+  });
+
+  const {
+    data: dataKpiStatistic4gTier,
+    isPending: isPendingKpiStatistic4gTier,
+    error: errorKpiStatistic4gTier,
+  } = useQuery<DataKpiStatistic4g[]>({
+    queryKey: ["kpi-statistic-4g-tier", wid, dateStart, dateEnd],
+    queryFn: async () => {
+      const response = await fetch(
+        `/mdoc/api/v1/kpi-statistic-4g-tier?siteid=${dataSqacTracker?.[0].siteid}&band=${dataSqacTracker?.[0].band_4g_sow}&city=${dataSqacTracker?.[0].kabupaten}&beforeDay1=${beforeDay1}&beforeDay2=${beforeDay2}&beforeDay3=${beforeDay3}&afterDay1=${afterDay1}&afterDay2=${afterDay2}&afterDay3=${afterDay3}`,
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const result = await response.json();
@@ -779,6 +797,29 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         }
       }
 
+      // Export Table KPI Statistic 4G Tier site
+      if (tableKpiStatistic4gTierRef.current) {
+        try {
+          const imageData = await toJpeg(tableKpiStatistic4gTierRef.current, {
+            quality: 1.0,
+            backgroundColor: "#ffffff",
+          });
+          const filename = `${wid}-table-kpi-statistic-4g-tier.jpg`;
+          const response = await fetch("/mdoc/api/v1/chart-export", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageData, filename }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to save table");
+          }
+        } catch (err) {
+          console.error("Table export failed:", err);
+        }
+      }
+
       // Export Table SQAC Information 2G
       if (tableSqacInformation2gRef.current) {
         try {
@@ -1187,7 +1228,118 @@ export default function TabKpiStatisticPage({ wid }: { wid: string }) {
         </div>
       )}
 
+      <div className="mt-2 text-sm">1.2 NE Level Performance Site Tier</div>
+
       {/* Table Kpi Statistic 4G tier site */}
+
+      {isPendingKpiStatistic4gTier && <div className="text-muted-foreground">Loading...</div>}
+      {errorKpiStatistic4gTier && <div className="text-destructive">Error: {errorKpiStatistic4gTier.message}</div>}
+
+      {!dataKpiStatistic4gTier || dataKpiStatistic4gTier.length === 0 ? (
+        <NoDataState message="No data available for the selected criteria." />
+      ) : (
+        <div key={"table-kpi-statistic-4g-tier"} ref={tableKpiStatistic4gTierRef} className="w-293 overflow-x-auto p-1">
+          <div className="flex flex-col">
+            <div className="flex flex-row flex-nowrap bg-blue-200">
+              <div className="w-65.5 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">
+                KPI
+              </div>
+              <div className="flex flex-col">
+                <div className="w-225.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Site Tier</div>
+                <div className="flex flex-row">
+                  <div className="flex flex-col">
+                    <div className="flex flex-row">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
+                    </div>
+                    <div className="flex flex-row">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {beforeDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {beforeDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {beforeDay3}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex flex-row">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-1</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-2</div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r p-1 text-center">Day-3</div>
+                    </div>
+                    <div className="flex flex-row">
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay1}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay2}
+                      </div>
+                      <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center text-xs">
+                        {afterDay3}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Average
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Target
+                  </div>
+                  <div className="w-20.5 shrink-0 text-wrap border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Improve ment
+                  </div>
+                  <div className="w-20.5 shrink-0 border-neutral-500 border-t border-r border-b p-1 text-center">
+                    Result
+                  </div>
+                </div>
+              </div>
+            </div>
+            {dataKpiStatistic4gTier.map((item) => (
+              <div key={item.kpi_index} className="flex flex-row flex-nowrap">
+                <div className="w-65.5 shrink-0 border-neutral-500 border-r border-b border-l p-1">{item.kpi_name}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.before_day1_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.before_day2_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.before_day3_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.average_before}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.after_day1_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.after_day2_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.after_day3_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.average_after}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">{item.delta}</div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.growth_val}
+                </div>
+                <div className="w-20.5 shrink-0 border-neutral-500 border-r border-b p-1 text-center">
+                  {item.remark}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Table Information 2G */}
       <div className="font-bold text-lg">2G SITE QUALITY ACCEPTANCE CERTIFICATE</div>

@@ -684,6 +684,12 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`} style={{ width: 400, height: "auto" }} />
         </View>
+
+        <Text style={[styles.subHeader, { marginTop: 8 }]}>1.2 Tier Level Performance</Text>
+
+        <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
+          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g-tier.jpg`} style={{ width: 518, height: "auto" }} />
+        </View>
       </Page>
 
       {/* Page 3 */}
