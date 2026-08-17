@@ -28,6 +28,12 @@ export interface SqacTrackerItem {
   longitude: string;
   kabupaten: string;
   trx_configuration: string;
+  band_existing_impact: string;
+  po_id: string;
+  cellid: string;
+  enodeb_name: string;
+  cell_name: string;
+  sector: string;
 }
 
 export interface DataKpiStatistic4g {

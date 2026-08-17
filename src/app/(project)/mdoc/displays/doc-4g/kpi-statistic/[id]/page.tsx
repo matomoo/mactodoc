@@ -10,6 +10,7 @@ import ActivityLogPage from "../../../activity-log/page";
 import SqacFirstTierPage from "../../../sqac-first-tier/page";
 import DocChecker from "./DocChecker";
 import Tab1ClearAlarmPage from "./Tab1ClearAlarm";
+import Tab1DtReportPage from "./Tab1DtReport";
 import Tab1KpiStatisticPage from "./Tab1KpiStatistic";
 import Tab1Upload from "./Tab1Upload";
 
@@ -34,6 +35,7 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
           <TabsTrigger value="doc_checker">Doc Checker</TabsTrigger>
           <TabsTrigger value="kpi_statictic">KPI Statistic</TabsTrigger>
           <TabsTrigger value="clear-alarm">Clear Alarm</TabsTrigger>
+          <TabsTrigger value="dt-report">DT Report</TabsTrigger>
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="manage-1st-tier">Manage 1st Tier</TabsTrigger>
           <TabsTrigger value="manage-activity-log">Manage Activity Log</TabsTrigger>
@@ -54,6 +56,9 @@ export default function KpiStatisticPage({ params }: { params: Promise<{ id: str
         </TabsContent>
         <TabsContent value="clear-alarm">
           <Tab1ClearAlarmPage wid={wid} />
+        </TabsContent>
+        <TabsContent value="dt-report">
+          <Tab1DtReportPage wid={wid} />
         </TabsContent>
         <TabsContent value="upload">
           <Tab1Upload wid={wid} />
