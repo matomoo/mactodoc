@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { DataActivityLog, DataKpiStatistic4g, SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
 import { useSqacStore } from "@/stores/sqacStore";
 
-import SqacPdfDocument from "./SqacKpiPdfDocument";
+import SqacPdfDocument from "./SqacDtReportPdfDocument";
 
 function KpiPdfViewerComponent({
   data,
@@ -26,7 +26,7 @@ function KpiPdfViewerComponent({
   );
 }
 
-export default function TabPdfViewerKpiStatistic({ wid }: { wid: string }) {
+export default function TabPdfViewerDtReport({ wid }: { wid: string }) {
   const { dateStart, dateEnd } = useSqacStore();
 
   const beforeDay1 = dateStart ?? "";

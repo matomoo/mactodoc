@@ -14,6 +14,7 @@ import type {
   SqacTrackerItem,
   TaDataItem,
 } from "@/app/(project)/mdoc/def/interfaces";
+import { useSqacStore } from "@/stores/sqacStore";
 
 import SqacClearAlarmPdfDocument from "./SqacClearAlarmPdfDocument";
 
@@ -108,8 +109,10 @@ function PdfExportHandler({
 }
 
 function TabPdfViewerClearAlarmInner({ wid, isExportMode }: { wid: string; isExportMode: boolean }) {
-  const [beforeDay1] = useState("2026-05-01");
-  const [afterDay3] = useState("2026-06-03");
+  const { dateStart, dateEnd } = useSqacStore();
+
+  const beforeDay1 = dateStart ?? "";
+  const afterDay3 = dateEnd ?? "";
 
   const { data, isPending, error } = useQuery<SqacTrackerItem[]>({
     queryKey: ["sqac-tracker", wid],

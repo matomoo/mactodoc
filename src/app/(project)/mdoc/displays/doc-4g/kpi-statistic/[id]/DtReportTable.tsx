@@ -1,9 +1,11 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <non>
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toJpeg } from "html-to-image";
+import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -112,6 +114,51 @@ export function DtReportTable({ wid }: DtReportTableProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Refs for export
+  const tableInfoRef = useRef<HTMLDivElement>(null);
+  const tableKpiRef = useRef<HTMLDivElement>(null);
+  const tableAntennaRef = useRef<HTMLDivElement>(null);
+  const tableNodinRef = useRef<HTMLDivElement>(null);
+
+  const exportToImage = async (ref: React.RefObject<HTMLDivElement | null>, filename: string) => {
+    if (!ref.current) return;
+    try {
+      const imageData = await toJpeg(ref.current, {
+        quality: 1.0,
+        backgroundColor: "#ffffff",
+      });
+      const response = await fetch("/mdoc/api/v1/chart-export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageData, filename }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to export image");
+      }
+    } catch (err) {
+      console.error("Export failed:", err);
+      throw err;
+    }
+  };
+
+  const handleExportAll = async () => {
+    setIsExporting(true);
+    try {
+      await exportToImage(tableInfoRef, `${wid}-dtr-info.jpg`);
+      await exportToImage(tableKpiRef, `${wid}-dtr-kpi.jpg`);
+      await exportToImage(tableAntennaRef, `${wid}-dtr-antenna-config.jpg`);
+      await exportToImage(tableNodinRef, `${wid}-dtr-nodin.jpg`);
+      toast.success("All tables exported successfully!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to export tables");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const { data, isPending, error } = useQuery<SqacDtReportItem[]>({
     queryKey: ["sqac-dt-report", wid],
@@ -152,7 +199,7 @@ export function DtReportTable({ wid }: DtReportTableProps) {
     enabled: !!wid && !!dataSqacTracker && dataSqacTracker.length > 0,
   });
 
-  console.log("dataDtReportNodin", dataDtReportNodin);
+  // console.log("dataDtReportNodin", dataDtReportNodin);
 
   const report = data && data.length > 0 ? data[0] : null;
 
@@ -260,6 +307,12 @@ export function DtReportTable({ wid }: DtReportTableProps) {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">DT Report Data</h3>
         <div className="flex gap-2">
+          {report && (
+            <Button variant="default" size="sm" onClick={handleExportAll} disabled={isExporting}>
+              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+              Export All
+            </Button>
+          )}
           {report ? (
             <>
               <Button variant="outline" size="sm" onClick={handleOpenEdit}>
@@ -290,7 +343,7 @@ export function DtReportTable({ wid }: DtReportTableProps) {
           {dataSqacTracker?.map((item, _index) => (
             <div key={item.wid}>
               <div className="font-bold text-lg">DRIVE TEST REPORT</div>
-              <div className="flex flex-col p-1">
+              <div ref={tableInfoRef} className="flex w-242 flex-col p-1">
                 <div className="flex flex-row">
                   <div className="w-100 shrink-0 border-t border-r border-l p-1 text-center font-bold">PDID</div>
                   <div className="w-140 shrink-0 border-t border-r p-1 text-center">{item.wid.slice(7)}</div>
@@ -348,7 +401,7 @@ export function DtReportTable({ wid }: DtReportTableProps) {
               </div>
             </div>
           ))}
-          <div className="flex w-225 flex-col p-1">
+          <div className="flex w-227 flex-col p-1" ref={tableKpiRef}>
             <div className="flex flex-row bg-blue-200">
               <div className="w-85 shrink-0 border-t border-r border-b border-l p-1 font-bold ">
                 KEY PERFORMANCE INDICATOR DRIVETEST
@@ -380,7 +433,7 @@ export function DtReportTable({ wid }: DtReportTableProps) {
               <div className="w-35 shrink-0 border-r border-b p-1 text-center">As Info</div>
             </div>
           </div>
-          <div className="flex w-310 flex-col p-1">
+          <div className="flex w-312 flex-col p-1" ref={tableAntennaRef}>
             <div className="flex flex-row bg-blue-200">
               <div className="w-15 shrink-0 border-t border-r border-l p-1 text-center font-bold">No</div>
               <div className="w-45 shrink-0 border-t border-r p-1 text-center font-bold">ITEM VERIFIED</div>
@@ -512,7 +565,7 @@ export function DtReportTable({ wid }: DtReportTableProps) {
           {!dataDtReportNodin || dataDtReportNodin.length === 0 ? (
             <NoDataState message="No data available for the selected criteria." />
           ) : (
-            <div key={"table-dt-report-nodin"} className="w-258 overflow-x-auto p-1">
+            <div key={"table-dt-report-nodin"} ref={tableNodinRef} className="w-258 overflow-x-auto p-1">
               <div className="flex flex-col">
                 <div className="flex flex-row flex-nowrap bg-blue-200">
                   <div className="w-20 shrink-0 content-center border-neutral-500 border-t border-r border-b border-l p-1 text-center">

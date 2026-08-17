@@ -4,6 +4,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import TabDtReportPage from "./TabDtReport";
+import TabPdfViewerDtReport from "./TabPdfViewerDtReport";
 function _formatDate(dateStr: string | null) {
   if (!dateStr) return "---";
   return new Date(dateStr).toLocaleDateString("en-GB");
@@ -28,7 +29,7 @@ export default function Tab1DtReportPage({ wid }: { wid: string }) {
           <TabDtReportPage wid={wid} />
         </TabsContent>
         <TabsContent value="pdf_viewer">
-          <TabDtReportPage wid={wid} />
+          <TabPdfViewerDtReport wid={wid} />
         </TabsContent>
       </Tabs>
     </div>
