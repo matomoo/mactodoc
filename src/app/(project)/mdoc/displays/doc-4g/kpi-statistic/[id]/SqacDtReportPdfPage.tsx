@@ -57,7 +57,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProp
     day: "numeric",
   });
 
-  // console.log({ dataActivity });
+  console.log({ item, dataActivity });
 
   return (
     <Document>
@@ -1530,7 +1530,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProp
                   alignSelf: "flex-start",
                 }}
               >
-                Longitude:
+                Longitude: {item.longitude}
               </Text>
               <Text
                 style={{
@@ -1539,7 +1539,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProp
                   alignSelf: "flex-start",
                 }}
               >
-                Latitude:
+                Latitude: {item.latitude}
               </Text>
             </View>
           </View>
@@ -1642,7 +1642,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProp
                     alignSelf: "flex-start",
                   }}
                 >
-                  Longitude:
+                  Longitude: {item.longitude}
                 </Text>
                 <Text
                   style={{
@@ -1651,7 +1651,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProp
                     alignSelf: "flex-start",
                   }}
                 >
-                  Latitude:
+                  Latitude: {item.latitude}
                 </Text>
               </View>
             </View>
