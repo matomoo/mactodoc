@@ -1,5 +1,5 @@
 // biome-ignore assist/source/organizeImports: <will fix later>
-import { db_conn_v1 } from "@/app/(project)/tinfra/_drizzle/db_mdoc";
+import { db_conn_v1 } from "@/app/(project)/mdoc/_drizzle/db_mdoc";
 import { sql } from "drizzle-orm";
 
 import { NextResponse } from "next/server";
@@ -17,7 +17,8 @@ export async function GET(request: Request) {
     const trackerResult = await db_conn_v1.execute(sql`
       SELECT siteid FROM sqac_tracker WHERE wid = ${wid} LIMIT 1
     `);
-    trackerSiteid = trackerResult.rows[0]?.siteid || null;
+    const rowSiteid = trackerResult.rows[0]?.siteid;
+    trackerSiteid = typeof rowSiteid === "string" ? rowSiteid : null;
   }
 
   // Filter by siteid_main

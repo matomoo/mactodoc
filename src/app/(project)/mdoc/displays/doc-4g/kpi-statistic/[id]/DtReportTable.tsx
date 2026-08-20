@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { SqacTrackerItem } from "@/app/(project)/mdoc/def/interfaces";
 import { useSqacStore } from "@/stores/sqacStore";
-import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v1/additional-component";
+import { NoDataState } from "@/app/(project)/mdoc/def/additional-component";
 
 interface SqacDtReportItem {
   wid: string;

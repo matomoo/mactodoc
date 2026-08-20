@@ -4,6 +4,7 @@
 import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
+  type ChartTypeRegistry,
   Filler,
   Legend,
   LineElement,
@@ -13,6 +14,8 @@ import {
   Title,
   Tooltip,
   type TooltipItem,
+  type Chart,
+  type ChartConfiguration,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
@@ -51,7 +54,7 @@ interface ChartPayloadBandSiteSowProps {
 const ChartPayloadBandSiteSow = forwardRef<ChartPayloadBandSiteSowRef, ChartPayloadBandSiteSowProps>(
   function ChartPayloadBandSiteSow({ data, legendBy = "site", dataActivityLog = [], title = "" }, ref) {
     const chartRef = useRef<HTMLCanvasElement>(null);
-    const chartInstance = useRef<ChartJS | null>(null);
+    const chartInstance = useRef<Chart<keyof ChartTypeRegistry> | null>(null);
 
     useImperativeHandle(ref, () => ({
       getImageData: () => {
@@ -372,7 +375,7 @@ const ChartPayloadBandSiteSow = forwardRef<ChartPayloadBandSiteSowRef, ChartPayl
         },
       };
 
-      chartInstance.current = new ChartJS(ctx, config);
+      chartInstance.current = new ChartJS(ctx, config as ChartConfiguration<keyof ChartTypeRegistry>);
 
       return () => {
         if (chartInstance.current) {

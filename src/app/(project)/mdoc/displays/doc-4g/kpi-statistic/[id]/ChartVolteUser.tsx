@@ -3,6 +3,7 @@
 // biome-ignore assist/source/organizeImports: <none>
 import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
 import {
+  type ChartTypeRegistry,
   Chart as ChartJS,
   Filler,
   Legend,
@@ -14,6 +15,7 @@ import {
   Tooltip,
   type ChartConfiguration,
   type TooltipItem,
+  type Chart,
 } from "chart.js";
 
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -47,7 +49,7 @@ const ChartVolteUser = forwardRef<ChartVolteUserRef, ChartVolteUserProps>(functi
   ref,
 ) {
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstance = useRef<ChartJS | null>(null);
+  const chartInstance = useRef<Chart<keyof ChartTypeRegistry> | null>(null);
 
   useImperativeHandle(ref, () => ({
     getImageData: () => {
@@ -332,7 +334,7 @@ const ChartVolteUser = forwardRef<ChartVolteUserRef, ChartVolteUserProps>(functi
       },
     };
 
-    chartInstance.current = new ChartJS(ctx, config);
+    chartInstance.current = new ChartJS(ctx, config as ChartConfiguration<keyof ChartTypeRegistry>);
 
     return () => {
       if (chartInstance.current) {

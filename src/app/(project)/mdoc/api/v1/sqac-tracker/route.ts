@@ -1,5 +1,5 @@
 // biome-ignore assist/source/organizeImports: <will fix later>
-import { db_conn_v1 } from "@/app/(project)/tinfra/_drizzle/db_mdoc";
+import { db_conn_v1 } from "@/app/(project)/mdoc/_drizzle/db_mdoc";
 import { sql } from "drizzle-orm";
 
 import { NextResponse } from "next/server";

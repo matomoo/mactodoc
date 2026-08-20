@@ -387,3 +387,11 @@ In Cloudflare Dashboard → Tunnel → Public Hostname:
 - [ ] Write Nginx config for Next.js proxy
 - [ ] Add web domain to Cloudflare Tunnel dashboard
 - [ ] Set up SSL with Let's Encrypt (Certbot)
+
+#### deploy step on mactodocs server
+
+cd /home/sadmin/mactodocs/frontend/mactodoc
+git pull origin main
+cd /home/sadmin/mactodocs
+docker compose up -d --build frontend
+docker image prune -f

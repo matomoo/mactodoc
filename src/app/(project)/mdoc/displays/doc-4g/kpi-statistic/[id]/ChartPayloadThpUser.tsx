@@ -6,7 +6,10 @@ import {
   BarController,
   BarElement,
   CategoryScale,
+  type Chart,
+  type ChartConfiguration,
   Chart as ChartJS,
+  type ChartTypeRegistry,
   Legend,
   LinearScale,
   LineController,
@@ -59,7 +62,7 @@ const ChartPayloadThpUser = forwardRef<ChartPayloadThpUserRef, ChartPayloadThpUs
   ref,
 ) {
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstance = useRef<ChartJS | null>(null);
+  const chartInstance = useRef<Chart<keyof ChartTypeRegistry> | null>(null);
 
   useImperativeHandle(ref, () => ({
     getImageData: () => {
@@ -393,7 +396,7 @@ const ChartPayloadThpUser = forwardRef<ChartPayloadThpUserRef, ChartPayloadThpUs
       },
     };
 
-    chartInstance.current = new ChartJS(ctx, config);
+    chartInstance.current = new ChartJS(ctx, config as ChartConfiguration<keyof ChartTypeRegistry>);
 
     return () => {
       if (chartInstance.current) {

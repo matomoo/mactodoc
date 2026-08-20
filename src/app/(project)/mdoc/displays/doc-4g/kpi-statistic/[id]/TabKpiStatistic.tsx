@@ -9,6 +9,7 @@ import { toJpeg } from "html-to-image";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { NoDataState } from "@/app/(project)/mdoc/def/additional-component";
 import type {
   DataKpiStatistic4g,
   DataPayloadBandSiteSow,
@@ -16,7 +17,6 @@ import type {
   SqacTrackerItem,
 } from "@/app/(project)/mdoc/def/interfaces";
 import { formatDayName } from "@/app/(project)/mdoc/utils/parserDate";
-import { NoDataState } from "@/app/(project)/tinfra/_component/ui-v4/additional-component";
 import { Button } from "@/components/ui/button";
 import { useSqacStore } from "@/stores/sqacStore";
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { sql } from "drizzle-orm";
 
-import { db_conn_v1 } from "@/app/(project)/tinfra/_drizzle/db_mdoc";
+import { db_conn_v1 } from "@/app/(project)/mdoc/_drizzle/db_mdoc";
 
 // GET by wid
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
