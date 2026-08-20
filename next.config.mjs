@@ -22,6 +22,7 @@ const nextConfig = {
     ],
   },
   experimental: {
+    useUnstableReactDOMFormReset: true,
     serverActions: {
       bodySizeLimit: "4mb", // or '8mb', '16mb', etc.
     },
