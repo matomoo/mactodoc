@@ -23,13 +23,14 @@ interface Props {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
   wid: string;
+  baseUrl?: string;
 }
 
-export default function SqacKpiPdfDocument({ data, wid, dataActivity }: Props) {
+export default function SqacKpiPdfDocument({ data, wid, dataActivity, baseUrl }: Props) {
   return (
     <>
       {data.map((item) => (
-        <SqacKpiPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} />
+        <SqacKpiPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} baseUrl={baseUrl} />
       ))}
     </>
   );

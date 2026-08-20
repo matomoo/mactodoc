@@ -2,10 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npx @biomejs/biome format --write src/components/date-range-filter.tsx)",
-      "Bash(mkdir -p /Users/mato/dev/Projects/macto/mactodoc/src/app/\\\\\\(project\\\\\\)/mdoc/api/v1/sqac-first-tier/\\\\[id\\\\])"
+      "Bash(mkdir -p /Users/mato/dev/Projects/macto/mactodoc/src/app/\\\\\\(project\\\\\\)/mdoc/api/v1/sqac-first-tier/\\\\[id\\\\])",
+      "Bash(sed -i '' 's|src={`/chart-for-doc/|src={imageSrc\\(`/chart-for-doc/|g' /Users/mato/dev/Projects/macto/mactodoc/src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx)",
+      "Bash(grep -n 'imageSrc\\(`' /Users/mato/dev/Projects/macto/mactodoc/src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx)",
+      "Bash(grep -v '}\\)}` | head -30)",
+      "Bash(sed -E 's/\\(imageSrc\\\\\\(`[^`]*`\\)\\\\}/\\\\1\\)}/g')",
+      "Bash(mv src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx.tmp src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: use absolute URLs for PDF images \\(Docker compatibility\\) *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
-      "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/api/v1/sqac-first-tier"
+      "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/api/v1/sqac-first-tier",
+      "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/displays/doc-4g/kpi-statistic/[id]"
     ]
   }
 }

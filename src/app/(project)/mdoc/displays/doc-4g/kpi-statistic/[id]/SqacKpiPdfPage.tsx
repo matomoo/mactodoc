@@ -27,6 +27,7 @@ export interface SqacPdfPageProps {
   };
   wid: string;
   dataActivity: DataActivityLog[];
+  baseUrl?: string;
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -39,7 +40,19 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
+// Helper to build absolute URLs for @react-pdf/renderer (works with Docker and local dev)
+export const getImageSrc = (path: string, baseUrl?: string): string => {
+  // If it's already an absolute URL, return as-is
+  if (path.startsWith("http")) return path;
+  // If baseUrl is provided, use it
+  if (baseUrl) return `${baseUrl}${path}`;
+  // Otherwise return relative path (for local dev when using window.location in client)
+  return path;
+};
+
+export function SqacKpiPdfPage({ item, wid, dataActivity, baseUrl }: SqacPdfPageProps) {
+  // Helper function to build absolute image URLs
+  const imageSrc = (path: string) => getImageSrc(path, baseUrl);
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">
@@ -674,7 +687,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
             marginLeft: -2,
           }}
         >
-          <Image src={`/chart-for-doc/${wid}-table-target-kpi-4g.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-target-kpi-4g.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
 
         <Text style={[styles.header2, { marginTop: 10 }]}>1. Statistical Quality</Text>
@@ -682,13 +698,19 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={[styles.subHeader]}>1.1 NE Level Performance</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`} style={{ width: 400, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-kpi-statistic-4g.jpg`)}
+            style={{ width: 400, height: "auto" }}
+          />
         </View>
 
         <Text style={[styles.subHeader, { marginTop: 8 }]}>1.2 Tier Level Performance</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-4g-tier.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-kpi-statistic-4g-tier.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
       </Page>
 
@@ -702,19 +724,28 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={styles.header}>2G SITE QUALITY ACCEPTANCE CERTIFICATE</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-sqac-information-2g.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-sqac-information-2g.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
 
         <Text style={[styles.header2, { marginTop: 8 }]}>Sales Cluster Target Performance</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-target-kpi-2g.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-target-kpi-2g.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
 
         <Text style={[styles.header2, { marginTop: 8 }]}>Site Level Performance</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-kpi-statistic-2g.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-kpi-statistic-2g.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
       </Page>
 
@@ -729,7 +760,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={[styles.subHeader]}>2.1 Productivity Information Payload</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-productivity-payload.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-productivity-payload.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
 
         <View style={styles.boxRemark}>
@@ -746,7 +780,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={[styles.subHeader]}>2.2 Productivity Information Traffic</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-productivity-traffic.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-productivity-traffic.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={styles.boxRemark}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -773,7 +810,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_1.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -792,7 +829,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_2.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -811,7 +848,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-thp-user-${wid.slice(0, 6).toLowerCase()}_3.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -839,7 +876,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         </Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-band-site-sow.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -854,7 +894,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ marginTop: 16, alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-band-site-tier.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-band-site-tier.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -872,7 +912,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={[styles.header2, { marginTop: 10 }]}>3.3. PRB Utilization & RRC Connection User</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-rrc-utilization.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -897,7 +940,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-traffic-2g-cell-site-sow.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-traffic-2g-cell-site-sow.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -915,7 +958,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         <Text style={[styles.header2, { marginTop: 10 }]}>3.5. Traffic Site Level & Cluster Level 2G</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-traffic-2g-site-tier.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -930,7 +976,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.6. Traffic Volte</Text>
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-volte-user.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image src={imageSrc(`/chart-for-doc/${wid}-chart-volte-user.jpg`)} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -945,7 +991,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
           <Image
-            src={`/chart-for-doc/${wid}-chart-payload-2g-cell-site-sow.jpg`}
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-2g-cell-site-sow.jpg`)}
             style={{ width: 518, height: "auto" }}
           />
         </View>
@@ -962,7 +1008,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <Text style={[styles.header2, { marginTop: 10 }]}>3.8. Payload Site level & Cluster Level 2G</Text>
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-2g-site-tier.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -985,7 +1034,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <Text style={[styles.header2, { marginTop: 10 }]}>4.1. Total Traffic Mini Cluster 2G</Text>
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-traffic-mini-cluster.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -1000,7 +1052,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <Text style={[styles.header2, { marginTop: 10 }]}>4.2. Total Payload Mini Cluster 2G-4G</Text>
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-chart-payload-mini-cluster.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
         <View style={[styles.boxRemark, { marginTop: 6 }]}>
           <Text style={{ fontSize: 8 }}>Remark:</Text>
@@ -1023,7 +1078,10 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
 
         <Text style={[styles.header2, { marginTop: 10 }]}>PRB Utilization</Text>
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-table-prb-utilization-4g.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
 
         <View
@@ -1035,13 +1093,17 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         >
           <View style={{ marginRight: 8 }}>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_1.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
           <View>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_1.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_1.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
@@ -1055,13 +1117,17 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         >
           <View style={{ marginRight: 8 }}>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_2.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
           <View>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_2.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_2.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
@@ -1075,13 +1141,17 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         >
           <View style={{ marginRight: 8 }}>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-util-${wid.slice(0, 6).toLowerCase()}_3.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
           <View>
             <Image
-              src={`/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_3.jpg`}
+              src={imageSrc(
+                `/chart-for-doc/${wid}-chart-payload-cell-per-sector-payload-${wid.slice(0, 6).toLowerCase()}_3.jpg`,
+              )}
               style={{ width: 230, height: "auto" }}
             />
           </View>
@@ -1107,7 +1177,7 @@ export function SqacKpiPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
         >
           <View style={{ marginBottom: 0 }}>
             <Image
-              src={`/chart-for-doc/${wid}-map_cluster.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-map_cluster.jpg`)}
               style={{ width: 450, height: "auto", alignItems: "center" }}
             />
           </View>
