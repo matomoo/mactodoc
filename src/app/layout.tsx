@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html
       lang="en"
-      className={cn(theme_mode, "font-sans")}
+      className={cn(theme_mode, GeistSans.className)}
       data-theme-preset={theme_preset}
       data-content-layout={content_layout}
       data-navbar-style={navbar_style}
@@ -41,7 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {/* Applies theme and layout preferences on load to avoid flicker and unnecessary server rerenders. */}
         <ThemeBootScript />
       </head>
-      <body className="min-h-screen antialiased font-sans">
+      <body className="min-h-screen antialiased">
         <AuthProvider>
           <PreferencesStoreProvider
             themeMode={theme_mode}
