@@ -2,6 +2,8 @@ import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "
 
 import type { DataActivityLog, SqacFirstTierItem, TaDataItem } from "@/app/(project)/mdoc/def/interfaces";
 
+import { getImageSrc } from "./SqacKpiPdfPage";
+
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
 
@@ -30,6 +32,7 @@ export interface SqacPdfPageProps {
   dataTa4g: TaDataItem[];
   dataGetSqacFirstTier: SqacFirstTierItem[];
   dataGetTa4GTier: TaDataItem[];
+  baseUrl?: string;
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -43,6 +46,7 @@ function formatValue(value: string | null | undefined) {
 }
 
 export function SqacClearAlarmPdfPage({
+  baseUrl,
   item,
   wid,
   dataActivity,
@@ -50,6 +54,9 @@ export function SqacClearAlarmPdfPage({
   dataGetSqacFirstTier,
   dataGetTa4GTier,
 }: SqacPdfPageProps) {
+  // Helper function to build absolute image URLs
+  const imageSrc = (path: string) => getImageSrc(path, baseUrl);
+
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">

@@ -24,6 +24,7 @@ interface Props {
   dataGetSqacFirstTier: SqacFirstTierItem[];
   dataGetTa4GTier: TaDataItem[];
   wid: string;
+  baseUrl?: string;
 }
 
 export default function SqacClearAlarmPdfDocument({
@@ -33,6 +34,7 @@ export default function SqacClearAlarmPdfDocument({
   dataTa4g,
   dataGetSqacFirstTier,
   dataGetTa4GTier,
+  baseUrl,
 }: Props) {
   return (
     <>
@@ -45,6 +47,7 @@ export default function SqacClearAlarmPdfDocument({
           dataTa4g={dataTa4g}
           dataGetSqacFirstTier={dataGetSqacFirstTier}
           dataGetTa4GTier={dataGetTa4GTier}
+          baseUrl={baseUrl}
         />
       ))}
     </>

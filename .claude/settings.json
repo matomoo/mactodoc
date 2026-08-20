@@ -11,7 +11,14 @@
       "Bash(git add *)",
       "Bash(git commit -m 'fix: use absolute URLs for PDF images \\(Docker compatibility\\) *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(sed -i '' 's|src={`/chart-for-doc/|src={imageSrc\\(`/chart-for-doc/|g' src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacClearAlarmPdfPage.tsx)",
+      "Bash(sed -i '' 's|imageSrc\\(`/chart-for-doc/\\\\${wid}-\\\\\\(.*\\\\\\)\\\\.jpg\\\\`}|imageSrc\\(`/chart-for-doc/${wid}-\\\\1.jpg`\\)|g' src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacClearAlarmPdfPage.tsx)",
+      "Bash(sed -i '' 's|imageSrc\\(\\\\`/chart-for-doc/\\\\${wid}-\\\\\\(.*\\\\\\)\\\\.jpg\\\\`\\\\\\(\\)\\\\? style|imageSrc\\(`/chart-for-doc/${wid}-\\\\1.jpg`\\) style|g' src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacClearAlarmPdfPage.tsx)",
+      "Bash(perl -i -pe 's|imageSrc\\\\\\(`/chart-for-doc/\\\\$\\\\{wid\\\\}-\\(.+?\\)\\\\.jpg\\\\` style|imageSrc\\(`/chart-for-doc/${wid}-$1.jpg`\\) style|g' src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacClearAlarmPdfPage.tsx)",
+      "Bash(git checkout *)",
+      "Bash(python3)",
+      "Bash(git commit -m 'fix: add baseUrl prop to all PDF components for Docker image compatibility *)"
     ],
     "additionalDirectories": [
       "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/api/v1/sqac-first-tier",

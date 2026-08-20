@@ -2,6 +2,8 @@ import { Document, Image, Page, Path, Rect, StyleSheet, Svg, Text, View } from "
 
 import type { DataActivityLog } from "@/app/(project)/mdoc/def/interfaces";
 
+import { getImageSrc } from "./SqacKpiPdfPage";
+
 const LOGO_TINFRA = "/images/logo/logo-tinfra.png";
 const LOGO_TELKOMSEL = "/images/logo/logo-telkomsel.png";
 
@@ -27,6 +29,7 @@ export interface SqacPdfPageProps {
   };
   wid: string;
   dataActivity: DataActivityLog[];
+  baseUrl?: string;
 }
 
 function formatDate(dateStr: string | null | undefined) {
@@ -39,7 +42,9 @@ function formatValue(value: string | null | undefined) {
   return value;
 }
 
-export function SqacDtReportPdfPage({ item, wid, dataActivity }: SqacPdfPageProps) {
+export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPdfPageProps) {
+  // Helper function to build absolute image URLs
+  const imageSrc = (path: string) => getImageSrc(path, baseUrl);
   const CheckedBox = () => (
     <View style={{ width: 12, height: 12, marginRight: 5 }}>
       <Svg viewBox="0 0 24 24">

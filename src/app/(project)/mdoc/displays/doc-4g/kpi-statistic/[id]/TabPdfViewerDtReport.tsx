@@ -14,20 +14,28 @@ function KpiPdfViewerComponent({
   data,
   dataActivity,
   wid,
+  baseUrl,
 }: {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
   wid: string;
+  baseUrl: string;
 }) {
   return (
     <PDFViewer width="100%" height={600} style={{ border: "none" }}>
-      <SqacPdfDocument data={data} wid={wid} dataActivity={dataActivity} />
+      <SqacPdfDocument data={data} wid={wid} dataActivity={dataActivity} baseUrl={baseUrl} />
     </PDFViewer>
   );
 }
 
 export default function TabPdfViewerDtReport({ wid }: { wid: string }) {
   const { dateStart, dateEnd } = useSqacStore();
+  const [baseUrl, setBaseUrl] = useState<string>("");
+
+  // Set baseUrl on client side (for Docker compatibility)
+  if (typeof window !== "undefined" && !baseUrl) {
+    setBaseUrl(window.location.origin);
+  }
 
   const beforeDay1 = dateStart ?? "";
   const afterDay3 = dateEnd ?? "";
@@ -79,7 +87,7 @@ export default function TabPdfViewerDtReport({ wid }: { wid: string }) {
 
   return (
     <div className="flex h-150 flex-col">
-      <KpiPdfViewerComponent data={data} dataActivity={dataGetActivityLog ?? []} wid={wid} />
+      <KpiPdfViewerComponent data={data} dataActivity={dataGetActivityLog ?? []} wid={wid} baseUrl={baseUrl} />
     </div>
   );
 }

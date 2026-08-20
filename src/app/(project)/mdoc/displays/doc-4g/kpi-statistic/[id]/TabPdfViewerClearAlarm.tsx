@@ -25,6 +25,7 @@ function ClearAlarmPdfViewerComponent({
   dataGetSqacFirstTier,
   dataGetTa4GTier,
   wid,
+  baseUrl,
 }: {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
@@ -32,6 +33,7 @@ function ClearAlarmPdfViewerComponent({
   dataGetSqacFirstTier: SqacFirstTierItem[];
   dataGetTa4GTier: TaDataItem[];
   wid: string;
+  baseUrl: string;
 }) {
   return (
     <PDFViewer width="100%" height={600} style={{ border: "none" }}>
@@ -42,6 +44,7 @@ function ClearAlarmPdfViewerComponent({
         dataTa4g={dataTa4g}
         dataGetSqacFirstTier={dataGetSqacFirstTier}
         dataGetTa4GTier={dataGetTa4GTier}
+        baseUrl={baseUrl}
       />
     </PDFViewer>
   );
@@ -54,6 +57,7 @@ function PdfExportHandler({
   dataGetSqacFirstTier,
   dataGetTa4GTier,
   wid,
+  baseUrl,
 }: {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
@@ -61,6 +65,7 @@ function PdfExportHandler({
   dataGetSqacFirstTier: SqacFirstTierItem[];
   dataGetTa4GTier: TaDataItem[];
   wid: string;
+  baseUrl: string;
 }) {
   const [isExporting, setIsExporting] = useState(false);
 
@@ -77,6 +82,7 @@ function PdfExportHandler({
             dataTa4g={dataTa4g}
             dataGetSqacFirstTier={dataGetSqacFirstTier}
             dataGetTa4GTier={dataGetTa4GTier}
+            baseUrl={baseUrl}
           />
         );
 
@@ -99,7 +105,7 @@ function PdfExportHandler({
     };
 
     exportPdf();
-  }, [data, dataActivity, dataTa4g, dataGetSqacFirstTier, dataGetTa4GTier, wid]);
+  }, [data, dataActivity, dataTa4g, dataGetSqacFirstTier, dataGetTa4GTier, wid, baseUrl]);
 
   if (isExporting) {
     return <div className="text-muted-foreground">Generating PDF...</div>;
@@ -110,6 +116,12 @@ function PdfExportHandler({
 
 function TabPdfViewerClearAlarmInner({ wid, isExportMode }: { wid: string; isExportMode: boolean }) {
   const { dateStart, dateEnd } = useSqacStore();
+  const [baseUrl, setBaseUrl] = useState<string>("");
+
+  // Set baseUrl on client side (for Docker compatibility)
+  if (typeof window !== "undefined" && !baseUrl) {
+    setBaseUrl(window.location.origin);
+  }
 
   const beforeDay1 = dateStart ?? "";
   const afterDay3 = dateEnd ?? "";
@@ -248,6 +260,7 @@ function TabPdfViewerClearAlarmInner({ wid, isExportMode }: { wid: string; isExp
         dataGetSqacFirstTier={dataGetSqacFirstTier ?? []}
         dataGetTa4GTier={dataGetTa4GTier ?? []}
         wid={wid}
+        baseUrl={baseUrl}
       />
     );
   }
@@ -261,6 +274,7 @@ function TabPdfViewerClearAlarmInner({ wid, isExportMode }: { wid: string; isExp
         dataGetSqacFirstTier={dataGetSqacFirstTier ?? []}
         dataGetTa4GTier={dataGetTa4GTier ?? []}
         wid={wid}
+        baseUrl={baseUrl}
       />
     </div>
   );

@@ -21,13 +21,14 @@ interface Props {
   data: SqacTrackerItem[];
   dataActivity: DataActivityLog[];
   wid: string;
+  baseUrl?: string;
 }
 
-export default function SqacDtReportPdfDocument({ data, wid, dataActivity }: Props) {
+export default function SqacDtReportPdfDocument({ data, wid, dataActivity, baseUrl }: Props) {
   return (
     <>
       {data.map((item) => (
-        <SqacDtReportPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} />
+        <SqacDtReportPdfPage key={item.id || wid} item={item} wid={wid} dataActivity={dataActivity} baseUrl={baseUrl} />
       ))}
     </>
   );
