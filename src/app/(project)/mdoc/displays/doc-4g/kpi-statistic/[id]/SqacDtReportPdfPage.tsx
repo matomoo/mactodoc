@@ -75,7 +75,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
         <Text style={styles.header}>DRIVETEST REPORT</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-dtr-info.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image src={imageSrc(`/chart-for-doc/${wid}-dtr-info.jpg`)} style={{ width: 518, height: "auto" }} />
         </View>
 
         <Text style={[styles.header2, { marginTop: 8 }]}>Drive Test Quality</Text>
@@ -98,7 +98,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
         <Text style={[styles.header2, { marginTop: 8 }]}>1. Table KPI 4G</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2 }}>
-          <Image src={`/chart-for-doc/${wid}-dtr-kpi.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image src={imageSrc(`/chart-for-doc/${wid}-dtr-kpi.jpg`)} style={{ width: 518, height: "auto" }} />
         </View>
       </Page>
 
@@ -130,19 +130,22 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
         <Text style={{ textAlign: "center", marginTop: 16, fontWeight: "bold" }}>RSRP</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2, marginTop: 4 }}>
-          <Image src={`/chart-for-doc/${wid}-covmo_site_rsrp.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image src={imageSrc(`/chart-for-doc/${wid}-covmo_site_rsrp.jpg`)} style={{ width: 518, height: "auto" }} />
         </View>
 
         <Text style={{ textAlign: "center", marginTop: 16, fontWeight: "bold" }}>SINR</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2, marginTop: 4 }}>
-          <Image src={`/chart-for-doc/${wid}-covmo_site_sinr.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image src={imageSrc(`/chart-for-doc/${wid}-covmo_site_sinr.jpg`)} style={{ width: 518, height: "auto" }} />
         </View>
 
         <Text style={{ textAlign: "center", marginTop: 16, fontWeight: "bold" }}>DL Throughput</Text>
 
         <View style={{ alignItems: "flex-start", marginLeft: -2, marginTop: 4 }}>
-          <Image src={`/chart-for-doc/${wid}-covmo_site_dl_throughput.jpg`} style={{ width: 518, height: "auto" }} />
+          <Image
+            src={imageSrc(`/chart-for-doc/${wid}-covmo_site_dl_throughput.jpg`)}
+            style={{ width: 518, height: "auto" }}
+          />
         </View>
       </Page>
 
@@ -183,7 +186,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l900_sector_1.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l900_sector_1.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             <Text
               style={{
@@ -216,7 +222,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l900_sector_2.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l900_sector_2.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -247,7 +256,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l900_sector_3.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l900_sector_3.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -288,7 +300,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l1800_sector_1.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l1800_sector_1.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             <Text
               style={{
@@ -321,7 +336,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l1800_sector_2.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l1800_sector_2.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -352,7 +370,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l1800_sector_3.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l1800_sector_3.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -403,7 +424,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l2100_sector_1.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l2100_sector_1.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             <Text
               style={{
@@ -436,7 +460,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l2100_sector_2.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l2100_sector_2.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -467,7 +494,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-covmo_l2100_sector_3.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-covmo_l2100_sector_3.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             {/* <Text
               style={{
@@ -518,7 +548,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_0.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_0.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -542,7 +575,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_30.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_30.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -566,7 +602,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_60.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_60.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -590,7 +629,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_90.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_90.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
         </View>
@@ -622,7 +664,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_120.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_120.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -646,7 +691,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_150.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_150.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -670,7 +718,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_180.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_180.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -694,7 +745,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_210.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_210.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
         </View>
@@ -726,7 +780,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_240.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_240.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -750,7 +807,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_270.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_270.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -774,7 +834,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_300.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_300.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -798,7 +861,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-panoramic_view_330.jpg`} style={{ width: 180, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-panoramic_view_330.jpg`)}
+                style={{ width: 180, height: "auto" }}
+              />
             </View>
           </View>
         </View>
@@ -850,7 +916,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_view.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_view.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -874,7 +943,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_azimuth.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_azimuth.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -898,7 +970,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_et.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_et.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -922,7 +997,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_mt.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_mt.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
         </View>
@@ -954,7 +1032,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_height.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_height.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -978,7 +1059,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_1_type.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_1_type.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1062,7 +1146,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_view.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_view.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1086,7 +1173,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_azimuth.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_azimuth.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1110,7 +1200,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_et.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_et.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1134,7 +1227,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_mt.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_mt.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
         </View>
@@ -1166,7 +1262,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_height.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_height.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1190,7 +1289,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_2_type.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_2_type.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1274,7 +1376,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_view.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_view.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1298,7 +1403,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_azimuth.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_azimuth.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1322,7 +1430,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_et.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_et.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1346,7 +1457,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_mt.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_mt.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
         </View>
@@ -1378,7 +1492,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_height.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_height.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1402,7 +1519,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_sectoral_3_type.jpg`} style={{ width: 180, height: 154 }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_sectoral_3_type.jpg`)}
+                style={{ width: 180, height: 154 }}
+              />
             </View>
           </View>
           <View
@@ -1477,7 +1597,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_tower.jpg`} style={{ width: 170, height: 250 }} />
+              <Image src={imageSrc(`/chart-for-doc/${wid}-data_site_tower.jpg`)} style={{ width: 170, height: 250 }} />
             </View>
           </View>
           <View
@@ -1501,7 +1621,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_rack.jpg`} style={{ width: 170, height: 250 }} />
+              <Image src={imageSrc(`/chart-for-doc/${wid}-data_site_rack.jpg`)} style={{ width: 170, height: 250 }} />
             </View>
           </View>
           <View
@@ -1525,7 +1645,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_gps.jpg`} style={{ width: 170, height: 250 }} />
+              <Image src={imageSrc(`/chart-for-doc/${wid}-data_site_gps.jpg`)} style={{ width: 170, height: 250 }} />
             </View>
             <View style={{ flexDirection: "column", padding: 2 }}>
               <Text
@@ -1579,7 +1699,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_ret.jpg`} style={{ width: 518, height: "auto" }} />
+              <Image src={imageSrc(`/chart-for-doc/${wid}-data_site_ret.jpg`)} style={{ width: 518, height: "auto" }} />
             </View>
           </View>
         </View>
@@ -1614,7 +1734,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               }}
             >
               <Image
-                src={`/chart-for-doc/${wid}-data_site_validasi_longlat_ge.jpg`}
+                src={imageSrc(`/chart-for-doc/${wid}-data_site_validasi_longlat_ge.jpg`)}
                 style={{ width: 518, height: "auto" }}
               />
             </View>
@@ -1637,7 +1757,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                   padding: 2,
                 }}
               >
-                <Image src={`/chart-for-doc/${wid}-data_site_gps.jpg`} style={{ width: 170, height: "auto" }} />
+                <Image
+                  src={imageSrc(`/chart-for-doc/${wid}-data_site_gps.jpg`)}
+                  style={{ width: 170, height: "auto" }}
+                />
               </View>
               <View style={{ flexDirection: "column", padding: 2 }}>
                 <Text
@@ -1682,7 +1805,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 }}
               >
                 <Image
-                  src={`/chart-for-doc/${wid}-data_site_validasi_longlat_ume.jpg`}
+                  src={imageSrc(`/chart-for-doc/${wid}-data_site_validasi_longlat_ume.jpg`)}
                   style={{ width: 345, height: "auto" }}
                 />
               </View>
@@ -1692,7 +1815,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                   padding: 2,
                 }}
               >
-                <Image src={`/chart-for-doc/${wid}-dtr-nodin.jpg`} style={{ width: 345, height: "auto" }} />
+                <Image src={imageSrc(`/chart-for-doc/${wid}-dtr-nodin.jpg`)} style={{ width: 345, height: "auto" }} />
               </View>
             </View>
           </View>
@@ -1728,7 +1851,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-dtr-antenna-config.jpg`} style={{ width: 600, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-dtr-antenna-config.jpg`)}
+                style={{ width: 600, height: "auto" }}
+              />
             </View>
             <View
               style={{
@@ -1737,7 +1863,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 marginTop: 6,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_acr.jpg`} style={{ width: 600, height: "auto" }} />
+              <Image src={imageSrc(`/chart-for-doc/${wid}-data_site_acr.jpg`)} style={{ width: 600, height: "auto" }} />
             </View>
           </View>
         </View>
@@ -1781,7 +1907,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_kabel_power_1.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_site_kabel_power_1.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
             <View
               style={{
@@ -1789,7 +1918,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
                 padding: 2,
               }}
             >
-              <Image src={`/chart-for-doc/${wid}-data_site_kabel_power_3.jpg`} style={{ width: 250, height: "auto" }} />
+              <Image
+                src={imageSrc(`/chart-for-doc/${wid}-data_site_kabel_power_3.jpg`)}
+                style={{ width: 250, height: "auto" }}
+              />
             </View>
           </View>
           <View
@@ -1798,7 +1930,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_kabel_power_2.jpg`} style={{ width: 250, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_kabel_power_2.jpg`)}
+              style={{ width: 250, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -1825,7 +1960,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_rru_l900_1.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l900_1.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -1833,7 +1971,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_rru_l900_2.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l900_2.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -1841,7 +1982,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_rru_l900_3.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l900_3.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
         </View>
         <Text style={[styles.header, { marginTop: 12 }]}>Bracket RRU L1800</Text>
@@ -1860,7 +2004,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_1.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_1.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1871,7 +2015,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_2.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_2.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1882,7 +2026,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_3.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l1800_3.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1904,7 +2048,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_1.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_1.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1915,7 +2059,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_2.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_2.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1926,7 +2070,7 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
             }}
           >
             <Image
-              src={`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_3.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_rru_l2100_3.jpg`)}
               style={{ width: 170, height: 200 }}
             />
           </View>
@@ -1955,7 +2099,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_jumper_antena_1.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_jumper_antena_1.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -1963,7 +2110,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_jumper_antena_2.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_jumper_antena_2.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -1971,7 +2121,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_jumper_antena_3.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_jumper_antena_3.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
         </View>
 
@@ -1990,7 +2143,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_antena_1.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_antena_1.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -1998,7 +2154,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_antena_2.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_antena_2.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
           <View
             style={{
@@ -2006,7 +2165,10 @@ export function SqacDtReportPdfPage({ item, wid, dataActivity, baseUrl }: SqacPd
               padding: 2,
             }}
           >
-            <Image src={`/chart-for-doc/${wid}-data_site_bracket_antena_3.jpg`} style={{ width: 170, height: 200 }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-data_site_bracket_antena_3.jpg`)}
+              style={{ width: 170, height: 200 }}
+            />
           </View>
         </View>
       </Page>

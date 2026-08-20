@@ -95,10 +95,16 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-table-clear-alarm-info-4g.jpg`} style={{ width: 520, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-table-clear-alarm-info-4g.jpg`)}
+              style={{ width: 520, height: "auto" }}
+            />
           </View>
           <View>
-            <Image src={`/chart-for-doc/${wid}-table-activity-log-4g.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-table-activity-log-4g.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -120,13 +126,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-availability.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-availability.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-rrc_setup.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-rrc_setup.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-erab_setup.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-erab_setup.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -148,13 +163,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-cssr.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-cssr.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-erab_drop.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-erab_drop.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-ifho.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-ifho.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -176,13 +200,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-csfb.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-csfb.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-cqi_average.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-cqi_average.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-se2.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-se2.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -204,16 +237,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-number_csfb.jpg`} style={{ width: 518, height: "auto" }} />
-          </View>
-          <View style={{ marginBottom: 8 }}>
             <Image
-              src={`/chart-for-doc/${wid}-chart-kpi-2g-fast_return_lte.jpg`}
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-number_csfb.jpg`)}
               style={{ width: 518, height: "auto" }}
             />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-payload_ca.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-fast_return_lte.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
+          </View>
+          <View style={{ marginBottom: 8 }}>
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-payload_ca.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -235,13 +274,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-availability.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-availability.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-sdsr.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-sdsr.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-hosr.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-hosr.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -263,13 +311,22 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-dcr.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-dcr.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-tbf_dl.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-tbf_dl.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
           <View style={{ marginBottom: 8 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-2g-tbf_comp.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-2g-tbf_comp.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -318,12 +375,12 @@ export function SqacClearAlarmPdfPage({
               >
                 <View style={{ marginRight: 10 }}>
                   <Image
-                    src={`/chart-for-doc/${wid}-chart-ta-4g-band-sow-${refKey}.jpg`}
+                    src={imageSrc(`/chart-for-doc/${wid}-chart-ta-4g-band-sow-${refKey}.jpg`)}
                     style={{ width: 340, height: "auto" }}
                   />
                 </View>
                 <View>
-                  <Image src={`/chart-for-doc/${wid}-map_ta.jpg`} style={{ width: 168, height: "auto" }} />
+                  <Image src={imageSrc(`/chart-for-doc/${wid}-map_ta.jpg`)} style={{ width: 168, height: "auto" }} />
                 </View>
               </View>
             </View>
@@ -376,12 +433,12 @@ export function SqacClearAlarmPdfPage({
                 >
                   <View style={{ marginRight: 10 }}>
                     <Image
-                      src={`/chart-for-doc/${wid}-chart-ta-4g-band-not-sow-${refKey}.jpg`}
+                      src={imageSrc(`/chart-for-doc/${wid}-chart-ta-4g-band-not-sow-${refKey}.jpg`)}
                       style={{ width: 340, height: "auto" }}
                     />
                   </View>
                   <View>
-                    <Image src={`/chart-for-doc/${wid}-map_ta.jpg`} style={{ width: 168, height: "auto" }} />
+                    <Image src={imageSrc(`/chart-for-doc/${wid}-map_ta.jpg`)} style={{ width: 168, height: "auto" }} />
                   </View>
                 </View>
               </View>
@@ -404,7 +461,12 @@ export function SqacClearAlarmPdfPage({
         const siteidTiers = [...new Set(dataGetSqacFirstTier.map((t) => t.siteid_tier))];
         const pages: Array<{
           siteidTier: string;
-          charts: Array<{ band: string; cellId: string; refKey: string; label: string }>;
+          charts: Array<{
+            band: string;
+            cellId: string;
+            refKey: string;
+            label: string;
+          }>;
         }> = [];
 
         siteidTiers.forEach((siteidTier) => {
@@ -432,7 +494,12 @@ export function SqacClearAlarmPdfPage({
                 targetPage = { siteidTier: tierKey, charts: [] };
                 pages.push(targetPage);
               }
-              targetPage.charts.push({ band, cellId: cellIdStr, refKey, label });
+              targetPage.charts.push({
+                band,
+                cellId: cellIdStr,
+                refKey,
+                label,
+              });
             });
           });
         });
@@ -444,12 +511,18 @@ export function SqacClearAlarmPdfPage({
               <Image src={LOGO_TELKOMSEL} style={styles.logo} />
             </View>
             <Text style={styles.header}>TA 1st Tier</Text>
-            <View style={{ marginTop: 8, alignItems: "flex-start", flexDirection: "column" }}>
+            <View
+              style={{
+                marginTop: 8,
+                alignItems: "flex-start",
+                flexDirection: "column",
+              }}
+            >
               {page.charts.map((chart) => (
                 <View key={chart.cellId} style={{ marginRight: 10, marginBottom: 12 }}>
                   <Text style={styles.subHeader}>{chart.label}</Text>
                   <Image
-                    src={`/chart-for-doc/${wid}-chart-ta-4g-first-tier-${chart.refKey}.jpg`}
+                    src={imageSrc(`/chart-for-doc/${wid}-chart-ta-4g-first-tier-${chart.refKey}.jpg`)}
                     style={{ width: 518, height: "auto" }}
                   />
                 </View>
@@ -500,7 +573,10 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 0 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-ni_carrier.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-ni_carrier.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
 
@@ -514,7 +590,10 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 0 }}>
-            <Image src={`/chart-for-doc/${wid}-chart-kpi-4g-rssi.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image
+              src={imageSrc(`/chart-for-doc/${wid}-chart-kpi-4g-rssi.jpg`)}
+              style={{ width: 518, height: "auto" }}
+            />
           </View>
         </View>
       </Page>
@@ -536,7 +615,7 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 0 }}>
-            <Image src={`/chart-for-doc/${wid}-sd_to_tch.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image src={imageSrc(`/chart-for-doc/${wid}-sd_to_tch.jpg`)} style={{ width: 518, height: "auto" }} />
           </View>
         </View>
 
@@ -550,7 +629,7 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 0 }}>
-            <Image src={`/chart-for-doc/${wid}-packet_loss.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image src={imageSrc(`/chart-for-doc/${wid}-packet_loss.jpg`)} style={{ width: 518, height: "auto" }} />
           </View>
         </View>
 
@@ -564,7 +643,7 @@ export function SqacClearAlarmPdfPage({
           }}
         >
           <View style={{ marginBottom: 0 }}>
-            <Image src={`/chart-for-doc/${wid}-active_alarm.jpg`} style={{ width: 518, height: "auto" }} />
+            <Image src={imageSrc(`/chart-for-doc/${wid}-active_alarm.jpg`)} style={{ width: 518, height: "auto" }} />
           </View>
         </View>
       </Page>
