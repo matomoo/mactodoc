@@ -10,7 +10,8 @@
       "Bash(mv src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx.tmp src/app/\\\\\\(project\\\\\\)/mdoc/displays/doc-4g/kpi-statistic/\\\\[id\\\\]/SqacKpiPdfPage.tsx)",
       "Bash(git add *)",
       "Bash(git commit -m 'fix: use absolute URLs for PDF images \\(Docker compatibility\\) *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ],
     "additionalDirectories": [
       "/Users/mato/dev/Projects/macto/mactodoc/src/app/(project)/mdoc/api/v1/sqac-first-tier",

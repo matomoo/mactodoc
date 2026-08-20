@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-import { Geist, Inter } from "next/font/google";
-
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -20,12 +18,6 @@ import { cn } from "@/lib/utils";
 
 import { Providers } from "./providers";
 
-// Geist - use Google font (works offline after first load)
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
-
-// Inter - use Google font
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: APP_CONFIG.meta.title,
   description: APP_CONFIG.meta.description,
@@ -37,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html
       lang="en"
-      className={cn(theme_mode, "font-sans", geist.variable)}
+      className={cn(theme_mode, "font-sans")}
       data-theme-preset={theme_preset}
       data-content-layout={content_layout}
       data-navbar-style={navbar_style}
@@ -49,7 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {/* Applies theme and layout preferences on load to avoid flicker and unnecessary server rerenders. */}
         <ThemeBootScript />
       </head>
-      <body className={`${inter.className} ${geist.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen antialiased font-sans">
         <AuthProvider>
           <PreferencesStoreProvider
             themeMode={theme_mode}
